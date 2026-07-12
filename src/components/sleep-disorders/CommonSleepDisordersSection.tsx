@@ -81,7 +81,7 @@ export default function CommonSleepDisordersSection() {
           className="relative w-full overflow-hidden min-w-0"
           style={{
             minHeight: "430px",
-            background: `linear-gradient(rgba(255,255,255,0.84), rgba(255,255,255,0.84)), url("/assets/section8/card-grid-bg.jpg")`,
+            background: `linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)), url("/assets/section8/card-grid-bg.jpg")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
