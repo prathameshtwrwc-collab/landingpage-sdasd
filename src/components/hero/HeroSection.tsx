@@ -260,12 +260,19 @@ export default function HeroSection() {
             >
               Take Test Now
             </button>
-            <button
+<button
               type="button"
-              className="flex items-center justify-center bg-[#FF9700] hover:bg-[#e68a00] text-white text-[14px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3A34A3] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer"
+              className="flex items-center justify-center bg-[#FF9700] hover:bg-[#e68a00] text-white text-[14px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer"
               style={{ fontWeight: 600, borderRadius: 0 }}
             >
               Learn About Sleep
+            </button>
+            <button
+              type="button"
+              className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[14px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer"
+              style={{ fontWeight: 600, borderRadius: 0 }}
+            >
+              Consult a Sleep Specialist
             </button>
             <button
               type="button"
