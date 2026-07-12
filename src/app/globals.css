@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+:root {
+  --hero-orange: #FF6A00;
+  --hero-orange-button: #FF9900;
+  --hero-indigo: #34309A;
+  --hero-indigo-dark: #29257F;
+  --hero-purple-strip: #363184;
+  --hero-purple-strip-dark: #28246F;
+  --hero-yellow: #FFD21A;
+  --hero-white: #FFFFFF;
+  --hero-soft-blue: #EAF7FC;
+  --hero-cloud-blue: #DDF1F8;
+  --hero-text-dark: #171717;
+  --hero-divider-yellow: #F4C623;
+  --hero-cta-purple: #3833A3;
+}
+
+/* Global responsive foundation — per task + navbar smooth scrolling */
+html {
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Fixed navbar offset for anchor links */
+section[id] {
+  scroll-margin-top: 84px;
+}
+
+@media (max-width: 767px) {
+  section[id] {
+    scroll-margin-top: 76px;
+  }
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  overflow-x: clip;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  font-family: "Poppins", var(--font-poppins), sans-serif;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+}
+
+/* Prevent grid/flex children overflow */
+* {
+  min-width: 0;
+}
+
+/* But restore for inline elements where needed via utility */
+button,
+a {
+  min-width: 0;
+}
+
+/* Ensure flat rectangular buttons have no default radius */
+button {
+  border-radius: 0;
+}
+
+/* Mobile section defaults enforced via component classes but safeguard */
+@media (max-width: 767px) {
+  section {
+    /* keep overflow hidden only where needed, but ensure padding defaults can be overridden */
+  }
+}
+
+@media (max-width: 389px) {
+  /* Below 390px padding tighter — components use 20px default, override to 16px via media helpers where needed */
+}
