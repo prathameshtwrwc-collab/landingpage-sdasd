@@ -6,42 +6,42 @@ const disorders = [
   {
     title: "Insomnia",
     image: "/assets/section8/Insomnia.jpg",
-    subtitle: "Placeholder subtitle for insomnia",
+    subtitle: "Difficulty falling asleep, staying asleep, or waking too early despite having the opportunity to sleep.",
   },
   {
-    title: "Sleep Apnea",
+    title: "Obstructive Sleep Apnea (OSA)",
     image: "/assets/section8/Sleep-Apnea.jpg",
-    subtitle: "Placeholder subtitle for sleep apnea",
+    subtitle: "Repeated interruptions in breathing caused by temporary airway collapse during sleep.",
   },
   {
-    title: "Restless Legs Syndrome",
+    title: "Restless Legs Syndrome (RLS)",
     image: "/assets/section8/Restless-Legs-Syndrome.jpg",
-    subtitle: "Placeholder subtitle for RLS",
+    subtitle: "An uncomfortable urge to move the legs, often worsening during the evening and night.",
   },
   {
     title: "Circadian Rhythm Disorders",
     image: "/assets/section8/Circadian-Rhythm-Disorders.jpg",
-    subtitle: "Placeholder subtitle for circadian disorders",
+    subtitle: "Disruptions in the body's natural clock, including shift-work disorder, jet lag, delayed sleep phase, and advanced sleep phase.",
   },
   {
     title: "Narcolepsy",
     image: "/assets/section8/Narcolepsy.jpg",
-    subtitle: "Placeholder subtitle for narcolepsy",
+    subtitle: "A neurological condition characterized by excessive daytime sleepiness and sudden sleep episodes.",
   },
   {
     title: "Hypersomnia",
     image: "/assets/section8/Hypersomnia.jpg",
-    subtitle: "Placeholder subtitle for hypersomnia",
+    subtitle: "Persistent excessive sleepiness despite adequate sleep duration.",
   },
   {
     title: "Parasomnias",
     image: "/assets/section8/Parasomnias.jpg",
-    subtitle: "Placeholder subtitle for parasomnias",
+    subtitle: "Sleepwalking, sleep talking, nightmares, night terrors, and REM behaviour disorders.",
   },
   {
     title: "Bruxism",
     image: "/assets/section8/Bruxism.jpg",
-    subtitle: "Placeholder subtitle for bruxism",
+    subtitle: "Grinding or clenching of teeth during sleep.",
   },
 ];
 
@@ -74,7 +74,7 @@ export default function CommonSleepDisordersSection() {
           className="m-0 mx-auto text-[14px] leading-[1.6] md:text-[14px] lg:text-[15px] font-medium text-center text-[#3B35A3]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, maxWidth: "900px", marginBottom: "24px" }}
         >
-          Sleep disorders can influence sleep quality, daytime functioning, productivity, emotional well-being, and long-term health.
+          Sleep disorders can affect sleep quality, daytime functioning, productivity, emotional well-being, and long-term health.
         </p>
 
         <div
@@ -197,7 +197,7 @@ export default function CommonSleepDisordersSection() {
 
         <div className="flex items-center justify-center text-center bg-[rgba(255,255,255,0.92)] border-[1.5px] border-[#E4B93D] rounded-none mx-auto mt-[18px] px-[14px] md:px-[20px] lg:px-[24px] py-[12px] md:py-[10px] lg:py-[10px] min-h-[48px] w-full md:w-[calc(100%-80px)] lg:w-[calc(100%-120px)] min-w-0" style={{ borderRadius: 0, width: "100%", fontSize: "14px", lineHeight: "1.45", padding: "12px 14px" }}>
           <p className="m-0 text-[14px] leading-[1.45] md:text-[14px] lg:text-[15px] font-semibold text-[#171717] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
-            Understanding the signs is the first step toward better sleep and better outcomes.
+            Not all sleep problems look the same. Recognizing the signs is the first step toward improvement.
           </p>
         </div>
       </div>
