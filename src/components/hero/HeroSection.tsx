@@ -1,19 +1,39 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+
+const bgImages = [
+  "/assets/hero/hero-bg.png",
+  "/assets/hero/bg2.png",
+  "/assets/hero/bg3.png",
+  "/assets/hero/bg4.png",
+  "/assets/hero/bg5.png",
+  "/assets/hero/bg6.png",
+];
 
 export default function HeroSection() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const next = useCallback(() => setCurrentSlide((prev) => (prev + 1) % bgImages.length), []);
+  const prev = useCallback(() => setCurrentSlide((prev) => (prev - 1 + bgImages.length) % bgImages.length), []);
+
   useEffect(() => {
-    const link = document.createElement("link");
-    link.rel = "preload";
-    link.as = "image";
-    link.href = "/assets/hero/hero-bg.png";
-    link.setAttribute("fetchpriority", "high");
-    document.head.appendChild(link);
+    const timer = setInterval(next, 5000);
+    return () => clearInterval(timer);
+  }, [next]);
+
+  useEffect(() => {
+    bgImages.forEach((src) => {
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "image";
+      link.href = src;
+      document.head.appendChild(link);
+    });
     return () => {
-      try {
-        document.head.removeChild(link);
-      } catch {}
+      document.querySelectorAll('link[rel="preload"][as="image"]').forEach((el) => {
+        try { document.head.removeChild(el); } catch {}
+      });
     };
   }, []);
 
@@ -29,7 +49,7 @@ export default function HeroSection() {
             @media (min-width: 768px) and (max-width: 1023px) {
               .hero-section { min-height: 620px !important; }
               .hero-inner { min-height: 620px !important; padding: 88px 32px 30px !important; }
-              .hero-content { width: 500px !important; max-width: 56% !important; padding-bottom: 24px !important; }
+              .hero-content { width: 500px !important; max-width: 56% !important; min-width: 0 !important; padding-bottom: 24px !important; }
               .hero-heading-orange { font-size: clamp(46px, 5.3vw, 56px) !important; }
               .hero-heading-indigo { font-size: clamp(42px, 4.9vw, 52px) !important; }
               .hero-benefits { margin-top: 34px !important; }
@@ -54,7 +74,7 @@ export default function HeroSection() {
               .hero-heading-orange { font-size: clamp(40px, 10.3vw, 48px) !important; }
               .hero-heading-indigo { font-size: clamp(36px, 9.3vw, 44px) !important; margin-top: 10px !important; }
               .hero-line-chronotype { white-space: normal !important; }
-              .hero-mobile-visual { display: block !important; width: 100% !important; aspect-ratio: 16/10 !important; margin-top: 20px !important; background-image: url(\"/assets/hero/hero-bg.png\") !important; background-repeat: no-repeat !important; background-size: cover !important; background-position: 68% center !important; }
+              .hero-mobile-visual { display: block !important; width: 100% !important; aspect-ratio: 16/10 !important; margin-top: 20px !important; background-repeat: no-repeat !important; background-size: cover !important; background-position: 68% center !important; }
               .hero-benefits { width: 100% !important; max-width: none !important; margin-top: 24px !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 6px !important; }
               .hero-actions { width: 100% !important; max-width: none !important; margin-top: 24px !important; grid-template-columns: 1fr !important; gap: 9px !important; }
               .hero-actions button { height: 46px !important; font-size: 14px !important; }
@@ -89,13 +109,9 @@ export default function HeroSection() {
               font-weight: 600;
               letter-spacing: -0.043em;
             }
-            .hero-line {
-              display: block;
-            }
+            .hero-line { display: block; }
             @media (min-width: 1024px) {
-              .hero-line-chronotype {
-                white-space: nowrap;
-              }
+              .hero-line-chronotype { white-space: nowrap; }
             }
             .hero-benefits {
               width: 100%;
@@ -172,21 +188,68 @@ export default function HeroSection() {
                 grid-column: 1 / -1;
               }
             }
+            .hero-bg-track {
+              display: flex;
+              height: 100%;
+              transition: transform 0.7s ease-in-out;
+              will-change: transform;
+            }
+            .hero-bg-slide {
+              width: 100%;
+              height: 100%;
+              flex: 0 0 100%;
+              background-repeat: no-repeat;
+              background-size: cover;
+              background-position: center top;
+            }
+            .hero-arrow {
+              position: absolute;
+              top: 50%;
+              transform: translateY(-50%);
+              z-index: 3;
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              background: rgba(0,0,0,0.18);
+              backdrop-filter: blur(4px);
+              border: none;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+              transition: background 0.2s, transform 0.2s;
+            }
+            .hero-arrow:hover {
+              background: rgba(0,0,0,0.3);
+              transform: translateY(-50%) scale(1.08);
+            }
+            .hero-arrow:active {
+              transform: translateY(-50%) scale(0.95);
+            }
+            @media (max-width: 767px) {
+              .hero-arrow {
+                width: 36px;
+                height: 36px;
+              }
+            }
           `,
         }}
       />
 
-      <div
-        className="hidden md:block absolute inset-0 z-0 pointer-events-none select-none"
-        aria-hidden="true"
-        style={{
-          backgroundImage: `url("/assets/hero/hero-bg.png")`,
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-          backgroundPosition: "center top",
-          backgroundColor: "#eef9fd",
-        }}
-      />
+      <div className="hidden md:block absolute inset-0 z-0 pointer-events-none select-none" aria-hidden="true">
+        <div
+          className="hero-bg-track"
+          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+        >
+          {bgImages.map((src, idx) => (
+            <div
+              key={idx}
+              className="hero-bg-slide"
+              style={{ backgroundImage: `url("${src}")`, backgroundColor: "#eef9fd" }}
+            />
+          ))}
+        </div>
+      </div>
 
       <div
         className="hidden md:block absolute inset-0 z-[1] pointer-events-none"
@@ -195,6 +258,17 @@ export default function HeroSection() {
           background: `linear-gradient(90deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.91) 27%, rgba(255,255,255,0.48) 43%, rgba(255,255,255,0.08) 58%, rgba(255,255,255,0) 70%)`,
         }}
       />
+
+      <button type="button" aria-label="Previous slide" onClick={prev} className="hero-arrow left-arrow hidden md:flex" style={{ left: "12px" }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+      <button type="button" aria-label="Next slide" onClick={next} className="hero-arrow right-arrow hidden md:flex" style={{ right: "12px" }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </button>
 
       <div className="hero-inner relative z-[2] w-full max-w-[1440px] mx-auto min-w-0">
         <div className="hero-content">
@@ -216,14 +290,10 @@ export default function HeroSection() {
                   src="/assets/hero/benefit-1.png"
                   alt="Person experiencing restorative sleep"
                   draggable={false}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                 />
               </div>
-              <p className="hero-benefit-label" style={{ color: "#FF9700" }}>
-                Better Sleep
-              </p>
+              <p className="hero-benefit-label" style={{ color: "#FF9700" }}>Better Sleep</p>
             </div>
             <div className="hero-benefit">
               <div className="hero-benefit-media">
@@ -231,14 +301,10 @@ export default function HeroSection() {
                   src="/assets/hero/benefit-2.png"
                   alt="Person feeling energized"
                   draggable={false}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                 />
               </div>
-              <p className="hero-benefit-label" style={{ color: "#37329D" }}>
-                Better Energy
-              </p>
+              <p className="hero-benefit-label" style={{ color: "#37329D" }}>Better Energy</p>
             </div>
             <div className="hero-benefit">
               <div className="hero-benefit-media">
@@ -246,43 +312,51 @@ export default function HeroSection() {
                   src="/assets/hero/benefit-3.png"
                   alt="Person enjoying an active healthy life"
                   draggable={false}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                 />
               </div>
-              <p className="hero-benefit-label" style={{ color: "#FF9700" }}>
-                Better Life
-              </p>
+              <p className="hero-benefit-label" style={{ color: "#FF9700" }}>Better Life</p>
             </div>
           </div>
 
           <div className="hero-actions">
-            <button
-              type="button"
-              className="flex items-center justify-center bg-[#3A34A3] hover:bg-[#322e8e] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer"
-              style={{ fontWeight: 600, borderRadius: 0 }}
-            >
+            <button type="button" className="flex items-center justify-center bg-[#3A34A3] hover:bg-[#322e8e] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
               Take Test Now
             </button>
-            <button
-              type="button"
-              className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer"
-              style={{ fontWeight: 600, borderRadius: 0 }}
-            >
+            <button type="button" className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
               Learn About Sleep
             </button>
-            <button
-              type="button"
-              className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer"
-              style={{ fontWeight: 600, borderRadius: 0 }}
-            >
+            <button type="button" className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
               Consult a Sleep Specialist
             </button>
           </div>
         </div>
 
-        <div className="block md:hidden w-full mt-[20px] mb-[8px] overflow-hidden" aria-hidden="true" style={{ aspectRatio: "16/10", backgroundImage: "url(\"/assets/hero/hero-bg.png\")", backgroundRepeat: "no-repeat", backgroundSize: "cover", backgroundPosition: "68% center" }} />
+        <div className="block md:hidden w-full overflow-hidden hero-mobile-visual" aria-hidden="true" style={{ marginTop: "20px", marginBottom: "8px", aspectRatio: "16/10" }}>
+          <div
+            className="flex h-full"
+            style={{
+              width: `${bgImages.length * 100}%`,
+              transform: `translateX(-${(currentSlide / bgImages.length) * 100}%)`,
+              transition: "transform 0.7s ease-in-out",
+              willChange: "transform",
+            }}
+          >
+            {bgImages.map((src, idx) => (
+              <div
+                key={idx}
+                style={{
+                  width: `${100 / bgImages.length}%`,
+                  height: "100%",
+                  backgroundImage: `url("${src}")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundSize: "cover",
+                  backgroundPosition: "68% center",
+                }}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
