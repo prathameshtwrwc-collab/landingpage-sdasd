@@ -47,11 +47,15 @@ const disorders = [
 
 export default function CommonSleepDisordersSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [mobileIndex, setMobileIndex] = useState(0);
 
-  const prev = () => setCurrentIndex((prev) => (prev === 0 ? disorders.length - 1 : prev - 1));
-  const next = () => setCurrentIndex((prev) => (prev === disorders.length - 1 ? 0 : prev + 1));
+  const next = () => setCurrentIndex((prev) => (prev + 2 >= disorders.length ? 0 : prev + 2));
+  const prev = () => setCurrentIndex((prev) => (prev - 2 < 0 ? disorders.length - 2 : prev - 2));
 
-  const current = disorders[currentIndex];
+  const mobileNext = () => setMobileIndex((prev) => (prev + 1 >= disorders.length ? 0 : prev + 1));
+  const mobilePrev = () => setMobileIndex((prev) => (prev - 1 < 0 ? disorders.length - 1 : prev - 1));
+
+  const currentMobile = disorders[mobileIndex];
 
   return (
     <section
@@ -77,52 +81,112 @@ export default function CommonSleepDisordersSection() {
           Sleep disorders can affect sleep quality, daytime functioning, productivity, emotional well-being, and long-term health.
         </p>
 
-        <div
-          className="relative w-full overflow-hidden min-w-0"
-          style={{
-            minHeight: "430px",
-            background: `linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)), url("/assets/section8/card-grid-bg.jpg")`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div className="hidden md:grid md:grid-cols-[1fr_2px_1fr] gap-[20px] lg:gap-[28px] items-start p-[36px_52px_28px] lg:p-[48px_70px_32px] w-full min-w-0">
-            <div className="w-full flex flex-col items-start min-w-0">
-              <div className="w-full h-[240px] lg:h-[280px] overflow-hidden bg-[#F4F4F4] min-w-0">
-                <img
-                  src={current.image}
-                  alt={`${current.title} illustration`}
-                  className="w-full h-full block object-cover"
-                  draggable={false}
-                  style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0, boxShadow: "none", display: "block" }}
-                />
+          <div
+            className="relative w-full overflow-hidden min-w-0"
+            style={{
+              minHeight: "430px",
+              background: `linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)), url("/assets/section8/card-grid-bg.jpg")`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
+            <style
+              dangerouslySetInnerHTML={{
+                __html: `
+                  .disorders-slide-container {
+                    overflow: hidden;
+                    width: 100%;
+                  }
+                  .disorders-slide-track {
+                    display: flex;
+                    transition: transform 0.4s ease-in-out;
+                    will-change: transform;
+                  }
+                  .disorders-slide-pair {
+                    width: 100%;
+                    flex: 0 0 100%;
+                    display: grid;
+                    grid-template-columns: 1fr 2px 1fr;
+                    gap: 0;
+                    align-items: start;
+                    padding: 36px 52px 28px;
+                    min-width: 0;
+                  }
+                  .disorders-slide-card {
+                    width: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    min-width: 0;
+                  }
+                  .disorders-slide-card-image {
+                    width: 100%;
+                    height: 240px;
+                    overflow: hidden;
+                    background: #F4F4F4;
+                    min-width: 0;
+                  }
+                  .disorders-slide-divider {
+                    width: 2px;
+                    height: 320px;
+                    background: #F59A00;
+                    align-self: center;
+                  }
+                  @media(min-width:1024px){
+                    .disorders-slide-card-image { height: 280px; }
+                    .disorders-slide-pair { padding: 48px 70px 32px; }
+                    .disorders-slide-divider { height: 350px; }
+                  }
+                `,
+              }}
+            />
+
+            <div className="hidden md:block disorders-slide-container">
+              <div
+                className="disorders-slide-track"
+                style={{ transform: `translateX(-${(currentIndex / 2) * 100}%)` }}
+              >
+                {[0, 2, 4, 6].map((pairStart) => (
+                  <div key={pairStart} className="disorders-slide-pair">
+                    <div className="disorders-slide-card">
+                      <div className="disorders-slide-card-image">
+                        <img
+                          src={disorders[pairStart].image}
+                          alt={`${disorders[pairStart].title} illustration`}
+                          className="w-full h-full block object-cover"
+                          draggable={false}
+                          style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0, boxShadow: "none", display: "block" }}
+                        />
+                      </div>
+                      <h3 className="text-[18px] lg:text-[20px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
+                        {disorders[pairStart].title}
+                      </h3>
+                      <p className="text-[14px] lg:text-[15px] leading-[1.45] font-normal text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginTop: "5px", maxWidth: "440px" }}>
+                        {disorders[pairStart].subtitle}
+                      </p>
+                    </div>
+                    <div className="disorders-slide-divider" aria-hidden="true" />
+                    <div className="disorders-slide-card">
+                      <div className="disorders-slide-card-image">
+                        <img
+                          src={disorders[pairStart + 1].image}
+                          alt={`${disorders[pairStart + 1].title} illustration`}
+                          className="w-full h-full block object-cover"
+                          draggable={false}
+                          style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0, boxShadow: "none", display: "block" }}
+                        />
+                      </div>
+                      <h3 className="text-[18px] lg:text-[20px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
+                        {disorders[pairStart + 1].title}
+                      </h3>
+                      <p className="text-[14px] lg:text-[15px] leading-[1.45] font-normal text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginTop: "5px", maxWidth: "440px" }}>
+                        {disorders[pairStart + 1].subtitle}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <h3 className="text-[18px] lg:text-[20px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
-                {current.title}
-              </h3>
-              <p className="text-[14px] lg:text-[15px] leading-[1.45] font-normal text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginTop: "5px", maxWidth: "440px" }}>
-                {current.subtitle}
-              </p>
             </div>
-            <div className="w-[2px] h-[320px] bg-[#F59A00] self-center" aria-hidden="true" />
-            <div className="w-full flex flex-col items-start min-w-0">
-              <div className="w-full h-[240px] lg:h-[280px] overflow-hidden bg-[#F4F4F4] min-w-0">
-                <img
-                  src={disorders[(currentIndex + 1) % disorders.length].image}
-                  alt={`${disorders[(currentIndex + 1) % disorders.length].title} illustration`}
-                  className="w-full h-full block object-cover"
-                  draggable={false}
-                  style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0, boxShadow: "none", display: "block" }}
-                />
-              </div>
-              <h3 className="text-[18px] lg:text-[20px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
-                {disorders[(currentIndex + 1) % disorders.length].title}
-              </h3>
-              <p className="text-[14px] lg:text-[15px] leading-[1.45] font-normal text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginTop: "5px", maxWidth: "440px" }}>
-                {disorders[(currentIndex + 1) % disorders.length].subtitle}
-              </p>
-            </div>
-          </div>
 
           <button
             type="button"
@@ -151,18 +215,18 @@ export default function CommonSleepDisordersSection() {
             <div className="w-full flex flex-col items-start min-w-0">
               <div className="w-full overflow-hidden bg-[#F4F4F4] min-w-0" style={{ aspectRatio: "4 / 3", height: "auto" }}>
                 <img
-                  src={current.image}
-                  alt={`${current.title} illustration`}
+                  src={currentMobile.image}
+                  alt={`${currentMobile.title} illustration`}
                   className="w-full h-full block object-cover"
                   draggable={false}
                   style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0, aspectRatio: "4 / 3", height: "auto" }}
                 />
               </div>
               <h3 className="text-[18px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
-                {current.title}
+                {currentMobile.title}
               </h3>
               <p className="text-[14px] leading-[1.45] font-normal text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginTop: "5px" }}>
-                {current.subtitle}
+                {currentMobile.subtitle}
               </p>
             </div>
 
@@ -172,7 +236,7 @@ export default function CommonSleepDisordersSection() {
               <button
                 type="button"
                 aria-label="Previous sleep disorder"
-                onClick={prev}
+                onClick={mobilePrev}
                 className="flex w-[42px] h-[42px] rounded-full bg-[#6F6F6F] text-white border-none items-center justify-center focus:outline-none cursor-pointer"
                 style={{ borderRadius: "9999px", background: "#6F6F6F", boxShadow: "0 2px 6px rgba(0,0,0,0.12)", width: "42px", height: "42px" }}
               >
@@ -183,7 +247,7 @@ export default function CommonSleepDisordersSection() {
               <button
                 type="button"
                 aria-label="Next sleep disorder"
-                onClick={next}
+                onClick={mobileNext}
                 className="flex w-[42px] h-[42px] rounded-full bg-[#6F6F6F] text-white border-none items-center justify-center focus:outline-none cursor-pointer"
                 style={{ borderRadius: "9999px", background: "#6F6F6F", boxShadow: "0 2px 6px rgba(0,0,0,0.12)", width: "42px", height: "42px" }}
               >
