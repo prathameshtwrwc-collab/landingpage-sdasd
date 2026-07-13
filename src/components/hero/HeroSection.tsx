@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 
 const bgImages = [
   "/assets/hero/hero-bg.png",
@@ -11,19 +11,60 @@ const bgImages = [
   "/assets/hero/bg6.png",
 ];
 
+const totalSlides = bgImages.length;
+const slideImages = [...bgImages, bgImages[0]];
+const totalSlideItems = slideImages.length;
+
 export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [transitionEnabled, setTransitionEnabled] = useState(true);
+  const isTransitioning = useRef(false);
 
-  const next = useCallback(() => setCurrentSlide((prev) => (prev + 1) % bgImages.length), []);
-  const prev = useCallback(() => setCurrentSlide((prev) => (prev - 1 + bgImages.length) % bgImages.length), []);
+  const next = useCallback(() => {
+    if (isTransitioning.current) return;
+    isTransitioning.current = true;
+    setTransitionEnabled(true);
+    setCurrentSlide((prev) => {
+      const nextIdx = prev + 1;
+      if (nextIdx >= totalSlideItems - 1) {
+        setTimeout(() => {
+          setTransitionEnabled(false);
+          setCurrentSlide(0);
+          isTransitioning.current = false;
+        }, 700);
+        return nextIdx;
+      }
+      setTimeout(() => { isTransitioning.current = false; }, 700);
+      return nextIdx;
+    });
+  }, []);
+
+  const prev = useCallback(() => {
+    if (isTransitioning.current) return;
+    isTransitioning.current = true;
+    setTransitionEnabled(true);
+    setCurrentSlide((prev) => {
+      const prevIdx = prev - 1;
+      if (prevIdx < 0) {
+        setTimeout(() => {
+          setTransitionEnabled(false);
+          setCurrentSlide(totalSlides - 1);
+          isTransitioning.current = false;
+        }, 700);
+        return totalSlideItems - 1;
+      }
+      setTimeout(() => { isTransitioning.current = false; }, 700);
+      return prevIdx;
+    });
+  }, []);
 
   useEffect(() => {
-    const timer = setInterval(next, 5000);
+    const timer = setInterval(next, 8000);
     return () => clearInterval(timer);
   }, [next]);
 
   useEffect(() => {
-    bgImages.forEach((src) => {
+    slideImages.forEach((src) => {
       const link = document.createElement("link");
       link.rel = "preload";
       link.as = "image";
@@ -239,9 +280,13 @@ export default function HeroSection() {
       <div className="hidden md:block absolute inset-0 z-0 pointer-events-none select-none" aria-hidden="true">
         <div
           className="hero-bg-track"
-          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+          style={{
+            transform: `translateX(-${currentSlide * 100}%)`,
+            transition: transitionEnabled ? "transform 0.7s ease-in-out" : "none",
+            willChange: "transform",
+          }}
         >
-          {bgImages.map((src, idx) => (
+          {slideImages.map((src, idx) => (
             <div
               key={idx}
               className="hero-bg-slide"
@@ -336,17 +381,17 @@ export default function HeroSection() {
           <div
             className="flex h-full"
             style={{
-              width: `${bgImages.length * 100}%`,
-              transform: `translateX(-${(currentSlide / bgImages.length) * 100}%)`,
-              transition: "transform 0.7s ease-in-out",
+              width: `${slideImages.length * 100}%`,
+              transform: `translateX(-${(currentSlide / slideImages.length) * 100}%)`,
+              transition: transitionEnabled ? "transform 0.7s ease-in-out" : "none",
               willChange: "transform",
             }}
           >
-            {bgImages.map((src, idx) => (
+            {slideImages.map((src, idx) => (
               <div
                 key={idx}
                 style={{
-                  width: `${100 / bgImages.length}%`,
+                  width: `${100 / slideImages.length}%`,
                   height: "100%",
                   backgroundImage: `url("${src}")`,
                   backgroundRepeat: "no-repeat",
