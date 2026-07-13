@@ -55,8 +55,6 @@ export default function CommonSleepDisordersSection() {
   const mobileNext = () => setMobileIndex((prev) => (prev + 1 >= disorders.length ? 0 : prev + 1));
   const mobilePrev = () => setMobileIndex((prev) => (prev - 1 < 0 ? disorders.length - 1 : prev - 1));
 
-  const currentMobile = disorders[mobileIndex];
-
   return (
     <section
       id="common-sleep-disorders"
@@ -131,6 +129,22 @@ export default function CommonSleepDisordersSection() {
                     height: 320px;
                     background: #F59A00;
                     align-self: center;
+                  }
+                  .disorders-mobile-card {
+                    width: 100%;
+                    flex: 0 0 100%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    padding: 20px;
+                    min-width: 0;
+                  }
+                  .disorders-mobile-card-image {
+                    width: 100%;
+                    overflow: hidden;
+                    background: #F4F4F4;
+                    min-width: 0;
+                    aspect-ratio: 4 / 3;
                   }
                   @media(min-width:1024px){
                     .disorders-slide-card-image { height: 280px; }
@@ -211,28 +225,39 @@ export default function CommonSleepDisordersSection() {
             </svg>
           </button>
 
-          <div className="block md:hidden w-full p-[20px] min-w-0">
-            <div className="w-full flex flex-col items-start min-w-0">
-              <div className="w-full overflow-hidden bg-[#F4F4F4] min-w-0" style={{ aspectRatio: "4 / 3", height: "auto" }}>
-                <img
-                  src={currentMobile.image}
-                  alt={`${currentMobile.title} illustration`}
-                  className="w-full h-full block object-cover"
-                  draggable={false}
-                  style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0, aspectRatio: "4 / 3", height: "auto" }}
-                />
+          <div className="block md:hidden w-full min-w-0">
+            <div className="w-full overflow-hidden min-w-0">
+              <div
+                className="flex"
+                style={{
+                  transform: `translateX(-${mobileIndex * 100}%)`,
+                  transition: "transform 0.4s ease-in-out",
+                  willChange: "transform",
+                }}
+              >
+                {disorders.map((disorder) => (
+                  <div key={disorder.title} className="disorders-mobile-card">
+                    <div className="disorders-mobile-card-image">
+                      <img
+                        src={disorder.image}
+                        alt={`${disorder.title} illustration`}
+                        className="w-full h-full block object-cover"
+                        draggable={false}
+                        style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0 }}
+                      />
+                    </div>
+                    <h3 className="text-[18px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
+                      {disorder.title}
+                    </h3>
+                    <p className="text-[14px] leading-[1.45] font-normal text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginTop: "5px" }}>
+                      {disorder.subtitle}
+                    </p>
+                  </div>
+                ))}
               </div>
-              <h3 className="text-[18px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
-                {currentMobile.title}
-              </h3>
-              <p className="text-[14px] leading-[1.45] font-normal text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginTop: "5px" }}>
-                {currentMobile.subtitle}
-              </p>
             </div>
 
-            <div className="w-full h-[2px] bg-[#F59A00] my-[24px]" aria-hidden="true" />
-
-            <div className="flex justify-center items-center gap-[12px] mt-[20px]">
+            <div className="flex justify-center items-center gap-[12px] mt-[4px]">
               <button
                 type="button"
                 aria-label="Previous sleep disorder"
