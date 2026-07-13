@@ -26,145 +26,150 @@ export default function HeroSection() {
       <style
         dangerouslySetInnerHTML={{
           __html: `
-            @media(min-width:768px) and (max-width:1023px){
-              .hero-section{ min-height:620px !important; }
-              .hero-inner{ min-height:620px !important; padding:88px 32px 30px !important; }
-              .hero-content{ width:500px !important; max-width:56% !important; }
-              .hero-heading-orange{ font-size:54px !important; }
-              .hero-heading-indigo{ font-size:50px !important; }
+            @media (min-width: 768px) and (max-width: 1023px) {
+              .hero-section { min-height: 620px !important; }
+              .hero-inner { min-height: 620px !important; padding: 88px 32px 30px !important; }
+              .hero-content { width: 500px !important; max-width: 56% !important; padding-bottom: 24px !important; }
+              .hero-heading-orange { font-size: clamp(46px, 5.3vw, 56px) !important; }
+              .hero-heading-indigo { font-size: clamp(42px, 4.9vw, 52px) !important; }
+              .hero-benefits { margin-top: 34px !important; }
+              .hero-benefit-label { font-size: 16px !important; }
+              .hero-actions { margin-top: 28px !important; }
+              .hero-actions button { font-size: 14px !important; }
             }
-            @media(min-width:1024px){
-              .hero-section{ min-height:680px !important; }
-              .hero-inner{ min-height:680px !important; padding:96px 64px 34px !important; }
-              .hero-content{ width:610px !important; max-width:44% !important; min-width:560px !important; padding-bottom:30px !important; }
-              .hero-heading-orange{ font-size:clamp(48px,3.7vw,60px) !important; }
-              .hero-heading-indigo{ font-size:clamp(44px,3.45vw,56px) !important; margin-top:12px !important; }
+            @media (min-width: 1024px) {
+              .hero-section { min-height: 680px !important; }
+              .hero-inner { min-height: 680px !important; padding: 96px 64px 34px !important; }
+              .hero-content { width: 610px !important; max-width: 44% !important; min-width: 560px !important; padding-bottom: 24px !important; }
+              .hero-heading-orange { font-size: clamp(60px, 4.6vw, 72px) !important; }
+              .hero-heading-indigo { font-size: clamp(55px, 4.15vw, 66px) !important; margin-top: 12px !important; }
             }
-            @media(min-width:1440px){
-              .hero-section{ min-height:680px !important; }
+            @media (min-width: 1440px) {
+              .hero-section { min-height: 680px !important; }
             }
-            @media(max-width:767px){
-              .hero-section{ min-height:0 !important; background-image:none !important; background-color:#ffffff !important; }
-              .hero-inner{ min-height:0 !important; width:100% !important; padding:82px 18px 20px !important; }
-              .hero-content{ width:100% !important; max-width:none !important; min-width:0 !important; padding-bottom:0 !important; }
-              .hero-heading-orange{ font-size:clamp(39px,10.2vw,47px) !important; }
-              .hero-heading-indigo{ font-size:clamp(35px,9.3vw,43px) !important; margin-top:10px !important; }
-              .hero-line-chronotype{ white-space:normal !important; }
-              .hero-mobile-visual{ display:block !important; width:100% !important; aspect-ratio:16/10 !important; margin-top:20px !important; background-image:url(\"/assets/hero/hero-bg.png\") !important; background-repeat:no-repeat !important; background-size:cover !important; background-position:68% center !important; }
-              .hero-benefits{ width:100% !important; max-width:none !important; margin-top:22px !important; grid-template-columns:repeat(3,minmax(0,1fr)) !important; gap:6px !important; }
-              .hero-actions{ width:100% !important; max-width:none !important; margin-top:22px !important; grid-template-columns:1fr !important; gap:9px !important; }
-              .hero-actions button{ height:46px !important; font-size:14px !important; }
-              .hero-benefit-media{
-                width:clamp(60px,18vw,74px);
-                height:clamp(60px,18vw,74px);
-                flex-basis:auto;
+            @media (max-width: 767px) {
+              .hero-section { min-height: 0 !important; background-image: none !important; background-color: #ffffff !important; }
+              .hero-inner { min-height: 0 !important; width: 100% !important; padding: 82px 18px 20px !important; }
+              .hero-content { width: 100% !important; max-width: none !important; min-width: 0 !important; padding-bottom: 24px !important; }
+              .hero-heading-orange { font-size: clamp(40px, 10.3vw, 48px) !important; }
+              .hero-heading-indigo { font-size: clamp(36px, 9.3vw, 44px) !important; margin-top: 10px !important; }
+              .hero-line-chronotype { white-space: normal !important; }
+              .hero-mobile-visual { display: block !important; width: 100% !important; aspect-ratio: 16/10 !important; margin-top: 20px !important; background-image: url(\"/assets/hero/hero-bg.png\") !important; background-repeat: no-repeat !important; background-size: cover !important; background-position: 68% center !important; }
+              .hero-benefits { width: 100% !important; max-width: none !important; margin-top: 24px !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 6px !important; }
+              .hero-actions { width: 100% !important; max-width: none !important; margin-top: 24px !important; grid-template-columns: 1fr !important; gap: 9px !important; }
+              .hero-actions button { height: 46px !important; font-size: 14px !important; }
+              .hero-benefit-media {
+                width: clamp(60px, 18vw, 74px);
+                height: clamp(60px, 18vw, 74px);
+                flex-basis: auto;
               }
-              .hero-benefit-label{
-                font-size:clamp(12px,3.5vw,15px);
+              .hero-benefit-label {
+                font-size: clamp(12px, 3.6vw, 15px) !important;
+                line-height: 1.15 !important;
               }
-              .hero-benefit:not(:last-child)::after{
-                height:76px;
-              }
-            }
-            .hero-heading-orange{
-              color:#ff6500;
-              font-size:clamp(54px,4.15vw,66px);
-              line-height:1.03;
-              font-weight:700;
-              letter-spacing:-0.04em;
-              display:block;
-              margin:0;
-            }
-            .hero-heading-indigo{
-              display:block;
-              margin-top:12px;
-              color:#35319b;
-              font-size:clamp(50px,3.9vw,62px);
-              line-height:1.04;
-              font-weight:600;
-              letter-spacing:-0.04em;
-            }
-            .hero-line{
-              display:block;
-            }
-            @media(min-width:1024px){
-              .hero-line-chronotype{
-                white-space:nowrap;
+              .hero-benefit:not(:last-child)::after {
+                height: 76px;
               }
             }
-            .hero-benefits{
-              width:100%;
-              max-width:570px;
-              margin-top:34px;
-              display:grid;
-              grid-template-columns:repeat(3,minmax(0,1fr));
-              align-items:start;
-              gap:0;
+            .hero-heading-orange {
+              color: #ff6500;
+              font-size: clamp(60px, 4.6vw, 72px);
+              line-height: 1.01;
+              font-weight: 700;
+              letter-spacing: -0.045em;
+              display: block;
+              margin: 0;
             }
-            .hero-benefit{
-              position:relative;
-              display:flex;
-              flex-direction:column;
-              align-items:center;
-              justify-content:flex-start;
-              text-align:center;
-              min-width:0;
+            .hero-heading-indigo {
+              display: block;
+              margin-top: 12px;
+              color: #35319b;
+              font-size: clamp(55px, 4.15vw, 66px);
+              line-height: 1.03;
+              font-weight: 600;
+              letter-spacing: -0.043em;
             }
-            .hero-benefit-media{
-              position:relative;
-              width:78px;
-              height:78px;
-              flex:0 0 78px;
-              overflow:hidden;
-              border-radius:50%;
-              background:linear-gradient(145deg,#eef7fb 0%,#f3f0fb 100%);
+            .hero-line {
+              display: block;
             }
-            .hero-benefit-media img{
-              display:block;
-              width:100%;
-              height:100%;
-              object-fit:cover;
-              border-radius:inherit;
-            }
-            .hero-benefit:not(:last-child)::after{
-              content:"";
-              position:absolute;
-              top:4px;
-              right:0;
-              width:1.5px;
-              height:92px;
-              background:#e4b93d;
-            }
-            .hero-benefit-label{
-              width:100%;
-              margin-top:10px;
-              font-size:18px;
-              line-height:1.15;
-              font-weight:600;
-              text-align:center;
-              white-space:normal;
-            }
-            .hero-actions{
-              width:100%;
-              max-width:650px;
-              margin-top:28px;
-              display:grid;
-              grid-template-columns:190px 190px 245px;
-              gap:7px;
-            }
-            .hero-actions button{
-              width:100%;
-              height:42px;
-              border-radius:0;
-              font-size:14px;
-              font-weight:600;
-            }
-            @media(max-width:767px){
-              .hero-actions{
-                grid-template-columns:1fr;
+            @media (min-width: 1024px) {
+              .hero-line-chronotype {
+                white-space: nowrap;
               }
-              .hero-actions > :last-child{
-                grid-column:1 / -1;
+            }
+            .hero-benefits {
+              width: 100%;
+              max-width: 570px;
+              margin-top: 48px;
+              display: grid;
+              grid-template-columns: repeat(3, minmax(0, 1fr));
+              align-items: start;
+              gap: 0;
+            }
+            .hero-benefit {
+              position: relative;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: flex-start;
+              text-align: center;
+              min-width: 0;
+            }
+            .hero-benefit-media {
+              position: relative;
+              width: 78px;
+              height: 78px;
+              flex: 0 0 78px;
+              overflow: hidden;
+              border-radius: 50%;
+              background: linear-gradient(145deg, #eef7fb 0%, #f3f0fb 100%);
+            }
+            .hero-benefit-media img {
+              display: block;
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              border-radius: inherit;
+            }
+            .hero-benefit:not(:last-child)::after {
+              content: "";
+              position: absolute;
+              top: 4px;
+              right: 0;
+              width: 1.5px;
+              height: 92px;
+              background: #e4b93d;
+            }
+            .hero-benefit-label {
+              width: 100%;
+              margin-top: 11px;
+              font-size: 19px;
+              line-height: 1.15;
+              font-weight: 600;
+              text-align: center;
+              white-space: normal;
+            }
+            .hero-actions {
+              width: 100%;
+              max-width: 650px;
+              margin-top: 38px;
+              display: grid;
+              grid-template-columns: 190px 190px 245px;
+              gap: 7px;
+            }
+            .hero-actions button {
+              width: 100%;
+              height: 42px;
+              border-radius: 0;
+              font-size: 15px;
+              font-weight: 600;
+            }
+            @media (max-width: 767px) {
+              .hero-actions {
+                grid-template-columns: 1fr;
+              }
+              .hero-actions > :last-child {
+                grid-column: 1 / -1;
               }
             }
           `,
@@ -252,24 +257,24 @@ export default function HeroSection() {
             </div>
           </div>
 
-<div className="hero-actions">
+          <div className="hero-actions">
             <button
               type="button"
-              className="flex items-center justify-center bg-[#3A34A3] hover:bg-[#322e8e] text-white text-[14px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer"
+              className="flex items-center justify-center bg-[#3A34A3] hover:bg-[#322e8e] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer"
               style={{ fontWeight: 600, borderRadius: 0 }}
             >
               Take Test Now
             </button>
             <button
               type="button"
-              className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[14px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer"
+              className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer"
               style={{ fontWeight: 600, borderRadius: 0 }}
             >
               Learn About Sleep
             </button>
             <button
               type="button"
-              className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[14px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer"
+              className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer"
               style={{ fontWeight: 600, borderRadius: 0 }}
             >
               Consult a Sleep Specialist

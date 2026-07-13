@@ -2,6 +2,14 @@
 
 import React from "react";
 
+const chronotypeInfluences = [
+  "When you feel most alert",
+  "When you are most productive professionally",
+  "When you prefer to exercise",
+  "When you naturally feel sleepy",
+  "How your energy changes during the day",
+];
+
 export default function ChronotypeIntroductionSection() {
   return (
     <section
@@ -10,222 +18,319 @@ export default function ChronotypeIntroductionSection() {
       className="relative w-full bg-white"
       style={{
         fontFamily: "Poppins, var(--font-poppins), sans-serif",
-        borderBottom: "1px solid rgba(228, 185, 61, 0.7)",
+        borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
-      {/* Top warm-gold divider line */}
       <div
-        className="absolute left-0 right-0 top-0 h-[1px]"
-        aria-hidden="true"
-        style={{ background: "rgba(228, 185, 61, 0.72)" }}
-      />
-
-      {/* Container — mobile flex column per task */}
-      <div
-        className="
-          relative z-[1] mx-auto
-          px-[20px] max-[389px]:px-[16px] md:px-[36px] lg:px-[48px]
-          pt-[36px] md:pt-[52px] lg:pt-[62px]
-          pb-[38px] md:pb-[40px] lg:pb-[42px]
-          max-w-[1180px]
-          flex flex-col md:grid
-        "
+        className="chronotype-intro-section relative z-[1] mx-auto chronotype-intro-container"
+        style={{
+          padding: "52px 48px 44px",
+        }}
       >
-        {/* Grid for desktop, flex column for mobile */}
-        <div
-          className="
-            grid
-            grid-cols-1
-            md:grid-cols-[minmax(0,1.15fr)_410px]
-            gap-[0px] md:gap-[32px] lg:gap-[68px]
-            items-start
-            w-full
-            min-w-0
-          "
-        >
-          {/* Left Content Column — order heading, paragraph, It influences, list */}
-          <div className="w-full min-w-0 flex flex-col" style={{ maxWidth: "560px" }}>
-            {/* Heading */}
-            <h2
-              className="
-                m-0
-                text-[25px] leading-[1.2]
-                md:text-[27px] md:leading-[1.2]
-                lg:text-[30px] lg:leading-[1.2]
-                font-semibold
-                text-[#F59A00]
-              "
-              style={{
-                fontFamily: "Poppins, sans-serif",
-                fontWeight: 600,
-                color: "#F59A00",
-                maxWidth: "620px",
-                marginBottom: "14px",
-              }}
-            >
-              Discover Your Natural Sleep Rhythm:
-              <br />
-              Understanding Chronotypes
+        <div className="chronotype-intro-grid grid grid-cols-1 md:grid-cols-[minmax(0,570px)_410px] md:justify-between gap-[56px] md:gap-[56px] items-start w-full min-w-0">
+          <div className="chronotype-intro-copy w-full min-w-0">
+            <h2 className="chronotype-intro-heading m-0 text-[#F59A00] text-left">
+              <span className="chronotype-heading-primary">Discover Your Natural Sleep Rhythm:</span>
+
+              <span className="chronotype-heading-secondary">Understanding Chronotypes</span>
             </h2>
 
-            {/* Introductory paragraph */}
             <p
-              className="
-                text-[14px] leading-[1.6]
-                md:text-[16px] md:leading-[1.55]
-                lg:text-[18px] lg:leading-[1.55]
-                text-[#29275E]
-              "
+              className="chronotype-intro-description m-0 mt-[18px] max-w-[560px] font-normal text-[#2F2A68]"
               style={{
                 fontFamily: "Poppins, sans-serif",
                 fontWeight: 400,
-                maxWidth: "560px",
-                marginBottom: "20px",
+                fontSize: "16px",
+                lineHeight: "1.5",
               }}
             >
               Your chronotype is your natural preference for sleeping, waking,
               and performing activities throughout the day.
             </p>
 
-            {/* "It influences:" label */}
             <p
-              className="
-                text-[15px] leading-[1.3]
-                md:text-[16px] md:leading-[1.3]
-                lg:text-[19px] lg:leading-[1.3]
-                font-semibold
-                text-[#171717]
-              "
+              className="chronotype-intro-label m-0 mt-[22px] font-semibold text-[#171717]"
               style={{
                 fontFamily: "Poppins, sans-serif",
                 fontWeight: 600,
-                marginBottom: "7px",
+                fontSize: "17px",
+                lineHeight: "1.35",
+                marginBottom: "8px",
               }}
             >
               It influences:
             </p>
 
-            {/* Bullet list */}
-            <ul
-              className="
-                list-disc list-outside pl-[18px] md:pl-[19px]
-                m-0
-              "
-              style={{
-                fontFamily: "Poppins, sans-serif",
-              }}
-            >
-              <li className="text-[14px] leading-[1.6] md:text-[15px] md:leading-[1.55] lg:text-[16px] lg:leading-[1.55] text-[#171717] font-normal" style={{ fontWeight: 400, marginBottom: "5px" }}>
-                When you feel most alert
-              </li>
-              <li className="text-[14px] leading-[1.6] md:text-[15px] lg:text-[16px] text-[#171717] font-normal" style={{ fontWeight: 400, marginBottom: "5px" }}>
-                When you are most productive professionally
-              </li>
-              <li className="text-[14px] leading-[1.6] md:text-[15px] lg:text-[16px] text-[#171717] font-normal" style={{ fontWeight: 400, marginBottom: "5px" }}>
-                When you prefer to exercise
-              </li>
-              <li className="text-[14px] leading-[1.6] md:text-[15px] lg:text-[16px] text-[#171717] font-normal" style={{ fontWeight: 400, marginBottom: "5px" }}>
-                When you naturally feel sleepy
-              </li>
-              <li className="text-[14px] leading-[1.6] md:text-[15px] lg:text-[16px] text-[#171717] font-normal" style={{ fontWeight: 400, marginBottom: "5px" }}>
-                How your energy changes during the day
-              </li>
+            <ul className="chronotype-intro-list m-0 pl-[20px] list-disc list-outside">
+              {chronotypeInfluences.map((item) => (
+                <li
+                  key={item}
+                  className="m-0 mb-[7px] font-normal text-[#171717]"
+                  style={{
+                    fontFamily: "Poppins, sans-serif",
+                    fontWeight: 400,
+                    fontSize: "16px",
+                    lineHeight: "1.4",
+                  }}
+                >
+                  {item}
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Right Image Column — width 100% aspect 4/3 height auto mt24 mobile */}
-          <div
-            className="
-              w-full md:w-[410px]
-              h-auto
-              max-w-full
-              md:ml-auto
-              mt-[24px] md:mt-[12px]
-              min-w-0
-            "
-            style={{
-              aspectRatio: "4 / 3",
-            }}
-          >
+          <div className="chronotype-intro-image-wrap w-[410px] max-w-[100%] align-self-start mt-[4px] overflow-hidden">
             <img
               src="/assets/section2/section-2.jpg"
               alt="Woman meditating while visualizing her natural biological rhythm"
-              className="w-full h-full object-cover"
-              draggable={false}
+              className="chronotype-intro-image w-full h-[320px] object-cover"
               style={{
+                fontFamily: "Poppins, sans-serif",
+                display: "block",
                 width: "100%",
-                height: "100%",
+                height: "320px",
                 objectFit: "cover",
                 objectPosition: "center",
                 borderRadius: 0,
                 boxShadow: "none",
-                aspectRatio: "4 / 3",
               }}
+              draggable={false}
             />
           </div>
-          <style dangerouslySetInnerHTML={{ __html: `@media(min-width:768px){ #chronotypes .chronotype-img-mobile{ aspect-ratio:auto !important; height:345px !important; } }` }} />
         </div>
 
-        {/* Lower conclusion text — centered, 15px line1.5 mt20 mobile */}
-        <p
-          className="
-            text-center md:text-center
-            text-[15px] leading-[1.5]
-            md:text-[15px] md:leading-[1.5]
-            lg:text-[16px] lg:leading-[1.5]
-            text-[#171717]
-          "
-          style={{
-            fontFamily: "Poppins, sans-serif",
-            fontWeight: 400,
-            maxWidth: "900px",
-            marginLeft: "auto",
-            marginRight: "auto",
-            marginTop: "20px",
-          }}
-        >
-          Understanding your rhythm helps you work with your biology and
-          perform at your best.
-        </p>
-
-        {/* CTA button — width min(100%,230px) height44 */}
-        <div className="flex justify-center mt-[16px] md:mt-[14px] w-full">
-          <button
-            type="button"
-            className="
-              flex items-center justify-center
-              bg-[#3B35A3] hover:bg-[#332D92]
-              text-white
-              rounded-none
-              shadow-none
-              focus:outline-none
-              transition-all duration-[160ms] ease-[ease]
-              hover:-translate-y-[1px]
-              cursor-pointer
-              h-[44px]
-              text-[13px] font-semibold leading-[1]
-              w-full max-w-[230px] md:w-[205px] md:max-w-[205px] lg:w-[205px]
-            "
+        <div className="chronotype-intro-footer w-full m-top-[24px] flex flex-col items-center text-center">
+          <p
+            className="chronotype-intro-conclusion m-0 font-normal text-[#171717]"
             style={{
               fontFamily: "Poppins, sans-serif",
-              fontWeight: 600,
-              borderRadius: 0,
-              boxShadow: "none",
-              width: "min(100%, 230px)",
-            }}
-            onFocus={(e) => {
-              e.currentTarget.style.outline = "3px solid rgba(59, 53, 163, 0.28)";
-              e.currentTarget.style.outlineOffset = "3px";
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.outline = "";
-              e.currentTarget.style.outlineOffset = "";
+              fontWeight: 400,
+              fontSize: "15px",
+              lineHeight: "1.5",
             }}
           >
+            Understanding your rhythm helps you work with your biology and
+            perform at your best.
+          </p>
+
+          <a className="chronotype-intro-cta w-[230px] h-[44px] m-top-[14px] inline-flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer text-[14px] font-semibold leading-[1]" href="/take-test">
             Take Test Now
-          </button>
+          </a>
         </div>
       </div>
+
+      <style>{`
+        .chronotype-intro-section {
+          padding: 52px 48px 44px;
+        }
+
+        .chronotype-intro-container {
+          width: min(100%, 1120px);
+          margin: 0 auto;
+        }
+
+        .chronotype-intro-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 570px) 410px;
+          justify-content: space-between;
+          gap: 56px;
+          align-items: start;
+        }
+
+        .chronotype-intro-heading {
+          margin: 0;
+          color: #F59A00;
+          text-align: left;
+          font-size: 33px;
+          line-height: 1.16;
+          font-weight: 600;
+          letter-spacing: -0.025em;
+        }
+
+        .chronotype-heading-primary,
+        .chronotype-heading-secondary {
+          display: block;
+        }
+
+        @media (min-width: 1024px) {
+          .chronotype-heading-primary {
+            white-space: nowrap;
+          }
+        }
+
+        .chronotype-intro-description {
+          margin-top: 18px;
+          max-width: 560px;
+          font-size: 16px;
+          line-height: 1.5;
+          font-weight: 400;
+          color: #2F2A68;
+        }
+
+        .chronotype-intro-label {
+          margin-top: 22px;
+          margin-bottom: 8px;
+          font-size: 17px;
+          line-height: 1.35;
+          font-weight: 600;
+          color: #171717;
+        }
+
+        .chronotype-intro-list {
+          margin: 0;
+          padding-left: 20px;
+          list-style: disc;
+          list-style-position: outside;
+        }
+
+        .chronotype-intro-list li {
+          margin-bottom: 7px;
+          font-size: 16px;
+          line-height: 1.4;
+          font-weight: 400;
+          color: #171717;
+        }
+
+        .chronotype-intro-image-wrap {
+          width: 410px;
+          max-width: 100%;
+          align-self: start;
+          margin-top: 4px;
+          overflow: hidden;
+        }
+
+        .chronotype-intro-image {
+          display: block;
+          width: 100%;
+          height: 320px;
+          object-fit: cover;
+          object-position: center;
+          border-radius: 0;
+          box-shadow: none;
+        }
+
+        .chronotype-intro-footer {
+          width: 100%;
+          margin-top: 24px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+
+        .chronotype-intro-conclusion {
+          margin: 0;
+          font-size: 15px;
+          line-height: 1.5;
+          font-weight: 400;
+          color: #171717;
+        }
+
+        .chronotype-intro-cta {
+          width: 230px;
+          height: 44px;
+          margin-top: 14px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .chronotype-intro-section {
+            padding: 52px 36px 44px;
+          }
+
+          .chronotype-intro-grid {
+            grid-template-columns: minmax(0, 1fr) 340px;
+            gap: 36px;
+          }
+
+          .chronotype-intro-heading {
+            font-size: 28px;
+          }
+
+          .chronotype-heading-primary {
+            white-space: normal;
+          }
+
+          .chronotype-intro-image-wrap {
+            width: 340px;
+          }
+
+          .chronotype-intro-image {
+            height: 290px;
+          }
+        }
+
+        @media (max-width: 767px) {
+          .chronotype-intro-section {
+            padding: 36px 18px 38px;
+          }
+
+          .chronotype-intro-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+          }
+
+          .chronotype-intro-heading {
+            font-size: clamp(25px, 6.8vw, 29px);
+            line-height: 1.2;
+            text-align: left;
+          }
+
+          .chronotype-heading-primary,
+          .chronotype-heading-secondary {
+            display: inline;
+            white-space: normal;
+          }
+
+          .chronotype-heading-primary::after {
+            content: " ";
+          }
+
+          .chronotype-intro-description {
+            margin-top: 16px;
+            font-size: 14px;
+            line-height: 1.55;
+          }
+
+          .chronotype-intro-label {
+            margin-top: 20px;
+            font-size: 16px;
+          }
+
+          .chronotype-intro-list li {
+            font-size: 14px;
+            line-height: 1.5;
+          }
+
+          .chronotype-intro-image-wrap {
+            width: 100%;
+            margin-top: 24px;
+          }
+
+          .chronotype-intro-image {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+          }
+
+          .chronotype-intro-footer {
+            margin-top: 20px;
+          }
+
+          .chronotype-intro-conclusion {
+            font-size: 14px;
+            line-height: 1.5;
+          }
+
+          .chronotype-intro-cta {
+            width: min(100%, 230px);
+          }
+        }
+      `}</style>
     </section>
   );
 }

@@ -25,7 +25,6 @@ export default function ChronotypeOptimizationSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
-      {/* Container — mobile display block per task */}
       <div
         className="
           relative z-[1] mx-auto
@@ -35,13 +34,12 @@ export default function ChronotypeOptimizationSection() {
           max-w-[1120px]
         "
       >
-        {/* Section Heading — 25 line1.22 max-w100% mobile */}
         <h2
           className="
             m-0 mx-auto
-            text-[25px] leading-[1.22]
-            md:text-[27px] md:leading-[1.22]
-            lg:text-[30px] lg:leading-[1.2]
+            text-[clamp(24px,6.4vw,29px)] leading-[1.2]
+            md:text-[clamp(27px,3.4vw,32px)]
+            lg:text-[clamp(32px,2.45vw,38px)]
             font-semibold
             text-center
             text-[#F59A00]
@@ -49,7 +47,7 @@ export default function ChronotypeOptimizationSection() {
           style={{
             fontFamily: "Poppins, sans-serif",
             fontWeight: 600,
-            letterSpacing: "-0.02em",
+            letterSpacing: "-0.025em",
             maxWidth: "100%",
             marginBottom: "30px",
           }}
@@ -59,7 +57,6 @@ export default function ChronotypeOptimizationSection() {
           and opportunities for optimization.
         </h2>
 
-        {/* Two-column grid: mobile display block */}
         <div
           className="
             block md:grid
@@ -70,13 +67,11 @@ export default function ChronotypeOptimizationSection() {
             min-w-0
           "
         >
-          {/* Left Content - Checklist */}
           <div style={{ maxWidth: "460px" }} className="w-full min-w-0">
-            {/* Checklist Title — 18px mobile */}
             <p
               className="
                 text-[18px] leading-[1.3]
-                md:text-[19px] md:leading-[1.3]
+                md:text-[18px] md:leading-[1.3]
                 lg:text-[21px] lg:leading-[1.3]
                 font-semibold
                 text-[#171717]
@@ -92,7 +87,6 @@ export default function ChronotypeOptimizationSection() {
               can help optimize:
             </p>
 
-            {/* Checklist Items — rows min-h42 checkbox22 label15 */}
             <div className="flex flex-col">
               {checklistItems.map((item) => (
                 <div
@@ -120,9 +114,9 @@ export default function ChronotypeOptimizationSection() {
                   />
                   <span
                     className="
-                      text-[15px] leading-[1.3]
-                      md:text-[15px] md:leading-[1.3]
-                      lg:text-[16px] lg:leading-[1.3]
+                      text-[16px] leading-[1.55]
+                      md:text-[15px] md:leading-[1.55]
+                      lg:text-[16px] lg:leading-[1.55]
                       text-[#171717]
                     "
                     style={{
@@ -137,7 +131,6 @@ export default function ChronotypeOptimizationSection() {
             </div>
           </div>
 
-          {/* Right Image — width100% aspect 4/5 height auto mt24 mobile, prevent tall placeholder */}
           <div
             className="
               w-full md:w-[390px]
@@ -169,7 +162,6 @@ export default function ChronotypeOptimizationSection() {
           </div>
         </div>
 
-        {/* Bottom supporting copy — 14 line1.55 mt22 mobile */}
         <div
           className="text-center"
           style={{
@@ -179,9 +171,9 @@ export default function ChronotypeOptimizationSection() {
         >
           <p
             className="
-              text-[14px] leading-[1.55]
-              md:text-[15px] md:leading-[1.5]
-              lg:text-[16px] lg:leading-[1.5]
+              text-[15px] leading-[1.58]
+              md:text-[15px] md:leading-[1.58]
+              lg:text-[16px] lg:leading-[1.58]
               text-[#171717]
             "
             style={{
@@ -193,9 +185,9 @@ export default function ChronotypeOptimizationSection() {
           </p>
           <p
             className="
-              text-[14px] leading-[1.55]
-              md:text-[15px] md:leading-[1.5]
-              lg:text-[16px] lg:leading-[1.5]
+              text-[15px] leading-[1.58]
+              md:text-[15px] md:leading-[1.58]
+              lg:text-[16px] lg:leading-[1.58]
               text-[#171717]
               mt-[2px]
             "

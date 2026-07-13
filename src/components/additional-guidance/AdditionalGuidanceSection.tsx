@@ -14,16 +14,14 @@ export default function AdditionalGuidanceSection() {
       }}
     >
       <div className="relative z-[1] mx-auto max-w-[1120px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[42px] lg:pt-[46px] pb-[38px] md:pb-[44px] lg:pb-[48px] min-w-0">
-        {/* Main two-column block — mobile order heading intro paragraph image CTA, text left */}
         <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_390px] lg:grid-cols-[minmax(0,1fr)_470px] gap-[0px] md:gap-[36px] lg:gap-[58px] items-center min-w-0">
-          {/* Left Content */}
           <div className="w-full max-w-[500px] text-left min-w-0">
             <h2
-              className="m-0 text-[24px] leading-[1.22] md:text-[27px] lg:text-[30px] font-semibold text-[#F59A00] text-left"
+              className="m-0 text-[clamp(24px,6.4vw,29px)] leading-[1.2] md:text-[clamp(27px,3.4vw,32px)] lg:text-[clamp(32px,2.45vw,38px)] font-semibold text-[#F59A00] text-left"
               style={{
                 fontFamily: "Poppins, sans-serif",
                 fontWeight: 600,
-                letterSpacing: "-0.02em",
+                letterSpacing: "-0.025em",
                 marginBottom: "16px",
               }}
             >
@@ -31,7 +29,7 @@ export default function AdditionalGuidanceSection() {
             </h2>
 
             <p
-              className="m-0 text-[15px] leading-[1.5] md:text-[16px] md:leading-[1.5] lg:text-[18px] lg:leading-[1.5] font-medium text-[#171717] text-left"
+              className="m-0 text-[18px] leading-[1.45] md:text-[16px] md:leading-[1.5] lg:text-[18px] lg:leading-[1.5] font-medium text-[#171717] text-left"
               style={{
                 fontFamily: "Poppins, sans-serif",
                 fontWeight: 500,
@@ -43,7 +41,7 @@ export default function AdditionalGuidanceSection() {
             </p>
 
             <p
-              className="m-0 text-[14px] leading-[1.65] md:text-[15px] lg:text-[16px] lg:leading-[1.65] font-normal text-[#171717] text-left"
+              className="m-0 text-[16px] leading-[1.58] md:text-[15px] lg:text-[16px] lg:leading-[1.58] font-normal text-[#171717] text-left"
               style={{
                 fontFamily: "Poppins, sans-serif",
                 fontWeight: 400,
@@ -56,7 +54,6 @@ export default function AdditionalGuidanceSection() {
             </p>
           </div>
 
-          {/* Right Image — width100% aspect 4/3 height auto mt24 mobile */}
           <div className="w-full mt-[24px] md:mt-0 max-w-full min-w-0">
             <div className="w-full aspect-[4/3] md:aspect-auto md:h-[340px] lg:h-[390px] overflow-hidden">
               <img
@@ -76,7 +73,6 @@ export default function AdditionalGuidanceSection() {
           </div>
         </div>
 
-        {/* CTA - centered below full two-column block */}
         <div className="flex justify-center mt-[24px] md:mt-[24px] lg:mt-[28px]">
           <button
             type="button"

@@ -68,13 +68,13 @@ export default function FaqSection() {
     >
       <div className="relative z-[1] mx-auto max-w-[980px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[42px] lg:pt-[48px] pb-[40px] md:pb-[44px] lg:pb-[52px] min-w-0">
         {/* Heading */}
-        <h2
+<h2
           id="faq-heading"
-          className="m-0 mx-auto text-[24px] leading-[1.22] md:text-[27px] lg:text-[30px] font-semibold text-center text-[#F59A00]"
+          className="m-0 mx-auto text-[clamp(24px,6.4vw,29px)] leading>[1.2] font-semibold text-center text-[#F59A00]"
           style={{
             fontFamily: "Poppins, sans-serif",
             fontWeight: 600,
-            letterSpacing: "-0.02em",
+            letterSpacing: "-0.025em",
             marginBottom: "28px",
           }}
         >
@@ -118,8 +118,8 @@ export default function FaqSection() {
                   </span>
 
                   {/* Question */}
-                  <span
-                    className="text-[14px] leading-[1.45] md:text-[16px] md:leading-[1.4] lg:text-[17px] lg:leading-[1.4] font-semibold text-[#171717] group-hover:text-[#3B35A3] transition-colors duration-[160ms]"
+<span
+                    className="text-[17px] leading>[1.4] md:text>[16px] lg:text>[17px] font-semibold text-[#171717] group-hover:text-[#3B35A3] transition-colors duration-[160ms]"
                     style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
                   >
                     {faq.q}
@@ -162,8 +162,8 @@ export default function FaqSection() {
                   }}
                   hidden={!isOpen}
                 >
-                  <div
-                    className="text-[13px] leading-[1.6] md:text-[14px] md:leading-[1.65] lg:text-[14px] lg:leading-[1.65] font-normal text-[#444444] pb-[16px] md:pb-[18px] lg:pb-[18px] min-w-0"
+<div
+                    className="text-[14px] leading>[1.65] md:text>[14px] lg:text>[14px] font-normal text-[#444444] pb-[16px] md:pb>[18px] lg:pb>[18px] min-w-0"
                     style={{
                       fontFamily: "Poppins, sans-serif",
                       fontWeight: 400,

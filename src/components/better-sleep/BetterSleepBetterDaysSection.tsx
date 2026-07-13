@@ -23,7 +23,6 @@ export default function BetterSleepBetterDaysSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
-      {/* Container — mobile defaults */}
       <div
         className="
           relative z-[1] mx-auto
@@ -33,13 +32,12 @@ export default function BetterSleepBetterDaysSection() {
           max-w-[1120px]
         "
       >
-        {/* Heading — clamp mobile */}
         <h2
           className="
             m-0 mx-auto
-            text-[clamp(23px,7vw,28px)] leading-[1.18] tracking-[-0.02em]
-            md:text-[27px] md:leading-[1.2]
-            lg:text-[30px] lg:leading-[1.2]
+            text-[clamp(24px,6.4vw,29px)] leading-[1.2]
+            md:text-[clamp(27px,3.4vw,32px)]
+            lg:text-[clamp(32px,2.45vw,38px)]
             font-semibold
             text-center
             text-[#F59A00]
@@ -47,20 +45,19 @@ export default function BetterSleepBetterDaysSection() {
           style={{
             fontFamily: "Poppins, sans-serif",
             fontWeight: 600,
-            letterSpacing: "-0.02em",
+            letterSpacing: "-0.025em",
             marginBottom: "12px",
           }}
         >
           Better Sleep Creates Better Days
         </h2>
 
-        {/* Subtitle */}
         <p
           className="
             m-0 mx-auto
-            text-[14px] leading-[1.6]
-            md:text-[16px] md:leading-[1.4]
-            lg:text-[17px] lg:leading-[1.4]
+            text-[16px] leading-[1.45]
+            md:text-[16px] md:leading-[1.45]
+            lg:text-[17px] lg:leading-[1.45]
             font-semibold
             text-center
             text-[#171717]
@@ -74,7 +71,6 @@ export default function BetterSleepBetterDaysSection() {
           Quality sleep influences every area of life.
         </p>
 
-        {/* Main grid — mobile order heading, subtitle, benefit list, image */}
         <div
           className="
             grid
@@ -86,7 +82,6 @@ export default function BetterSleepBetterDaysSection() {
             min-w-0
           "
         >
-          {/* Left: Benefit list */}
           <div className="w-full max-w-[430px] md:max-w-[380px] lg:max-w-[430px] min-w-0 order-1">
             {benefitItems.map((item) => (
               <div
@@ -128,7 +123,7 @@ export default function BetterSleepBetterDaysSection() {
                 >
                   <span
                     className="
-                      text-[14px] leading-[1.2]
+                      text-[16px] leading-[1.4]
                       md:text-[14px] lg:text-[16px]
                       text-[#171717]
                       font-normal
@@ -146,7 +141,6 @@ export default function BetterSleepBetterDaysSection() {
             ))}
           </div>
 
-          {/* Right: Image — width100% aspect 4/3 height auto mt24 mobile */}
           <div
             className="
               w-full

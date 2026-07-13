@@ -14,6 +14,14 @@
   --hero-text-dark: #171717;
   --hero-divider-yellow: #F4C623;
   --hero-cta-purple: #3833A3;
+
+  --fs-section-title-desktop: 38px;
+  --fs-section-title-tablet: 32px;
+  --fs-section-title-mobile: 29px;
+
+  --fs-body-desktop: 16px;
+  --fs-body-tablet: 15px;
+  --fs-body-mobile: 14px;
 }
 
 /* Global responsive foundation — per task + navbar smooth scrolling */
@@ -84,4 +92,203 @@ button {
 
 @media (max-width: 389px) {
   /* Below 390px padding tighter — components use 20px default, override to 16px via media helpers where needed */
+}
+
+/* Section Heading Typography */
+.section-heading {
+  font-size: clamp(32px, 2.45vw, 38px);
+  line-height: 1.17;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .section-heading {
+    font-size: clamp(27px, 3.4vw, 32px);
+    line-height: 1.2;
+  }
+}
+
+@media (max-width: 767px) {
+  .section-heading {
+    font-size: clamp(24px, 6.4vw, 29px);
+    line-height: 1.2;
+  }
+}
+
+/* Supporting headings and subtitles */
+.supporting-heading,
+.section-subtitle {
+  font-size: 18px;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .supporting-heading,
+  .section-subtitle {
+    font-size: 16px;
+    line-height: 1.45;
+  }
+}
+
+@media (max-width: 767px) {
+  .supporting-heading,
+  .section-subtitle {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+}
+
+/* Body copy */
+.body-copy {
+  font-size: 16px;
+  line-height: 1.58;
+  font-weight: 400;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .body-copy {
+    font-size: 15px;
+    line-height: 1.58;
+  }
+}
+
+@media (max-width: 767px) {
+  .body-copy {
+    font-size: 14px;
+    line-height: 1.58;
+  }
+}
+
+/* Checklist/list labels */
+.checklist-label {
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+/* Pillar titles */
+.pillar-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Pillar descriptions */
+.pillar-description {
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+/* Fact-strip large values */
+.fact-value {
+  font-size: 25px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+/* Fact descriptions */
+.fact-description {
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+/* Mind / Body / Life titles */
+.mind-body-title {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* FAQ questions */
+.faq-question {
+  font-size: 17px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+@media (max-width: 767px) {
+  .faq-question {
+    font-size: 16px;
+  }
+}
+
+/* FAQ answers */
+.faq-answer {
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+@media (max-width: 767px) {
+  .faq-answer {
+    font-size: 13px;
+  }
+}
+
+/* Warning labels */
+.warning-label {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+@media (max-width: 767px) {
+  .warning-label {
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+}
+
+/* Sleep Fact card copy */
+.sleep-fact-copy {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+@media (max-width: 767px) {
+  .sleep-fact-copy {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+/* Button typography */
+.button-text {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (max-width: 767px) {
+  .button-text {
+    font-size: 14px;
+  }
+}
+
+/* Primary CTA button text */
+.primary-cta-text {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Large primary CTA button text */
+.large-primary-cta-text {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Footer disclaimer heading */
+.footer-heading {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Footer disclaimer text */
+.footer-text {
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+@media (max-width: 767px) {
+  .footer-text {
+    font-size: 12px;
+    line-height: 1.7;
+  }
 }
