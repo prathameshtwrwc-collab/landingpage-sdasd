@@ -149,7 +149,7 @@ export default function HeroSection() {
               max-width:650px;
               margin-top:28px;
               display:grid;
-              grid-template-columns:205px 205px;
+              grid-template-columns:190px 190px 245px;
               gap:7px;
             }
             .hero-actions button{
@@ -253,6 +253,13 @@ export default function HeroSection() {
           </div>
 
 <div className="hero-actions">
+            <button
+              type="button"
+              className="flex items-center justify-center bg-[#3A34A3] hover:bg-[#322e8e] text-white text-[14px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer"
+              style={{ fontWeight: 600, borderRadius: 0 }}
+            >
+              Take Test Now
+            </button>
             <button
               type="button"
               className="flex items-center justify-center bg-[#FF9700] hover:bg-[#e68a00] text-white text-[14px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer"
