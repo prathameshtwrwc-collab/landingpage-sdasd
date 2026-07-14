@@ -116,6 +116,11 @@ export default function CommonSleepDisordersSection() {
                     flex-direction: column;
                     align-items: flex-start;
                     min-width: 0;
+                    padding-right: 20px;
+                  }
+                  .disorders-slide-card:last-child {
+                    padding-right: 0;
+                    padding-left: 20px;
                   }
                   .disorders-slide-card-image {
                     width: 100%;
