@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.css";
+import ClientLayout from "./ClientLayout";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={poppins.variable}>
       <body className="bg-white text-[#171717] antialiased font-[var(--font-poppins)]">
-        {children}
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

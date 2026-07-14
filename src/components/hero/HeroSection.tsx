@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useAssessment } from "@/components/assessment/AssessmentContext";
 
 const bgImages = [
   "/assets/hero/hero-bg.png",
@@ -16,6 +17,7 @@ const slideImages = [...bgImages, bgImages[0]];
 const totalSlideItems = slideImages.length;
 
 export default function HeroSection() {
+  const { open: openAssessment } = useAssessment();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [transitionEnabled, setTransitionEnabled] = useState(true);
   const isTransitioning = useRef(false);
@@ -365,7 +367,7 @@ export default function HeroSection() {
           </div>
 
           <div className="hero-actions">
-            <button type="button" className="flex items-center justify-center bg-[#3A34A3] hover:bg-[#322e8e] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
+            <button type="button" onClick={openAssessment} className="flex items-center justify-center bg-[#3A34A3] hover:bg-[#322e8e] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
               Take Test Now
             </button>
             <button type="button" className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>

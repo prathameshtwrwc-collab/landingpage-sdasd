@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useAssessment } from "@/components/assessment/AssessmentContext";
 
 type NavItem = {
   label: string;
@@ -17,6 +18,7 @@ const navItems: NavItem[] = [
 ];
 
 export default function SiteNavbar() {
+  const { open: openAssessment } = useAssessment();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeId, setActiveId] = useState<string>("");
@@ -280,6 +282,7 @@ export default function SiteNavbar() {
                 onClick={() => {
                   const el = document.getElementById("chronotypes");
                   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  openAssessment();
                 }}
                 className="inline-flex items-center justify-center bg-[#3B35A3] text-white border-none rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F59A00] focus-visible:ring-offset-2 transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer"
                 style={{
@@ -429,6 +432,7 @@ export default function SiteNavbar() {
             setIsMenuOpen(false);
             const el = document.getElementById("chronotypes");
             if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+            openAssessment();
           }}
           className="flex items-center justify-center w-full bg-[#3B35A3] text-white border-none rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F59A00] focus-visible:ring-offset-2 transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer mt-[16px]"
           style={{

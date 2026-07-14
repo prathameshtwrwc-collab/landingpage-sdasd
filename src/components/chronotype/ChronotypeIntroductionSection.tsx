@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useAssessment } from "@/components/assessment/AssessmentContext";
 
 const chronotypeInfluences = [
   "When you feel most alert",
@@ -11,6 +12,7 @@ const chronotypeInfluences = [
 ];
 
 export default function ChronotypeIntroductionSection() {
+  const { open: openAssessment } = useAssessment();
   return (
     <section
       id="chronotypes"
@@ -113,9 +115,9 @@ export default function ChronotypeIntroductionSection() {
             perform at your best.
           </p>
 
-          <a className="chronotype-intro-cta w-[230px] h-[44px] m-top-[14px] inline-flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer text-[14px] font-semibold leading-[1]" href="/take-test">
+          <button type="button" onClick={openAssessment} className="chronotype-intro-cta w-[230px] h-[44px] m-top-[14px] inline-flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer text-[14px] font-semibold leading-[1]">
             Take Test Now
-          </a>
+          </button>
         </div>
       </div>
 
