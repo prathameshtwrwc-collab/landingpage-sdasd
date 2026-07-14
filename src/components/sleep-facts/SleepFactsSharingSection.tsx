@@ -2,6 +2,19 @@
 
 import React from "react";
 
+async function shareFact(text: string) {
+  const title = "Sleep Fact";
+  const url = window.location.href;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, text, url });
+    } catch {}
+  } else {
+    await navigator.clipboard.writeText(text);
+    alert("Fact copied to clipboard!");
+  }
+}
+
 const facts = [
   {
     image: "/assets/section10/Your-body-clock-influences.png",
@@ -106,6 +119,7 @@ export default function SleepFactsSharingSection() {
 <button
                   type="button"
                   aria-label={fact.shareLabel}
+                  onClick={() => shareFact(fact.text)}
                   className="inline-flex items-center justify-center gap-[8px] bg-white text-[#171717] border-[1.5px] border-[#E7A62A] rounded-full shadow-none focus:outline-none transition-colors duration-[160ms] cursor-pointer mt-[18px] w-[170px] h-[42px] md:w:[170px] md:h>[40px] lg:w:[190px] lg:h>[42px] text-[14px] font-medium leading>[1]"
                   style={{
                     fontFamily: "Poppins, sans-serif",
@@ -133,6 +147,10 @@ export default function SleepFactsSharingSection() {
         <div className="flex justify-center mt-[32px] w-full min-w-0">
 <button
             type="button"
+            onClick={() => {
+              const allText = facts.map((f) => f.text).join("\n\n");
+              shareFact(allText);
+            }}
             className="flex items-center justify-center bg-[#3B35A3] text-white border-none rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer w-full max-w-none md:w:[470px] md:max-w:[470px] lg:w:[500px] lg:max-w:[500px] min-h:[50px] h-auto md:h>[48px] lg:h>[48px] px-[14px] py-[12px] md:p-0 lg:p-0 text-[16px] md:text>[16px] lg:text>[17px] font-semibold leading>[1.35] md:leading>[1]"
             style={{
               fontFamily: "Poppins, sans-serif",
