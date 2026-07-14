@@ -29,20 +29,22 @@ export default function ChronotypeIntroductionSection() {
           padding: "52px 48px 44px",
         }}
       >
-        <div className="chronotype-intro-grid grid grid-cols-1 md:grid-cols-[minmax(0,570px)_410px] md:justify-between gap-[56px] md:gap-[56px] items-start w-full min-w-0">
+        <div className="chronotype-intro-grid grid grid-cols-1 md:grid-cols-[minmax(0,630px)_330px] md:justify-between gap-[56px] md:gap-[60px] items-start w-full min-w-0">
           <div className="chronotype-intro-copy w-full min-w-0">
             <h2 className="chronotype-intro-heading m-0 text-[#F59A00] text-left">
               <span className="chronotype-heading-primary">Discover Your Natural Sleep Rhythm:</span>
 
-              <span className="chronotype-heading-secondary">Understanding Chronotypes</span>
+              <span className="chronotype-heading-secondary">
+                Understanding Sleep Chronotypes
+              </span>
             </h2>
 
             <p
-              className="chronotype-intro-description m-0 mt-[18px] max-w-[560px] font-normal text-[#2F2A68]"
+              className="chronotype-intro-description m-0 mt-[18px] max-w-[560px] font-medium text-[#2F2A68]"
               style={{
                 fontFamily: "Poppins, sans-serif",
-                fontWeight: 400,
-                fontSize: "16px",
+                fontWeight: 500,
+                fontSize: "18px",
                 lineHeight: "1.5",
               }}
             >
@@ -55,7 +57,7 @@ export default function ChronotypeIntroductionSection() {
               style={{
                 fontFamily: "Poppins, sans-serif",
                 fontWeight: 600,
-                fontSize: "17px",
+                fontSize: "19px",
                 lineHeight: "1.35",
                 marginBottom: "8px",
               }}
@@ -67,11 +69,11 @@ export default function ChronotypeIntroductionSection() {
               {chronotypeInfluences.map((item) => (
                 <li
                   key={item}
-                  className="m-0 mb-[7px] font-normal text-[#171717]"
+                  className="m-0 mb-[7px] font-medium text-[#171717]"
                   style={{
                     fontFamily: "Poppins, sans-serif",
-                    fontWeight: 400,
-                    fontSize: "16px",
+                    fontWeight: 500,
+                    fontSize: "18px",
                     lineHeight: "1.4",
                   }}
                 >
@@ -103,11 +105,11 @@ export default function ChronotypeIntroductionSection() {
 
         <div className="chronotype-intro-footer w-full m-top-[24px] flex flex-col items-center text-center">
           <p
-            className="chronotype-intro-conclusion m-0 font-normal text-[#171717]"
+            className="chronotype-intro-conclusion m-0 font-medium text-[#171717]"
             style={{
               fontFamily: "Poppins, sans-serif",
-              fontWeight: 400,
-              fontSize: "15px",
+              fontWeight: 500,
+              fontSize: "17px",
               lineHeight: "1.5",
             }}
           >
@@ -115,7 +117,7 @@ export default function ChronotypeIntroductionSection() {
             perform at your best.
           </p>
 
-          <button type="button" onClick={openAssessment} className="chronotype-intro-cta w-[230px] h-[44px] m-top-[14px] inline-flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer text-[14px] font-semibold leading-[1]">
+          <button type="button" onClick={openAssessment} className="chronotype-intro-cta w-[260px] h-[48px] m-top-[14px] inline-flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer text-[16px] font-semibold leading-[1]">
             Take Test Now
           </button>
         </div>
@@ -133,9 +135,9 @@ export default function ChronotypeIntroductionSection() {
 
         .chronotype-intro-grid {
           display: grid;
-          grid-template-columns: minmax(0, 570px) 410px;
+          grid-template-columns: minmax(0, 630px) 330px;
           justify-content: space-between;
-          gap: 56px;
+          gap: 60px;
           align-items: start;
         }
 
@@ -143,8 +145,8 @@ export default function ChronotypeIntroductionSection() {
           margin: 0;
           color: #F59A00;
           text-align: left;
-          font-size: 33px;
-          line-height: 1.16;
+          font-size: 35px;
+          line-height: 1.2;
           font-weight: 600;
           letter-spacing: -0.025em;
         }
@@ -156,23 +158,23 @@ export default function ChronotypeIntroductionSection() {
 
         @media (min-width: 1024px) {
           .chronotype-heading-primary {
-            white-space: nowrap;
+            white-space: normal;
           }
         }
 
         .chronotype-intro-description {
           margin-top: 18px;
           max-width: 560px;
-          font-size: 16px;
+          font-size: 18px;
           line-height: 1.5;
-          font-weight: 400;
+          font-weight: 500;
           color: #2F2A68;
         }
 
         .chronotype-intro-label {
           margin-top: 22px;
           margin-bottom: 8px;
-          font-size: 17px;
+          font-size: 19px;
           line-height: 1.35;
           font-weight: 600;
           color: #171717;
@@ -187,14 +189,14 @@ export default function ChronotypeIntroductionSection() {
 
         .chronotype-intro-list li {
           margin-bottom: 7px;
-          font-size: 16px;
+          font-size: 18px;
           line-height: 1.4;
-          font-weight: 400;
+          font-weight: 500;
           color: #171717;
         }
 
         .chronotype-intro-image-wrap {
-          width: 410px;
+          width: 330px;
           max-width: 100%;
           align-self: start;
           margin-top: 4px;
@@ -204,7 +206,7 @@ export default function ChronotypeIntroductionSection() {
         .chronotype-intro-image {
           display: block;
           width: 100%;
-          height: 320px;
+          height: 280px;
           object-fit: cover;
           object-position: center;
           border-radius: 0;
@@ -222,15 +224,15 @@ export default function ChronotypeIntroductionSection() {
 
         .chronotype-intro-conclusion {
           margin: 0;
-          font-size: 15px;
+          font-size: 17px;
           line-height: 1.5;
-          font-weight: 400;
+          font-weight: 500;
           color: #171717;
         }
 
         .chronotype-intro-cta {
-          width: 230px;
-          height: 44px;
+          width: 260px;
+          height: 48px;
           margin-top: 14px;
           display: inline-flex;
           align-items: center;
@@ -248,7 +250,7 @@ export default function ChronotypeIntroductionSection() {
           }
 
           .chronotype-intro-heading {
-            font-size: 28px;
+            font-size: 30px;
           }
 
           .chronotype-heading-primary {
@@ -256,11 +258,11 @@ export default function ChronotypeIntroductionSection() {
           }
 
           .chronotype-intro-image-wrap {
-            width: 340px;
+            width: 300px;
           }
 
           .chronotype-intro-image {
-            height: 290px;
+            height: 250px;
           }
         }
 
@@ -276,7 +278,7 @@ export default function ChronotypeIntroductionSection() {
           }
 
           .chronotype-intro-heading {
-            font-size: clamp(25px, 6.8vw, 29px);
+            font-size: clamp(28px, 7.5vw, 34px);
             line-height: 1.2;
             text-align: left;
           }
@@ -293,17 +295,17 @@ export default function ChronotypeIntroductionSection() {
 
           .chronotype-intro-description {
             margin-top: 16px;
-            font-size: 14px;
+            font-size: 16px;
             line-height: 1.55;
           }
 
           .chronotype-intro-label {
             margin-top: 20px;
-            font-size: 16px;
+            font-size: 17px;
           }
 
           .chronotype-intro-list li {
-            font-size: 14px;
+            font-size: 16px;
             line-height: 1.5;
           }
 
@@ -324,12 +326,12 @@ export default function ChronotypeIntroductionSection() {
           }
 
           .chronotype-intro-conclusion {
-            font-size: 14px;
+            font-size: 16px;
             line-height: 1.5;
           }
 
           .chronotype-intro-cta {
-            width: min(100%, 230px);
+            width: min(100%, 260px);
           }
         }
       `}</style>

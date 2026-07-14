@@ -43,14 +43,14 @@ export default function WhySleepMattersSection() {
     >
       <div className="relative z-[1] mx-auto max-w-[1180px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[40px] lg:pt-[44px] pb-[38px] md:pb-[40px] lg:pb-[48px]">
         <h2
-          className="m-0 mx-auto text-[clamp(24px,6.4vw,29px)] leading-[1.2] font-semibold text-center text-[#F59A00]"
+          className="m-0 mx-auto text-[clamp(28px,7vw,34px)] leading-[1.2] font-semibold text-center text-[#F59A00]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, letterSpacing: "-0.025em", marginBottom: "10px" }}
         >
           Why Sleep Matters
         </h2>
 
         <p
-          className="m-0 mx-auto text-[16px] leading-[1.2] font-semibold text-center text-[#3B35A3]"
+          className="m-0 mx-auto text-[18px] leading-[1.2] font-semibold text-center text-[#3B35A3]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, letterSpacing: "0.02em", marginBottom: "18px" }}
         >
           FACT STRIP
@@ -71,14 +71,14 @@ export default function WhySleepMattersSection() {
                 className="fact-cell flex flex-col justify-center items-center text-center px-[16px] py-[18px] md:px-[22px] md:py-[20px] min-h-[96px] md:min-h-[110px] lg:min-h-[150px] relative min-w-0"
               >
                 <p
-                  className="m-0 text-[25px] leading-[1.15] md:text-[21px] lg:text-[24px] font-bold text-[#171717] text-center"
+                  className="m-0 text-[28px] leading-[1.15] md:text-[24px] lg:text-[28px] font-bold text-[#171717] text-center"
                   style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, marginBottom: "6px" }}
                 >
                   {fact.value}
                 </p>
                 <p
-                  className="m-0 text-[14px] leading-[1.35] max-w-[190px] text-center"
-                  style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, maxWidth: "190px" }}
+                  className="m-0 text-[16px] leading-[1.35] max-w-[210px] text-center"
+                  style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, maxWidth: "210px" }}
                 >
                   {fact.description}
                 </p>
@@ -108,14 +108,14 @@ export default function WhySleepMattersSection() {
         </div>
 
         <p
-          className="m-0 mx-auto text-[17px] leading-[1.45] font-semibold text-center text-[#F59A00]"
+          className="m-0 mx-auto text-[19px] leading-[1.45] font-semibold text-center text-[#F59A00]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "24px" }}
         >
           Good sleep changes your energy, your performance, and your quality of life.
         </p>
         <p
-          className="m-0 mx-auto text-[16px] leading-[1.5] font-normal text-center text-[#171717]"
-          style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginTop: "6px", marginBottom: "24px" }}
+          className="m-0 mx-auto text-[18px] leading-[1.5] font-medium text-center text-[#171717]"
+          style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, marginTop: "6px", marginBottom: "24px" }}
         >
           Quality sleep powers every area of life.
         </p>
@@ -124,7 +124,7 @@ export default function WhySleepMattersSection() {
           {pillars.map((pillar) => (
             <div key={pillar.title} className="flex flex-col items-stretch min-w-0">
               <h3
-                className="m-0 text-[20px] leading-[1.2] md:text-[20px] lg:text-[22px] font-semibold text-center text-[#171717]"
+                className="m-0 text-[22px] leading-[1.2] md:text-[22px] lg:text-[24px] font-semibold text-center text-[#171717]"
                 style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginBottom: "10px" }}
               >
                 {pillar.title}
@@ -139,8 +139,8 @@ export default function WhySleepMattersSection() {
                 />
               </div>
               <p
-                className="m-0 mx-auto text-[14px] leading-[1.5] md:text-[14px] lg:text-[14px] font-normal text-center text-[#171717]"
-                style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, maxWidth: "260px", marginTop: "10px" }}
+                className="m-0 mx-auto text-[16px] leading-[1.5] md:text-[16px] lg:text-[16px] font-medium text-center text-[#171717]"
+                style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, maxWidth: "280px", marginTop: "10px" }}
               >
                 {pillar.description}
               </p>
@@ -151,7 +151,7 @@ export default function WhySleepMattersSection() {
         <div className="flex justify-center mt-[24px] w-full">
           <button
             type="button"
-            className="flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer w-full max-w-[220px] md:w-[190px] lg:w-[205px] h-[44px] md:h-[42px] lg:h-[38px] text-[14px] font-semibold leading-[1]"
+            className="flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer w-full max-w-[250px] md:w-[230px] lg:w-[240px] h-[48px] md:h-[48px] lg:h-[46px] text-[16px] font-semibold leading-[1]"
             style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, borderRadius: 0, boxShadow: "none" }}
             onFocus={(e) => {
               e.currentTarget.style.outline = "3px solid rgba(59, 53, 163, 0.28)";

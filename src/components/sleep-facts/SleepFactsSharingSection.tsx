@@ -66,7 +66,7 @@ export default function SleepFactsSharingSection() {
       <div className="relative z-[1] mx-auto max-w-[1060px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[42px] lg:pt-[46px] pb-[38px] md:pb-[44px] lg:pb-[48px] min-w-0">
         {/* Heading */}
 <h2
-          className="m-0 mx-auto text-[clamp(24px,6.4vw,29px)] leading>[1.2] font-semibold text-center text-[#F59A00]"
+          className="m-0 mx-auto text-[clamp(28px,7vw,34px)] leading>[1.2] font-semibold text-center text-[#F59A00]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, letterSpacing: "-0.025em", marginBottom: "28px" }}
         >
           Sleep Facts Worth Sharing
@@ -109,8 +109,8 @@ export default function SleepFactsSharingSection() {
 
                 {/* Fact Text */}
 <p
-                  className="m-0 text-[14px] leading>[1.35] max-w-[190px] text-center"
-                  style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, maxWidth: "190px" }}
+                  className="m-0 text-[16px] leading>[1.35] max-w-[210px] text-center"
+                  style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, maxWidth: "210px" }}
                 >
                   {fact.text}
                 </p>
@@ -120,7 +120,7 @@ export default function SleepFactsSharingSection() {
                   type="button"
                   aria-label={fact.shareLabel}
                   onClick={() => shareFact(fact.text)}
-                  className="inline-flex items-center justify-center gap-[8px] bg-white text-[#171717] border-[1.5px] border-[#E7A62A] rounded-full shadow-none focus:outline-none transition-colors duration-[160ms] cursor-pointer mt-[18px] w-[170px] h-[42px] md:w:[170px] md:h>[40px] lg:w:[190px] lg:h>[42px] text-[14px] font-medium leading>[1]"
+                  className="inline-flex items-center justify-center gap-[8px] bg-white text-[#171717] border-[1.5px] border-[#E7A62A] rounded-full shadow-none focus:outline-none transition-colors duration-[160ms] cursor-pointer mt-[18px] w-[190px] h-[46px] md:w:[190px] md:h>[46px] lg:w:[210px] lg:h>[48px] text-[16px] font-medium leading>[1]"
                   style={{
                     fontFamily: "Poppins, sans-serif",
                     fontWeight: 500,
@@ -151,7 +151,7 @@ export default function SleepFactsSharingSection() {
               const allText = facts.map((f) => f.text).join("\n\n");
               shareFact(allText);
             }}
-            className="flex items-center justify-center bg-[#3B35A3] text-white border-none rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer w-full max-w-none md:w:[470px] md:max-w:[470px] lg:w:[500px] lg:max-w:[500px] min-h:[50px] h-auto md:h>[48px] lg:h>[48px] px-[14px] py-[12px] md:p-0 lg:p-0 text-[16px] md:text>[16px] lg:text>[17px] font-semibold leading>[1.35] md:leading>[1]"
+            className="flex items-center justify-center bg-[#3B35A3] text-white border-none rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer w-full max-w-none md:w:[470px] md:max-w:[470px] lg:w:[500px] lg:max-w:[500px] min-h:[50px] h-auto md:h>[52px] lg:h>[54px] px-[18px] py-[12px] md:p-0 lg:p-0 text-[18px] md:text>[18px] lg:text>[19px] font-semibold leading>[1.35] md:leading>[1]"
             style={{
               fontFamily: "Poppins, sans-serif",
               fontWeight: 600,

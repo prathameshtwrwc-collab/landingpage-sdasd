@@ -52,9 +52,9 @@ export default function DailyEnergyPillarsSection() {
         <h2
           className="
             m-0 mx-auto
-            text-[clamp(24px,6.4vw,29px)] leading-[1.2]
-            md:text-[clamp(27px,3.4vw,32px)]
-            lg:text-[clamp(32px,2.45vw,38px)]
+            text-[clamp(28px,7vw,34px)] leading-[1.2]
+            md:text-[clamp(31px,3.8vw,37px)]
+            lg:text-[clamp(36px,2.7vw,43px)]
             font-semibold
             text-center
             text-[#F59A00]
@@ -85,7 +85,7 @@ export default function DailyEnergyPillarsSection() {
               <h3
                 className="
                   m-0
-                  text-[20px] font-semibold
+                  text-[22px] font-semibold
                   text-center
                   text-[#171717]
                 "
@@ -119,15 +119,15 @@ export default function DailyEnergyPillarsSection() {
 
               <p
                 className="
-                  text-[15px] leading-[1.45]
+                  text-[17px] leading-[1.45]
                   text-center
                   text-[#171717]
                 "
                 style={{
                   fontFamily: "Poppins, sans-serif",
-                  fontWeight: 400,
+                  fontWeight: 500,
                   marginTop: "12px",
-                  maxWidth: "220px",
+                  maxWidth: "240px",
                   marginLeft: "auto",
                   marginRight: "auto",
                   minHeight: "58px",
@@ -142,12 +142,12 @@ export default function DailyEnergyPillarsSection() {
         <p
           className="
             text-center
-            text-[16px] leading-[1.5]
+            text-[18px] leading-[1.5]
             text-[#171717]
           "
           style={{
             fontFamily: "Poppins, sans-serif",
-            fontWeight: 400,
+            fontWeight: 500,
             marginTop: "22px",
             maxWidth: "900px",
             marginLeft: "auto",
@@ -171,9 +171,9 @@ export default function DailyEnergyPillarsSection() {
               transition-all duration-[160ms] ease-[ease]
               hover:-translate-y-[1px]
               cursor-pointer
-              w-full max-w-[320px] md:w-[320px] lg:w-[320px]
-              h-[44px]
-              text-[14px] font-semibold leading-[1]
+              w-full max-w-[350px] md:w-[350px] lg:w-[350px]
+              h-[48px]
+              text-[16px] font-semibold leading-[1]
             "
             style={{
               fontFamily: "Poppins, sans-serif",

@@ -19,7 +19,7 @@ export default function AdditionalGuidanceSection() {
         <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_390px] lg:grid-cols-[minmax(0,1fr)_470px] gap-[0px] md:gap-[36px] lg:gap-[58px] items-center min-w-0">
           <div className="w-full max-w-[500px] text-left min-w-0">
             <h2
-              className="m-0 text-[clamp(24px,6.4vw,29px)] leading-[1.2] md:text-[clamp(27px,3.4vw,32px)] lg:text-[clamp(32px,2.45vw,38px)] font-semibold text-[#F59A00] text-left"
+              className="m-0 text-[clamp(28px,7vw,34px)] leading-[1.2] md:text-[clamp(31px,3.8vw,37px)] lg:text-[clamp(36px,2.7vw,43px)] font-semibold text-[#F59A00] text-left"
               style={{
                 fontFamily: "Poppins, sans-serif",
                 fontWeight: 600,
@@ -31,7 +31,7 @@ export default function AdditionalGuidanceSection() {
             </h2>
 
             <p
-              className="m-0 text-[18px] leading-[1.45] md:text-[16px] md:leading-[1.5] lg:text-[18px] lg:leading-[1.5] font-medium text-[#171717] text-left"
+              className="m-0 text-[20px] leading-[1.45] md:text-[18px] md:leading-[1.5] lg:text-[20px] lg:leading-[1.5] font-medium text-[#171717] text-left"
               style={{
                 fontFamily: "Poppins, sans-serif",
                 fontWeight: 500,
@@ -43,10 +43,10 @@ export default function AdditionalGuidanceSection() {
             </p>
 
             <p
-              className="m-0 text-[16px] leading-[1.58] md:text-[15px] lg:text-[16px] lg:leading-[1.58] font-normal text-[#171717] text-left"
+              className="m-0 text-[18px] leading-[1.58] md:text-[17px] lg:text-[18px] lg:leading-[1.58] font-medium text-[#171717] text-left"
               style={{
                 fontFamily: "Poppins, sans-serif",
-                fontWeight: 400,
+                fontWeight: 500,
                 maxWidth: "500px",
               }}
             >
@@ -79,7 +79,7 @@ export default function AdditionalGuidanceSection() {
           <button
             type="button"
             onClick={openConsult}
-            className="flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none border-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer w-full max-w-[300px] md:w-[280px] lg:w-[310px] h-[44px] md:h-[42px] lg:h-[44px] text-[15px] font-semibold leading-[1]"
+            className="flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none border-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer w-full max-w-[340px] md:w-[310px] lg:w-[340px] h-[48px] md:h-[48px] lg:h-[50px] text-[17px] font-semibold leading-[1]"
             style={{
               fontFamily: "Poppins, sans-serif",
               fontWeight: 600,

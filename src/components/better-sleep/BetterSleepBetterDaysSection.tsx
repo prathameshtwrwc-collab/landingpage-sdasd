@@ -35,9 +35,9 @@ export default function BetterSleepBetterDaysSection() {
         <h2
           className="
             m-0 mx-auto
-            text-[clamp(24px,6.4vw,29px)] leading-[1.2]
-            md:text-[clamp(27px,3.4vw,32px)]
-            lg:text-[clamp(32px,2.45vw,38px)]
+            text-[clamp(28px,7vw,34px)] leading-[1.2]
+            md:text-[clamp(31px,3.8vw,37px)]
+            lg:text-[clamp(36px,2.7vw,43px)]
             font-semibold
             text-center
             text-[#F59A00]
@@ -55,9 +55,9 @@ export default function BetterSleepBetterDaysSection() {
         <p
           className="
             m-0 mx-auto
-            text-[16px] leading-[1.45]
-            md:text-[16px] md:leading-[1.45]
-            lg:text-[17px] lg:leading-[1.45]
+            text-[18px] leading-[1.45]
+            md:text-[18px] md:leading-[1.45]
+            lg:text-[19px] lg:leading-[1.45]
             font-semibold
             text-center
             text-[#171717]
@@ -123,15 +123,15 @@ export default function BetterSleepBetterDaysSection() {
                 >
                   <span
                     className="
-                      text-[16px] leading-[1.4]
-                      md:text-[14px] lg:text-[16px]
+                      text-[18px] leading-[1.4]
+                      md:text-[16px] lg:text-[18px]
                       text-[#171717]
-                      font-normal
+                      font-medium
                       break-words
                     "
                     style={{
                       fontFamily: "Poppins, sans-serif",
-                      fontWeight: 400,
+                      fontWeight: 500,
                     }}
                   >
                     {item}

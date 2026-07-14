@@ -13,6 +13,11 @@ const totalSlides = bgImages.length;
 const slideImages = [...bgImages, bgImages[0]];
 const totalSlideItems = slideImages.length;
 
+const benefitSets = [
+  ["/assets/hero/benefit-1.png", "/assets/hero/benefit-2.png", "/assets/hero/benefit-3.png"],
+  ["/assets/hero/benefit-4.png", "/assets/hero/benefit-5.png", "/assets/hero/benefit-6.png"],
+];
+
 export default function HeroSection() {
   const { open: openAssessment } = useAssessment();
   const { open: openConsult } = useConsult();
@@ -100,9 +105,9 @@ export default function HeroSection() {
               .hero-heading-orange { font-size: clamp(46px, 5.3vw, 56px) !important; }
               .hero-heading-indigo { font-size: clamp(42px, 4.9vw, 52px) !important; }
               .hero-benefits { margin-top: 34px !important; }
-              .hero-benefit-label { font-size: 16px !important; }
+              .hero-benefit-label { font-size: 18px !important; }
               .hero-actions { margin-top: 28px !important; }
-              .hero-actions button { font-size: 14px !important; }
+              .hero-actions button { font-size: 15px !important; }
             }
             @media (min-width: 1024px) {
               .hero-section { min-height: 680px !important; }
@@ -122,20 +127,20 @@ export default function HeroSection() {
               .hero-heading-indigo { font-size: clamp(36px, 9.3vw, 44px) !important; margin-top: 10px !important; }
               .hero-line-chronotype { white-space: normal !important; }
               .hero-mobile-visual { display: block !important; width: 100% !important; aspect-ratio: 16/10 !important; margin-top: 20px !important; background-repeat: no-repeat !important; background-size: cover !important; background-position: 68% center !important; }
-              .hero-benefits { width: 100% !important; max-width: none !important; margin-top: 24px !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 6px !important; }
+              .hero-benefits { width: 100% !important; max-width: none !important; margin-top: 24px !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 4px !important; }
               .hero-actions { width: 100% !important; max-width: none !important; margin-top: 24px !important; grid-template-columns: 1fr !important; gap: 9px !important; }
-              .hero-actions button { height: 46px !important; font-size: 14px !important; }
+              .hero-actions button { height: 48px !important; font-size: 15px !important; }
               .hero-benefit-media {
-                width: clamp(60px, 18vw, 74px);
-                height: clamp(60px, 18vw, 74px);
+                width: clamp(84px, 24vw, 108px);
+                height: clamp(84px, 24vw, 108px);
                 flex-basis: auto;
               }
               .hero-benefit-label {
-                font-size: clamp(12px, 3.6vw, 15px) !important;
+                font-size: clamp(14px, 4vw, 17px) !important;
                 line-height: 1.15 !important;
               }
               .hero-benefit:not(:last-child)::after {
-                height: 76px;
+                height: 106px;
               }
             }
             .hero-heading-orange {
@@ -162,12 +167,12 @@ export default function HeroSection() {
             }
             .hero-benefits {
               width: 100%;
-              max-width: 570px;
+              max-width: 720px;
               margin-top: 48px;
               display: grid;
-              grid-template-columns: repeat(3, minmax(0, 1fr));
+              grid-template-columns: 210px 210px 270px;
               align-items: start;
-              gap: 0;
+              gap: 7px;
             }
             .hero-benefit {
               position: relative;
@@ -180,9 +185,9 @@ export default function HeroSection() {
             }
             .hero-benefit-media {
               position: relative;
-              width: 78px;
-              height: 78px;
-              flex: 0 0 78px;
+              width: 128px;
+              height: 128px;
+              flex: 0 0 128px;
               overflow: hidden;
               border-radius: 50%;
               background: linear-gradient(145deg, #eef7fb 0%, #f3f0fb 100%);
@@ -193,20 +198,21 @@ export default function HeroSection() {
               height: 100%;
               object-fit: cover;
               border-radius: inherit;
+              transform: scale(1.25);
             }
             .hero-benefit:not(:last-child)::after {
               content: "";
               position: absolute;
-              top: 4px;
-              right: 0;
+              top: 6px;
+              right: -4px;
               width: 1.5px;
-              height: 92px;
+              height: 144px;
               background: #e4b93d;
             }
             .hero-benefit-label {
               width: 100%;
               margin-top: 11px;
-              font-size: 19px;
+              font-size: 22px;
               line-height: 1.15;
               font-weight: 600;
               text-align: center;
@@ -214,17 +220,17 @@ export default function HeroSection() {
             }
             .hero-actions {
               width: 100%;
-              max-width: 650px;
+              max-width: 720px;
               margin-top: 38px;
               display: grid;
-              grid-template-columns: 190px 190px 245px;
+              grid-template-columns: 210px 210px 270px;
               gap: 7px;
             }
             .hero-actions button {
               width: 100%;
-              height: 42px;
+              height: 48px;
               border-radius: 0;
-              font-size: 15px;
+              font-size: 17px;
               font-weight: 600;
             }
             @media (max-width: 767px) {
@@ -278,6 +284,10 @@ export default function HeroSection() {
                 width: 36px;
                 height: 36px;
               }
+            }
+            @keyframes benefitFadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
             }
           `,
         }}
@@ -334,50 +344,36 @@ export default function HeroSection() {
             </span>
           </h1>
 
-          <div className="hero-benefits">
-            <div className="hero-benefit">
-              <div className="hero-benefit-media">
-                <img
-                  src="/assets/hero/benefit-1.png"
-                  alt="Person experiencing restorative sleep"
-                  draggable={false}
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                />
+          <div
+            key={currentSlide % totalSlides}
+            className="hero-benefits"
+            style={{ animation: "benefitFadeIn 0.7s ease-in-out" }}
+          >
+            {benefitSets[currentSlide % totalSlides].map((src, imgIdx) => (
+              <div key={imgIdx} className="hero-benefit">
+                <div className="hero-benefit-media">
+                  <img
+                    src={src}
+                    alt=""
+                    draggable={false}
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  />
+                </div>
+                <p className="hero-benefit-label" style={{ color: imgIdx === 1 ? "#37329D" : "#FF9700" }}>
+                  {imgIdx === 0 ? "Better Sleep" : imgIdx === 1 ? "Better Energy" : "Better Life"}
+                </p>
               </div>
-              <p className="hero-benefit-label" style={{ color: "#FF9700" }}>Better Sleep</p>
-            </div>
-            <div className="hero-benefit">
-              <div className="hero-benefit-media">
-                <img
-                  src="/assets/hero/benefit-2.png"
-                  alt="Person feeling energized"
-                  draggable={false}
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                />
-              </div>
-              <p className="hero-benefit-label" style={{ color: "#37329D" }}>Better Energy</p>
-            </div>
-            <div className="hero-benefit">
-              <div className="hero-benefit-media">
-                <img
-                  src="/assets/hero/benefit-3.png"
-                  alt="Person enjoying an active healthy life"
-                  draggable={false}
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                />
-              </div>
-              <p className="hero-benefit-label" style={{ color: "#FF9700" }}>Better Life</p>
-            </div>
+            ))}
           </div>
 
           <div className="hero-actions">
-            <button type="button" onClick={openAssessment} className="flex items-center justify-center bg-[#3A34A3] hover:bg-[#322e8e] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
+            <button type="button" onClick={openAssessment} className="flex items-center justify-center bg-[#3A34A3] hover:bg-[#322e8e] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
               Take Test Now
             </button>
-            <button type="button" onClick={scrollToSleepCycles} className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
+            <button type="button" onClick={scrollToSleepCycles} className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
               Learn About Sleep
             </button>
-            <button type="button" onClick={openConsult} className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[15px] font-semibold leading-[1] tracking-[-0.01em] px-[14px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
+            <button type="button" onClick={openConsult} className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
               Consult a Sleep Specialist
             </button>
           </div>

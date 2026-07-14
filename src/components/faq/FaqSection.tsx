@@ -70,7 +70,7 @@ export default function FaqSection() {
         {/* Heading */}
 <h2
           id="faq-heading"
-          className="m-0 mx-auto text-[clamp(24px,6.4vw,29px)] leading>[1.2] font-semibold text-center text-[#F59A00]"
+          className="m-0 mx-auto text-[clamp(28px,7vw,34px)] leading>[1.2] font-semibold text-center text-[#F59A00]"
           style={{
             fontFamily: "Poppins, sans-serif",
             fontWeight: 600,
@@ -119,7 +119,7 @@ export default function FaqSection() {
 
                   {/* Question */}
 <span
-                    className="text-[17px] leading>[1.4] md:text>[16px] lg:text>[17px] font-semibold text-[#171717] group-hover:text-[#3B35A3] transition-colors duration-[160ms]"
+                    className="text-[19px] leading>[1.4] md:text>[18px] lg:text>[19px] font-semibold text-[#171717] group-hover:text-[#3B35A3] transition-colors duration-[160ms]"
                     style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
                   >
                     {faq.q}
@@ -163,10 +163,10 @@ export default function FaqSection() {
                   hidden={!isOpen}
                 >
 <div
-                    className="text-[14px] leading>[1.65] md:text>[14px] lg:text>[14px] font-normal text-[#444444] pb-[16px] md:pb>[18px] lg:pb>[18px] min-w-0"
+                    className="text-[16px] leading>[1.65] md:text>[16px] lg:text>[16px] font-medium text-[#444444] pb-[16px] md:pb>[18px] lg:pb>[18px] min-w-0"
                     style={{
                       fontFamily: "Poppins, sans-serif",
-                      fontWeight: 400,
+                      fontWeight: 500,
                       paddingLeft: "20px",
                       paddingRight: "26px",
                       maxWidth: "820px",

@@ -5,7 +5,7 @@ import React from "react";
 const checklistItems = [
   "Sleep quality",
   "Energy levels",
-  "Productivity",
+  "Productivity - Work, Social and Family",
   "Focus",
   "Exercise performance",
   "Recovery",
@@ -37,9 +37,9 @@ export default function ChronotypeOptimizationSection() {
         <h2
           className="
             m-0 mx-auto
-            text-[clamp(24px,6.4vw,29px)] leading-[1.2]
-            md:text-[clamp(27px,3.4vw,32px)]
-            lg:text-[clamp(32px,2.45vw,38px)]
+            text-[clamp(28px,7vw,34px)] leading-[1.2]
+            md:text-[clamp(31px,3.8vw,37px)]
+            lg:text-[clamp(36px,2.7vw,43px)]
             font-semibold
             text-center
             text-[#F59A00]
@@ -70,9 +70,9 @@ export default function ChronotypeOptimizationSection() {
           <div style={{ maxWidth: "460px" }} className="w-full min-w-0">
             <p
               className="
-                text-[18px] leading-[1.3]
-                md:text-[18px] md:leading-[1.3]
-                lg:text-[21px] lg:leading-[1.3]
+                text-[20px] leading-[1.3]
+                md:text-[20px] md:leading-[1.3]
+                lg:text-[23px] lg:leading-[1.3]
                 font-semibold
                 text-[#171717]
               "
@@ -114,14 +114,14 @@ export default function ChronotypeOptimizationSection() {
                   />
                   <span
                     className="
-                      text-[16px] leading-[1.55]
-                      md:text-[15px] md:leading-[1.55]
-                      lg:text-[16px] lg:leading-[1.55]
+                      text-[18px] leading-[1.55]
+                      md:text-[17px] md:leading-[1.55]
+                      lg:text-[18px] lg:leading-[1.55]
                       text-[#171717]
                     "
                     style={{
                       fontFamily: "Poppins, sans-serif",
-                      fontWeight: 400,
+                      fontWeight: 500,
                     }}
                   >
                     {item}
@@ -171,29 +171,29 @@ export default function ChronotypeOptimizationSection() {
         >
           <p
             className="
-              text-[15px] leading-[1.58]
-              md:text-[15px] md:leading-[1.58]
-              lg:text-[16px] lg:leading-[1.58]
+              text-[17px] leading-[1.58]
+              md:text-[17px] md:leading-[1.58]
+              lg:text-[18px] lg:leading-[1.58]
               text-[#171717]
             "
             style={{
               fontFamily: "Poppins, sans-serif",
-              fontWeight: 400,
+              fontWeight: 500,
             }}
           >
             Peak performance comes from doing the right things at the right time.
           </p>
           <p
             className="
-              text-[15px] leading-[1.58]
-              md:text-[15px] md:leading-[1.58]
-              lg:text-[16px] lg:leading-[1.58]
+              text-[17px] leading-[1.58]
+              md:text-[17px] md:leading-[1.58]
+              lg:text-[18px] lg:leading-[1.58]
               text-[#171717]
               mt-[2px]
             "
             style={{
               fontFamily: "Poppins, sans-serif",
-              fontWeight: 400,
+              fontWeight: 500,
             }}
           >
             Take the test now to know your type and transform your health, wellness,

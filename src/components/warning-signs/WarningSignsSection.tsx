@@ -28,15 +28,15 @@ export default function WarningSignsSection() {
     >
       <div className="relative z-[1] mx-auto max-w-[1120px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[40px] lg:pt-[46px] pb-[38px] md:pb-[44px] lg:pb-[48px] min-w-0">
         <h2
-          className="m-0 mx-auto text-[clamp(24px,6.4vw,29px)] leading-[1.2] font-semibold text-center text-[#F59A00]"
+          className="m-0 mx-auto text-[clamp(28px,7vw,34px)] leading-[1.2] font-semibold text-center text-[#F59A00]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, letterSpacing: "-0.025em", marginBottom: "10px" }}
         >
           Warning Signs That Need Attention
         </h2>
 
         <p
-          className="m-0 mx-auto text-[16px] leading-[1.45] md:text-[16px] lg:text-[17px] font-normal text-center text-[#171717]"
-          style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginBottom: "24px" }}
+          className="m-0 mx-auto text-[18px] leading-[1.45] md:text-[18px] lg:text-[19px] font-medium text-center text-[#171717]"
+          style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, marginBottom: "24px" }}
         >
           Seek professional evaluation if you experience:
         </p>
@@ -67,11 +67,11 @@ export default function WarningSignsSection() {
                     />
                   </div>
                   <p
-                    className="text-[14px] leading-[1.4] font-normal text-center text-[#171717] break-words"
+                    className="text-[16px] leading-[1.4] font-medium text-center text-[#171717] break-words"
                     style={{
                       fontFamily: "Poppins, sans-serif",
-                      fontWeight: 400,
-                      maxWidth: "190px",
+                      fontWeight: 500,
+                      maxWidth: "210px",
                       marginTop: "10px",
                       marginLeft: "auto",
                       marginRight: "auto",
@@ -86,8 +86,8 @@ export default function WarningSignsSection() {
           </div>
 
           <p
-            className="text-center text-[15px] leading-[1.5] md:text-[15px] lg:text-[16px] font-normal text-[#171717]"
-            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginTop: "30px", fontSize: "15px", lineHeight: "1.5" }}
+            className="text-center text-[17px] leading-[1.5] md:text-[17px] lg:text-[18px] font-medium text-[#171717]"
+            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, marginTop: "30px", fontSize: "17px", lineHeight: "1.5" }}
           >
             Better awareness leads to earlier support and better outcomes.
           </p>
@@ -96,7 +96,7 @@ export default function WarningSignsSection() {
             <button
               type="button"
               onClick={openConsult}
-              className="flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer w-full max-w-[240px] md:w-[230px] lg:w-[235px] h-[44px] md:h-[40px] lg:h-[40px] text-[14px] font-semibold leading-[1]"
+              className="flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer w-full max-w-[260px] md:w-[260px] lg:w-[270px] h-[48px] md:h-[48px] lg:h-[48px] text-[16px] font-semibold leading-[1]"
               style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, borderRadius: 0, boxShadow: "none" }}
               onFocus={(e) => {
                 e.currentTarget.style.outline = "3px solid rgba(59, 53, 163, 0.28)";

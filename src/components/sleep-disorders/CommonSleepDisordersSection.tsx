@@ -67,13 +67,13 @@ export default function CommonSleepDisordersSection() {
     >
       <div className="relative z-[1] mx-auto max-w-[1180px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[40px] lg:pt-[44px] pb-[38px] md:pb-[40px] lg:pb-[44px] min-w-0">
         <h2
-          className="m-0 mx-auto text-[clamp(23px,7vw,28px)] leading-[1.18] tracking-[-0.02em] md:text-[27px] lg:text-[30px] font-semibold text-center text-[#F59A00]"
+          className="m-0 mx-auto text-[clamp(28px,7vw,34px)] leading-[1.18] tracking-[-0.02em] md:text-[31px] lg:text-[36px] font-semibold text-center text-[#F59A00]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, letterSpacing: "-0.02em", marginBottom: "8px" }}
         >
-          Common Sleep Disorders
+Common Sleep Disorders - 8 Types
         </h2>
         <p
-          className="m-0 mx-auto text-[14px] leading-[1.6] md:text-[14px] lg:text-[15px] font-medium text-center text-[#3B35A3]"
+          className="m-0 mx-auto text-[16px] leading-[1.6] md:text-[16px] lg:text-[17px] font-medium text-center text-[#3B35A3]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, maxWidth: "900px", marginBottom: "24px" }}
         >
           Sleep disorders can affect sleep quality, daytime functioning, productivity, emotional well-being, and long-term health.
@@ -131,9 +131,10 @@ export default function CommonSleepDisordersSection() {
                   }
                   .disorders-slide-divider {
                     width: 2px;
-                    height: 320px;
+                    height: auto;
+                    min-height: 320px;
                     background: #F59A00;
-                    align-self: center;
+                    align-self: stretch;
                   }
                   .disorders-mobile-card {
                     width: 100%;
@@ -154,7 +155,7 @@ export default function CommonSleepDisordersSection() {
                   @media(min-width:1024px){
                     .disorders-slide-card-image { height: 280px; }
                     .disorders-slide-pair { padding: 48px 70px 32px; }
-                    .disorders-slide-divider { height: 350px; }
+                    .disorders-slide-divider { min-height: 350px; }
                   }
                 `,
               }}
@@ -177,10 +178,10 @@ export default function CommonSleepDisordersSection() {
                           style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0, boxShadow: "none", display: "block" }}
                         />
                       </div>
-                      <h3 className="text-[18px] lg:text-[20px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
+                      <h3 className="text-[20px] lg:text-[22px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
                         {disorders[pairStart].title}
                       </h3>
-                      <p className="text-[14px] lg:text-[15px] leading-[1.45] font-normal text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginTop: "5px", maxWidth: "440px" }}>
+                      <p className="text-[16px] lg:text-[17px] leading-[1.45] font-medium text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, marginTop: "5px", maxWidth: "440px" }}>
                         {disorders[pairStart].subtitle}
                       </p>
                     </div>
@@ -195,10 +196,10 @@ export default function CommonSleepDisordersSection() {
                           style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0, boxShadow: "none", display: "block" }}
                         />
                       </div>
-                      <h3 className="text-[18px] lg:text-[20px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
+                      <h3 className="text-[20px] lg:text-[22px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
                         {disorders[pairStart + 1].title}
                       </h3>
-                      <p className="text-[14px] lg:text-[15px] leading-[1.45] font-normal text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginTop: "5px", maxWidth: "440px" }}>
+                      <p className="text-[16px] lg:text-[17px] leading-[1.45] font-medium text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, marginTop: "5px", maxWidth: "440px" }}>
                         {disorders[pairStart + 1].subtitle}
                       </p>
                     </div>
@@ -251,10 +252,10 @@ export default function CommonSleepDisordersSection() {
                         style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0 }}
                       />
                     </div>
-                    <h3 className="text-[18px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
+                    <h3 className="text-[20px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
                       {disorder.title}
                     </h3>
-                    <p className="text-[14px] leading-[1.45] font-normal text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginTop: "5px" }}>
+                    <p className="text-[16px] leading-[1.45] font-medium text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, marginTop: "5px" }}>
                       {disorder.subtitle}
                     </p>
                   </div>
@@ -290,7 +291,7 @@ export default function CommonSleepDisordersSection() {
         </div>
 
         <div className="flex items-center justify-center text-center bg-[rgba(255,255,255,0.92)] border-[1.5px] border-[#E4B93D] rounded-none mx-auto mt-[18px] px-[14px] md:px-[20px] lg:px-[24px] py-[12px] md:py-[10px] lg:py-[10px] min-h-[48px] w-full md:w-[calc(100%-80px)] lg:w-[calc(100%-120px)] min-w-0" style={{ borderRadius: 0, width: "100%", fontSize: "14px", lineHeight: "1.45", padding: "12px 14px" }}>
-          <p className="m-0 text-[14px] leading-[1.45] md:text-[14px] lg:text-[15px] font-semibold text-[#171717] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+          <p className="m-0 text-[16px] leading-[1.45] md:text-[16px] lg:text-[17px] font-semibold text-[#171717] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
             Not all sleep problems look the same. Recognizing the signs is the first step toward improvement.
           </p>
         </div>
