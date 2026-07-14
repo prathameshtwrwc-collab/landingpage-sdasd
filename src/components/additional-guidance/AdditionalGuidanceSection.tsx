@@ -1,8 +1,10 @@
 "use client";
 
 import React from "react";
+import { useConsult } from "@/components/consult/ConsultContext";
 
 export default function AdditionalGuidanceSection() {
+  const { open: openConsult } = useConsult();
   return (
     <section
       id="additional-guidance"
@@ -76,6 +78,7 @@ export default function AdditionalGuidanceSection() {
         <div className="flex justify-center mt-[24px] md:mt-[24px] lg:mt-[28px]">
           <button
             type="button"
+            onClick={openConsult}
             className="flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none border-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer w-full max-w-[300px] md:w-[280px] lg:w-[310px] h-[44px] md:h-[42px] lg:h-[44px] text-[15px] font-semibold leading-[1]"
             style={{
               fontFamily: "Poppins, sans-serif",
