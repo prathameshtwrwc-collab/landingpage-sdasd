@@ -7,10 +7,6 @@ import { useConsult } from "@/components/consult/ConsultContext";
 const bgImages = [
   "/assets/hero/hero-bg.png",
   "/assets/hero/bg2.png",
-  "/assets/hero/bg3.png",
-  "/assets/hero/bg4.png",
-  "/assets/hero/bg5.png",
-  "/assets/hero/bg6.png",
 ];
 
 const totalSlides = bgImages.length;
