@@ -161,6 +161,7 @@ export default function DailyEnergyPillarsSection() {
         <div className="flex justify-center mt-[14px] w-full px-0">
           <button
             type="button"
+            onClick={() => document.getElementById("understanding-sleep-cycles")?.scrollIntoView({ behavior: "smooth" })}
             className="
               flex items-center justify-center
               bg-[#3B35A3] hover:bg-[#332D92]
