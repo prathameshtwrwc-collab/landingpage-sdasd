@@ -178,7 +178,7 @@ export default function ConsultModal() {
               <FormField label="State *" value={form.state} onChange={(v) => update("state", v)} error={errors.state} />
               <FormField label="City *" value={form.city} onChange={(v) => update("city", v)} error={errors.city} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+            <div className="mb-[12px]">
               <FormField label="Pincode *" value={form.pincode} onChange={(v) => update("pincode", v)} error={errors.pincode} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
