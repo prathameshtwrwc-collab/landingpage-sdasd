@@ -97,22 +97,38 @@ const questions = [
 interface FormData {
   fname: string;
   lname: string;
-  email: string;
   age: string;
-  mobile: string;
   gender: string;
   maritalStatus: string;
+  department: string;
+  location: string;
+  country: string;
+  city: string;
+  pincode: string;
+  occupation: string;
+  email: string;
+  phone: string;
+  orgCode: string;
+  referralCode: string;
   agreed: boolean;
 }
 
 const initialForm: FormData = {
   fname: "",
   lname: "",
-  email: "",
   age: "",
-  mobile: "",
   gender: "",
   maritalStatus: "",
+  department: "",
+  location: "",
+  country: "",
+  city: "",
+  pincode: "",
+  occupation: "",
+  email: "",
+  phone: "",
+  orgCode: "",
+  referralCode: "",
   agreed: false,
 };
 
@@ -141,11 +157,15 @@ export default function AssessmentModal() {
     const e: Record<string, string> = {};
     if (!form.fname.trim()) e.fname = "Required";
     if (!form.lname.trim()) e.lname = "Required";
-    if (!form.email.trim()) e.email = "Required";
-    if (!form.age.trim()) e.age = "Required";
-    if (!form.mobile.trim()) e.mobile = "Required";
+    if (!form.age) e.age = "Required";
     if (!form.gender) e.gender = "Required";
     if (!form.maritalStatus) e.maritalStatus = "Required";
+    if (!form.country.trim()) e.country = "Required";
+    if (!form.city.trim()) e.city = "Required";
+    if (!form.pincode.trim()) e.pincode = "Required";
+    if (!form.occupation.trim()) e.occupation = "Required";
+    if (!form.email.trim()) e.email = "Required";
+    if (!form.phone.trim()) e.phone = "Required";
     if (!form.agreed) e.agreed = "Required";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -228,23 +248,39 @@ export default function AssessmentModal() {
               Fill in your details to begin the assessment
             </p>
 
-            <div className="grid grid-cols-2 gap-[12px] mb-[12px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
               <Field label="First Name *" value={form.fname} onChange={(v) => updateForm("fname", v)} error={errors.fname} />
               <Field label="Last Name *" value={form.lname} onChange={(v) => updateForm("lname", v)} error={errors.lname} />
             </div>
-            <div className="mb-[12px]">
-              <Field label="Email *" value={form.email} onChange={(v) => updateForm("email", v)} error={errors.email} type="email" />
-            </div>
-            <div className="grid grid-cols-2 gap-[12px] mb-[12px]">
-              <Field label="Age *" value={form.age} onChange={(v) => updateForm("age", v)} error={errors.age} type="number" />
-              <Field label="Mobile *" value={form.mobile} onChange={(v) => updateForm("mobile", v)} error={errors.mobile} type="tel" />
-            </div>
-            <div className="grid grid-cols-2 gap-[12px] mb-[12px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+              <AgeSelect label="Age *" value={form.age} onChange={(v) => updateForm("age", v)} error={errors.age} />
               <SelectField label="Gender *" value={form.gender} onChange={(v) => updateForm("gender", v)} error={errors.gender} options={["Male", "Female", "Other"]} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
               <SelectField label="Marital Status *" value={form.maritalStatus} onChange={(v) => updateForm("maritalStatus", v)} error={errors.maritalStatus} options={["Single", "Married", "Divorced", "Widowed"]} />
+              <Field label="Department (Optional)" value={form.department} onChange={(v) => updateForm("department", v)} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+              <Field label="Country *" value={form.country} onChange={(v) => updateForm("country", v)} error={errors.country} />
+              <Field label="City *" value={form.city} onChange={(v) => updateForm("city", v)} error={errors.city} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+              <Field label="Pincode *" value={form.pincode} onChange={(v) => updateForm("pincode", v)} error={errors.pincode} />
+              <Field label="Occupation *" value={form.occupation} onChange={(v) => updateForm("occupation", v)} error={errors.occupation} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+              <Field label="Email *" value={form.email} onChange={(v) => updateForm("email", v)} error={errors.email} type="email" />
+              <Field label="Phone *" value={form.phone} onChange={(v) => updateForm("phone", v)} error={errors.phone} type="tel" />
+            </div>
+            <div className="mb-[12px]">
+              <Field label="Location (Optional)" value={form.location} onChange={(v) => updateForm("location", v)} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+              <Field label="Organization Code (Optional)" value={form.orgCode} onChange={(v) => updateForm("orgCode", v)} />
+              <Field label="Referral Code (Optional)" value={form.referralCode} onChange={(v) => updateForm("referralCode", v)} />
             </div>
 
-            <label className="flex items-start gap-[10px] mt-[20px] mb-[20px] cursor-pointer">
+            <label className="flex items-start gap-[10px] mt-[16px] mb-[16px] cursor-pointer">
               <input
                 type="checkbox"
                 checked={form.agreed}
@@ -372,6 +408,50 @@ function Field({
         className="w-full border px-[12px] py-[10px] text-[14px] bg-white"
         style={{ borderRadius: 0, border: "1.5px solid #D0D0D0", fontFamily: "Poppins, sans-serif" }}
       />
+      {error && <p className="m-0 text-[12px] text-red-500 mt-[2px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
+    </div>
+  );
+}
+
+const ageRanges = [
+  "5 - 7",
+  "7 - 15",
+  "15 - 18",
+  "18 - 25",
+  "25 - 35",
+  "35 - 45",
+  "45 - 55",
+  "55 - 65",
+  "65+",
+];
+
+function AgeSelect({
+  label,
+  value,
+  onChange,
+  error,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+}) {
+  return (
+    <div>
+      <label className="block text-[13px] font-medium text-[#444] mb-[4px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+        {label}
+      </label>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full border px-[12px] py-[10px] text-[14px] bg-white"
+        style={{ borderRadius: 0, border: "1.5px solid #D0D0D0", fontFamily: "Poppins, sans-serif" }}
+      >
+        <option value="">Select Age Range</option>
+        {ageRanges.map((range) => (
+          <option key={range} value={range}>{range}</option>
+        ))}
+      </select>
       {error && <p className="m-0 text-[12px] text-red-500 mt-[2px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
     </div>
   );

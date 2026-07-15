@@ -4,12 +4,16 @@ import React, { useState } from "react";
 import { useConsult } from "./ConsultContext";
 
 interface ConsultForm {
-  fullName: string;
-  phone: string;
-  email: string;
+  fname: string;
+  lname: string;
   age: string;
   gender: string;
   maritalStatus: string;
+  country: string;
+  city: string;
+  pincode: string;
+  email: string;
+  phone: string;
   scheduleDate: string;
   scheduleTime: string;
 }
@@ -28,12 +32,16 @@ function timeStr() {
 }
 
 const initialForm: ConsultForm = {
-  fullName: "",
-  phone: "",
-  email: "",
+  fname: "",
+  lname: "",
   age: "",
   gender: "",
   maritalStatus: "",
+  country: "",
+  city: "",
+  pincode: "",
+  email: "",
+  phone: "",
   scheduleDate: todayStr(),
   scheduleTime: timeStr(),
 };
@@ -46,23 +54,23 @@ export default function ConsultModal() {
 
   if (!isOpen) return null;
 
-  const update = (field: keyof ConsultForm, value: string) => {
-    if (field === "age") {
-      const num = parseInt(value, 10);
-      if (value !== "" && (isNaN(num) || num < 1 || num > 100)) return;
-    }
+  const update = (field: keyof ConsultForm, value: string | boolean) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.fullName.trim()) e.fullName = "Required";
-    if (!form.phone.trim()) e.phone = "Required";
-    if (!form.email.trim()) e.email = "Required";
-    if (!form.age.trim()) e.age = "Required";
+    if (!form.fname.trim()) e.fname = "Required";
+    if (!form.lname.trim()) e.lname = "Required";
+    if (!form.age) e.age = "Required";
     if (!form.gender) e.gender = "Required";
     if (!form.maritalStatus) e.maritalStatus = "Required";
+    if (!form.country.trim()) e.country = "Required";
+    if (!form.city.trim()) e.city = "Required";
+    if (!form.pincode.trim()) e.pincode = "Required";
+    if (!form.email.trim()) e.email = "Required";
+    if (!form.phone.trim()) e.phone = "Required";
     if (!form.scheduleDate) e.scheduleDate = "Required";
     if (!form.scheduleTime) e.scheduleTime = "Required";
     setErrors(e);
@@ -142,19 +150,28 @@ export default function ConsultModal() {
               Fill in your details to schedule a consultation
             </p>
 
-            <FormField label="Full Name *" value={form.fullName} onChange={(v) => update("fullName", v)} error={errors.fullName} />
-            <div className="grid grid-cols-2 gap-[12px] mb-[12px]">
-              <FormField label="Phone Number *" value={form.phone} onChange={(v) => update("phone", v)} error={errors.phone} type="tel" />
-              <FormField label="Email *" value={form.email} onChange={(v) => update("email", v)} error={errors.email} type="email" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+              <FormField label="First Name *" value={form.fname} onChange={(v) => update("fname", v)} error={errors.fname} />
+              <FormField label="Last Name *" value={form.lname} onChange={(v) => update("lname", v)} error={errors.lname} />
             </div>
-            <div className="grid grid-cols-2 gap-[12px] mb-[12px]">
-              <AgeField label="Age *" value={form.age} onChange={(v) => update("age", v)} error={errors.age} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+              <AgeSelect label="Age *" value={form.age} onChange={(v) => update("age", v)} error={errors.age} />
               <SelectField label="Gender *" value={form.gender} onChange={(v) => update("gender", v)} error={errors.gender} options={["Male", "Female", "Other"]} />
             </div>
-            <div className="mb-[12px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
               <SelectField label="Marital Status *" value={form.maritalStatus} onChange={(v) => update("maritalStatus", v)} error={errors.maritalStatus} options={["Single", "Married", "Divorced", "Widowed"]} />
+              <FormField label="Country *" value={form.country} onChange={(v) => update("country", v)} error={errors.country} />
             </div>
-            <div className="grid grid-cols-2 gap-[12px] mb-[20px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+              <FormField label="City *" value={form.city} onChange={(v) => update("city", v)} error={errors.city} />
+              <FormField label="Pincode *" value={form.pincode} onChange={(v) => update("pincode", v)} error={errors.pincode} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+              <FormField label="Email *" value={form.email} onChange={(v) => update("email", v)} error={errors.email} type="email" />
+              <FormField label="Phone *" value={form.phone} onChange={(v) => update("phone", v)} error={errors.phone} type="tel" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[20px]">
               <DateField label="Schedule Date *" value={form.scheduleDate} onChange={(v) => update("scheduleDate", v)} error={errors.scheduleDate} />
               <TimeField label="Schedule Time *" value={form.scheduleTime} onChange={(v) => update("scheduleTime", v)} error={errors.scheduleTime} />
             </div>
@@ -174,11 +191,6 @@ export default function ConsultModal() {
             __html: `
               input, select { font-family: Poppins, sans-serif; }
               input:focus, select:focus { outline: 2px solid #3B35A3; outline-offset: -1px; }
-              input[type="number"]::-webkit-outer-spin-button,
-              input[type="number"]::-webkit-inner-spin-button {
-                -webkit-appearance: none; margin: 0;
-              }
-              input[type="number"] { -moz-appearance: textfield; }
             `,
           }}
         />
@@ -211,7 +223,19 @@ function FormField({
   );
 }
 
-function AgeField({
+const ageRanges = [
+  "5 - 7",
+  "7 - 15",
+  "15 - 18",
+  "18 - 25",
+  "25 - 35",
+  "35 - 45",
+  "45 - 55",
+  "55 - 65",
+  "65+",
+];
+
+function AgeSelect({
   label, value, onChange, error,
 }: {
   label: string; value: string; onChange: (v: string) => void; error?: string;
@@ -221,15 +245,17 @@ function AgeField({
       <label className="block text-[13px] font-medium text-[#444] mb-[4px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
         {label}
       </label>
-      <input
-        type="number"
-        min={1}
-        max={100}
+      <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full border px-[12px] py-[10px] text-[14px] bg-white"
         style={{ borderRadius: 0, border: "1.5px solid #D0D0D0", fontFamily: "Poppins, sans-serif" }}
-      />
+      >
+        <option value="">Select Age Range</option>
+        {ageRanges.map((range) => (
+          <option key={range} value={range}>{range}</option>
+        ))}
+      </select>
       {error && <p className="m-0 text-[12px] text-red-500 mt-[2px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
     </div>
   );

@@ -91,6 +91,7 @@ export default function HeroSection() {
 
   return (
     <section
+      id="hero-section"
       aria-label="Sleep is the Foundation hero"
       className="hero-section relative w-full overflow-hidden bg-white pt-[64px] md:pt-[68px] lg:pt-[72px] min-h-[680px]"
       style={{ fontFamily: "Poppins, var(--font-poppins), sans-serif" }}
