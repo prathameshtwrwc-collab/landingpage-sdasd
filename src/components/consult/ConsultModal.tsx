@@ -10,6 +10,7 @@ interface ConsultForm {
   gender: string;
   maritalStatus: string;
   country: string;
+  state: string;
   city: string;
   pincode: string;
   email: string;
@@ -38,6 +39,7 @@ const initialForm: ConsultForm = {
   gender: "",
   maritalStatus: "",
   country: "",
+  state: "",
   city: "",
   pincode: "",
   email: "",
@@ -68,6 +70,7 @@ export default function ConsultModal() {
     if (!form.maritalStatus) e.maritalStatus = "Required";
     if (!form.country.trim()) e.country = "Required";
     if (!form.city.trim()) e.city = "Required";
+    if (!form.state.trim()) e.state = "Required";
     if (!form.pincode.trim()) e.pincode = "Required";
     if (!form.email.trim()) e.email = "Required";
     if (!form.phone.trim()) e.phone = "Required";
@@ -163,7 +166,10 @@ export default function ConsultModal() {
               <FormField label="Country *" value={form.country} onChange={(v) => update("country", v)} error={errors.country} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+              <FormField label="State *" value={form.state} onChange={(v) => update("state", v)} error={errors.state} />
               <FormField label="City *" value={form.city} onChange={(v) => update("city", v)} error={errors.city} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
               <FormField label="Pincode *" value={form.pincode} onChange={(v) => update("pincode", v)} error={errors.pincode} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">

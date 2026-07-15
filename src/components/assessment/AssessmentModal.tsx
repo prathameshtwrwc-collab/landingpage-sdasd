@@ -101,8 +101,8 @@ interface FormData {
   gender: string;
   maritalStatus: string;
   department: string;
-  location: string;
   country: string;
+  state: string;
   city: string;
   pincode: string;
   occupation: string;
@@ -120,8 +120,8 @@ const initialForm: FormData = {
   gender: "",
   maritalStatus: "",
   department: "",
-  location: "",
   country: "",
+  state: "",
   city: "",
   pincode: "",
   occupation: "",
@@ -273,7 +273,7 @@ export default function AssessmentModal() {
               <Field label="Phone *" value={form.phone} onChange={(v) => updateForm("phone", v)} error={errors.phone} type="tel" />
             </div>
             <div className="mb-[12px]">
-              <Field label="Location (Optional)" value={form.location} onChange={(v) => updateForm("location", v)} />
+              <Field label="State (Optional)" value={form.state} onChange={(v) => updateForm("state", v)} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
               <Field label="Organization Code (Optional)" value={form.orgCode} onChange={(v) => updateForm("orgCode", v)} />
