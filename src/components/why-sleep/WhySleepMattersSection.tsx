@@ -151,6 +151,7 @@ export default function WhySleepMattersSection() {
         <div className="flex justify-center mt-[24px] w-full">
           <button
             type="button"
+            onClick={() => document.getElementById("understanding-sleep-cycles")?.scrollIntoView({ behavior: "smooth" })}
             className="flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer w-full max-w-[250px] md:w-[230px] lg:w-[240px] h-[48px] md:h-[48px] lg:h-[46px] text-[16px] font-semibold leading-[1]"
             style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, borderRadius: 0, boxShadow: "none" }}
             onFocus={(e) => {
