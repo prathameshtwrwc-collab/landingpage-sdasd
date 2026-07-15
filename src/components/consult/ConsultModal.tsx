@@ -53,9 +53,6 @@ export default function ConsultModal() {
   const [form, setForm] = useState<ConsultForm>(initialForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
-
-  if (!isOpen) return null;
-
   const [captchaA, setCaptchaA] = useState(0);
   const [captchaB, setCaptchaB] = useState(0);
   const [captchaInput, setCaptchaInput] = useState("");
@@ -71,6 +68,8 @@ export default function ConsultModal() {
   }, []);
 
   useEffect(() => { generateCaptcha(); }, [generateCaptcha]);
+
+  if (!isOpen) return null;
 
   const update = (field: keyof ConsultForm, value: string | boolean) => {
     setForm((prev) => ({ ...prev, [field]: value }));
