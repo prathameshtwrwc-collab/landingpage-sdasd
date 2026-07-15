@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 import { useConsult } from "./ConsultContext";
 
 interface ConsultForm {
@@ -53,21 +54,9 @@ export default function ConsultModal() {
   const [form, setForm] = useState<ConsultForm>(initialForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
-  const [captchaA, setCaptchaA] = useState(0);
-  const [captchaB, setCaptchaB] = useState(0);
-  const [captchaInput, setCaptchaInput] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaError, setCaptchaError] = useState("");
-
-  const generateCaptcha = useCallback(() => {
-    const a = Math.floor(Math.random() * 10) + 1;
-    const b = Math.floor(Math.random() * 10) + 1;
-    setCaptchaA(a);
-    setCaptchaB(b);
-    setCaptchaInput("");
-    setCaptchaError("");
-  }, []);
-
-  useEffect(() => { generateCaptcha(); }, [generateCaptcha]);
+  const captchaRef = useRef<ReCAPTCHA>(null);
 
   if (!isOpen) return null;
 
@@ -92,10 +81,9 @@ export default function ConsultModal() {
     if (!form.scheduleDate) e.scheduleDate = "Required";
     if (!form.scheduleTime) e.scheduleTime = "Required";
     setErrors(e);
-    const captchaOk = parseInt(captchaInput, 10) === captchaA + captchaB;
-    if (!captchaOk) setCaptchaError("Incorrect answer. Please try again.");
+    if (!captchaToken) setCaptchaError("Please complete the reCAPTCHA verification.");
     else setCaptchaError("");
-    return Object.keys(e).length === 0 && captchaOk;
+    return Object.keys(e).length === 0 && !!captchaToken;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -108,9 +96,10 @@ export default function ConsultModal() {
     setForm(initialForm);
     setErrors({});
     setSubmitted(false);
+    setCaptchaToken(null);
     setCaptchaError("");
+    captchaRef.current?.reset();
     close();
-    generateCaptcha();
   };
 
   return (
@@ -202,36 +191,15 @@ export default function ConsultModal() {
               <TimeField label="Schedule Time *" value={form.scheduleTime} onChange={(v) => update("scheduleTime", v)} error={errors.scheduleTime} />
             </div>
 
-            <div className="mb-[16px]">
-              <label className="block text-[13px] font-medium text-[#444] mb-[4px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
-                Human Verification *
-              </label>
-              <div className="flex items-center gap-[10px]">
-                <span className="text-[15px] font-semibold text-[#171717] whitespace-nowrap" style={{ fontFamily: "Poppins, sans-serif" }}>
-                  {captchaA} + {captchaB} = ?
-                </span>
-                <input
-                  type="number"
-                  value={captchaInput}
-                  onChange={(e) => { setCaptchaInput(e.target.value); setCaptchaError(""); }}
-                  className="w-full border px-[12px] py-[10px] text-[14px] bg-white"
-                  style={{ borderRadius: 0, border: "1.5px solid #D0D0D0", fontFamily: "Poppins, sans-serif" }}
-                  placeholder="Answer"
-                />
-                <button
-                  type="button"
-                  onClick={generateCaptcha}
-                  className="shrink-0 p-[10px] border cursor-pointer bg-[#f5f5f5] hover:bg-[#e8e8e8] transition-colors"
-                  style={{ borderRadius: 0, border: "1.5px solid #D0D0D0" }}
-                  aria-label="Refresh captcha"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3" />
-                  </svg>
-                </button>
-              </div>
-              {captchaError && <p className="m-0 text-[12px] text-red-500 mt-[2px]" style={{ fontFamily: "Poppins, sans-serif" }}>{captchaError}</p>}
+            <div className="mb-[16px] flex justify-center">
+              <ReCAPTCHA
+                ref={captchaRef}
+                sitekey="6LcO6FQtAAAAALeLgzM120ljuL3Mc5uefKWWxfET"
+                onChange={(token) => { setCaptchaToken(token); setCaptchaError(""); }}
+                onExpired={() => { setCaptchaToken(null); setCaptchaError("reCAPTCHA expired. Please verify again."); }}
+              />
             </div>
+            {captchaError && <p className="m-0 text-[12px] text-red-500 mb-[16px] text-center" style={{ fontFamily: "Poppins, sans-serif" }}>{captchaError}</p>}
 
             <button
               type="submit"
