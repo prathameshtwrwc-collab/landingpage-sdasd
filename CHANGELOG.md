@@ -2,6 +2,40 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.0.0] — 2026-07-21 — Mobile Hero Absolute Zones, Lenis Smooth Scroll, UI Enhancements
+
+### Added
+- **Lenis smooth scrolling** across entire site via `SmoothScrollProvider` — exponential-out easing, smooth wheel/touch
+- **Mobile hero background slide animation** — unhidden existing `translateX` slider track with `0.7s ease-in-out` between both mobile background images
+- **Blurred white cloud layer** behind "type" in heading via `::after` pseudo-element with `filter: blur(10px)` — improves mobile readability
+- **Lenis context** (`useLenis`) exposed via `SmoothScrollProvider` for components to control scroll state
+- **`data-lenis-prevent`** attribute on assessment modal overlay — allows modal content to scroll natively while Lenis runs in background
+
+### Changed
+- **Mobile hero layout** — switched from flex/grid flow to absolute positioning zones (`position: absolute; top: 220px` heading, `top: 560px` benefits, `bottom: 24px` CTA) for precise poster-like composition
+- **Mobile heading** — increased font size (`clamp(36px, 9.5vw, 44px)` orange, `clamp(31px, 8vw, 37px)` indigo), weight 800/700, added `white-space: nowrap` to prevent "Sleep Chronotype" word break
+- **Mobile heading container** — widened from 265px to 320px to fit larger font, with sub-breakpoint widths at 290px/310px/340px
+- **Mobile benefit/button placement** — benefits moved to `top: 575px`, buttons to `bottom: 26px` with `z-index: 4` to prevent overlap with benefit labels
+- **Mobile background source** — switched from inline `backgroundImage` on section to showing the existing `translateX` slider track (same 0.7s ease-in-out transition as desktop)
+- **Overlay opacity** — reduced white overlay for mobile background (`rgba(255,255,255,0.18)` at 0%, down from 0.50) so background images remain visible and not washed out
+- **Mobile navbar** — removed `background:#ffffff !important` override so navbar scroll-to-transparent logic works on mobile (transparent at top, white when scrolled)
+- **Assessment modal UI** — complete visual redesign with rounded corners (16px), gradient accent bar, user icon in gradient circle, rounded inputs/selects (8px), gradient progress bar with percentage, pill-shaped progress dots, hover/selected states on option cards with purple circle indicators, success checkmark animation
+- **Modal scroll behavior** — replaced `lenis.stop()/start()` with `data-lenis-prevent` attribute + `body overflow: hidden`, allowing native modal content scrolling
+
+### Fixed
+- **Mobile heading wrap** — "Sleep Chronotype" no longer splits into "Sleep" and "Chronotype" across lines
+- **Mobile background images not loading** — removed conflicting `.hero-mobile-bg { display: none !important }` rule in mobile CSS block
+- **Modal background scroll when open** — Lenis no longer captures events from modal overlay due to `data-lenis-prevent`
+- **Mobile navbar scroll state** — `background:#ffffff !important` was preventing transparent-at-top behavior on mobile
+
+### Files Changed (6)
+- `src/components/hero/HeroSection.tsx` — absolute zone mobile layout, mobile slider unhidden, heading font/wrap/cloud, overlay opacity
+- `src/components/navbar/SiteNavbar.tsx` — removed `background: #ffffff !important` from mobile CSS
+- `src/components/smooth-scroll/SmoothScrollProvider.tsx` — created with Lenis context for scroll control
+- `src/components/assessment/AssessmentModal.tsx` — premium UI redesign, `data-lenis-prevent`, scroll locking
+- `src/app/ClientLayout.tsx` — added `SmoothScrollProvider` wrapper
+- `src/app/globals.css` — mobile section padding defaults, image max-width guards, button touch targets
+
 ## [1.3.0] — 2026-05-11 — Hero Artwork Replaced with Single Responsive Background Image
 
 ### Changed — HeroSection Artwork System Replaced

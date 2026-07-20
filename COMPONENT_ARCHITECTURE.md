@@ -1,6 +1,6 @@
 # Component Architecture — Sleep Wellness Landing
 
-Audited from live file system: src/app/page.tsx, src/components/*/*, src/app/layout.tsx, src/app/globals.css
+Audited from live file system: src/app/page.tsx, src/components/_/_, src/app/layout.tsx, src/app/globals.css
 
 ## Page Entry Point
 
@@ -74,6 +74,7 @@ Verified: current page.tsx matches this order with Navbar first.
 ## Each Component File Path & Purpose
 
 ### 1. HeroSection — Updated to Single Composite Background (2026-05-11)
+
 - **Path:** `src/components/hero/HeroSection.tsx`
 - **Client:** `"use client"` — uses useEffect for preload link
 - **Purpose:** Campaign poster hero now using one composite background image, easier to maintain, no overlapping cutout layers, visually faithful to Photoshop
@@ -99,6 +100,7 @@ Verified: current page.tsx matches this order with Navbar first.
 - **Accessibility:** Decorative composite artwork as CSS background no redundant alt, heading selectable text, buttons real buttons, background does not reduce contrast, reduced-motion unaffected
 
 ### 2. HeroStatementStrip
+
 - **Path:** `src/components/hero/HeroStatementStrip.tsx`
 - **Client:** client
 - **Purpose:** Dark indigo statement below hero
@@ -109,6 +111,7 @@ Verified: current page.tsx matches this order with Navbar first.
 - **Placeholder:** final-ish but low-contrast background
 
 ### 3. ChronotypeIntroductionSection
+
 - **Path:** `src/components/chronotype/ChronotypeIntroductionSection.tsx`
 - **Client:** client
 - **Purpose:** Introduce chronotype + influences list
@@ -120,6 +123,7 @@ Verified: current page.tsx matches this order with Navbar first.
 - **Placeholder:** meditation image considered final-ish but may need WebP
 
 ### 4. ChronotypeOptimizationSection
+
 - **Path:** `src/components/optimization/ChronotypeOptimizationSection.tsx`
 - **Client:** client
 - **Purpose:** Checklist 8 items + yoga
@@ -130,6 +134,7 @@ Verified: current page.tsx matches this order with Navbar first.
 - **Interactive:** None
 
 ### 5. DailyEnergyPillarsSection
+
 - **Path:** `src/components/pillars/DailyEnergyPillarsSection.tsx`
 - **Client:** client
 - **Purpose:** 4 pillars
@@ -140,6 +145,7 @@ Verified: current page.tsx matches this order with Navbar first.
 - **Interactive:** CTA button Explore Sleep Improvement Strategies hover -1px
 
 ### 6. BetterSleepBetterDaysSection
+
 - **Path:** `src/components/better-sleep/BetterSleepBetterDaysSection.tsx`
 - **Client:** client
 - **Purpose:** 7 benefits outlined boxes + sleeping image
@@ -150,6 +156,7 @@ Verified: current page.tsx matches this order with Navbar first.
 - **Interactive:** None
 
 ### 7. WhySleepMattersSection
+
 - **Path:** `src/components/why-sleep/WhySleepMattersSection.tsx`
 - **Client:** client
 - **Purpose:** Fact strip + Mind/Body/Life
@@ -160,6 +167,7 @@ Verified: current page.tsx matches this order with Navbar first.
 - **Interactive:** CTA Explore Sleep Cycles
 
 ### 8. UnderstandingSleepCyclesSection
+
 - **Path:** `src/components/sleep-cycles/UnderstandingSleepCyclesSection.tsx`
 - **Client:** client
 - **Purpose:** NREM vs REM comparison grid + conclusion strip
@@ -171,6 +179,7 @@ Verified: current page.tsx matches this order with Navbar first.
 - **Mobile split:** Has hidden md:grid for desktop grid `170px 190px 1fr 16px 1fr` and block md:hidden for mobile stacked NREM/REM blocks — same data, not duplicate IDs? Uses same arrays but separate DOM, okay as long as IDs not duplicated (no IDs inside).
 
 ### 9. CommonSleepDisordersSection
+
 - **Path:** `src/components/sleep-disorders/CommonSleepDisordersSection.tsx`
 - **Client:** client
 - **Purpose:** Side-by-side Insomnia and OSA with pale background and arrows
@@ -181,6 +190,7 @@ Verified: current page.tsx matches this order with Navbar first.
 - **Interactive:** Previous/Next arrow buttons aria-label but no functional carousel — placeholder
 
 ### 10. WarningSignsSection
+
 - **Path:** `src/components/warning-signs/WarningSignsSection.tsx`
 - **Client:** client
 - **Purpose:** 8 warning signs with line icons inside gold panel
@@ -191,6 +201,7 @@ Verified: current page.tsx matches this order with Navbar first.
 - **Interactive:** CTA Consult a Sleep Specialist hover -1px
 
 ### 11. SleepFactsSharingSection
+
 - **Path:** `src/components/sleep-facts/SleepFactsSharingSection.tsx`
 - **Client:** client
 - **Purpose:** 4 fact panels 2×2 with share buttons
@@ -201,6 +212,7 @@ Verified: current page.tsx matches this order with Navbar first.
 - **Interactive:** Share Fact buttons aria-label per fact, hover bg #FFF9EB, bottom CTA Share These Facts... with yellow Now
 
 ### 12. AdditionalGuidanceSection
+
 - **Path:** `src/components/additional-guidance/AdditionalGuidanceSection.tsx`
 - **Client:** client
 - **Purpose:** Left text right image + centered CTA
@@ -211,6 +223,7 @@ Verified: current page.tsx matches this order with Navbar first.
 - **Interactive:** CTA Talk to a Sleep Specialist
 
 ### 13. FaqSection
+
 - **Path:** `src/components/faq/FaqSection.tsx`
 - **Client:** client (must be client because useState)
 - **Purpose:** Accordion FAQ 6 Q&A first open default
@@ -222,6 +235,7 @@ Verified: current page.tsx matches this order with Navbar first.
 - **Behavior:** Height transition via maxHeight 400/0 opacity, hidden attribute when not open
 
 ### 14. DisclaimerFooter
+
 - **Path:** `src/components/footer/DisclaimerFooter.tsx`
 - **Client:** client (no state but marked)
 - **Purpose:** Black disclaimer footer
@@ -268,4 +282,5 @@ Verified: current page.tsx matches this order with Navbar first.
 - **Inspect the DOM after adding a section:** Use browser DevTools or build preview URL, confirm 14 sections counted, no duplicate, no missing, no overflow-x.
 
 ---
+
 END COMPONENT_ARCHITECTURE
