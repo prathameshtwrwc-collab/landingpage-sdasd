@@ -145,7 +145,7 @@ export default function SiteNavbar() {
           dangerouslySetInnerHTML={{
             __html: `
               @media(max-width:767px){
-                .site-header{ height:92px !important; background:#ffffff !important; }
+                .site-header{ height:92px !important; }
                 #mobile-navigation{ top:92px !important; }
                 .site-navbar-overlay{ top:92px !important; }
               }
