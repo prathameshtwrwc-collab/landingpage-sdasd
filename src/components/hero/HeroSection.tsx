@@ -103,8 +103,11 @@ export default function HeroSection() {
     <section
       id="hero-section"
       aria-label="Sleep is the Foundation hero"
-      className="hero-section relative w-full overflow-hidden bg-white pt-[64px] md:pt-[68px] lg:pt-[72px] min-h-[680px]"
-      style={{ fontFamily: "Poppins, var(--font-poppins), sans-serif" }}
+      className="hero-section relative w-full overflow-hidden bg-white min-h-[680px]"
+      style={{
+        fontFamily: "Poppins, var(--font-poppins), sans-serif",
+        backgroundImage: `url("${mobileBgImages[currentSlide % totalMobileSlides]}")`,
+      }}
     >
       <style
         dangerouslySetInnerHTML={{
@@ -132,121 +135,163 @@ export default function HeroSection() {
               .hero-section { min-height: 680px !important; }
             }
 
-            /* ===== MOBILE ONLY ===== */
+            /* ===== MOBILE ONLY — ABSOLUTE ZONE LAYOUT ===== */
             @media (max-width: 767px) {
               .hero-section {
-                min-height: 760px !important;
-                background-image: none !important;
-                background-color: transparent !important;
+                min-height: 930px !important;
+                height: 930px !important;
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-position: 80% top !important;
+                background-color: #ffffff;
+                padding-top: 0 !important;
               }
 
               .hero-section::before {
                 content: "";
                 position: absolute;
                 inset: 0;
-                pointer-events: none;
-                background: linear-gradient(
-                  180deg,
-                  rgba(255,255,255,0.82) 0%,
-                  rgba(255,255,255,0.32) 20%,
-                  rgba(255,255,255,0.00) 42%,
-                  rgba(255,255,255,0.68) 70%,
-                  rgba(255,255,255,0.98) 100%
-                );
                 z-index: 0;
+                pointer-events: none;
+                background:
+                  linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.18) 0%,
+                    rgba(255,255,255,0.04) 32%,
+                    rgba(255,255,255,0.00) 52%,
+                    rgba(255,255,255,0.34) 78%,
+                    rgba(255,255,255,0.94) 100%
+                  ),
+                  linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.96) 0%,
+                    rgba(255,255,255,0.78) 38%,
+                    rgba(255,255,255,0.20) 62%,
+                    rgba(255,255,255,0) 100%
+                  );
               }
 
               .hero-inner {
-                min-height: inherit !important;
                 width: 100% !important;
-                padding: 112px 28px 34px !important;
-                display: flex !important;
-                flex-direction: column !important;
-                position: relative;
-                z-index: 1;
+                height: 100% !important;
+                min-height: 0 !important;
+                padding: 0 22px !important;
+                display: block !important;
+                position: relative !important;
+                z-index: 1 !important;
+                max-width: none !important;
+                margin: 0 !important;
               }
 
               .hero-content {
                 width: 100% !important;
+                height: 100% !important;
+                min-height: 0 !important;
+                display: block !important;
+                padding: 0 !important;
+                position: relative !important;
                 max-width: none !important;
-                min-width: 0 !important;
-                display: flex !important;
-                flex-direction: column !important;
-                flex: 1 1 auto !important;
-                padding-bottom: 0 !important;
+              }
+
+              .hero-heading {
+                position: absolute !important;
+                top: 238px !important;
+                left: 0 !important;
+                width: 265px !important;
+                max-width: calc(100vw - 44px) !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                text-align: left !important;
+                z-index: 2 !important;
               }
 
               .hero-heading-orange {
-                font-size: clamp(44px, 11vw, 56px) !important;
-                line-height: 1.02 !important;
+                font-size: clamp(31px, 8vw, 36px) !important;
+                line-height: 1.04 !important;
                 font-weight: 700 !important;
-                letter-spacing: -0.045em !important;
+                letter-spacing: -0.035em !important;
               }
 
               .hero-heading-indigo {
-                margin-top: 20px !important;
-                font-size: clamp(38px, 9.8vw, 48px) !important;
-                line-height: 1.08 !important;
+                margin-top: 10px !important;
+                font-size: clamp(26px, 6.8vw, 31px) !important;
+                line-height: 1.09 !important;
                 font-weight: 600 !important;
-                letter-spacing: -0.04em !important;
+                letter-spacing: -0.03em !important;
               }
 
-              .hero-line-chronotype { white-space: normal !important; }
-
               .hero-benefits {
+                position: absolute !important;
+                left: 0 !important;
+                right: 0 !important;
+                top: 575px !important;
                 width: 100% !important;
-                max-width: none !important;
-                margin-top: auto !important;
-                padding-top: 28px !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 display: grid !important;
                 grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
                 gap: 0 !important;
-                align-items: start !important;
+                z-index: 2 !important;
+              }
+
+              .hero-benefit {
+                position: relative !important;
+                min-width: 0 !important;
               }
 
               .hero-benefit-media {
-                width: clamp(84px, 24vw, 108px) !important;
-                height: clamp(84px, 24vw, 108px) !important;
+                width: clamp(80px, 21.5vw, 94px) !important;
+                height: clamp(80px, 21.5vw, 94px) !important;
                 flex-basis: auto !important;
               }
 
               .hero-benefit-label {
-                margin-top: 14px !important;
-                font-size: clamp(19px, 5vw, 24px) !important;
+                margin-top: 11px !important;
+                font-size: clamp(14px, 4vw, 17px) !important;
                 line-height: 1.12 !important;
                 font-weight: 700 !important;
               }
 
               .hero-benefit:not(:last-child)::after {
+                content: "" !important;
+                position: absolute !important;
                 top: 0 !important;
                 right: 0 !important;
                 width: 1.5px !important;
-                height: 150px !important;
+                height: 112px !important;
                 background: #E4B93D !important;
               }
 
               .hero-actions {
+                position: absolute !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 26px !important;
                 width: 100% !important;
-                max-width: none !important;
-                margin-top: 34px !important;
+                margin: 0 !important;
                 display: grid !important;
                 grid-template-columns: 1fr !important;
-                gap: 12px !important;
+                gap: 11px !important;
+                z-index: 4 !important;
               }
 
               .hero-actions button {
                 width: 100% !important;
-                min-height: 58px !important;
+                min-height: 56px !important;
                 height: auto !important;
-                padding: 16px 18px !important;
+                padding: 15px 16px !important;
                 border-radius: 8px !important;
-                font-size: 18px !important;
+                font-size: 16px !important;
                 line-height: 1.2 !important;
                 font-weight: 700 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                text-align: center !important;
               }
 
               .hero-mobile-bg {
-                display: block !important;
+                display: none !important;
               }
 
               .hero-mobile-visual {
@@ -254,20 +299,30 @@ export default function HeroSection() {
               }
 
               .hero-arrow {
-                width: 36px !important;
-                height: 36px !important;
+                display: none !important;
               }
             }
-            @media (max-width: 380px) {
-              .hero-section { min-height: 720px !important; }
+            @media (max-width: 359px) {
+              .hero-section { min-height: 890px !important; height: 890px !important; }
+              .hero-benefits { top: 540px !important; }
+              .hero-benefit-media { width: 74px !important; height: 74px !important; }
+              .hero-benefit:not(:last-child)::after { height: 102px !important; }
+              .hero-actions { bottom: 20px !important; gap: 9px !important; }
+              .hero-actions button { min-height: 52px !important; padding: 13px 14px !important; font-size: 15px !important; }
             }
-            @media (min-width: 431px) and (max-width: 767px) {
-              .hero-section { min-height: 800px !important; }
+            @media (min-width: 360px) and (max-width: 389px) {
+              .hero-heading { top: 232px !important; width: 255px !important; }
             }
-            @media (max-width: 360px) {
-              .hero-benefit:not(:last-child)::after {
-                height: 128px !important;
-              }
+            @media (min-width: 390px) and (max-width: 429px) {
+              .hero-heading { top: 235px !important; width: 272px !important; }
+              .hero-benefits { top: 565px !important; }
+              .hero-benefit:not(:last-child)::after { height: 110px !important; }
+              .hero-actions { bottom: 24px !important; }
+            }
+            @media (min-width: 430px) and (max-width: 767px) {
+              .hero-section { min-height: 960px !important; height: 960px !important; }
+              .hero-benefits { top: 590px !important; }
+              .hero-actions { bottom: 28px !important; }
             }
 
             /* ===== BASE (all breakpoints) ===== */

@@ -86,13 +86,33 @@ button {
 /* Mobile section defaults enforced via component classes but safeguard */
 @media (max-width: 767px) {
   section {
-    /* keep overflow hidden only where needed, but ensure padding defaults can be overridden */
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  section > div.w-full {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  button,
+  a.button-like {
+    min-height: 48px;
   }
 }
 
 @media (max-width: 389px) {
-  /* Below 390px padding tighter — components use 20px default, override to 16px via media helpers where needed */
-}
+  section {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+} 
 
 /* Section Heading Typography */
 .section-heading {

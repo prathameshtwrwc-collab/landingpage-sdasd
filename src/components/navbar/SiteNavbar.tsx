@@ -128,7 +128,7 @@ export default function SiteNavbar() {
     <>
       <header
         ref={headerRef}
-        className="fixed top-0 left-0 right-0 z-[1000] w-full"
+        className="site-header fixed top-0 left-0 right-0 z-[1000] w-full"
         style={{
           height: "64px",
           background: isScrolled ? "rgba(255, 255, 255, 0.97)" : "transparent",
@@ -144,6 +144,11 @@ export default function SiteNavbar() {
         <style
           dangerouslySetInnerHTML={{
             __html: `
+              @media(max-width:767px){
+                .site-header{ height:92px !important; background:#ffffff !important; }
+                #mobile-navigation{ top:92px !important; }
+                .site-navbar-overlay{ top:92px !important; }
+              }
               @media(min-width:768px){
                 header#site-navbar{ height:68px !important; }
               }
@@ -459,7 +464,7 @@ export default function SiteNavbar() {
       {isMenuOpen && (
         <div
           aria-hidden="true"
-          className="lg:hidden fixed inset-0 z-[998]"
+          className="site-navbar-overlay lg:hidden fixed inset-0 z-[998]"
           style={{
             top: "64px",
             background: "rgba(31, 27, 83, 0.12)",
