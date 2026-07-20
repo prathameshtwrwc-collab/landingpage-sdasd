@@ -434,9 +434,10 @@ export default function SiteNavbar() {
             if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
             openAssessment();
           }}
-          className="flex items-center justify-center w-full bg-[#3B35A3] text-white border-none rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F59A00] focus-visible:ring-offset-2 transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer mt-[16px]"
+          className="flex items-center justify-center w-full max-w-[260px] bg-[#3B35A3] text-white border-none rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F59A00] focus-visible:ring-offset-2 transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer mt-[16px]"
           style={{
             width: "100%",
+            maxWidth: "260px",
             height: "46px",
             marginTop: "16px",
             background: "#3B35A3",

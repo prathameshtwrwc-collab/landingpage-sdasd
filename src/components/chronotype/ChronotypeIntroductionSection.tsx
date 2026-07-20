@@ -83,27 +83,29 @@ export default function ChronotypeIntroductionSection() {
             </ul>
           </div>
 
-          <div className="chronotype-intro-image-wrap w-[410px] max-w-[100%] align-self-start mt-[4px] overflow-hidden">
+          <div className="chronotype-intro-image-wrap w-full max-w-[340px] mx-auto md:mx-0 md:align-self-start mt-[24px] md:mt-0 overflow-hidden">
             <img
               src="/assets/section2/section-2.jpg"
               alt="Woman meditating while visualizing her natural biological rhythm"
-              className="chronotype-intro-image w-full h-[320px] object-cover"
+              className="chronotype-intro-image w-full h-auto aspect-[4/3] object-cover"
               style={{
                 fontFamily: "Poppins, sans-serif",
                 display: "block",
                 width: "100%",
-                height: "320px",
+                height: "auto",
+                aspectRatio: "4 / 3",
                 objectFit: "cover",
                 objectPosition: "center",
                 borderRadius: 0,
                 boxShadow: "none",
+                maxHeight: "280px",
               }}
               draggable={false}
             />
           </div>
         </div>
 
-        <div className="chronotype-intro-footer w-full m-top-[24px] flex flex-col items-center text-center">
+        <div className="chronotype-intro-footer w-full mt-[24px] flex flex-col items-center text-center">
           <p
             className="chronotype-intro-conclusion m-0 font-medium text-[#171717]"
             style={{
@@ -117,7 +119,7 @@ export default function ChronotypeIntroductionSection() {
             perform at your best.
           </p>
 
-          <button type="button" onClick={openAssessment} className="chronotype-intro-cta w-[260px] h-[48px] m-top-[14px] inline-flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer text-[16px] font-semibold leading-[1]">
+          <button type="button" onClick={openAssessment} className="chronotype-intro-cta w-full max-w-[260px] h-[48px] mt-[14px] mx-auto md:mt-0 inline-flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer text-[16px] font-semibold leading-[1]">
             Take Test Now
           </button>
         </div>
@@ -196,7 +198,7 @@ export default function ChronotypeIntroductionSection() {
         }
 
         .chronotype-intro-image-wrap {
-          width: 330px;
+          width: 410px;
           max-width: 100%;
           align-self: start;
           margin-top: 4px;
@@ -206,7 +208,7 @@ export default function ChronotypeIntroductionSection() {
         .chronotype-intro-image {
           display: block;
           width: 100%;
-          height: 280px;
+          height: 320px;
           object-fit: cover;
           object-position: center;
           border-radius: 0;
@@ -239,42 +241,21 @@ export default function ChronotypeIntroductionSection() {
           justify-content: center;
         }
 
-        @media (min-width: 768px) and (max-width: 1023px) {
+        @media (max-width: 389px) {
           .chronotype-intro-section {
-            padding: 52px 36px 44px;
-          }
-
-          .chronotype-intro-grid {
-            grid-template-columns: minmax(0, 1fr) 340px;
-            gap: 36px;
-          }
-
-          .chronotype-intro-heading {
-            font-size: 30px;
-          }
-
-          .chronotype-heading-primary {
-            white-space: normal;
-          }
-
-          .chronotype-intro-image-wrap {
-            width: 300px;
-          }
-
-          .chronotype-intro-image {
-            height: 250px;
+            padding: 36px 16px 38px;
           }
         }
 
         @media (max-width: 767px) {
           .chronotype-intro-section {
-            padding: 36px 18px 38px;
+            padding: 36px 20px 38px;
           }
 
           .chronotype-intro-grid {
             display: flex;
             flex-direction: column;
-            gap: 0;
+            gap: 24px;
           }
 
           .chronotype-intro-heading {
@@ -283,8 +264,7 @@ export default function ChronotypeIntroductionSection() {
             text-align: left;
           }
 
-          .chronotype-heading-primary,
-          .chronotype-heading-secondary {
+          .chronotype-heading-primary {
             display: inline;
             white-space: normal;
           }
@@ -311,7 +291,10 @@ export default function ChronotypeIntroductionSection() {
 
           .chronotype-intro-image-wrap {
             width: 100%;
+            max-width: 340px;
             margin-top: 24px;
+            margin-left: auto;
+            margin-right: auto;
           }
 
           .chronotype-intro-image {
@@ -319,6 +302,7 @@ export default function ChronotypeIntroductionSection() {
             height: auto;
             aspect-ratio: 4 / 3;
             object-fit: cover;
+            max-height: 280px;
           }
 
           .chronotype-intro-footer {
@@ -332,6 +316,41 @@ export default function ChronotypeIntroductionSection() {
 
           .chronotype-intro-cta {
             width: min(100%, 260px);
+            max-width: 260px;
+          }
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .chronotype-intro-section {
+            padding: 52px 36px 44px;
+          }
+
+          .chronotype-intro-grid {
+            grid-template-columns: minmax(0, 1fr) 340px;
+            gap: 36px;
+          }
+
+          .chronotype-intro-heading {
+            font-size: 30px;
+          }
+
+          .chronotype-heading-primary {
+            white-space: normal;
+          }
+
+          .chronotype-intro-image-wrap {
+            width: 300px;
+            margin-left: 0;
+          }
+
+          .chronotype-intro-image {
+            height: 250px;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .chronotype-intro-section {
+            padding: 52px 48px 44px;
           }
         }
       `}</style>

@@ -4,14 +4,23 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useAssessment } from "@/components/assessment/AssessmentContext";
 import { useConsult } from "@/components/consult/ConsultContext";
 
-const bgImages = [
+const desktopBgImages = [
   "/assets/hero/hero-bg.png",
   "/assets/hero/bg2.png",
 ];
 
-const totalSlides = bgImages.length;
-const slideImages = [...bgImages, bgImages[0]];
-const totalSlideItems = slideImages.length;
+const mobileBgImages = [
+  "/assets/hero/hero-bg-mobile1.png",
+  "/assets/hero/hero-bg-mobile2.png",
+];
+
+const totalDesktopSlides = desktopBgImages.length;
+const desktopSlideImages = [...desktopBgImages, desktopBgImages[0]];
+const totalDesktopSlideItems = desktopSlideImages.length;
+
+const totalMobileSlides = mobileBgImages.length;
+const mobileSlideImages = [...mobileBgImages, mobileBgImages[0]];
+const totalMobileSlideItems = mobileSlideImages.length;
 
 const benefitSets = [
   ["/assets/hero/benefit-1.png", "/assets/hero/benefit-2.png", "/assets/hero/benefit-3.png"],
@@ -37,7 +46,7 @@ export default function HeroSection() {
     setTransitionEnabled(true);
     setCurrentSlide((prev) => {
       const nextIdx = prev + 1;
-      if (nextIdx >= totalSlideItems - 1) {
+      if (nextIdx >= totalDesktopSlideItems - 1) {
         setTimeout(() => {
           setTransitionEnabled(false);
           setCurrentSlide(0);
@@ -59,10 +68,10 @@ export default function HeroSection() {
       if (prevIdx < 0) {
         setTimeout(() => {
           setTransitionEnabled(false);
-          setCurrentSlide(totalSlides - 1);
+          setCurrentSlide(totalDesktopSlides - 1);
           isTransitioning.current = false;
         }, 700);
-        return totalSlideItems - 1;
+        return totalDesktopSlideItems - 1;
       }
       setTimeout(() => { isTransitioning.current = false; }, 700);
       return prevIdx;
@@ -75,7 +84,8 @@ export default function HeroSection() {
   }, [next]);
 
   useEffect(() => {
-    slideImages.forEach((src) => {
+    const allImages = [...desktopBgImages, ...mobileBgImages];
+    allImages.forEach((src) => {
       const link = document.createElement("link");
       link.rel = "preload";
       link.as = "image";
@@ -99,6 +109,7 @@ export default function HeroSection() {
       <style
         dangerouslySetInnerHTML={{
           __html: `
+            /* ===== DESKTOP / TABLET — UNTOUCHED ===== */
             @media (min-width: 768px) and (max-width: 1023px) {
               .hero-section { min-height: 620px !important; }
               .hero-inner { min-height: 620px !important; padding: 88px 32px 30px !important; }
@@ -120,30 +131,146 @@ export default function HeroSection() {
             @media (min-width: 1440px) {
               .hero-section { min-height: 680px !important; }
             }
+
+            /* ===== MOBILE ONLY ===== */
             @media (max-width: 767px) {
-              .hero-section { min-height: 0 !important; background-image: none !important; background-color: #ffffff !important; }
-              .hero-inner { min-height: 0 !important; width: 100% !important; padding: 82px 18px 20px !important; }
-              .hero-content { width: 100% !important; max-width: none !important; min-width: 0 !important; padding-bottom: 24px !important; }
-              .hero-heading-orange { font-size: clamp(40px, 10.3vw, 48px) !important; }
-              .hero-heading-indigo { font-size: clamp(36px, 9.3vw, 44px) !important; margin-top: 10px !important; }
+              .hero-section {
+                min-height: 760px !important;
+                background-image: none !important;
+                background-color: transparent !important;
+              }
+
+              .hero-section::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                background: linear-gradient(
+                  180deg,
+                  rgba(255,255,255,0.82) 0%,
+                  rgba(255,255,255,0.32) 20%,
+                  rgba(255,255,255,0.00) 42%,
+                  rgba(255,255,255,0.68) 70%,
+                  rgba(255,255,255,0.98) 100%
+                );
+                z-index: 0;
+              }
+
+              .hero-inner {
+                min-height: inherit !important;
+                width: 100% !important;
+                padding: 112px 28px 34px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                position: relative;
+                z-index: 1;
+              }
+
+              .hero-content {
+                width: 100% !important;
+                max-width: none !important;
+                min-width: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                flex: 1 1 auto !important;
+                padding-bottom: 0 !important;
+              }
+
+              .hero-heading-orange {
+                font-size: clamp(44px, 11vw, 56px) !important;
+                line-height: 1.02 !important;
+                font-weight: 700 !important;
+                letter-spacing: -0.045em !important;
+              }
+
+              .hero-heading-indigo {
+                margin-top: 20px !important;
+                font-size: clamp(38px, 9.8vw, 48px) !important;
+                line-height: 1.08 !important;
+                font-weight: 600 !important;
+                letter-spacing: -0.04em !important;
+              }
+
               .hero-line-chronotype { white-space: normal !important; }
-              .hero-mobile-visual { display: block !important; width: 100% !important; aspect-ratio: 16/10 !important; margin-top: 20px !important; background-repeat: no-repeat !important; background-size: cover !important; background-position: 68% center !important; }
-              .hero-benefits { width: 100% !important; max-width: none !important; margin-top: 24px !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 4px !important; }
-              .hero-actions { width: 100% !important; max-width: none !important; margin-top: 24px !important; grid-template-columns: 1fr !important; gap: 9px !important; }
-              .hero-actions button { height: 48px !important; font-size: 15px !important; }
+
+              .hero-benefits {
+                width: 100% !important;
+                max-width: none !important;
+                margin-top: auto !important;
+                padding-top: 28px !important;
+                display: grid !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                gap: 0 !important;
+                align-items: start !important;
+              }
+
               .hero-benefit-media {
-                width: clamp(84px, 24vw, 108px);
-                height: clamp(84px, 24vw, 108px);
-                flex-basis: auto;
+                width: clamp(84px, 24vw, 108px) !important;
+                height: clamp(84px, 24vw, 108px) !important;
+                flex-basis: auto !important;
               }
+
               .hero-benefit-label {
-                font-size: clamp(14px, 4vw, 17px) !important;
-                line-height: 1.15 !important;
+                margin-top: 14px !important;
+                font-size: clamp(19px, 5vw, 24px) !important;
+                line-height: 1.12 !important;
+                font-weight: 700 !important;
               }
+
               .hero-benefit:not(:last-child)::after {
-                height: 106px;
+                top: 0 !important;
+                right: 0 !important;
+                width: 1.5px !important;
+                height: 150px !important;
+                background: #E4B93D !important;
+              }
+
+              .hero-actions {
+                width: 100% !important;
+                max-width: none !important;
+                margin-top: 34px !important;
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+              }
+
+              .hero-actions button {
+                width: 100% !important;
+                min-height: 58px !important;
+                height: auto !important;
+                padding: 16px 18px !important;
+                border-radius: 8px !important;
+                font-size: 18px !important;
+                line-height: 1.2 !important;
+                font-weight: 700 !important;
+              }
+
+              .hero-mobile-bg {
+                display: block !important;
+              }
+
+              .hero-mobile-visual {
+                display: none !important;
+              }
+
+              .hero-arrow {
+                width: 36px !important;
+                height: 36px !important;
               }
             }
+            @media (max-width: 380px) {
+              .hero-section { min-height: 720px !important; }
+            }
+            @media (min-width: 431px) and (max-width: 767px) {
+              .hero-section { min-height: 800px !important; }
+            }
+            @media (max-width: 360px) {
+              .hero-benefit:not(:last-child)::after {
+                height: 128px !important;
+              }
+            }
+
+            /* ===== BASE (all breakpoints) ===== */
             .hero-heading-orange {
               color: #ff6500;
               font-size: clamp(60px, 4.6vw, 72px);
@@ -234,14 +361,6 @@ export default function HeroSection() {
               font-size: 17px;
               font-weight: 600;
             }
-            @media (max-width: 767px) {
-              .hero-actions {
-                grid-template-columns: 1fr;
-              }
-              .hero-actions > :last-child {
-                grid-column: 1 / -1;
-              }
-            }
             .hero-bg-track {
               display: flex;
               height: 100%;
@@ -280,12 +399,6 @@ export default function HeroSection() {
             .hero-arrow:active {
               transform: translateY(-50%) scale(0.95);
             }
-            @media (max-width: 767px) {
-              .hero-arrow {
-                width: 36px;
-                height: 36px;
-              }
-            }
             @keyframes benefitFadeIn {
               from { opacity: 0; }
               to { opacity: 1; }
@@ -294,6 +407,7 @@ export default function HeroSection() {
         }}
       />
 
+      {/* DESKTOP background slider (hidden on mobile) */}
       <div className="hidden md:block absolute inset-0 z-0 pointer-events-none select-none" aria-hidden="true">
         <div
           className="hero-bg-track"
@@ -303,7 +417,7 @@ export default function HeroSection() {
             willChange: "transform",
           }}
         >
-          {slideImages.map((src, idx) => (
+          {desktopSlideImages.map((src, idx) => (
             <div
               key={idx}
               className="hero-bg-slide"
@@ -313,6 +427,7 @@ export default function HeroSection() {
         </div>
       </div>
 
+      {/* DESKTOP readability overlay (hidden on mobile) */}
       <div
         className="hidden md:block absolute inset-0 z-[1] pointer-events-none"
         aria-hidden="true"
@@ -321,6 +436,30 @@ export default function HeroSection() {
         }}
       />
 
+      {/* MOBILE background slider (hidden on desktop) */}
+      <div
+        className="hero-mobile-bg absolute inset-0 z-0 pointer-events-none select-none hidden"
+        aria-hidden="true"
+      >
+        <div
+          className="hero-bg-track"
+          style={{
+            transform: `translateX(-${currentSlide * 100}%)`,
+            transition: transitionEnabled ? "transform 0.7s ease-in-out" : "none",
+            willChange: "transform",
+          }}
+        >
+          {mobileSlideImages.map((src, idx) => (
+            <div
+              key={idx}
+              className="hero-bg-slide"
+              style={{ backgroundImage: `url("${src}")`, backgroundColor: "#eef9fd" }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* DESKTOP arrows (hidden on mobile) */}
       <button type="button" aria-label="Previous slide" onClick={prev} className="hero-arrow left-arrow hidden md:flex" style={{ left: "12px" }}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="15 18 9 12 15 6" />
@@ -332,6 +471,7 @@ export default function HeroSection() {
         </svg>
       </button>
 
+      {/* Content — desktop and mobile */}
       <div className="hero-inner relative z-[2] w-full max-w-[1440px] mx-auto min-w-0">
         <div className="hero-content">
           <h1 className="hero-heading m-0 p-0">
@@ -346,11 +486,11 @@ export default function HeroSection() {
           </h1>
 
           <div
-            key={currentSlide % totalSlides}
+            key={currentSlide % totalDesktopSlides}
             className="hero-benefits"
             style={{ animation: "benefitFadeIn 0.7s ease-in-out" }}
           >
-            {benefitSets[currentSlide % totalSlides].map((src, imgIdx) => (
+            {benefitSets[currentSlide % totalDesktopSlides].map((src, imgIdx) => (
               <div key={imgIdx} className="hero-benefit">
                 <div className="hero-benefit-media">
                   <img
@@ -377,32 +517,6 @@ export default function HeroSection() {
             <button type="button" onClick={openConsult} className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
               Consult a Sleep Specialist
             </button>
-          </div>
-        </div>
-
-        <div className="block md:hidden w-full overflow-hidden hero-mobile-visual" aria-hidden="true" style={{ marginTop: "20px", marginBottom: "8px", aspectRatio: "16/10" }}>
-          <div
-            className="flex h-full"
-            style={{
-              width: `${slideImages.length * 100}%`,
-              transform: `translateX(-${(currentSlide / slideImages.length) * 100}%)`,
-              transition: transitionEnabled ? "transform 0.7s ease-in-out" : "none",
-              willChange: "transform",
-            }}
-          >
-            {slideImages.map((src, idx) => (
-              <div
-                key={idx}
-                style={{
-                  width: `${100 / slideImages.length}%`,
-                  height: "100%",
-                  backgroundImage: `url("${src}")`,
-                  backgroundRepeat: "no-repeat",
-                  backgroundSize: "cover",
-                  backgroundPosition: "68% center",
-                }}
-              />
-            ))}
           </div>
         </div>
       </div>
