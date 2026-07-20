@@ -195,9 +195,9 @@ export default function HeroSection() {
 
               .hero-heading {
                 position: absolute !important;
-                top: 238px !important;
+                top: 220px !important;
                 left: 0 !important;
-                width: 265px !important;
+                width: 320px !important;
                 max-width: calc(100vw - 44px) !important;
                 margin: 0 !important;
                 padding: 0 !important;
@@ -206,25 +206,47 @@ export default function HeroSection() {
               }
 
               .hero-heading-orange {
-                font-size: clamp(31px, 8vw, 36px) !important;
+                font-size: clamp(36px, 9.5vw, 44px) !important;
                 line-height: 1.04 !important;
-                font-weight: 700 !important;
+                font-weight: 800 !important;
                 letter-spacing: -0.035em !important;
               }
 
               .hero-heading-indigo {
-                margin-top: 10px !important;
-                font-size: clamp(26px, 6.8vw, 31px) !important;
+                margin-top: 8px !important;
+                font-size: clamp(31px, 8vw, 37px) !important;
                 line-height: 1.09 !important;
-                font-weight: 600 !important;
+                font-weight: 700 !important;
                 letter-spacing: -0.03em !important;
+              }
+
+              .hero-line-chronotype {
+                position: relative !important;
+                display: inline-block !important;
+                white-space: nowrap !important;
+                z-index: 1 !important;
+              }
+
+              .hero-line-chronotype::after {
+                content: "" !important;
+                position: absolute !important;
+                right: 0 !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                width: 3.2em !important;
+                height: 1.4em !important;
+                background: rgba(255, 255, 255, 0.6) !important;
+                border-radius: 999px !important;
+                filter: blur(10px) !important;
+                pointer-events: none !important;
+                z-index: -1 !important;
               }
 
               .hero-benefits {
                 position: absolute !important;
                 left: 0 !important;
                 right: 0 !important;
-                top: 575px !important;
+                top: 560px !important;
                 width: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
@@ -304,24 +326,26 @@ export default function HeroSection() {
             }
             @media (max-width: 359px) {
               .hero-section { min-height: 890px !important; height: 890px !important; }
-              .hero-benefits { top: 540px !important; }
+              .hero-heading { top: 210px !important; width: 290px !important; }
+              .hero-benefits { top: 530px !important; }
               .hero-benefit-media { width: 74px !important; height: 74px !important; }
               .hero-benefit:not(:last-child)::after { height: 102px !important; }
               .hero-actions { bottom: 20px !important; gap: 9px !important; }
               .hero-actions button { min-height: 52px !important; padding: 13px 14px !important; font-size: 15px !important; }
             }
             @media (min-width: 360px) and (max-width: 389px) {
-              .hero-heading { top: 232px !important; width: 255px !important; }
+              .hero-heading { top: 215px !important; width: 290px !important; }
             }
             @media (min-width: 390px) and (max-width: 429px) {
-              .hero-heading { top: 235px !important; width: 272px !important; }
-              .hero-benefits { top: 565px !important; }
+              .hero-heading { top: 218px !important; width: 310px !important; }
+              .hero-benefits { top: 550px !important; }
               .hero-benefit:not(:last-child)::after { height: 110px !important; }
               .hero-actions { bottom: 24px !important; }
             }
             @media (min-width: 430px) and (max-width: 767px) {
               .hero-section { min-height: 960px !important; height: 960px !important; }
-              .hero-benefits { top: 590px !important; }
+              .hero-heading { width: 340px !important; }
+              .hero-benefits { top: 575px !important; }
               .hero-actions { bottom: 28px !important; }
             }
 
