@@ -106,7 +106,6 @@ export default function HeroSection() {
       className="hero-section relative w-full overflow-hidden bg-white min-h-[680px]"
       style={{
         fontFamily: "Poppins, var(--font-poppins), sans-serif",
-        backgroundImage: `url("${mobileBgImages[currentSlide % totalMobileSlides]}")`,
       }}
     >
       <style
@@ -140,9 +139,7 @@ export default function HeroSection() {
               .hero-section {
                 min-height: 930px !important;
                 height: 930px !important;
-                background-repeat: no-repeat;
-                background-size: cover;
-                background-position: 80% top !important;
+                background-image: none !important;
                 background-color: #ffffff;
                 padding-top: 0 !important;
               }
@@ -151,7 +148,7 @@ export default function HeroSection() {
                 content: "";
                 position: absolute;
                 inset: 0;
-                z-index: 0;
+                z-index: 1 !important;
                 pointer-events: none;
                 background:
                   linear-gradient(
@@ -171,6 +168,14 @@ export default function HeroSection() {
                   );
               }
 
+              .hero-mobile-bg {
+                display: block !important;
+              }
+
+              .hero-mobile-bg .hero-bg-slide {
+                background-position: 80% top !important;
+              }
+
               .hero-inner {
                 width: 100% !important;
                 height: 100% !important;
@@ -178,7 +183,7 @@ export default function HeroSection() {
                 padding: 0 22px !important;
                 display: block !important;
                 position: relative !important;
-                z-index: 1 !important;
+                z-index: 2 !important;
                 max-width: none !important;
                 margin: 0 !important;
               }
@@ -310,10 +315,6 @@ export default function HeroSection() {
                 align-items: center !important;
                 justify-content: center !important;
                 text-align: center !important;
-              }
-
-              .hero-mobile-bg {
-                display: none !important;
               }
 
               .hero-mobile-visual {
@@ -517,7 +518,7 @@ export default function HeroSection() {
 
       {/* MOBILE background slider (hidden on desktop) */}
       <div
-        className="hero-mobile-bg absolute inset-0 z-0 pointer-events-none select-none hidden"
+        className="hero-mobile-bg absolute inset-0 z-0 pointer-events-none select-none md:hidden"
         aria-hidden="true"
       >
         <div
