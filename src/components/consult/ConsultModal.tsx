@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useConsult } from "./ConsultContext";
 
@@ -49,6 +49,15 @@ const initialForm: ConsultForm = {
   scheduleTime: timeStr(),
 };
 
+function CheckCircle() {
+  return (
+    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <circle cx="32" cy="32" r="30" stroke="#35319B" strokeWidth="3" />
+      <path d="M20 32 l8 8 l16 -16" stroke="#35319B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export default function ConsultModal() {
   const { isOpen, close } = useConsult();
   const [form, setForm] = useState<ConsultForm>(initialForm);
@@ -57,6 +66,17 @@ export default function ConsultModal() {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaError, setCaptchaError] = useState("");
   const captchaRef = useRef<ReCAPTCHA>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -104,94 +124,113 @@ export default function ConsultModal() {
 
   return (
     <div
+      data-lenis-prevent
       className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto"
-      style={{ background: "rgba(0,0,0,0.55)", padding: "40px 16px" }}
+      style={{ background: "rgba(15, 13, 45, 0.65)", padding: "40px 16px" }}
       onClick={(e) => { if (e.target === e.currentTarget) resetAndClose(); }}
     >
       <div
-        className="relative w-full bg-white shadow-xl"
-        style={{ maxWidth: "520px", borderRadius: 0, fontFamily: "Poppins, sans-serif" }}
+        className="relative w-full bg-white shadow-2xl overflow-hidden"
+        style={{
+          maxWidth: "580px",
+          borderRadius: "16px",
+          fontFamily: "Poppins, sans-serif",
+          marginTop: "auto",
+          marginBottom: "auto",
+        }}
       >
+        {/* Gradient accent bar */}
+        <div style={{ height: "4px", background: "linear-gradient(90deg, #35319B, #F59A00)", width: "100%" }} />
+
+        {/* Close button */}
         <button
           type="button"
           onClick={resetAndClose}
           aria-label="Close"
-          className="absolute top-[12px] right-[14px] w-[32px] h-[32px] flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
-          style={{ borderRadius: 0 }}
+          className="absolute top-[14px] right-[16px] w-[34px] h-[34px] flex items-center justify-center bg-transparent border-none cursor-pointer z-10 hover:bg-gray-100"
+          style={{ borderRadius: "50%" }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
 
         {submitted ? (
-          <div className="flex flex-col items-center justify-center px-[28px] py-[60px] text-center">
-            <svg width="72" height="72" viewBox="0 0 72 72" fill="none" className="mb-[20px]">
-              <circle cx="36" cy="36" r="32" fill="#22C55E" opacity="0.12" />
-              <circle cx="36" cy="36" r="24" fill="#22C55E" opacity="0.2" />
-              <path
-                d="M28 36 L34 42 L44 30"
-                stroke="#22C55E"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <h3 className="m-0 text-[22px] font-semibold text-[#171717]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginBottom: "8px" }}>
+          /* ----- COMPLETION ----- */
+          <div className="flex flex-col items-center px-[24px] py-[48px] md:px-[40px]">
+            <div style={{ marginBottom: "20px" }}>
+              <CheckCircle />
+            </div>
+            <h3 className="m-0 text-[22px] font-semibold text-[#35319B] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginBottom: "8px" }}>
               Consultation Scheduled
             </h3>
-            <p className="m-0 text-[14px] leading-[1.6] text-[#666]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginBottom: "28px" }}>
+            <p className="m-0 text-[15px] leading-[1.6] text-[#555] text-center max-w-[400px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginBottom: "28px" }}>
               Your consultation request has been submitted successfully. We will contact you shortly.
             </p>
             <button
               type="button"
               onClick={resetAndClose}
-              className="bg-[#3B35A3] text-white text-[15px] font-semibold px-[40px] py-[12px] border-none cursor-pointer hover:bg-[#332D92] transition-colors"
-              style={{ borderRadius: 0, fontFamily: "Poppins, sans-serif" }}
+              className="bg-[#3B35A3] hover:bg-[#2D2890] text-white text-[15px] font-semibold px-[44px] py-[12px] border-none cursor-pointer transition-colors"
+              style={{ borderRadius: "8px", fontFamily: "Poppins, sans-serif" }}
             >
               Done
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="px-[24px] py-[36px] md:px-[32px]">
-            <h3 className="m-0 text-[20px] font-semibold text-[#35319B] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginBottom: "6px" }}>
-              Consult a Sleep Specialist
-            </h3>
-            <p className="m-0 text-[13px] leading-[1.4] text-[#666] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginBottom: "24px" }}>
-              Fill in your details to schedule a consultation
-            </p>
+          /* ----- FORM ----- */
+          <form onSubmit={handleSubmit} className="px-[20px] py-[32px] md:px-[36px]">
+            {/* Header */}
+            <div className="text-center mb-[28px]">
+              <div
+                className="inline-flex items-center justify-center w-[52px] h-[52px] rounded-full mb-[14px]"
+                style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)" }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round">
+                  <circle cx="12" cy="10" r="3" />
+                  <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z" />
+                </svg>
+              </div>
+              <h3 className="m-0 text-[21px] font-semibold text-[#35319B]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginBottom: "4px" }}>
+                Consult a Sleep Specialist
+              </h3>
+              <p className="m-0 text-[13px] leading-[1.4] text-[#888]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+                Fill in your details to schedule a consultation
+              </p>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+            {/* Form fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <FormField label="First Name *" value={form.fname} onChange={(v) => update("fname", v)} error={errors.fname} />
               <FormField label="Last Name *" value={form.lname} onChange={(v) => update("lname", v)} error={errors.lname} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <AgeSelect label="Age *" value={form.age} onChange={(v) => update("age", v)} error={errors.age} />
               <SelectField label="Gender *" value={form.gender} onChange={(v) => update("gender", v)} error={errors.gender} options={["Male", "Female", "Other"]} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <SelectField label="Marital Status *" value={form.maritalStatus} onChange={(v) => update("maritalStatus", v)} error={errors.maritalStatus} options={["Single", "Married", "Divorced", "Widowed"]} />
               <FormField label="Country *" value={form.country} onChange={(v) => update("country", v)} error={errors.country} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <FormField label="State *" value={form.state} onChange={(v) => update("state", v)} error={errors.state} />
               <FormField label="City *" value={form.city} onChange={(v) => update("city", v)} error={errors.city} />
             </div>
-            <div className="mb-[12px]">
+            <div className="mb-[14px]">
               <FormField label="Pincode *" value={form.pincode} onChange={(v) => update("pincode", v)} error={errors.pincode} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <FormField label="Email *" value={form.email} onChange={(v) => update("email", v)} error={errors.email} type="email" />
               <FormField label="Phone *" value={form.phone} onChange={(v) => update("phone", v)} error={errors.phone} type="tel" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <DateField label="Schedule Date *" value={form.scheduleDate} onChange={(v) => update("scheduleDate", v)} error={errors.scheduleDate} />
               <TimeField label="Schedule Time *" value={form.scheduleTime} onChange={(v) => update("scheduleTime", v)} error={errors.scheduleTime} />
             </div>
 
-            <div className="mb-[16px] flex justify-center">
+            {/* reCAPTCHA */}
+            <div className="mb-[18px] flex justify-center">
               <ReCAPTCHA
                 ref={captchaRef}
                 sitekey="6LcO6FQtAAAAALeLgzM120ljuL3Mc5uefKWWxfET"
@@ -201,10 +240,11 @@ export default function ConsultModal() {
             </div>
             {captchaError && <p className="m-0 text-[12px] text-red-500 mb-[16px] text-center" style={{ fontFamily: "Poppins, sans-serif" }}>{captchaError}</p>}
 
+            {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-[#3B35A3] text-white text-[15px] font-semibold py-[14px] border-none cursor-pointer hover:bg-[#332D92] transition-colors"
-              style={{ borderRadius: 0, fontFamily: "Poppins, sans-serif" }}
+              className="w-full bg-[#3B35A3] hover:bg-[#2D2890] text-white text-[15px] font-semibold py-[14px] border-none cursor-pointer transition-colors"
+              style={{ borderRadius: "10px", fontFamily: "Poppins, sans-serif", letterSpacing: "0.01em" }}
             >
               Submit
             </button>
@@ -215,7 +255,7 @@ export default function ConsultModal() {
           dangerouslySetInnerHTML={{
             __html: `
               input, select { font-family: Poppins, sans-serif; }
-              input:focus, select:focus { outline: 2px solid #3B35A3; outline-offset: -1px; }
+              input:focus, select:focus { outline: 2px solid #3B35A3; outline-offset: -1px; border-color: transparent !important; border-radius: 6px; }
             `,
           }}
         />
@@ -224,7 +264,7 @@ export default function ConsultModal() {
   );
 }
 
-/* --- Reusable field components --- */
+/* ----- FIELD COMPONENTS ----- */
 
 function FormField({
   label, value, onChange, error, type = "text",
@@ -232,18 +272,22 @@ function FormField({
   label: string; value: string; onChange: (v: string) => void; error?: string; type?: string;
 }) {
   return (
-    <div className="mb-[12px]">
-      <label className="block text-[13px] font-medium text-[#444] mb-[4px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+    <div>
+      <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
         {label}
       </label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border px-[12px] py-[10px] text-[14px] bg-white"
-        style={{ borderRadius: 0, border: "1.5px solid #D0D0D0", fontFamily: "Poppins, sans-serif" }}
+        className="w-full px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
+        style={{
+          borderRadius: "8px",
+          border: "1.5px solid #D5D5D5",
+          fontFamily: "Poppins, sans-serif",
+        }}
       />
-      {error && <p className="m-0 text-[12px] text-red-500 mt-[2px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
+      {error && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
     </div>
   );
 }
@@ -267,21 +311,21 @@ function AgeSelect({
 }) {
   return (
     <div>
-      <label className="block text-[13px] font-medium text-[#444] mb-[4px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+      <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
         {label}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border px-[12px] py-[10px] text-[14px] bg-white"
-        style={{ borderRadius: 0, border: "1.5px solid #D0D0D0", fontFamily: "Poppins, sans-serif" }}
+        className="w-full px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
+        style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
       >
         <option value="">Select Age Range</option>
         {ageRanges.map((range) => (
           <option key={range} value={range}>{range}</option>
         ))}
       </select>
-      {error && <p className="m-0 text-[12px] text-red-500 mt-[2px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
+      {error && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
     </div>
   );
 }
@@ -293,21 +337,21 @@ function SelectField({
 }) {
   return (
     <div>
-      <label className="block text-[13px] font-medium text-[#444] mb-[4px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+      <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
         {label}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border px-[12px] py-[10px] text-[14px] bg-white"
-        style={{ borderRadius: 0, border: "1.5px solid #D0D0D0", fontFamily: "Poppins, sans-serif" }}
+        className="w-full px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
+        style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
       >
         <option value="">Select</option>
         {options.map((opt) => (
           <option key={opt} value={opt}>{opt}</option>
         ))}
       </select>
-      {error && <p className="m-0 text-[12px] text-red-500 mt-[2px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
+      {error && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
     </div>
   );
 }
@@ -319,17 +363,21 @@ function DateField({
 }) {
   return (
     <div>
-      <label className="block text-[13px] font-medium text-[#444] mb-[4px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+      <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
         {label}
       </label>
       <input
         type="date"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border px-[12px] py-[10px] text-[14px] bg-white"
-        style={{ borderRadius: 0, border: "1.5px solid #D0D0D0", fontFamily: "Poppins, sans-serif" }}
+        className="w-full px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
+        style={{
+          borderRadius: "8px",
+          border: "1.5px solid #D5D5D5",
+          fontFamily: "Poppins, sans-serif",
+        }}
       />
-      {error && <p className="m-0 text-[12px] text-red-500 mt-[2px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
+      {error && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
     </div>
   );
 }
@@ -341,17 +389,21 @@ function TimeField({
 }) {
   return (
     <div>
-      <label className="block text-[13px] font-medium text-[#444] mb-[4px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+      <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
         {label}
       </label>
       <input
         type="time"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border px-[12px] py-[10px] text-[14px] bg-white"
-        style={{ borderRadius: 0, border: "1.5px solid #D0D0D0", fontFamily: "Poppins, sans-serif" }}
+        className="w-full px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
+        style={{
+          borderRadius: "8px",
+          border: "1.5px solid #D5D5D5",
+          fontFamily: "Poppins, sans-serif",
+        }}
       />
-      {error && <p className="m-0 text-[12px] text-red-500 mt-[2px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
+      {error && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
     </div>
   );
 }

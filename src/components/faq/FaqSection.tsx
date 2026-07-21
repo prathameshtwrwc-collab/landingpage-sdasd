@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 
 const faqs = [
   {
@@ -66,11 +67,11 @@ export default function FaqSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
-      <div className="relative z-[1] mx-auto max-w-[980px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[42px] lg:pt-[48px] pb-[40px] md:pb-[44px] lg:pb-[52px] min-w-0">
+      <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={{ hidden: { opacity: 0, y: 25 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } } }} className="relative z-[1] mx-auto max-w-[980px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[42px] lg:pt-[48px] pb-[40px] md:pb-[44px] lg:pb-[52px] min-w-0">
         {/* Heading */}
 <h2
           id="faq-heading"
-          className="m-0 mx-auto text-[clamp(28px,7vw,34px)] leading>[1.2] font-semibold text-center text-[#F59A00]"
+          className="m-0 mx-auto text-[clamp(24px,6.5vw,30px)] leading>[1.2] font-semibold text-center text-[#F59A00]"
           style={{
             fontFamily: "Poppins, sans-serif",
             fontWeight: 600,
@@ -78,7 +79,7 @@ export default function FaqSection() {
             marginBottom: "28px",
           }}
         >
-          FAQ SECTION
+          FAQ
         </h2>
 
         {/* FAQ container - no outer card */}
@@ -91,14 +92,20 @@ export default function FaqSection() {
             const triggerId = `faq-trigger-${idx}`;
             const panelId = `faq-panel-${idx}`;
             return (
-              <div
+              <motion.div
                 key={faq.q}
                 className="faq-item w-full bg-transparent"
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
                 style={{ borderBottom: "1px solid rgba(120,120,120,0.55)" }}
               >
-                <button
+                <motion.button
                   id={triggerId}
                   type="button"
+                  whileHover={{ x: 4 }}
+                  transition={{ duration: 0.15 }}
                   aria-expanded={isOpen}
                   aria-controls={panelId}
                   onClick={() => toggle(idx)}
@@ -119,7 +126,7 @@ export default function FaqSection() {
 
                   {/* Question */}
 <span
-                    className="text-[19px] leading>[1.4] md:text>[18px] lg:text>[19px] font-semibold text-[#171717] group-hover:text-[#3B35A3] transition-colors duration-[160ms]"
+                    className="text-[clamp(13px,3.8vw,15px)] leading>[1.4] md:text>[18px] lg:text>[19px] font-semibold text-[#171717] group-hover:text-[#3B35A3] transition-colors duration-[160ms]"
                     style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
                   >
                     {faq.q}
@@ -148,7 +155,7 @@ export default function FaqSection() {
                       <Chevron open={isOpen} />
                     </span>
                   </span>
-                </button>
+                                  </motion.button>
 
                 {/* Answer */}
                 <div
@@ -163,7 +170,7 @@ export default function FaqSection() {
                   hidden={!isOpen}
                 >
 <div
-                    className="text-[16px] leading>[1.65] md:text>[16px] lg:text>[16px] font-medium text-[#444444] pb-[16px] md:pb>[18px] lg:pb>[18px] min-w-0"
+                    className="text-[clamp(12px,3.6vw,14px)] leading>[1.65] md:text>[16px] lg:text>[16px] font-medium text-[#444444] pb-[16px] md:pb>[18px] lg:pb>[18px] min-w-0"
                     style={{
                       fontFamily: "Poppins, sans-serif",
                       fontWeight: 500,
@@ -204,11 +211,11 @@ export default function FaqSection() {
                     `,
                   }}
                 />
-              </div>
+              </motion.div>
             );
           })}
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 
 export default function HeroStatementStrip() {
   return (
@@ -30,7 +31,7 @@ export default function HeroStatementStrip() {
       />
 
       {/* Content - compact, max 980px - mobile height auto padding 34 20 */}
-      <div
+      <motion.div
         className="
           relative z-[2] w-full max-w-[980px] mx-auto
           px-[20px] md:px-[24px]
@@ -45,20 +46,35 @@ export default function HeroStatementStrip() {
           alignItems: "center",
           margin: 0,
         }}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        variants={{
+          hidden: { opacity: 0, y: 25 },
+          visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+        }}
       >
-        <p
+        <motion.p
           className="m-0 text-white tracking-[-0.01em] text-[16px] leading-[1.55] md:text-[18px] md:leading-[1.5]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}
+          variants={{
+            hidden: { opacity: 0, y: 15 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+          }}
         >
           Sleep powers your{" "}
           <span style={{ fontWeight: 600, color: "#FFD21A" }}>
             Health, Mind, Performance, Recovery, and Longevity.
           </span>
-        </p>
+        </motion.p>
 
-        <p
+        <motion.p
           className="mt-[6px] text-white tracking-[-0.01em] text-[16px] leading-[1.55] md:text-[18px] md:leading-[1.5] max-w-[900px]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}
+          variants={{
+            hidden: { opacity: 0, y: 15 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+          }}
         >
           Every night, your brain and body perform essential processes that
           <br className="hidden md:block" />
@@ -68,19 +84,23 @@ export default function HeroStatementStrip() {
           </span>
           <br className="hidden lg:block" />
           <span style={{ fontWeight: 600 }}>and perform throughout the day.</span>
-        </p>
+        </motion.p>
 
-        <p
-          className="mt-[16px] md:mt-[14px] text-white uppercase tracking-[-0.01em] text-[21px] leading-[1.25] md:text-[22px] md:leading-[1.2] max-w-[900px]"
+        <motion.p
+          className="mt-[16px] md:mt-[14px] text-white uppercase tracking-[-0.01em] text-[clamp(17px,4.6vw,21px)] leading-[1.25] md:text-[22px] md:leading-[1.2] max-w-[900px]"
           style={{
             fontFamily: "Poppins, sans-serif",
             fontWeight: 700,
             letterSpacing: "-0.01em",
           }}
+          variants={{
+            hidden: { opacity: 0, y: 15 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+          }}
         >
           YOUR DAYS ARE ONLY AS POWERFUL AS YOUR NIGHTS.
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </section>
   );
 }

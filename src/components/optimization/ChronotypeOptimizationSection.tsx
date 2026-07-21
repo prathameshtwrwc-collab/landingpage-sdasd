@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 
 const checklistItems = [
   "Sleep quality",
@@ -25,15 +26,28 @@ export default function ChronotypeOptimizationSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
-      <div
-        className="
-          relative z-[1] mx-auto
-          px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px]
-          pt-[36px] md:pt-[40px] lg:pt-[42px]
-          pb-[38px] md:pb-[42px] lg:pb-[46px]
-          max-w-[1120px]
-        "
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        variants={{
+          hidden: { opacity: 0, y: 25 },
+          visible: {
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.5, ease: "easeOut" },
+          },
+        }}
       >
+        <div
+          className="
+            relative z-[1] mx-auto
+            px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px]
+            pt-[36px] md:pt-[40px] lg:pt-[42px]
+            pb-[38px] md:pb-[42px] lg:pb-[46px]
+            max-w-[1120px]
+          "
+        >
         <h2
           className="
             m-0 mx-auto
@@ -52,9 +66,7 @@ export default function ChronotypeOptimizationSection() {
             marginBottom: "30px",
           }}
         >
-          Every chronotype has unique strengths, challenges,
-          <br />
-          and opportunities for optimization.
+          Every chronotype has unique strengths, challenges, and opportunities for optimization.
         </h2>
 
         <div
@@ -70,7 +82,7 @@ export default function ChronotypeOptimizationSection() {
           <div style={{ maxWidth: "460px" }} className="w-full min-w-0">
             <p
               className="
-                text-[20px] leading-[1.3]
+                text-[clamp(17px,4.5vw,20px)] leading-[1.3]
                 md:text-[20px] md:leading-[1.3]
                 lg:text-[23px] lg:leading-[1.3]
                 font-semibold
@@ -87,10 +99,24 @@ export default function ChronotypeOptimizationSection() {
               can help optimize:
             </p>
 
-            <div className="flex flex-col">
+            <motion.div
+              className="flex flex-col"
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.06 } },
+              }}
+            >
               {checklistItems.map((item) => (
-                <div
+                <motion.div
                   key={item}
+                  variants={{
+                    hidden: { opacity: 0, x: -15 },
+                    visible: {
+                      opacity: 1,
+                      x: 0,
+                      transition: { duration: 0.35, ease: "easeOut" },
+                    },
+                  }}
                   className="
                     flex items-center gap-[10px]
                     min-h-[42px]
@@ -114,7 +140,7 @@ export default function ChronotypeOptimizationSection() {
                   />
                   <span
                     className="
-                      text-[18px] leading-[1.55]
+                      text-[clamp(15px,4vw,18px)] leading-[1.55]
                       md:text-[17px] md:leading-[1.55]
                       lg:text-[18px] lg:leading-[1.55]
                       text-[#171717]
@@ -126,9 +152,9 @@ export default function ChronotypeOptimizationSection() {
                   >
                     {item}
                   </span>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
 
           <div
@@ -171,7 +197,7 @@ export default function ChronotypeOptimizationSection() {
         >
           <p
             className="
-              text-[17px] leading-[1.58]
+              text-[clamp(15px,4vw,17px)] leading-[1.58]
               md:text-[17px] md:leading-[1.58]
               lg:text-[18px] lg:leading-[1.58]
               text-[#171717]
@@ -185,7 +211,7 @@ export default function ChronotypeOptimizationSection() {
           </p>
           <p
             className="
-              text-[17px] leading-[1.58]
+              text-[clamp(15px,4vw,17px)] leading-[1.58]
               md:text-[17px] md:leading-[1.58]
               lg:text-[18px] lg:leading-[1.58]
               text-[#171717]
@@ -201,6 +227,7 @@ export default function ChronotypeOptimizationSection() {
           </p>
         </div>
       </div>
+      </motion.div>
     </section>
   );
 }

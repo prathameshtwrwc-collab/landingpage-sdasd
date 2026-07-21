@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 
 export default function DisclaimerFooter() {
   return (
@@ -12,7 +13,7 @@ export default function DisclaimerFooter() {
         backgroundColor: "#000000",
       }}
     >
-      <div className="relative z-[1] mx-auto max-w-[1120px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[28px] md:pt-[32px] lg:pt-[34px] pb-[30px] md:pb-[34px] lg:pb-[38px] min-w-0">
+      <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } } }} className="relative z-[1] mx-auto max-w-[1120px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[28px] md:pt-[32px] lg:pt-[34px] pb-[30px] md:pb-[34px] lg:pb-[38px] min-w-0">
         <h2
           id="disclaimer-heading"
           className="m-0 text-left text-white font-semibold text-[16px] leading-[1.3] md:text-[15px] lg:text-[16px]"
@@ -27,7 +28,7 @@ export default function DisclaimerFooter() {
         </h2>
 
         <p
-          className="m-0 text-left text-white font-normal text-[14px] leading-[1.65] md:text-[13px] lg:text-[14px]"
+          className="m-0 text-left text-white font-normal text-[clamp(12px,3.6vw,14px)] leading-[1.65] md:text-[13px] lg:text-[14px]"
           style={{
             fontFamily: "Poppins, sans-serif",
             fontWeight: 400,
@@ -50,7 +51,7 @@ export default function DisclaimerFooter() {
           </span>{" "}
           should seek appropriate professional evaluation.
         </p>
-      </div>
+      </motion.div>
     </footer>
   );
 }

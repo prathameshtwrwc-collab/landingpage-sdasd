@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 
 const categoryLabels = ["Primary Function", "Approximate Duration", "Key Activities", "Primary Benefit"];
 const nremRows = ["Rest, Repair and Recovery", "75 to 80 percent of total sleep", "Tissue repair, immune strengthening, physical restoration", "Restores the body"];
@@ -19,14 +20,23 @@ export default function UnderstandingSleepCyclesSection() {
       className="relative w-full bg-white"
       style={{ fontFamily: "Poppins, var(--font-poppins), sans-serif", borderBottom: "1px solid rgba(228, 185, 61, 0.72)" }}
     >
-      <div className="relative z-[1] mx-auto max-w-[1180px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[40px] lg:pt-[44px] pb-[38px] md:pb-[40px] lg:pb-[46px] min-w-0">
-        <h2 className="m-0 mx-auto text-[clamp(28px,7vw,34px)] leading-[1.2] font-semibold text-center text-[#F59A00]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, letterSpacing: "-0.025em", marginBottom: "8px" }}>
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        variants={{
+          hidden: { opacity: 0, y: 25 },
+          visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+        }}
+      >
+        <div className="relative z-[1] mx-auto max-w-[1180px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[40px] lg:pt-[44px] pb-[38px] md:pb-[40px] lg:pb-[46px] min-w-0">
+        <h2 className="m-0 mx-auto text-[clamp(24px,6.5vw,30px)] leading-[1.2] font-semibold text-center text-[#F59A00]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, letterSpacing: "-0.025em", marginBottom: "8px" }}>
           Understanding Sleep Cycles
         </h2>
-        <p className="m-0 mx-auto text-[18px] leading-[1.45] md:text-[18px] lg:text-[19px] font-medium text-center text-[#3B35A3]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, marginBottom: "10px" }}>
+        <p className="m-0 mx-auto text-[clamp(14px,4vw,16px)] leading-[1.45] md:text-[18px] lg:text-[19px] font-medium text-center text-[#3B35A3]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, marginBottom: "10px" }}>
           Your body heals in sleep. Your brain organizes your future in sleep.
         </p>
-        <p className="m-0 mx-auto text-[17px] leading-[1.58] md:text-[17px] lg:text-[17px] font-medium text-center text-[#171717]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, maxWidth: "920px", marginBottom: "24px" }}>
+        <p className="m-0 mx-auto text-[clamp(14px,4vw,16px)] leading-[1.58] md:text-[17px] lg:text-[17px] font-medium text-center text-[#171717]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, maxWidth: "920px", marginBottom: "24px" }}>
           Healthy sleep occurs in repeating cycles throughout the night. Each cycle lasts approximately <strong style={{ fontWeight: 600 }}>90 to 120 minutes</strong>, and most adults experience <strong style={{ fontWeight: 600 }}>4 to 6 cycles</strong> every night.
         </p>
 
@@ -117,18 +127,26 @@ export default function UnderstandingSleepCyclesSection() {
           </div>
         </div>
 
-        <div className="w-full mt-[28px] px-[18px] md:px-[28px] lg:px-[36px] py-[24px] md:py-[24px] lg:py-[28px] flex flex-col items-center justify-center text-center min-h-[145px] min-w-0" style={{ background: "#383477", borderRadius: 0, padding: "24px 18px" }}>
-          <p className="m-0 text-[18px] leading-[1.5] md:text-[18px] lg:text-[20px] font-semibold text-white text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: "18px", lineHeight: "1.5" }}>
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, y: 15 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+          }}
+        >
+          <div className="w-full mt-[28px] px-[18px] md:px-[28px] lg:px-[36px] py-[24px] md:py-[24px] lg:py-[28px] flex flex-col items-center justify-center text-center min-h-[145px] min-w-0" style={{ background: "#383477", borderRadius: 0, padding: "24px 18px" }}>
+          <p className="m-0 text-[clamp(15px,4.5vw,18px)] leading-[1.5] md:text-[18px] lg:text-[20px] font-semibold text-white text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: "clamp(15px,4.5vw,18px)", lineHeight: "1.5" }}>
             NREM Sleep supports physical restoration.
           </p>
-          <p className="m-0 mt-[2px] text-[18px] leading-[1.5] md:text-[18px] lg:text-[20px] font-semibold text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, color: "#F4C623", fontSize: "18px", lineHeight: "1.5" }}>
+          <p className="m-0 mt-[2px] text-[clamp(15px,4.5vw,18px)] leading-[1.5] md:text-[18px] lg:text-[20px] font-semibold text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, color: "#F4C623", fontSize: "clamp(15px,4.5vw,18px)", lineHeight: "1.5" }}>
             REM Sleep supports mental and emotional restoration.
           </p>
-          <p className="m-0 mt-[2px] text-[18px] leading-[1.5] md:text-[18px] lg:text-[20px] font-semibold text-white text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: "18px", lineHeight: "1.5" }}>
+          <p className="m-0 mt-[2px] text-[clamp(15px,4.5vw,18px)] leading-[1.5] md:text-[18px] lg:text-[20px] font-semibold text-white text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: "clamp(15px,4.5vw,18px)", lineHeight: "1.5" }}>
             Both are essential for optimal health and performance.
           </p>
         </div>
+        </motion.div>
       </div>
+      </motion.div>
     </section>
   );
 }

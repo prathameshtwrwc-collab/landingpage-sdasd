@@ -225,7 +225,7 @@ export default function AssessmentModal() {
       onClick={(e) => { if (e.target === e.currentTarget) resetAndClose(); }}
     >
       <div
-        className="relative w-full bg-white shadow-2xl"
+        className="relative w-full bg-white shadow-2xl overflow-hidden"
         style={{
           maxWidth: "600px",
           borderRadius: "16px",

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 
 const pillars = [
   {
@@ -40,6 +41,12 @@ export default function DailyEnergyPillarsSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        variants={{ hidden: { opacity: 0, y: 25 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } } }}
+      >
       <div
         className="
           relative z-[1] mx-auto
@@ -52,7 +59,7 @@ export default function DailyEnergyPillarsSection() {
         <h2
           className="
             m-0 mx-auto
-            text-[clamp(28px,7vw,34px)] leading-[1.2]
+            text-[clamp(24px,6.5vw,30px)] leading-[1.2]
             md:text-[clamp(31px,3.8vw,37px)]
             lg:text-[clamp(36px,2.7vw,43px)]
             font-semibold
@@ -70,7 +77,8 @@ export default function DailyEnergyPillarsSection() {
           The Four Pillars of Daily Energy Management
         </h2>
 
-        <div
+        <motion.div
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
           className="
             grid
             grid-cols-1
@@ -81,11 +89,15 @@ export default function DailyEnergyPillarsSection() {
           "
         >
           {pillars.map((pillar) => (
-            <div key={pillar.title} className="flex flex-col items-stretch min-w-0">
+            <motion.div
+              variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } } }}
+              key={pillar.title}
+              className="flex flex-col items-stretch min-w-0"
+            >
               <h3
                 className="
                   m-0
-                  text-[22px] font-semibold
+                  text-[clamp(18px,5vw,22px)] font-semibold
                   text-center
                   text-[#171717]
                 "
@@ -98,7 +110,7 @@ export default function DailyEnergyPillarsSection() {
                 {pillar.title}
               </h3>
 
-              <div className="w-full overflow-hidden min-w-0" style={{ aspectRatio: "4 / 5", height: "auto" }}>
+              <div className="w-full overflow-hidden min-w-0 pillar-image-wrap" style={{ aspectRatio: "4 / 5", height: "auto" }}>
                 <img
                   src={pillar.image}
                   alt={pillar.alt}
@@ -119,7 +131,7 @@ export default function DailyEnergyPillarsSection() {
 
               <p
                 className="
-                  text-[17px] leading-[1.45]
+                  text-[clamp(14px,4vw,17px)] leading-[1.45]
                   text-center
                   text-[#171717]
                 "
@@ -130,19 +142,19 @@ export default function DailyEnergyPillarsSection() {
                   maxWidth: "240px",
                   marginLeft: "auto",
                   marginRight: "auto",
-                  minHeight: "58px",
+                  minHeight: "40px",
                 }}
               >
                 {pillar.description}
               </p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         <p
           className="
             text-center
-            text-[18px] leading-[1.5]
+            text-[clamp(15px,4vw,18px)] leading-[1.5]
             text-[#171717]
           "
           style={{
@@ -159,9 +171,12 @@ export default function DailyEnergyPillarsSection() {
         </p>
 
         <div className="flex justify-center mt-[14px] w-full px-0">
-          <button
+          <motion.button
             type="button"
             onClick={() => document.getElementById("understanding-sleep-cycles")?.scrollIntoView({ behavior: "smooth" })}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ duration: 0.15 }}
             className="
               flex items-center justify-center
               bg-[#3B35A3] hover:bg-[#332D92]
@@ -184,9 +199,27 @@ export default function DailyEnergyPillarsSection() {
             }}
           >
             Explore Sleep Improvement Strategies
-          </button>
+          </motion.button>
         </div>
       </div>
+      </motion.div>
+      <style>{`
+        .pillar-image-wrap {
+          overflow: hidden;
+          border-radius: 0;
+          transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .pillar-image-wrap:hover {
+          box-shadow: 0 8px 24px rgba(53, 49, 155, 0.15);
+          transform: translateY(-3px);
+        }
+        .pillar-image-wrap img {
+          transition: transform 0.4s ease;
+        }
+        .pillar-image-wrap:hover img {
+          transform: scale(1.06);
+        }
+      `}</style>
     </section>
   );
 }

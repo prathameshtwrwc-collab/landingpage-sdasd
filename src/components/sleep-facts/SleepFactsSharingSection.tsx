@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React from "react"; import { motion } from "framer-motion";
 
 async function shareFact(text: string) {
   const title = "Sleep Fact";
@@ -63,22 +63,27 @@ export default function SleepFactsSharingSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
-      <div className="relative z-[1] mx-auto max-w-[1060px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[42px] lg:pt-[46px] pb-[38px] md:pb-[44px] lg:pb-[48px] min-w-0">
+      <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={{ hidden: { opacity: 0, y: 25 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } } }}>
+        <div className="relative z-[1] mx-auto max-w-[1060px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[42px] lg:pt-[46px] pb-[38px] md:pb-[44px] lg:pb-[48px] min-w-0">
         {/* Heading */}
 <h2
-          className="m-0 mx-auto text-[clamp(28px,7vw,34px)] leading>[1.2] font-semibold text-center text-[#F59A00]"
+          className="m-0 mx-auto text-[clamp(24px,6.5vw,30px)] leading>[1.2] font-semibold text-center text-[#F59A00]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, letterSpacing: "-0.025em", marginBottom: "28px" }}
         >
           Sleep Facts Worth Sharing
         </h2>
 
         {/* Facts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-[18px] md:gap-[24px] lg:gap-[28px_36px] items-stretch">
+        <motion.div
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-[18px] md:gap-[24px] lg:gap-[28px_36px] items-stretch"
+        >
           {facts.map((fact, idx) => {
             return (
-              <article
+              <motion.article
                 key={idx}
-                className="flex flex-col items-center justify-start text-center px-[20px] py-[22px] md:px-[22px] md:py-[22px] lg:px-[30px] lg:py-[24px] lg:pb-[22px] min-h-[250px] md:min-h-[275px] lg:min-h-[290px] h-full"
+                variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } } }}
+                className="sleep-fact-card flex flex-col items-center justify-start text-center px-[20px] py-[22px] md:px-[22px] md:py-[22px] lg:px-[30px] lg:py-[24px] lg:pb-[22px] min-h-[250px] md:min-h-[275px] lg:min-h-[290px] h-full"
                 style={{
                   background: "#F0EFF9",
                   border: "none",
@@ -109,14 +114,17 @@ export default function SleepFactsSharingSection() {
 
                 {/* Fact Text */}
 <p
-                  className="m-0 text-[16px] leading>[1.35] max-w-[210px] text-center"
+                  className="m-0 text-[clamp(14px,4vw,16px)] leading>[1.35] max-w-[210px] text-center"
                   style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, maxWidth: "210px" }}
                 >
                   {fact.text}
                 </p>
 
                 {/* Share Fact Button */}
-<button
+<motion.button
+                  whileHover={{ scale: 1.03, backgroundColor: "#FFF5E6" }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ duration: 0.15 }}
                   type="button"
                   aria-label={fact.shareLabel}
                   onClick={() => shareFact(fact.text)}
@@ -137,15 +145,18 @@ export default function SleepFactsSharingSection() {
                 >
                   <ShareIcon />
                   <span>Share Fact</span>
-                </button>
-              </article>
+                </motion.button>
+              </motion.article>
             );
           })}
-        </div>
+        </motion.div>
 
         {/* Bottom CTA — mobile width100% max none min-h50 height auto padding12 14 font15 line1.35 */}
         <div className="flex justify-center mt-[32px] w-full min-w-0">
-<button
+<motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ duration: 0.15 }}
             type="button"
             onClick={() => {
               const allText = facts.map((f) => f.text).join("\n\n");
@@ -171,9 +182,19 @@ export default function SleepFactsSharingSection() {
               Share These Facts with Your Loved Ones{" "}
               <span style={{ color: "#F4C623" }}>Now</span>
             </span>
-          </button>
+          </motion.button>
         </div>
       </div>
+      </motion.div>
+      <style>{`
+.sleep-fact-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.sleep-fact-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(53, 49, 155, 0.12);
+}
+`}</style>
     </section>
   );
 }

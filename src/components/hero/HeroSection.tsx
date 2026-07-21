@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { motion } from "framer-motion";
 import { useAssessment } from "@/components/assessment/AssessmentContext";
 import { useConsult } from "@/components/consult/ConsultContext";
 
@@ -264,12 +265,29 @@ export default function HeroSection() {
               .hero-benefit {
                 position: relative !important;
                 min-width: 0 !important;
+                isolation: isolate !important;
+                z-index: 10 !important;
               }
 
               .hero-benefit-media {
                 width: clamp(80px, 21.5vw, 94px) !important;
                 height: clamp(80px, 21.5vw, 94px) !important;
                 flex-basis: auto !important;
+                border-radius: 50% !important;
+                overflow: hidden !important;
+                background: #ffffff !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                isolation: isolate !important;
+              }
+              .hero-benefit-media img {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover !important;
+                object-position: center !important;
+                display: block !important;
+                background: #ffffff !important;
               }
 
               .hero-benefit-label {
@@ -329,7 +347,8 @@ export default function HeroSection() {
               .hero-section { min-height: 890px !important; height: 890px !important; }
               .hero-heading { top: 210px !important; width: 290px !important; }
               .hero-benefits { top: 530px !important; }
-              .hero-benefit-media { width: 74px !important; height: 74px !important; }
+              .hero-benefit-media { width: 74px !important; height: 74px !important; border-radius: 50% !important; overflow: hidden !important; background: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; }
+              .hero-benefit-media img { width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: center !important; background: #ffffff !important; }
               .hero-benefit:not(:last-child)::after { height: 102px !important; }
               .hero-actions { bottom: 20px !important; gap: 9px !important; }
               .hero-actions button { min-height: 52px !important; padding: 13px 14px !important; font-size: 15px !important; }
@@ -390,23 +409,32 @@ export default function HeroSection() {
               justify-content: flex-start;
               text-align: center;
               min-width: 0;
+              isolation: isolate;
+              z-index: 10;
             }
             .hero-benefit-media {
-              position: relative;
+              display: flex;
+              align-items: center;
+              justify-content: center;
               width: 128px;
               height: 128px;
               flex: 0 0 128px;
               overflow: hidden;
               border-radius: 50%;
-              background: linear-gradient(145deg, #eef7fb 0%, #f3f0fb 100%);
+              background: #ffffff;
+              isolation: isolate;
             }
             .hero-benefit-media img {
               display: block;
               width: 100%;
               height: 100%;
               object-fit: cover;
-              border-radius: inherit;
-              transform: scale(1.25);
+              object-position: center;
+              background: #ffffff;
+              transition: transform 0.25s ease;
+            }
+            .hero-benefit-media:hover img {
+              transform: scale(1.08) !important;
             }
             .hero-benefit:not(:last-child)::after {
               content: "";
@@ -454,6 +482,11 @@ export default function HeroSection() {
               background-repeat: no-repeat;
               background-size: cover;
               background-position: center top;
+              animation: heroBgFadeIn 0.6s ease-out;
+            }
+            @keyframes heroBgFadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
             }
             .hero-arrow {
               position: absolute;
@@ -555,48 +588,82 @@ export default function HeroSection() {
       <div className="hero-inner relative z-[2] w-full max-w-[1440px] mx-auto min-w-0">
         <div className="hero-content">
           <h1 className="hero-heading m-0 p-0">
-            <span className="hero-heading-orange">
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut", delay: 0.15 }}
+              className="hero-heading-orange"
+            >
               <span className="hero-line">Sleep is the</span>
               <span className="hero-line">Foundation.</span>
-            </span>
-            <span className="hero-heading-indigo">
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut", delay: 0.35 }}
+              className="hero-heading-indigo"
+            >
               <span className="hero-line hero-line-chronotype">Sleep Chronotype</span>
               <span className="hero-line">is the Blueprint.</span>
-            </span>
+            </motion.span>
           </h1>
 
-          <div
+          <motion.div
             key={currentSlide % totalDesktopSlides}
             className="hero-benefits"
-            style={{ animation: "benefitFadeIn 0.7s ease-in-out" }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut", delay: 0.45 }}
           >
             {benefitSets[currentSlide % totalDesktopSlides].map((src, imgIdx) => (
-              <div key={imgIdx} className="hero-benefit">
+              <motion.div
+                key={imgIdx}
+                className="hero-benefit"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut", delay: 0.55 + imgIdx * 0.08 }}
+              >
                 <div className="hero-benefit-media">
                   <img
                     src={src}
                     alt=""
                     draggable={false}
                     onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    className={`hero-benefit-img hero-benefit-img-${imgIdx}`}
+                    style={{
+                      transform: imgIdx === 2 ? "scale(1.25)" : imgIdx === 1 ? "scale(1.1)" : "scale(1.08)",
+                    }}
                   />
                 </div>
                 <p className="hero-benefit-label" style={{ color: imgIdx === 1 ? "#37329D" : "#FF9700" }}>
                   {imgIdx === 0 ? "Better Sleep" : imgIdx === 1 ? "Better Energy" : "Better Life"}
                 </p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           <div className="hero-actions">
-            <button type="button" onClick={openAssessment} className="flex items-center justify-center bg-[#3A34A3] hover:bg-[#322e8e] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
+            <motion.button
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut", delay: 0.55 }}
+              type="button" onClick={openAssessment} className="flex items-center justify-center bg-[#3A34A3] hover:bg-[#322e8e] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
               Take Test Now
-            </button>
-            <button type="button" onClick={scrollToSleepCycles} className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
+            </motion.button>
+            <motion.button
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut", delay: 0.65 }}
+              type="button" onClick={scrollToSleepCycles} className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
               Learn About Sleep
-            </button>
-            <button type="button" onClick={openConsult} className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
+            </motion.button>
+            <motion.button
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut", delay: 0.75 }}
+              type="button" onClick={openConsult} className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
               Consult a Sleep Specialist
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>

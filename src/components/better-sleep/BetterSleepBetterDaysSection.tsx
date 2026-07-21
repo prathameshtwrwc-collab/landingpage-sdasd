@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 
 const benefitItems = [
   "Better Physical Health",
@@ -32,10 +33,19 @@ export default function BetterSleepBetterDaysSection() {
           max-w-[1120px]
         "
       >
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={{
+            hidden: { opacity: 0, y: 25 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+          }}
+        >
         <h2
           className="
             m-0 mx-auto
-            text-[clamp(28px,7vw,34px)] leading-[1.2]
+            text-[clamp(24px,6.5vw,30px)] leading-[1.2]
             md:text-[clamp(31px,3.8vw,37px)]
             lg:text-[clamp(36px,2.7vw,43px)]
             font-semibold
@@ -55,8 +65,8 @@ export default function BetterSleepBetterDaysSection() {
         <p
           className="
             m-0 mx-auto
-            text-[18px] leading-[1.45]
-            md:text-[18px] md:leading-[1.45]
+            text-[clamp(15px,4.5vw,18px)] leading-[1.45]
+            md:leading-[1.45]
             lg:text-[19px] lg:leading-[1.45]
             font-semibold
             text-center
@@ -82,9 +92,13 @@ export default function BetterSleepBetterDaysSection() {
             min-w-0
           "
         >
-          <div className="w-full max-w-[430px] md:max-w-[380px] lg:max-w-[430px] min-w-0 order-1">
+          <motion.div variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }} className="w-full max-w-[430px] md:max-w-[380px] lg:max-w-[430px] min-w-0 order-1">
             {benefitItems.map((item) => (
-              <div
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, x: -15 },
+                  visible: { opacity: 1, x: 0, transition: { duration: 0.35, ease: "easeOut" } },
+                }}
                 key={item}
                 className="
                   grid
@@ -123,8 +137,8 @@ export default function BetterSleepBetterDaysSection() {
                 >
                   <span
                     className="
-                      text-[18px] leading-[1.4]
-                      md:text-[16px] lg:text-[18px]
+                      text-[clamp(14px,3.8vw,16px)] leading-[1.4]
+                      lg:text-[18px]
                       text-[#171717]
                       font-medium
                       break-words
@@ -137,11 +151,15 @@ export default function BetterSleepBetterDaysSection() {
                     {item}
                   </span>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
-          <div
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, scale: 0.95 },
+              visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } },
+            }}
             className="
               w-full
               mt-[24px] md:mt-0
@@ -177,8 +195,9 @@ export default function BetterSleepBetterDaysSection() {
                 }}
               />
             </div>
-          </div>
+          </motion.div>
         </div>
+        </motion.div>
       </div>
     </section>
   );

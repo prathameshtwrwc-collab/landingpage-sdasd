@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 import { useAssessment } from "@/components/assessment/AssessmentContext";
 
 const chronotypeInfluences = [
@@ -29,7 +30,16 @@ export default function ChronotypeIntroductionSection() {
           padding: "52px 48px 44px",
         }}
       >
-        <div className="chronotype-intro-grid grid grid-cols-1 md:grid-cols-[minmax(0,630px)_330px] md:justify-between gap-[56px] md:gap-[60px] items-start w-full min-w-0">
+        <motion.div
+          className="chronotype-intro-grid grid grid-cols-1 gap-[56px] md:gap-[60px] items-start w-full min-w-0"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } } }}
+        >
+          <motion.div
+            variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.45, ease: "easeOut" } } }}
+          >
           <div className="chronotype-intro-copy w-full min-w-0">
             <h2 className="chronotype-intro-heading m-0 text-[#F59A00] text-left">
               <span className="chronotype-heading-primary">Discover Your Natural Sleep Rhythm:</span>
@@ -82,28 +92,30 @@ export default function ChronotypeIntroductionSection() {
               ))}
             </ul>
           </div>
+          </motion.div>
 
-          <div className="chronotype-intro-image-wrap w-full max-w-[340px] mx-auto md:mx-0 md:align-self-start mt-[24px] md:mt-0 overflow-hidden">
+          <motion.div
+            variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.45, ease: "easeOut" } } }}
+          >
+          <div className="chronotype-intro-image-wrap w-full max-w-[340px] md:max-w-[420px] lg:max-w-[480px] mx-auto md:mx-0 md:align-self-start mt-[24px] md:mt-0 overflow-hidden">
             <img
               src="/assets/section2/section-2.jpg"
               alt="Woman meditating while visualizing her natural biological rhythm"
-              className="chronotype-intro-image w-full h-auto aspect-[4/3] object-cover"
+              className="chronotype-intro-image w-full h-auto object-cover"
               style={{
                 fontFamily: "Poppins, sans-serif",
                 display: "block",
                 width: "100%",
-                height: "auto",
-                aspectRatio: "4 / 3",
                 objectFit: "cover",
                 objectPosition: "center",
                 borderRadius: 0,
                 boxShadow: "none",
-                maxHeight: "280px",
               }}
               draggable={false}
             />
           </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         <div className="chronotype-intro-footer w-full mt-[24px] flex flex-col items-center text-center">
           <p
@@ -119,9 +131,16 @@ export default function ChronotypeIntroductionSection() {
             perform at your best.
           </p>
 
-          <button type="button" onClick={openAssessment} className="chronotype-intro-cta w-full max-w-[260px] h-[48px] mt-[14px] mx-auto md:mt-0 inline-flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer text-[16px] font-semibold leading-[1]">
+          <motion.button
+            type="button"
+            onClick={openAssessment}
+            className="chronotype-intro-cta w-full max-w-[260px] h-[48px] mt-[14px] mx-auto md:mt-0 inline-flex items-center justify-center bg-[#3B35A3] hover:bg-[#332D92] text-white rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer text-[16px] font-semibold leading-[1]"
+            whileHover={{ scale: 1.02, backgroundColor: "#332D92" }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+          >
             Take Test Now
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -137,10 +156,17 @@ export default function ChronotypeIntroductionSection() {
 
         .chronotype-intro-grid {
           display: grid;
-          grid-template-columns: minmax(0, 630px) 330px;
+          grid-template-columns: minmax(0, 630px) 410px;
           justify-content: space-between;
           gap: 60px;
           align-items: start;
+        }
+
+        @media (min-width: 1024px) {
+          .chronotype-intro-grid {
+            grid-template-columns: minmax(0, 630px) 480px;
+            gap: 72px;
+          }
         }
 
         .chronotype-intro-heading {
@@ -208,7 +234,8 @@ export default function ChronotypeIntroductionSection() {
         .chronotype-intro-image {
           display: block;
           width: 100%;
-          height: 320px;
+          height: 460px;
+          max-height: 520px;
           object-fit: cover;
           object-position: center;
           border-radius: 0;
@@ -259,7 +286,7 @@ export default function ChronotypeIntroductionSection() {
           }
 
           .chronotype-intro-heading {
-            font-size: clamp(28px, 7.5vw, 34px);
+            font-size: clamp(24px, 6.5vw, 30px);
             line-height: 1.2;
             text-align: left;
           }
@@ -275,17 +302,17 @@ export default function ChronotypeIntroductionSection() {
 
           .chronotype-intro-description {
             margin-top: 16px;
-            font-size: 16px;
+            font-size: 15px;
             line-height: 1.55;
           }
 
           .chronotype-intro-label {
             margin-top: 20px;
-            font-size: 17px;
+            font-size: 16px;
           }
 
           .chronotype-intro-list li {
-            font-size: 16px;
+            font-size: 15px;
             line-height: 1.5;
           }
 
@@ -299,10 +326,9 @@ export default function ChronotypeIntroductionSection() {
 
           .chronotype-intro-image {
             width: 100%;
-            height: auto;
-            aspect-ratio: 4 / 3;
+            height: 340px;
             object-fit: cover;
-            max-height: 280px;
+            max-height: 380px;
           }
 
           .chronotype-intro-footer {
@@ -310,7 +336,7 @@ export default function ChronotypeIntroductionSection() {
           }
 
           .chronotype-intro-conclusion {
-            font-size: 16px;
+            font-size: 15px;
             line-height: 1.5;
           }
 
@@ -326,7 +352,7 @@ export default function ChronotypeIntroductionSection() {
           }
 
           .chronotype-intro-grid {
-            grid-template-columns: minmax(0, 1fr) 340px;
+            grid-template-columns: minmax(0, 1fr) 420px;
             gap: 36px;
           }
 
@@ -344,7 +370,7 @@ export default function ChronotypeIntroductionSection() {
           }
 
           .chronotype-intro-image {
-            height: 250px;
+            height: 380px;
           }
         }
 
