@@ -281,7 +281,31 @@ export default function SiteNavbar() {
             </nav>
 
             {/* Right: CTA desktop — hidden below 1024 */}
-            <div className="hidden lg:flex items-center justify-end">
+            <div className="hidden lg:flex items-center justify-end gap-[10px]">
+              <a
+                href="/login"
+                className="inline-flex items-center justify-center border-none transition-all duration-[220ms] ease-[ease] cursor-pointer no-underline"
+                style={{
+                  width: "100px",
+                  height: "40px",
+                  background: "transparent",
+                  color: "#29275E",
+                  borderRadius: 0,
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#F59A00";
+                  e.currentTarget.style.color = "#FFFFFF";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.color = "#29275E";
+                }}
+              >
+                Login
+              </a>
               <button
                 type="button"
                 onClick={() => {
@@ -458,6 +482,35 @@ export default function SiteNavbar() {
         >
           Take Test Now
         </button>
+
+        {/* Mobile login link */}
+        <a
+          href="/login"
+          onClick={() => setIsMenuOpen(false)}
+          className="flex items-center justify-center w-full max-w-[260px] text-[#29275E] no-underline cursor-pointer mt-[10px] transition-all duration-150"
+          style={{
+            width: "100%",
+            maxWidth: "260px",
+            height: "46px",
+            fontFamily: "Poppins, sans-serif",
+            fontSize: "15px",
+            fontWeight: 600,
+            border: "1.5px solid #29275E",
+            background: "transparent",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "#F59A00";
+            e.currentTarget.style.color = "#FFFFFF";
+            e.currentTarget.style.borderColor = "#F59A00";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.color = "#29275E";
+            e.currentTarget.style.borderColor = "#29275E";
+          }}
+        >
+          Login
+        </a>
       </div>
 
       {/* Optional subtle page overlay when menu open — rgba(31,27,83,0.12) */}
