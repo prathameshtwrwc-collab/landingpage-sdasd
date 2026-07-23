@@ -1,5 +1,6 @@
 "use client";
 
+import { ClerkProvider } from "@clerk/nextjs";
 import { AssessmentProvider } from "@/components/assessment/AssessmentContext";
 import AssessmentModal from "@/components/assessment/AssessmentModal";
 import { ConsultProvider } from "@/components/consult/ConsultContext";
@@ -11,17 +12,19 @@ import type { ReactNode } from "react";
 
 export default function ClientLayout({ children }: { children: ReactNode }) {
   return (
-    <AuthProvider>
-      <AssessmentProvider>
-        <ConsultProvider>
-          <SmoothScrollProvider>
-            {children}
-            <AssessmentModal />
-            <ConsultModal />
-            <FloatingTestButton />
-          </SmoothScrollProvider>
-        </ConsultProvider>
-      </AssessmentProvider>
-    </AuthProvider>
+    <ClerkProvider>
+      <AuthProvider>
+        <AssessmentProvider>
+          <ConsultProvider>
+            <SmoothScrollProvider>
+              {children}
+              <AssessmentModal />
+              <ConsultModal />
+              <FloatingTestButton />
+            </SmoothScrollProvider>
+          </ConsultProvider>
+        </AssessmentProvider>
+      </AuthProvider>
+    </ClerkProvider>
   );
 }

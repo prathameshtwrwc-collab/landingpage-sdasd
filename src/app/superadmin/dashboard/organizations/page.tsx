@@ -1,0 +1,225 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import DashboardShell from "@/components/dashboard/DashboardShell";
+import { Users, Plus, Copy, Check, Globe, Building2, Mail, Calendar, Power, ExternalLink } from "lucide-react";
+
+export default function OrganizationsPage() {
+  const router = useRouter();
+  const [orgs, setOrgs] = useState<Array<Record<string, unknown>>>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: "", organization_type: "Corporate", country: "", email: "" });
+  const [creating, setCreating] = useState(false);
+  const [createdCode, setCreatedCode] = useState("");
+  const [copied, setCopied] = useState("");
+  const [serverError, setServerError] = useState("");
+  const [toggling, setToggling] = useState("");
+
+  const loadOrgs = async () => {
+    try {
+      const res = await fetch("/api/admin");
+      const data = await res.json();
+      setOrgs(data.organizations ?? []);
+    } catch {}
+    setLoading(false);
+  };
+
+  useEffect(() => { loadOrgs(); }, []);
+
+  const createOrg = async () => {
+    if (!form.name) return;
+    setCreating(true);
+    setServerError("");
+    const fd = new FormData();
+    Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+    try {
+      const res = await fetch("/api/admin?action=create_org", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.error) { setServerError(data.error); return; }
+      if (data.success) {
+        setCreatedCode(data.org.unique_code);
+        setShowForm(false);
+        setForm({ name: "", organization_type: "Corporate", country: "", email: "" });
+        setCopied(data.org.unique_code);
+        setTimeout(() => setCopied(""), 2000);
+        await loadOrgs();
+      }
+    } catch { setServerError("Failed to create organization"); }
+    setCreating(false);
+  };
+
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopied(code);
+    setTimeout(() => setCopied(""), 2000);
+  };
+
+  const toggleOrgLink = async (orgId: string, currentStatus: string | undefined, orgName: string) => {
+    setToggling(orgId);
+    const willActivate = currentStatus !== "active";
+    try {
+      const res = await fetch("/api/admin?action=toggle_link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orgId, active: willActivate }),
+      });
+      const data = await res.json();
+      if (data.error) { setServerError(data.error); return; }
+      await loadOrgs();
+    } catch { setServerError("Failed to toggle link"); }
+    setToggling("");
+  };
+
+  const refreshLink = async (orgId: string) => {
+    setToggling(orgId);
+    try {
+      const res = await fetch("/api/admin?action=refresh_link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orgId }),
+      });
+      const data = await res.json();
+      if (data.error) { setServerError(data.error); return; }
+      setCopied(data.unique_code);
+      setTimeout(() => setCopied(""), 2000);
+      await loadOrgs();
+    } catch { setServerError("Failed to refresh link"); }
+    setToggling("");
+  };
+
+  return (
+    <DashboardShell title="Organizations">
+      {loading ? (
+        <div className="flex items-center justify-center py-[60px]"><span className="text-[14px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>Loading...</span></div>
+      ) : (
+        <>
+          <div className="flex items-center justify-between mb-[20px]">
+            <span className="text-[13px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>{orgs.length} organizations</span>
+            <button type="button" onClick={() => setShowForm(!showForm)}
+              className="inline-flex items-center gap-[6px] text-white text-[13px] font-semibold px-[16px] py-[10px] border-none cursor-pointer rounded-xl transition-all"
+              style={{ background: "linear-gradient(135deg, #D32F2F, #FF6B6B)", boxShadow: "0 4px 12px rgba(211,47,47,0.25)", fontFamily: "Poppins, sans-serif" }}
+            >
+              <Plus size={16} stroke="white" /> {showForm ? "Cancel" : "Onboard Org"}
+            </button>
+          </div>
+
+          {serverError && (
+            <div className="mb-[16px] p-[12px] rounded-xl text-[13px]" style={{ background: "rgba(211,47,47,0.08)", color: "#C62828", border: "1px solid rgba(211,47,47,0.15)" }}>
+              {serverError}
+            </div>
+          )}
+
+          {showForm && (
+            <div className="p-[20px] rounded-[16px] mb-[20px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+              <h3 className="m-0 text-[15px] font-bold mb-[16px]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>Create New Organization</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[16px]">
+                {[
+                  { label: "Organization Name", key: "name", value: form.name, onChange: (v: string) => setForm({ ...form, name: v }) },
+                  { label: "Type", key: "type", value: form.organization_type, onChange: (v: string) => setForm({ ...form, organization_type: v }), options: ["Corporate", "Healthcare", "Education", "NGO", "Other"] },
+                  { label: "Country", key: "country", value: form.country, onChange: (v: string) => setForm({ ...form, country: v }) },
+                  { label: "Email", key: "email", value: form.email, onChange: (v: string) => setForm({ ...form, email: v }) },
+                ].map((f, i) => (
+                  <div key={i}>
+                    <label className="block text-[11px] font-semibold mb-[4px] uppercase tracking-[0.04em]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{f.label}</label>
+                    {f.options ? (
+                      <select value={f.value} onChange={(e) => f.onChange(e.target.value)}
+                        className="w-full px-[12px] py-[9px] text-[13px] bg-white rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}>
+                        {f.options.map((o) => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    ) : (
+                      <input type={f.key === "email" ? "email" : "text"} value={f.value} onChange={(e) => f.onChange(e.target.value)}
+                        className="w-full px-[12px] py-[9px] text-[13px] bg-white rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }} />
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-[12px]">
+                <button type="button" onClick={createOrg} disabled={creating}
+                  className="text-white text-[13px] font-semibold px-[20px] py-[10px] border-none cursor-pointer rounded-xl"
+                  style={{ background: "linear-gradient(135deg, #D32F2F, #FF6B6B)", fontFamily: "Poppins, sans-serif" }}>
+                  {creating ? "Creating..." : "Create Organization"}
+                </button>
+                {createdCode && (
+                  <span className="text-[13px] font-semibold flex items-center gap-[6px]" style={{ color: "#2E7D32", fontFamily: "Poppins, sans-serif" }}>
+                    Created! Code: <code style={{ color: "#F59A00" }}>{createdCode}</code>
+                    <button type="button" onClick={() => { navigator.clipboard.writeText(createdCode); setCopied(createdCode); setTimeout(() => setCopied(""), 2000); }}
+                      className="bg-transparent border-none cursor-pointer p-[2px]" style={{ color: "#888" }}>
+                      {copied === createdCode ? <Check size={14} stroke="#2E7D32" /> : <Copy size={14} />}
+                    </button>
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="rounded-[16px] overflow-hidden" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left" style={{ fontFamily: "Poppins, sans-serif", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ background: "#F8F9FF" }}>
+                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Organization</th>
+                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Code</th>
+                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Type</th>
+                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Link</th>
+                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orgs.map((o, i) => {
+                    const isActive = o.link_active === true;
+                    return (
+                      <tr key={i} style={{ borderTop: "1px solid #F0F0F0" }}>
+                        <td className="px-[16px] py-[12px]">
+                          <button type="button" onClick={() => router.push(`/superadmin/dashboard/organizations/${o.id}`)}
+                            className="flex items-center gap-[10px] bg-transparent border-none cursor-pointer group text-left"
+                            title="Click to view organization details">
+                            <Building2 size={16} stroke="#35319B" className="shrink-0" />
+                            <span className="text-[13px] font-medium transition-colors" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>
+                              {o.name as string}
+                            </span>
+                            <span className="text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                              Click to view →
+                            </span>
+                          </button>
+                        </td>
+                        <td className="px-[16px] py-[12px]">
+                          <div className="flex items-center gap-[6px]">
+                            <code className="text-[12px] font-mono font-semibold" style={{ color: "#F59A00" }}>{String(o.link_code || o.unique_code || "")}</code>
+                            <button type="button" onClick={() => copyCode(String(o.link_code || o.unique_code || ""))}
+                              className="bg-transparent border-none cursor-pointer p-[4px] hover:opacity-70" style={{ color: "#888" }}>
+                              {copied === o.link_code || copied === o.unique_code ? <Check size={14} stroke="#2E7D32" /> : <Copy size={14} />}
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-[16px] py-[12px]">
+                          <span className="text-[11px] font-semibold px-[8px] py-[3px] rounded-full" style={{ background: "rgba(53,49,155,0.06)", color: "#35319B", fontFamily: "Poppins, sans-serif" }}>{o.organization_type as string}</span>
+                        </td>
+                        <td className="px-[16px] py-[12px]">
+                          <div className="flex items-center gap-[6px]">
+                            <button type="button" onClick={() => toggleOrgLink(o.id as string, isActive ? "active" : "inactive", o.name as string)} disabled={toggling === o.id}
+                              className="inline-flex items-center gap-[5px] text-[11px] font-semibold px-[8px] py-[3px] rounded-full border-none cursor-pointer transition-all disabled:opacity-60"
+                              style={{
+                                background: isActive ? "rgba(46,125,50,0.1)" : "rgba(211,47,47,0.1)",
+                                color: isActive ? "#2E7D32" : "#D32F2F",
+                                fontFamily: "Poppins, sans-serif",
+                              }}>
+                              <Power size={11} /> {isActive ? "Active" : "Paused"}
+                            </button>
+
+                          </div>
+                        </td>
+                        <td className="px-[16px] py-[12px] text-[13px]" style={{ color: "#888" }}>{o.created_at ? new Date(o.created_at as string).toLocaleDateString() : "—"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+    </DashboardShell>
+  );
+}

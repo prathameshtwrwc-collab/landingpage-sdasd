@@ -2,7 +2,98 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
-## [2.0.0] — 2026-07-21 — Mobile Hero Absolute Zones, Lenis Smooth Scroll, UI Enhancements
+## [2.3.0] — 2026-07-24 — Superadmin Dashboard, RLS Fixes, Admin Creation
+
+### Added
+- **Superadmin organizations page** — Clickable org names → org detail page; create org with alphanumeric code (AB0001); toggle link active/paused
+- **Superadmin org detail page** — `/organizations/[id]` shows org info, admins list, members table with chronotype/age/gender/source
+- **Superadmin users page** — All members section below admins with search/filter, source badges, org column
+- **Superadmin settings page** — Functional with localStorage persistence, save/reset
+- **Org code URL routing** — `app/[orgCode]/page.tsx` renders full landing page; checks link status (active/deactivated/not_found)
+- **Org link status API** — `/api/org-link-status?code=...` checks if a link exists and is active
+- **Org link toggle** — Reads `link_active` from `organization_links` table; updates existing link status (no INSERT)
+- **Admin creation with password** — Add Admin form includes Set Password field; creates Clerk user via `clerkClient().users.createUser()` with `publicMetadata.role: "admin"`
+- **Admin API client** — `src/lib/supabase/admin.ts` uses `SUPABASE_SERVICE_ROLE_KEY` (falls back to anon key) to bypass RLS for server-side writes
+- **Assessment URL detection** — Auto-detects org code from URL path (AB0001) and referral code from `?ref=...` query param; locks both fields
+- **Assessment age input** — Manual text input (1-100), no spinner arrows, parsed to integer for DB
+- **Assessment result screen** — Shows org name badge or referral badge based on source type
+- **Universal RLS disable SQL** — Single SQL block to disable RLS on all tables
+
+### Fixed
+- **Superadmin API 500** — `requireSuperadmin()` checked Clerk `publicMetadata.role` (never set). Replaced with `auth().userId` check + `organization_admins` email fallback
+- **Server Actions async constraint** — Moved `getInitials`/`generateOrgCode` from `"use server"` file to `src/lib/utils/org-code.ts` (Turbopack requires all exported functions in server action files to be async)
+- **RLS violations** — Disabled RLS on `organizations`, `organization_admins`, `organization_links` tables (server-side only writes)
+- **Org link toggle not reflecting** — Was reading from `organizations.status` (always "ACTIVE"). Now reads `link_active` from joined `organization_links` table
+- **Org code URLs redirecting to login** — Changed middleware from org code regex detection to protected prefix whitelist approach
+- **Assessment form `state` field** — Removed `state` column (not in actual members DB), mapped to `location` field instead
+- **Assessment `age` type mismatch** — Form sent string ("25 - 35"), DB expects `int4`. Added parsing to integer
+- **Admin API POST auth** — Refactored server actions to separate `*Internal()` logic (no auth check) from `"use server"` wrappers; API route calls `*Internal()` directly after its own auth
+- **Turbopack build error** — Non-async exported function in `"use server"` file caused build failure; moved sync functions to separate utility file
+
+### Changed
+- **middleware.ts** — Public routes now use prefix whitelist (`/admin`, `/superadmin`, `/api/admin`, `/api/admin-org`); all other paths are public
+- **getOrganizations() query** — Now includes `link_active` and `link_code` from `organization_links` table
+- **Superadmin API route** — Uses `auth()` directly, no `requireSuperadmin()`; simpler error messages
+- **Admin-org API route** — Added auth check (`auth().userId`)
+
+## [2.2.0] — 2026-07-23 — Auth Stabilization, Middleware Fixes, Dashboard Real Data
+
+### Fixed
+- **middleware.ts location** — Moved from project root to `src/middleware.ts` (Clerk v7 requires `src/` directory structure)
+- **Login redirect loop (infinite)** — Removed role-based checks from middleware; delegate to page components via `useAuth()`
+- **Login bounce to sign-in** — Set `clerkMiddleware({ signInUrl: "/login" })` so all unauthenticated redirects go to `/login`
+- **White screen after sign-in** — Changed post-sign-in redirect from `router.push()` to `setTimeout + window.location.href` to survive Clerk's internal navigation
+- **Org name always "Organization"** — Fixed Supabase join type assumption: `organizations(name)` returns a single object for FK relationships, not an array (`[0]?.name` was always undefined)
+- **AuthProvider stale context** — Added `sessionNonce` state incremented by `login()` to force re-render so `getSession()` is re-evaluated immediately
+- **Back-button after logout** — Added `pageshow` event listener in `AuthProvider` to force auth re-check on bfcache restore
+- **Member login 401 / HTML parse error** — Added `/api/member(.*)` to `isPublicRoute` (members auth via localStorage, not Clerk)
+- **Admin dashboard "Access denied" after login** — Role checks removed from middleware; only `auth.protect()` runs — role enforcement is in page components
+- **Loading state flash** — Login pages show loading state while Clerk initializes
+
+### Added
+- **Public route patterns** — `/login(.*)`, `/dashboard(.*)`, `/api/member(.*)`, `/superadmin/login(.*)` in middleware
+- **Org-admin dashboard stat cards** — Total Members, Assessments (completed/in-progress), Avg Confidence %, Org Link Status (active/paused)
+- **Assessment Activity chart** — 7-day MiniLine chart for completed assessments
+- **Chronotype Distribution** — 3x Ring charts showing Lark/Eagle/Owl percentages
+- **Org Link detail card** — Status badge, unique code, share URL display
+- **Quick Overview** — Not started / In Progress / Completed breakdown
+- **Participants Source column** — Shows Organization/Direct/Referral with colored badge
+- **Org-scoped Team page** — `getOrgTeamAdmins()` queries admins filtered by org, Team page fetches from `/api/admin-portal`
+- **Org-scoped Share Link page** — Fetches from `/api/admin-portal`, reads `stats.orgUniqueCode`
+- **`login()` before `setActive()`** — localStorage is stored before Clerk's internal redirect fires
+- **Auto-redirect on login page** — When `isSignedIn` from Clerk is true, redirects to role-appropriate dashboard
+
+### Changed
+- **LoginCard redirect** — From `router.push("/api/auth/redirect?role=...")` to direct `window.location.href = dashboardPath`
+- **SuperAdminLoginCard redirect** — From `router.push("/api/auth/redirect?role=superadmin")` to direct `window.location.href = "/superadmin/dashboard"`
+- **AuthProvider logout** — Now `async`, awaits `clerk.signOut()` before navigating
+- **DashboardShell logout** — Awaits `logout()` before `window.location.href = "/login"`
+- **Dashboard welcome** — Shows `{orgName} Dashboard` instead of hardcoded "Organization Dashboard"
+
+## [2.1.0] — 2026-07-21 — Phase 2: Authentication + Premium Dashboards
+
+### Added
+- **Authentication system** — React Context-based `AuthProvider` with localStorage session persistence
+- **Role system** — Three roles: `member`, `organization_admin`, `superadmin` with route guards
+- **Auth routes**: `/login` (member + org admin), `/superadmin/login` (manual URL only), `/unauthorized`
+- **Protected dashboards**: `/dashboard` (member), `/admin/dashboard` (org admin), `/superadmin/dashboard` (superadmin)
+- **Premium login pages** — Decorative moon/sparkles SVGs, gradient backgrounds, frosted glass cards, input icons (Mail/Lock), show/hide password toggle, gradient submit buttons with hover lift
+- **Superadmin login** — Dark indigo gradient with red accents, grid pattern overlay, restricted tone
+- **Dashboard Shell** — Desktop sidebar (260px) with glassmorphism logo area, gradient nav items, active indicator dots, role-specific nav lists; Mobile bottom tab bar (68px) with frosted glass, gradient active indicator pill, safe-area padding
+- **StatCard component** — Premium cards with accent bar, optional icons with circular backgrounds, trend arrows, hover lift effect
+- **RoleBadge component** — Color-coded role pills (green/purple/red)
+- **Auth utility modules**: `roles.ts` (types/constants), `session.ts` (localStorage), `guards.ts` (route protection)
+- **Navbar Login button** — Desktop: outlined style, turns orange on hover; Mobile: border style with same orange hover effect
+- **lucide-react** — New dependency for consistent iconography across auth and dashboards
+
+### Files Created (19 new)
+- `src/app/login/page.tsx`, `src/app/superadmin/login/page.tsx`, `src/app/unauthorized/page.tsx`
+- `src/app/dashboard/page.tsx`, `src/app/admin/dashboard/page.tsx`, `src/app/superadmin/dashboard/page.tsx`
+- `src/components/auth/AuthProvider.tsx`, `AuthLayout.tsx`, `LoginCard.tsx`
+- `src/components/dashboard/DashboardShell.tsx`, `StatCard.tsx`, `RoleBadge.tsx`
+- `src/lib/auth/roles.ts`, `session.ts`, `guards.ts`
+
+## [2.0.0] — 2026-07-21 — Mobile Hero Absolute Zones, Lenis Scroll, Framer Motion, UI Overhaul
 
 ### Added
 - **Lenis smooth scrolling** across entire site via `SmoothScrollProvider` — exponential-out easing, smooth wheel/touch

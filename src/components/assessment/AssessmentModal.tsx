@@ -1,98 +1,24 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAssessment } from "./AssessmentContext";
+import { getAssessmentData, createMemberAndStartAssessment, submitAssessment } from "@/lib/actions/assessment";
 
-const questions = [
-  {
-    q: "What time do you usually wake up on a free day (no alarm, no obligations)?",
-    options: [
-      "Before 6:30 AM",
-      "Between 6:30\u20138:00 AM",
-      "After 8:00 AM",
-    ],
-  },
-  {
-    q: "When do you usually go to bed on a free day (no need to wake early)?",
-    options: [
-      "Before 10:00 PM",
-      "Between 10:00\u201311:30 PM",
-      "After 11:30 PM or 9:00 AM",
-    ],
-  },
-  {
-    q: "When do you feel most alert and productive?",
-    options: [
-      "Early morning (6:00 AM\u20139:00 AM)",
-      "Midday to late afternoon (10:00 AM\u20135:00 PM)",
-      "Evening/night (6:00 PM\u201312:00 AM)",
-    ],
-  },
-  {
-    q: "If you could design your ideal work schedule, when would you start your day?",
-    options: [
-      "Before 8:00 AM",
-      "Between 8:00\u201310:00 AM",
-      "After 10:00 AM or after 12:00 noon",
-    ],
-  },
-  {
-    q: "How easy is it for you to wake up in the morning without an alarm?",
-    options: [
-      "Very easy \u2014 I wake up on my own",
-      "Somewhat easy \u2014 I need a little push",
-      "Very difficult \u2014 I hit snooze several times",
-    ],
-  },
-  {
-    q: "What time of day do you feel the most mentally clear and focused?",
-    options: [
-      "Early morning (before 8:00 AM)",
-      "Midday (10:00 AM\u20132:00 PM)",
-      "Late afternoon to night (after 2:00 PM)",
-    ],
-  },
-  {
-    q: "What time of day do you prefer to exercise, if given the choice?",
-    options: [
-      "Early morning (before 8:00 AM)",
-      "Midday to early evening (10:00 AM\u20136:00 PM)",
-      "Evening (after 6:00 PM)",
-    ],
-  },
-  {
-    q: "How do you typically feel in the first hour after waking?",
-    options: [
-      "Alert and ready to go",
-      "Slightly groggy but okay",
-      "Very sluggish or foggy",
-    ],
-  },
-  {
-    q: "How do you feel during evening social events, such as dinners or parties?",
-    options: [
-      "Tired or withdrawn",
-      "Neutral or slightly energized",
-      "Most alive and sociable",
-    ],
-  },
-  {
-    q: "When do you naturally feel sleepy, not forced by your schedule?",
-    options: [
-      "Before 9:30 PM",
-      "Between 9:30\u201311:00 PM",
-      "After 11:00 PM",
-    ],
-  },
-  {
-    q: "Which best describes your current work or study schedule?",
-    options: [
-      "Mostly morning \u2014 starts before 8:00 AM",
-      "Flexible or regular daytime \u2014 starts between 8:00 AM and 10:00 AM",
-      "Mostly evening/night shift or irregular schedule",
-    ],
-  },
-];
+interface Question {
+  id: string;
+  question_text: string;
+  question_order: number;
+  category: string | null;
+  options: Option[];
+}
+
+interface Option {
+  id: string;
+  question_id: string;
+  option_text: string;
+  option_value: string;
+  option_order: number;
+}
 
 interface FormData {
   fname: string;
@@ -102,7 +28,7 @@ interface FormData {
   maritalStatus: string;
   department: string;
   country: string;
-  state: string;
+  location: string;
   city: string;
   pincode: string;
   occupation: string;
@@ -114,22 +40,9 @@ interface FormData {
 }
 
 const initialForm: FormData = {
-  fname: "",
-  lname: "",
-  age: "",
-  gender: "",
-  maritalStatus: "",
-  department: "",
-  country: "",
-  state: "",
-  city: "",
-  pincode: "",
-  occupation: "",
-  email: "",
-  phone: "",
-  orgCode: "",
-  referralCode: "",
-  agreed: false,
+  fname: "", lname: "", age: "", gender: "", maritalStatus: "",
+  department: "", country: "", location: "", city: "", pincode: "",
+  occupation: "", email: "", phone: "", orgCode: "", referralCode: "", agreed: false,
 };
 
 function CheckCircle() {
@@ -146,20 +59,79 @@ export default function AssessmentModal() {
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(initialForm);
-  const [answers, setAnswers] = useState<string[]>([]);
-  const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
+
+  // URL-detected codes (locked fields)
+  const [lockedFields, setLockedFields] = useState<{ orgCode: boolean; referralCode: boolean }>({ orgCode: false, referralCode: false });
+
+  // Data from server
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [versionId, setVersionId] = useState("");
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [memberId, setMemberId] = useState("");
+  const [assessmentId, setAssessmentId] = useState("");
+  const [chronotypeResult, setChronotypeResult] = useState<{
+    chronotype: string;
+    total_score: number;
+    confidence_score: number;
+    lark_score: number;
+    eagle_score: number;
+    owl_score: number;
+  } | null>(null);
+  const [submissionMeta, setSubmissionMeta] = useState<{ sourceType: string | null; orgName: string | null } | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      loadAssessmentData();
+
+      // Detect org code from URL path (e.g. /AB0001)
+      const path = window.location.pathname.replace(/\/+$/, "");
+      const orgCodeMatch = path.match(/^\/([A-Za-z]{2,8}\d{3,6})$/);
+      const urlOrgCode = orgCodeMatch ? orgCodeMatch[1].toUpperCase() : "";
+
+      // Detect referral code from URL query params (e.g. ?ref=XXXXX)
+      const params = new URLSearchParams(window.location.search);
+      const urlRefCode = params.get("ref") || "";
+
+      const newForm: Partial<FormData> = {};
+      const locks = { orgCode: false, referralCode: false };
+
+      if (urlOrgCode && !urlRefCode) {
+        newForm.orgCode = urlOrgCode;
+        locks.orgCode = true;
+        locks.referralCode = true;
+      }
+
+      if (urlRefCode) {
+        newForm.referralCode = urlRefCode;
+        locks.orgCode = true;
+        locks.referralCode = true;
+        if (!urlOrgCode) newForm.orgCode = "";
+      }
+
+      if (urlOrgCode || urlRefCode) {
+        setForm((prev) => ({ ...prev, ...newForm }));
+        setLockedFields(locks);
+      }
     } else {
       document.body.style.overflow = "";
     }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
+
+  const loadAssessmentData = useCallback(async () => {
+    try {
+      const data = await getAssessmentData();
+      setQuestions(data.questions);
+      setVersionId(data.versionId);
+    } catch {
+      setServerError("Failed to load assessment. Please try again.");
+    }
+  }, []);
 
   if (!isOpen) return null;
 
@@ -191,30 +163,92 @@ export default function AssessmentModal() {
     return Object.keys(e).length === 0;
   };
 
-  const submitForm = () => {
+  const submitForm = async () => {
     if (!validateForm()) return;
-    setStep(1);
-    setAnswers([]);
+    setLoading(true);
+    setServerError("");
+    try {
+      const { memberId: mId, assessmentId: aId } = await createMemberAndStartAssessment({
+        first_name: form.fname,
+        last_name: form.lname,
+        age: form.age,
+        email: form.email,
+        phone: form.phone,
+        gender: form.gender,
+        marital_status: form.maritalStatus,
+        department: form.department,
+        country: form.country,
+        location: form.location,
+        city: form.city,
+        pincode: form.pincode,
+        occupation: form.occupation,
+        org_code: form.orgCode || undefined,
+        referral_code: form.referralCode || undefined,
+      });
+      setMemberId(mId);
+      setAssessmentId(aId);
+      setStep(1);
+      setAnswers({});
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : "Failed to start assessment");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const answerQuestion = (option: string) => {
-    const newAnswers = [...answers];
-    newAnswers[questionIndex] = option;
+  const answerQuestion = async (option: string) => {
+    const newAnswers = { ...answers, [questionIndex]: option };
     setAnswers(newAnswers);
+
     if (questionIndex < totalQuestions - 1) {
       setStep(step + 1);
     } else {
-      setSubmitted(true);
+      setLoading(true);
+      setServerError("");
+      try {
+        const result = await submitAssessment(
+          assessmentId,
+          Object.entries(newAnswers).map(([qIdx, optId]) => ({
+            question_id: questions[Number(qIdx)].id,
+            selected_option_id: optId,
+          }))
+        );
+        setChronotypeResult(result.result);
+        setSubmissionMeta({ sourceType: result.sourceType ?? null, orgName: result.orgName ?? null });
+        setSubmitted(true);
+      } catch (err) {
+        setServerError(err instanceof Error ? err.message : "Failed to submit assessment");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   const resetAndClose = () => {
     setStep(0);
     setForm(initialForm);
-    setAnswers([]);
+    setAnswers({});
     setSubmitted(false);
     setErrors({});
+    setServerError("");
+    setChronotypeResult(null);
+    setSubmissionMeta(null);
+    setMemberId("");
+    setAssessmentId("");
+    setLockedFields({ orgCode: false, referralCode: false });
     close();
+  };
+
+  const chronotypeLabels: Record<string, string> = {
+    LARK: "Lion (Morning Type)",
+    EAGLE: "Eagle (Intermediate Type)",
+    OWL: "Owl (Evening Type)",
+  };
+
+  const chronotypeDescs: Record<string, string> = {
+    LARK: "You naturally wake early and peak in the morning. Schedule important tasks before noon.",
+    EAGLE: "You are flexible and adapt well to most schedules. Your peak productivity is midday.",
+    OWL: "You naturally peak in the evening and prefer later schedules. Your creativity shines at night.",
   };
 
   return (
@@ -234,10 +268,8 @@ export default function AssessmentModal() {
           marginBottom: "auto",
         }}
       >
-        {/* Purple accent bar */}
         <div style={{ height: "4px", background: "linear-gradient(90deg, #35319B, #F59A00)", width: "100%" }} />
 
-        {/* Close button */}
         <button
           type="button"
           onClick={resetAndClose}
@@ -251,31 +283,74 @@ export default function AssessmentModal() {
           </svg>
         </button>
 
-        {submitted ? (
-          /* ----- COMPLETION ----- */
-          <div className="flex flex-col items-center px-[24px] py-[48px] md:px-[40px]">
-            <div style={{ marginBottom: "20px" }}>
+        {serverError && (
+          <div className="px-[20px] pt-[16px]">
+            <p className="m-0 text-[13px] text-red-600 text-center" style={{ fontFamily: "Poppins, sans-serif" }}>
+              {serverError}
+            </p>
+          </div>
+        )}
+
+        {submitted && chronotypeResult ? (
+          <div className="flex flex-col items-center px-[24px] py-[40px] md:px-[40px]">
+            <div style={{ marginBottom: "16px" }}>
               <CheckCircle />
             </div>
-            <h3 className="m-0 text-[22px] font-semibold text-[#35319B] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginBottom: "8px" }}>
-              Assessment Complete
+            <h3 className="m-0 text-[22px] font-semibold text-[#35319B] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginBottom: "4px" }}>
+              Your Chronotype Result
             </h3>
-            <p className="m-0 text-[15px] leading-[1.6] text-[#555] text-center max-w-[400px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginBottom: "28px" }}>
-              Thank you for completing the assessment. Your responses have been recorded successfully.
+            <p className="m-0 text-[20px] font-bold text-[#F59A00] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, marginBottom: "6px" }}>
+              {chronotypeLabels[chronotypeResult.chronotype] ?? chronotypeResult.chronotype}
             </p>
-            <button
-              type="button"
-              onClick={resetAndClose}
-              className="bg-[#3B35A3] hover:bg-[#2D2890] text-white text-[15px] font-semibold px-[44px] py-[12px] border-none cursor-pointer transition-colors"
-              style={{ borderRadius: "8px", fontFamily: "Poppins, sans-serif" }}
-            >
-              Close
-            </button>
+            <p className="m-0 text-[14px] leading-[1.6] text-[#555] text-center max-w-[420px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginBottom: "16px" }}>
+              {chronotypeDescs[chronotypeResult.chronotype] ?? "Your unique sleep chronotype has been identified."}
+            </p>
+
+            <div className="w-full grid grid-cols-3 gap-[10px] mb-[20px] max-w-[380px]">
+              {[
+                { label: "Lark", score: chronotypeResult.lark_score, color: "#f4b54d" },
+                { label: "Eagle", score: chronotypeResult.eagle_score, color: "#354a82" },
+                { label: "Owl", score: chronotypeResult.owl_score, color: "#7B68AE" },
+              ].map((item) => (
+                <div key={item.label} className="flex flex-col items-center text-center p-[10px] rounded-xl" style={{ background: "rgba(53,49,155,0.04)" }}>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
+                    {item.label}
+                  </span>
+                  <span className="text-[22px] font-bold" style={{ color: item.color, fontFamily: "Poppins, sans-serif" }}>
+                    {item.score}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <p className="m-0 text-[13px] leading-[1.5] text-[#888] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginBottom: "12px" }}>
+              Confidence: {chronotypeResult.confidence_score}% | Total Score: {chronotypeResult.total_score}
+            </p>
+
+            {submissionMeta?.orgName && (
+              <p className="m-0 text-[12px] font-medium text-center px-[14px] py-[6px] rounded-full mb-[16px]" style={{ background: "rgba(53,49,155,0.06)", color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                Registered under {submissionMeta.orgName}
+              </p>
+            )}
+            {submissionMeta?.sourceType === "REFERRAL" && !submissionMeta?.orgName && (
+              <p className="m-0 text-[12px] font-medium text-center px-[14px] py-[6px] rounded-full mb-[16px]" style={{ background: "rgba(245,154,0,0.08)", color: "#F59A00", fontFamily: "Poppins, sans-serif" }}>
+                You were referred by a friend
+              </p>
+            )}
+
+            <div className="flex flex-col gap-[10px] w-full max-w-[320px]">
+              <button
+                type="button"
+                onClick={resetAndClose}
+                className="bg-[#3B35A3] hover:bg-[#2D2890] text-white text-[15px] font-semibold px-[44px] py-[12px] border-none cursor-pointer transition-colors w-full"
+                style={{ borderRadius: "8px", fontFamily: "Poppins, sans-serif" }}
+              >
+                Close
+              </button>
+            </div>
           </div>
         ) : isFormStep ? (
-          /* ----- REGISTRATION FORM ----- */
           <div className="px-[20px] py-[32px] md:px-[36px]">
-            {/* Header */}
             <div className="text-center mb-[28px]">
               <div
                 className="inline-flex items-center justify-center w-[52px] h-[52px] rounded-full mb-[14px]"
@@ -294,13 +369,17 @@ export default function AssessmentModal() {
               </p>
             </div>
 
-            {/* Form fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <Field label="First Name *" value={form.fname} onChange={(v) => updateForm("fname", v)} error={errors.fname} />
               <Field label="Last Name *" value={form.lname} onChange={(v) => updateForm("lname", v)} error={errors.lname} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <AgeSelect label="Age *" value={form.age} onChange={(v) => updateForm("age", v)} error={errors.age} />
+              <Field label="Age *" value={form.age} onChange={(v) => {
+                const cleaned = v.replace(/[^0-9]/g, "").slice(0, 3);
+                const num = parseInt(cleaned, 10);
+                if (cleaned && (num < 1 || num > 100)) return;
+                updateForm("age", cleaned);
+              }} error={errors.age} type="text" inputMode="numeric" />
               <SelectField label="Gender *" value={form.gender} onChange={(v) => updateForm("gender", v)} error={errors.gender} options={["Male", "Female", "Other"]} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
@@ -320,11 +399,11 @@ export default function AssessmentModal() {
               <Field label="Phone *" value={form.phone} onChange={(v) => updateForm("phone", v)} error={errors.phone} type="tel" />
             </div>
             <div className="mb-[14px]">
-              <Field label="State (Optional)" value={form.state} onChange={(v) => updateForm("state", v)} />
+              <Field label="State (Optional)" value={form.location} onChange={(v) => updateForm("location", v)} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label="Organization Code (Optional)" value={form.orgCode} onChange={(v) => updateForm("orgCode", v)} />
-              <Field label="Referral Code (Optional)" value={form.referralCode} onChange={(v) => updateForm("referralCode", v)} />
+              <Field label="Organization Code" value={form.orgCode} onChange={(v) => updateForm("orgCode", v)} readonly={lockedFields.orgCode} placeholder={lockedFields.orgCode ? "Auto-detected" : "Optional"} />
+              <Field label="Referral Code" value={form.referralCode} onChange={(v) => updateForm("referralCode", v)} readonly={lockedFields.referralCode} placeholder={lockedFields.referralCode ? "Auto-detected" : "Optional"} />
             </div>
 
             <label className="flex items-start gap-[10px] mt-[18px] mb-[18px] cursor-pointer group">
@@ -344,16 +423,19 @@ export default function AssessmentModal() {
             <button
               type="button"
               onClick={submitForm}
-              className="w-full bg-[#3B35A3] hover:bg-[#2D2890] text-white text-[15px] font-semibold py-[14px] border-none cursor-pointer transition-colors"
+              disabled={loading}
+              className="w-full bg-[#3B35A3] hover:bg-[#2D2890] text-white text-[15px] font-semibold py-[14px] border-none cursor-pointer transition-colors disabled:opacity-60"
               style={{ borderRadius: "10px", fontFamily: "Poppins, sans-serif", letterSpacing: "0.01em" }}
             >
-              Start Assessment
+              {loading ? "Creating Account..." : "Start Assessment"}
             </button>
           </div>
-        ) : (
-          /* ----- QUESTIONS ----- */
+        ) : loading && !questions.length ? (
+          <div className="flex items-center justify-center py-[60px]">
+            <p className="text-[14px] text-[#888]" style={{ fontFamily: "Poppins, sans-serif" }}>Loading questions...</p>
+          </div>
+        ) : questions.length > 0 ? (
           <div className="px-[20px] py-[28px] md:px-[36px] md:py-[32px]">
-            {/* Progress bar */}
             <div className="mb-[24px]">
               <div className="flex items-center justify-between mb-[8px]">
                 <span className="text-[13px] font-medium text-[#888]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
@@ -375,7 +457,6 @@ export default function AssessmentModal() {
               </div>
             </div>
 
-            {/* Progress dots */}
             <div className="flex gap-[5px] mb-[24px] flex-wrap">
               {Array.from({ length: totalQuestions }).map((_, idx) => {
                 const isAnswered = !!answers[idx];
@@ -396,21 +477,20 @@ export default function AssessmentModal() {
               })}
             </div>
 
-            {/* Question */}
             <p className="m-0 text-[17px] leading-[1.55] font-semibold text-[#171717] mb-[22px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
-              {questions[questionIndex].q}
+              {questions[questionIndex].question_text}
             </p>
 
-            {/* Options */}
             <div className="flex flex-col gap-[10px]">
               {questions[questionIndex].options.map((opt, optIdx) => {
-                const isSelected = answers[questionIndex] === opt;
+                const isSelected = answers[questionIndex] === opt.id;
                 return (
                   <button
-                    key={optIdx}
+                    key={opt.id}
                     type="button"
-                    onClick={() => answerQuestion(opt)}
-                    className="w-full text-left px-[18px] py-[14px] text-[14px] leading-[1.45] cursor-pointer transition-all duration-150 group"
+                    onClick={() => !loading && answerQuestion(opt.id)}
+                    disabled={loading}
+                    className="w-full text-left px-[18px] py-[14px] text-[14px] leading-[1.45] cursor-pointer transition-all duration-150 group disabled:opacity-60"
                     style={{
                       fontFamily: "Poppins, sans-serif",
                       fontWeight: 400,
@@ -448,13 +528,12 @@ export default function AssessmentModal() {
                     >
                       {String.fromCharCode(97 + optIdx)}
                     </span>
-                    <span className="align-middle">{opt}</span>
+                    <span className="align-middle">{opt.option_text}</span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Back */}
             <div className="flex justify-start mt-[24px]">
               <button
                 type="button"
@@ -471,6 +550,10 @@ export default function AssessmentModal() {
               </button>
             </div>
           </div>
+        ) : (
+          <div className="flex items-center justify-center py-[60px]">
+            <p className="text-[14px] text-[#888]" style={{ fontFamily: "Poppins, sans-serif" }}>Loading questions...</p>
+          </div>
         )}
 
         <style
@@ -478,6 +561,9 @@ export default function AssessmentModal() {
             __html: `
               input, select { font-family: Poppins, sans-serif; }
               input:focus, select:focus { outline: 2px solid #3B35A3; outline-offset: -1px; border-color: transparent !important; border-radius: 6px; }
+              input[type="number"]::-webkit-outer-spin-button,
+              input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+              input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
             `,
           }}
         />
@@ -488,18 +574,8 @@ export default function AssessmentModal() {
 
 /* ----- FIELD COMPONENTS ----- */
 
-function Field({
-  label,
-  value,
-  onChange,
-  error,
-  type = "text",
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  error?: string;
-  type?: string;
+function Field({ label, value, onChange, error, type = "text", inputMode, readonly, placeholder }: {
+  label: string; value: string; onChange: (v: string) => void; error?: string; type?: string; inputMode?: "text" | "numeric" | "tel" | "email" | "url"; readonly?: boolean; placeholder?: string;
 }) {
   return (
     <div>
@@ -509,12 +585,18 @@ function Field({
       <input
         type={type}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => { if (!readonly) onChange(e.target.value); }}
+        inputMode={inputMode}
+        readOnly={readonly}
+        placeholder={placeholder}
         className="w-full px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
         style={{
           borderRadius: "8px",
-          border: "1.5px solid #D5D5D5",
+          border: `1.5px solid ${readonly ? "#E0E0E0" : "#D5D5D5"}`,
           fontFamily: "Poppins, sans-serif",
+          background: readonly ? "#F8F8F8" : "#FFFFFF",
+          color: readonly ? "#888" : "#171717",
+          cursor: readonly ? "not-allowed" : "auto",
         }}
       />
       {error && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
@@ -522,62 +604,8 @@ function Field({
   );
 }
 
-const ageRanges = [
-  "5 - 7",
-  "7 - 15",
-  "15 - 18",
-  "18 - 25",
-  "25 - 35",
-  "35 - 45",
-  "45 - 55",
-  "55 - 65",
-  "65+",
-];
-
-function AgeSelect({
-  label,
-  value,
-  onChange,
-  error,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  error?: string;
-}) {
-  return (
-    <div>
-      <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
-        {label}
-      </label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
-        style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
-      >
-        <option value="">Select Age Range</option>
-        {ageRanges.map((range) => (
-          <option key={range} value={range}>{range}</option>
-        ))}
-      </select>
-      {error && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
-    </div>
-  );
-}
-
-function SelectField({
-  label,
-  value,
-  onChange,
-  error,
-  options,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  error?: string;
-  options: string[];
+function SelectField({ label, value, onChange, error, options }: {
+  label: string; value: string; onChange: (v: string) => void; error?: string; options: string[];
 }) {
   return (
     <div>

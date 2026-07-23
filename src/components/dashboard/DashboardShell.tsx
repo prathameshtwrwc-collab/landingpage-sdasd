@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -22,6 +22,13 @@ const roleNavItems: Record<Role, NavItem[]> = {
   member: [
     { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={18} /> },
     { label: "Sleep Assessment", href: "/dashboard/assessment", icon: <Activity size={18} /> },
+    { label: "Sleep Score", href: "/dashboard/score", icon: <Activity size={18} /> },
+    { label: "Chronotype", href: "/dashboard/chronotype", icon: <Sparkles size={18} /> },
+    { label: "Energy Timeline", href: "/dashboard/energy", icon: <TrendingUp size={18} /> },
+    { label: "Blueprint", href: "/dashboard/blueprint", icon: <FileText size={18} /> },
+    { label: "Recommendations", href: "/dashboard/recommendations", icon: <Star size={18} /> },
+    { label: "Progress", href: "/dashboard/progress", icon: <TrendingUp size={18} /> },
+    { label: "Goals", href: "/dashboard/goals", icon: <Star size={18} /> },
     { label: "Insights", href: "/dashboard/insights", icon: <TrendingUp size={18} /> },
     { label: "Calendar", href: "/dashboard/calendar", icon: <Calendar size={18} /> },
     { label: "Profile", href: "/dashboard/profile", icon: <User size={18} /> },
@@ -30,7 +37,9 @@ const roleNavItems: Record<Role, NavItem[]> = {
   organization_admin: [
     { label: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard size={18} /> },
     { label: "Participants", href: "/admin/dashboard/participants", icon: <Users size={18} /> },
-    { label: "Reports", href: "/admin/dashboard/reports", icon: <BarChart3 size={18} /> },
+    { label: "Results", href: "/admin/dashboard/reports", icon: <BarChart3 size={18} /> },
+    { label: "Analytics", href: "/admin/dashboard/analytics", icon: <TrendingUp size={18} /> },
+    { label: "Share Link", href: "/admin/dashboard/share-link", icon: <FileText size={18} /> },
     { label: "Notifications", href: "/admin/dashboard/notifications", icon: <Bell size={18} />, badge: "3" },
     { label: "Team", href: "/admin/dashboard/team", icon: <Users size={18} /> },
     { label: "Settings", href: "/admin/dashboard/settings", icon: <Settings size={18} /> },
@@ -38,7 +47,9 @@ const roleNavItems: Record<Role, NavItem[]> = {
   superadmin: [
     { label: "Dashboard", href: "/superadmin/dashboard", icon: <LayoutDashboard size={18} /> },
     { label: "Organizations", href: "/superadmin/dashboard/organizations", icon: <Users size={18} /> },
-    { label: "Analytics", href: "/superadmin/dashboard/analytics", icon: <BarChart3 size={18} /> },
+    { label: "Users", href: "/superadmin/dashboard/users", icon: <Users size={18} /> },
+    { label: "Reports", href: "/superadmin/dashboard/reports", icon: <BarChart3 size={18} /> },
+    { label: "Analytics", href: "/superadmin/dashboard/analytics", icon: <TrendingUp size={18} /> },
     { label: "Audit Log", href: "/superadmin/dashboard/audit", icon: <FileText size={18} /> },
     { label: "System", href: "/superadmin/dashboard/system", icon: <Shield size={18} /> },
     { label: "Settings", href: "/superadmin/dashboard/settings", icon: <Settings size={18} /> },
@@ -52,18 +63,30 @@ export default function DashboardShell({
   children: ReactNode;
   title?: string;
 }) {
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  if (!user) return null;
+  useEffect(() => { setIsMounted(true); }, []);
 
-  const navItems = roleNavItems[user.role] ?? roleNavItems.member;
-  const isSuperAdmin = user.role === "superadmin";
+  const navItems = user ? (roleNavItems[user.role] ?? roleNavItems.member) : roleNavItems.member;
+  const isSuperAdmin = user?.role === "superadmin";
 
   const isActive = (href: string) => pathname === href;
 
   const activeItem = navItems.find((i) => isActive(i.href));
+
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ fontFamily: "Poppins, sans-serif", background: "#F6F8FC" }}>
+        <div className="text-center">
+          <div className="w-[32px] h-[32px] mx-auto mb-[12px] rounded-full border-2 border-[#35319B] border-t-transparent animate-spin" />
+          <p className="text-[13px]" style={{ color: "#888" }}>Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex" style={{ fontFamily: "Poppins, sans-serif", background: "#F6F8FC" }}>
@@ -120,7 +143,7 @@ export default function DashboardShell({
                 color: isSuperAdmin ? "rgba(255,255,255,0.4)" : "#AAA",
               }}
             >
-              {ROLE_LABELS[user.role]}
+              {ROLE_LABELS[user?.role ?? "member"]}
             </span>
           </div>
         </div>
@@ -215,7 +238,7 @@ export default function DashboardShell({
           </Link>
           <button
             type="button"
-            onClick={() => { logout(); window.location.href = "/login"; }}
+            onClick={async () => { await logout(); window.location.href = "/login"; }}
             className="flex items-center gap-[6px] text-[12px] font-medium bg-none border-none cursor-pointer transition-colors duration-150"
             style={{
               fontFamily: "Poppins, sans-serif",

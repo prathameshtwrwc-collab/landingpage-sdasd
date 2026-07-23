@@ -12,6 +12,22 @@ export const ROLE_LABELS: Record<Role, string> = {
   [ROLES.SUPER_ADMIN]: "Super Admin",
 };
 
+// Maps Clerk publicMetadata roles to internal app roles
+export const CLERK_ROLE_MAP: Record<string, Role> = {
+  member: "member",
+  admin: "organization_admin",
+  organization_admin: "organization_admin",
+  superadmin: "superadmin",
+  super_admin: "superadmin",
+};
+
+export function mapClerkRole(clerkRole: string | undefined | null): Role {
+  if (clerkRole && clerkRole in CLERK_ROLE_MAP) {
+    return CLERK_ROLE_MAP[clerkRole];
+  }
+  return "member";
+}
+
 export interface AuthUser {
   id: string;
   email: string;
