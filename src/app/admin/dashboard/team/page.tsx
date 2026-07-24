@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation";;
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Users, Shield, Mail } from "lucide-react";
 import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
 
 export default function TeamPage() {
+  const router = useRouter();
   const [admins, setAdmins] = useState<Array<Record<string, unknown>>>([]);
+// const router = useRouter();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,8 +18,15 @@ export default function TeamPage() {
   }, []);
 
   return (
-    <DashboardShell title="Team">
-      {loading ? (
+    <DashboardShell title="Team"><>
+      <button type="button" onClick={() => router.push("/admin/dashboard")}
+        className="inline-flex items-center gap-[5px] text-[13px] font-medium bg-transparent border-none cursor-pointer mb-[16px] transition-colors"
+        style={{ color: "#98A2B3", fontFamily: "Poppins, sans-serif" }}
+        onMouseEnter={(e) => e.currentTarget.style.color = "#35319B"}
+        onMouseLeave={(e) => e.currentTarget.style.color = "#98A2B3"}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
+        Back
+      </button>{loading ? (
         <SkeletonTable rows={4} cols={4} />
       ) : (
         <div className="rounded-[16px] overflow-hidden" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
@@ -63,6 +73,6 @@ export default function TeamPage() {
           </div>
         </div>
       )}
-    </DashboardShell>
+      </></DashboardShell>
   );
 }

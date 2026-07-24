@@ -134,22 +134,16 @@ export default function MemberDashboardPage() {
           icon={<Activity size={20} />}
           trend={result ? `${confidenceScore}% confidence` : undefined}
           trendUp
-          gradient="linear-gradient(135deg, #F59A00, #FFB74D)"
-          lightBg="rgba(245,154,0,0.08)"
         />
         <StatCard
           label="Chronotype"
           value={chronotypeLabels[chronotype] ?? "—"}
           icon={<Moon size={20} />}
-          gradient="linear-gradient(135deg, #35319B, #7B76D4)"
-          lightBg="rgba(53,49,155,0.06)"
         />
         <StatCard
           label="Assessments"
           value={String(data?.assessments?.length ?? 0)}
           icon={<TrendingUp size={20} />}
-          gradient="linear-gradient(135deg, #2E7D32, #66BB6A)"
-          lightBg="rgba(46,125,50,0.06)"
         />
       </div>
 

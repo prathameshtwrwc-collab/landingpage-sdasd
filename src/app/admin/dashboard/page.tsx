@@ -71,26 +71,10 @@ export default function AdminDashboardPage() {
 
   return (
     <DashboardShell>
-      <div
-        className="relative overflow-hidden rounded-[20px] p-[24px] md:p-[32px] mb-[24px] md:mb-[28px]"
-        style={{
-          background: "linear-gradient(135deg, #1A1668 0%, #35319B 50%, #5A55C0 100%)",
-        }}
-      >
-        <div className="absolute top-[-30px] right-[-10px] opacity-[0.05]">
-          <BarChart3 size={180} stroke="white" strokeWidth={1} />
-        </div>
-        <div className="relative z-10">
-          <p className="m-0 text-[14px] font-medium text-[rgba(255,255,255,0.6)] mb-[4px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
-            {s?.orgName ?? "Organization"} Dashboard
-          </p>
-          <h2 className="m-0 text-[24px] md:text-[28px] font-bold text-white leading-[1.2] tracking-[-0.02em]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
-            Welcome, {user.name}
-          </h2>
-          <p className="m-0 mt-[6px] text-[14px] leading-[1.5] text-[rgba(255,255,255,0.7)] max-w-[500px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
-            {s?.orgName ? `${s.orgName} — ` : ""}Monitor participant progress, review assessment data, and manage your organization&apos;s sleep wellness program.
-          </p>
-        </div>
+      <div className="mb-[24px]">
+        <p className="m-0 text-[13px] font-medium mb-[4px]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>{s?.orgName ?? "Organization"} Dashboard</p>
+        <h2 className="m-0 text-[22px] font-bold leading-[1.2]" style={{ color: "#19164F", fontFamily: "Poppins, sans-serif" }}>Welcome, {user.name}</h2>
+        <p className="m-0 mt-[4px] text-[14px] leading-[1.5]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>Monitor participant progress, review assessment data, and manage your organization&apos;s sleep wellness program.</p>
       </div>
 
       {fetchError && (
@@ -105,8 +89,6 @@ export default function AdminDashboardPage() {
           label="Total Members"
           value={String(s?.totalMembers ?? 0)}
           icon={<Users size={20} />}
-          gradient="linear-gradient(135deg, #35319B, #7B76D4)"
-          lightBg="rgba(53,49,155,0.06)"
         />
         <StatCard
           label="Assessments"
@@ -114,22 +96,16 @@ export default function AdminDashboardPage() {
           icon={<ClipboardCheck size={20} />}
           trend={s ? `${s.inProgress} in progress` : undefined}
           trendUp
-          gradient="linear-gradient(135deg, #F59A00, #FFB74D)"
-          lightBg="rgba(245,154,0,0.08)"
         />
         <StatCard
           label="Avg Confidence"
           value={s ? `${s.avgConfidence}%` : "—"}
           icon={<Brain size={20} />}
-          gradient="linear-gradient(135deg, #2E7D32, #66BB6A)"
-          lightBg="rgba(46,125,50,0.06)"
         />
         <StatCard
           label="Org Link"
           value={s?.orgLinkStatus === "active" ? "Active" : s?.orgLinkStatus === "paused" ? "Paused" : "—"}
           icon={<Link2 size={20} />}
-          gradient={s?.orgLinkStatus === "active" ? "linear-gradient(135deg, #2E7D32, #66BB6A)" : "linear-gradient(135deg, #D32F2F, #FF6B6B)"}
-          lightBg={s?.orgLinkStatus === "active" ? "rgba(46,125,50,0.06)" : "rgba(211,47,47,0.06)"}
         />
       </div>
 

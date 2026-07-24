@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation";;
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import MiniLine from "@/components/charts/MiniLine";
 import Bars from "@/components/charts/Bars";
@@ -8,7 +9,9 @@ import { BarChart3, TrendingUp, Clock, Users } from "lucide-react";
 import { SkeletonChart } from "@/components/skeleton/SkeletonCard";
 
 export default function AdminAnalyticsPage() {
+  const router = useRouter();
   const [stats, setStats] = useState<Record<string, unknown> | null>(null);
+// const router = useRouter();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,8 +25,15 @@ export default function AdminAnalyticsPage() {
   const mix = (s?.chronotypeMix as Array<{ label: string; value: number }>) ?? [];
 
   return (
-    <DashboardShell title="Deep Analytics">
-      {loading ? (
+    <DashboardShell title="Deep Analytics"><>
+      <button type="button" onClick={() => router.push("/admin/dashboard")}
+        className="inline-flex items-center gap-[5px] text-[13px] font-medium bg-transparent border-none cursor-pointer mb-[16px] transition-colors"
+        style={{ color: "#98A2B3", fontFamily: "Poppins, sans-serif" }}
+        onMouseEnter={(e) => e.currentTarget.style.color = "#35319B"}
+        onMouseLeave={(e) => e.currentTarget.style.color = "#98A2B3"}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
+        Back
+      </button>{loading ? (
         <div><SkeletonChart /><div className="h-[16px]" /><SkeletonChart /></div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
@@ -56,6 +66,6 @@ export default function AdminAnalyticsPage() {
           </div>
         </div>
       )}
-    </DashboardShell>
+      </></DashboardShell>
   );
 }

@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Link2, Copy, Check, ExternalLink } from "lucide-react";
 
 export default function ShareLinkPage() {
+  const router = useRouter();
   const [linkData, setLinkData] = useState<{ code: string; status: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -30,8 +32,15 @@ export default function ShareLinkPage() {
   };
 
   return (
-    <DashboardShell title="Share Link">
-      {loading ? (
+    <DashboardShell title="Share Link"><>
+      <button type="button" onClick={() => router.push("/admin/dashboard")}
+        className="inline-flex items-center gap-[5px] text-[13px] font-medium bg-transparent border-none cursor-pointer mb-[16px] transition-colors"
+        style={{ color: "#98A2B3", fontFamily: "Poppins, sans-serif" }}
+        onMouseEnter={(e) => e.currentTarget.style.color = "#35319B"}
+        onMouseLeave={(e) => e.currentTarget.style.color = "#98A2B3"}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
+        Back
+      </button>{loading ? (
         <div className="flex items-center justify-center py-[60px]"><span className="text-[14px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>Loading...</span></div>
       ) : (
         <div className="max-w-[640px]">
@@ -82,6 +91,6 @@ export default function ShareLinkPage() {
           )}
         </div>
       )}
-    </DashboardShell>
+      </></DashboardShell>
   );
 }

@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation";;
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
 import Bars from "@/components/charts/Bars";
 import { BarChart3, Users, ClipboardCheck, Shield } from "lucide-react";
 
 export default function AnalyticsPage() {
+  const router = useRouter();
   const [stats, setStats] = useState<Record<string, unknown> | null>(null);
+// const router = useRouter();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,16 +24,23 @@ export default function AnalyticsPage() {
   const cd = (s?.chronotypeDistribution as Record<string, number>) ?? { lark: 0, eagle: 0, owl: 0 };
 
   return (
-    <DashboardShell title="Platform Analytics">
-      {loading ? (
+    <DashboardShell title="Platform Analytics"><>
+      <button type="button" onClick={() => router.push("/superadmin/dashboard")}
+        className="inline-flex items-center gap-[5px] text-[13px] font-medium bg-transparent border-none cursor-pointer mb-[16px] transition-colors"
+        style={{ color: "#98A2B3", fontFamily: "Poppins, sans-serif" }}
+        onMouseEnter={(e) => e.currentTarget.style.color = "#35319B"}
+        onMouseLeave={(e) => e.currentTarget.style.color = "#98A2B3"}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
+        Back
+      </button>{loading ? (
         <div className="flex items-center justify-center py-[60px]"><span className="text-[14px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>Loading...</span></div>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[16px] mb-[20px]">
-            <StatCard label="Organizations" value={String(s?.organizations ?? "—")} icon={<Building2 size={20} />} gradient="linear-gradient(135deg, #35319B, #7B76D4)" lightBg="rgba(53,49,155,0.06)" />
-            <StatCard label="Members" value={String(s?.members ?? "—")} icon={<Users size={20} />} gradient="linear-gradient(135deg, #F59A00, #FFB74D)" lightBg="rgba(245,154,0,0.08)" />
-            <StatCard label="Assessments" value={String(s?.assessments ?? "—")} icon={<ClipboardCheck size={20} />} gradient="linear-gradient(135deg, #2E7D32, #66BB6A)" lightBg="rgba(46,125,50,0.06)" />
-            <StatCard label="Admins" value={String(s?.admins ?? "—")} icon={<Shield size={20} />} gradient="linear-gradient(135deg, #D32F2F, #FF6B6B)" lightBg="rgba(211,47,47,0.06)" />
+            <StatCard label="Organizations" value={String(s?.organizations ?? "—")} icon={<Building2 size={20} />} />
+            <StatCard label="Members" value={String(s?.members ?? "—")} icon={<Users size={20} />} />
+            <StatCard label="Assessments" value={String(s?.assessments ?? "—")} icon={<ClipboardCheck size={20} />} />
+            <StatCard label="Admins" value={String(s?.admins ?? "—")} icon={<Shield size={20} />} />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-[16px]">
@@ -62,7 +72,7 @@ export default function AnalyticsPage() {
           </div>
         </>
       )}
-    </DashboardShell>
+      </></DashboardShell>
   );
 }
 

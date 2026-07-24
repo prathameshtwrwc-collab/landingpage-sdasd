@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import RoleBadge from "@/components/dashboard/RoleBadge";
@@ -8,8 +9,10 @@ import { User, Mail, Calendar, Moon, MapPin, Briefcase } from "lucide-react";
 import { CHRONOTYPE_LABELS } from "@/lib/chronotype-utils";
 
 export default function ProfilePage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [data, setData] = useState<{ member: Record<string, unknown> | null; result: Record<string, unknown> | null } | null>(null);
+// const router = useRouter();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,6 +30,14 @@ export default function ProfilePage() {
 
   return (
     <DashboardShell>
+      <button type="button" onClick={() => router.push("/dashboard")}
+        className="inline-flex items-center gap-[5px] text-[13px] font-medium bg-transparent border-none cursor-pointer mb-[16px] transition-colors"
+        style={{ color: "#98A2B3", fontFamily: "Poppins, sans-serif" }}
+        onMouseEnter={(e) => e.currentTarget.style.color = "#35319B"}
+        onMouseLeave={(e) => e.currentTarget.style.color = "#98A2B3"}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
+        Back
+      </button>
       {loading ? (
         <div className="flex items-center justify-center py-[60px]"><span className="text-[14px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>Loading...</span></div>
       ) : member ? (

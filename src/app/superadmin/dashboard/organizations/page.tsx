@@ -131,8 +131,15 @@ export default function OrganizationsPage() {
   };
 
   return (
-    <DashboardShell title="Organizations">
-      {loading ? (
+    <DashboardShell title="Organizations"><>
+      <button type="button" onClick={() => router.push("/superadmin/dashboard")}
+        className="inline-flex items-center gap-[5px] text-[13px] font-medium bg-transparent border-none cursor-pointer mb-[16px] transition-colors"
+        style={{ color: "#98A2B3", fontFamily: "Poppins, sans-serif" }}
+        onMouseEnter={(e) => e.currentTarget.style.color = "#35319B"}
+        onMouseLeave={(e) => e.currentTarget.style.color = "#98A2B3"}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
+        Back
+      </button>{loading ? (
         <div className="p-[20px] rounded-[16px]" style={{ background: "#FFFFFF" }}><SkeletonTable rows={8} cols={5} /></div>
       ) : (
         <>
@@ -319,6 +326,6 @@ export default function OrganizationsPage() {
           </div>
         </>
       )}
-    </DashboardShell>
+      </></DashboardShell>
   );
 }

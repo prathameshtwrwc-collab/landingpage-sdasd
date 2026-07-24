@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
 import Bars from "@/components/charts/Bars";
@@ -8,6 +9,7 @@ import { BarChart3, ClipboardList, Clock, CheckCircle, Activity } from "lucide-r
 import { SkeletonTable, SkeletonChart, SkeletonStatCard, SkeletonHero } from "@/components/skeleton/SkeletonCard";
 
 export default function ReportsPage() {
+  const router = useRouter();
   const [data, setData] = useState<{ results: Array<Record<string, unknown>>; stats: Record<string, unknown> | null }>({ results: [], stats: null });
   const [loading, setLoading] = useState(true);
 
@@ -21,15 +23,22 @@ export default function ReportsPage() {
   const chronotypeMix = (s?.chronotypeMix as Array<{ label: string; value: number; color: string }>) ?? [];
 
   return (
-    <DashboardShell title="Assessment Results">
-      {loading ? (
+    <DashboardShell title="Assessment Results"><>
+      <button type="button" onClick={() => router.push("/admin/dashboard")}
+        className="inline-flex items-center gap-[5px] text-[13px] font-medium bg-transparent border-none cursor-pointer mb-[16px] transition-colors"
+        style={{ color: "#98A2B3", fontFamily: "Poppins, sans-serif" }}
+        onMouseEnter={(e) => e.currentTarget.style.color = "#35319B"}
+        onMouseLeave={(e) => e.currentTarget.style.color = "#98A2B3"}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
+        Back
+      </button>{loading ? (
         <SkeletonTable rows={8} cols={5} />
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-[16px] mb-[20px]">
-            <StatCard label="Completed" value={String(s?.completedAssessments ?? 0)} icon={<CheckCircle size={20} />} gradient="linear-gradient(135deg, #2E7D32, #66BB6A)" lightBg="rgba(46,125,50,0.06)" />
-            <StatCard label="In Progress" value={String(s?.inProgress ?? 0)} icon={<Clock size={20} />} gradient="linear-gradient(135deg, #F59A00, #FFB74D)" lightBg="rgba(245,154,0,0.08)" />
-            <StatCard label="Total" value={String((s?.totalMembers as number) ?? 0)} icon={<Activity size={20} />} gradient="linear-gradient(135deg, #35319B, #7B76D4)" lightBg="rgba(53,49,155,0.06)" />
+            <StatCard label="Completed" value={String(s?.completedAssessments ?? 0)} icon={<CheckCircle size={20} />} />
+            <StatCard label="In Progress" value={String(s?.inProgress ?? 0)} icon={<Clock size={20} />} />
+            <StatCard label="Total" value={String((s?.totalMembers as number) ?? 0)} icon={<Activity size={20} />} />
           </div>
 
           {chronotypeMix.length > 0 && (
@@ -82,6 +91,6 @@ export default function ReportsPage() {
           </div>
         </>
       )}
-    </DashboardShell>
+      </></DashboardShell>
   );
 }

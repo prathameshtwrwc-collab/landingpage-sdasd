@@ -89,9 +89,9 @@ export default function SuperAdminDashboardPage() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[16px] md:gap-[20px] mb-[24px] md:mb-[28px]">
-        <StatCard label="Organizations" value={String(s?.organizations ?? "—")} icon={<Users size={20} />} gradient="linear-gradient(135deg, #35319B, #7B76D4)" lightBg="rgba(53,49,155,0.06)" />
-        <StatCard label="Total Users" value={String(s?.members ?? "—")} icon={<Activity size={20} />} gradient="linear-gradient(135deg, #F59A00, #FFB74D)" lightBg="rgba(245,154,0,0.08)" />
-        <StatCard label="Platform Health" value={s ? `${Math.round((s.assessments / Math.max(s.members, 1)) * 100)}%` : "—"} icon={<Server size={20} />} gradient="linear-gradient(135deg, #2E7D32, #66BB6A)" lightBg="rgba(46,125,50,0.06)" />
+        <StatCard label="Organizations" value={String(s?.organizations ?? "—")} icon={<Users size={20} />} />
+        <StatCard label="Total Users" value={String(s?.members ?? "—")} icon={<Activity size={20} />} />
+        <StatCard label="Platform Health" value={s ? `${Math.round((s.assessments / Math.max(s.members, 1)) * 100)}%` : "—"} icon={<Server size={20} />} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-[16px] md:gap-[20px]">

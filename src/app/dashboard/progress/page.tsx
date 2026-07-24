@@ -53,9 +53,9 @@ export default function ProgressPage() {
       ) : (
         <div className="grid grid-cols-1 gap-[16px]">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-[12px]">
-            <StatCard label="Score Growth" value={String(scoreGrowth)} icon={<TrendingUp size={20} />} trend="from baseline" trendUp gradient="linear-gradient(135deg, #35319B, #7B76D4)" lightBg="rgba(53,49,155,0.06)" />
-            <StatCard label="Total Assessments" value={String(completedCount)} icon={<Trophy size={20} />} trend={completedCount > 1 ? `${completedCount} completed` : undefined} trendUp gradient="linear-gradient(135deg, #F59A00, #FFB74D)" lightBg="rgba(245,154,0,0.08)" />
-            <StatCard label="Best Score" value={confidence > 0 ? `${confidence}%` : "—"} icon={<Calendar size={20} />} trend="latest result" trendUp gradient="linear-gradient(135deg, #2E7D32, #66BB6A)" lightBg="rgba(46,125,50,0.06)" />
+            <StatCard label="Score Growth" value={String(scoreGrowth)} icon={<TrendingUp size={20} />} trend="from baseline" trendUp />
+            <StatCard label="Total Assessments" value={String(completedCount)} icon={<Trophy size={20} />} trend={completedCount > 1 ? `${completedCount} completed` : undefined} trendUp />
+            <StatCard label="Best Score" value={confidence > 0 ? `${confidence}%` : "—"} icon={<Calendar size={20} />} trend="latest result" trendUp />
           </div>
 
           <div className="p-[20px] rounded-[16px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
