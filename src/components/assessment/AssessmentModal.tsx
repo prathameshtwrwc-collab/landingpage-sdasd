@@ -88,10 +88,13 @@ export default function AssessmentModal() {
       document.body.style.overflow = "hidden";
       loadAssessmentData();
 
-      // Detect org code from URL path (e.g. /AB0001)
+      // Detect org code from URL path (e.g. /AB0001, /TO0001, /AAB001)
       const path = window.location.pathname.replace(/\/+$/, "");
-      const orgCodeMatch = path.match(/^\/([A-Za-z]{2,8}\d{3,6})$/);
-      const urlOrgCode = orgCodeMatch ? orgCodeMatch[1].toUpperCase() : "";
+      // Match any single path segment that has 2+ letters followed by 2+ digits (org codes)
+      const segments = path.split("/").filter(Boolean);
+      const urlOrgCode = segments.length === 1 && /^[A-Za-z]{2,8}\d{2,6}$/i.test(segments[0])
+        ? segments[0].toUpperCase()
+        : "";
 
       // Detect referral code from URL query params (e.g. ?ref=XXXXX)
       const params = new URLSearchParams(window.location.search);
