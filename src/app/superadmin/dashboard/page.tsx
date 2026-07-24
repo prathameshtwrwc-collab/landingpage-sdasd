@@ -63,20 +63,20 @@ export default function SuperAdminDashboardPage() {
       <div
         className="relative overflow-hidden rounded-[20px] p-[24px] md:p-[32px] mb-[24px] md:mb-[28px]"
         style={{
-          background: "linear-gradient(135deg, #0F0C29 0%, #1A1740 50%, #2B2660 100%)",
+          background: "linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 50%, #FDF2F8 100%)",
         }}
       >
         <div className="absolute top-[-30px] right-[-20px] opacity-[0.04]">
-          <Shield size={180} stroke="white" strokeWidth={1} />
+          <Shield size={180} stroke="#35319B" strokeWidth={1} />
         </div>
         <div className="relative z-10">
-          <p className="m-0 text-[14px] font-medium text-[rgba(255,255,255,0.5)] mb-[4px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+          <p className="m-0 text-[13px] font-medium mb-[4px]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>
             Super Admin Console
           </p>
-          <h2 className="m-0 text-[24px] md:text-[28px] font-bold text-white leading-[1.2] tracking-[-0.02em]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
+          <h2 className="m-0 text-[24px] md:text-[28px] font-bold leading-[1.2] tracking-[-0.02em]" style={{ color: "#19164F", fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
             Platform Overview
           </h2>
-          <p className="m-0 mt-[6px] text-[14px] leading-[1.5] text-[rgba(255,255,255,0.5)] max-w-[480px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+          <p className="m-0 mt-[4px] text-[14px] leading-[1.5]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>
             System health, organization management, and platform-wide analytics at a glance.
           </p>
         </div>

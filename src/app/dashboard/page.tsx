@@ -103,23 +103,23 @@ export default function MemberDashboardPage() {
       <div
         className="relative overflow-hidden rounded-[20px] p-[24px] md:p-[32px] mb-[24px] md:mb-[28px]"
         style={{
-          background: "linear-gradient(135deg, #1A1668 0%, #35319B 40%, #5A55C0 100%)",
+          background: "linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 40%, #FEF2F2 100%)",
         }}
       >
         <div className="absolute top-[-40px] right-[-20px] opacity-[0.06]">
-          <Moon size={200} stroke="white" strokeWidth={1} />
+          <Moon size={200} stroke="#35319B" strokeWidth={1} />
         </div>
         <div className="absolute bottom-[-30px] left-[-30px] opacity-[0.04]">
-          <Sparkles size={160} stroke="white" strokeWidth={1} />
+          <Sparkles size={160} stroke="#35319B" strokeWidth={1} />
         </div>
         <div className="relative z-10">
-          <p className="m-0 text-[14px] font-medium text-[rgba(255,255,255,0.6)] mb-[4px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+          <p className="m-0 text-[13px] font-medium mb-[4px]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>
             Welcome back, {user.name}
           </p>
-          <h2 className="m-0 text-[24px] md:text-[28px] font-bold text-white leading-[1.2] tracking-[-0.02em]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
+          <h2 className="m-0 text-[24px] md:text-[28px] font-bold leading-[1.2] tracking-[-0.02em]" style={{ color: "#19164F", fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
             {result ? `Your Chronotype: ${chronotypeLabels[chronotype] ?? chronotype}` : "Ready to understand your sleep?"}
           </h2>
-          <p className="m-0 mt-[6px] text-[14px] leading-[1.5] text-[rgba(255,255,255,0.7)] max-w-[480px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+          <p className="m-0 mt-[4px] text-[14px] leading-[1.5]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>
             {result
               ? `You scored Lark: ${larkScore} | Eagle: ${eagleScore} | Owl: ${owlScore} | Confidence: ${confidenceScore}%`
               : "Complete your assessment to unlock personalized insights, recommendations, and your unique sleep chronotype."}
