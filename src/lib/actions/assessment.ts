@@ -323,13 +323,16 @@ export async function submitAssessment(
 ) {
   const supabase = await createClient();
 
-  const { error: ansErr } = await supabase.from("assessment_answers").insert(
-    answers.map((a) => ({
-      assessment_id: assessmentId,
-      question_id: a.question_id,
-      selected_option_id: a.selected_option_id,
-    }))
-  );
+  const { error: ansErr } = await supabase
+    .from("assessment_answers")
+    .upsert(
+      answers.map((a) => ({
+        assessment_id: assessmentId,
+        question_id: a.question_id,
+        selected_option_id: a.selected_option_id,
+      })),
+      { onConflict: "assessment_id,question_id", ignoreDuplicates: true }
+    );
   if (ansErr) throw new Error(ansErr.message);
 
   const optionIds = answers.map((a) => a.selected_option_id);
