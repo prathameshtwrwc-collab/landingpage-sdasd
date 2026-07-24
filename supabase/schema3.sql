@@ -134,10 +134,10 @@ BEGIN
     (q11_id, 'Mostly evening/night shift or irregular schedule', 'C', 3, 0, 1, 3);
 
   -- ─── Scoring Rules ──────────────────────────────────────────────
-  INSERT INTO scoring_rules (assessment_version_id, min_score, max_score, chronotype, label, description) VALUES
-    (v_id, 24, 33, 'LARK', 'Early Bird', 'You naturally wake early and peak in the morning.'),
-    (v_id, 18, 23, 'EAGLE', 'Balanced Type', 'You are flexible and adapt well to most schedules.'),
-    (v_id, 11, 17, 'OWL', 'Night Owl', 'You naturally peak in the evening and prefer later schedules.')
+  INSERT INTO scoring_rules (assessment_version_id, min_score, max_score, chronotype, rule_logic, is_active) VALUES
+    (v_id, 24, 33, 'LARK', '{"label": "Early Bird", "description": "You naturally wake early and peak in the morning."}', true),
+    (v_id, 18, 23, 'EAGLE', '{"label": "Balanced Type", "description": "You are flexible and adapt well to most schedules."}', true),
+    (v_id, 11, 17, 'OWL', '{"label": "Night Owl", "description": "You naturally peak in the evening and prefer later schedules."}', true)
   ON CONFLICT DO NOTHING;
 
   -- ─── Recommendations ─────────────────────────────────────────

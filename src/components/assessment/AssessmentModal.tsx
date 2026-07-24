@@ -87,6 +87,9 @@ export default function AssessmentModal() {
     owl_score: number;
   } | null>(null);
   const [submissionMeta, setSubmissionMeta] = useState<{ sourceType: string | null; orgName: string | null } | null>(null);
+  const [memberName, setMemberName] = useState<string | null>(null);
+  const [memberReferralCode, setMemberReferralCode] = useState<string | null>(null);
+  const [copiedReferral, setCopiedReferral] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -164,6 +167,7 @@ export default function AssessmentModal() {
     if (!form.country.trim()) e.country = "Required";
     if (!form.city.trim()) e.city = "Required";
     if (!form.pincode.trim()) e.pincode = "Required";
+    if (!form.location.trim()) e.location = "Required";
     if (!form.occupation.trim()) e.occupation = "Required";
     if (!form.email.trim()) e.email = "Required";
     if (!form.phone.trim()) e.phone = "Required";
@@ -241,6 +245,8 @@ export default function AssessmentModal() {
         );
         setChronotypeResult(result.result);
         setSubmissionMeta({ sourceType: result.sourceType ?? null, orgName: result.orgName ?? null });
+        setMemberName(result.memberName ?? null);
+        setMemberReferralCode(result.referralCode ?? null);
         setSubmitted(true);
       } catch (err) {
         setServerError(err instanceof Error ? err.message : "Failed to submit assessment");
@@ -259,6 +265,9 @@ export default function AssessmentModal() {
     setServerError("");
     setChronotypeResult(null);
     setSubmissionMeta(null);
+    setMemberName(null);
+    setMemberReferralCode(null);
+    setCopiedReferral(false);
     setExistingAssessment(null);
     setMemberId("");
     setAssessmentId("");
@@ -319,58 +328,184 @@ export default function AssessmentModal() {
         )}
 
         {submitted && chronotypeResult ? (
-          <div className="flex flex-col items-center px-[24px] py-[40px] md:px-[40px]">
-            <div style={{ marginBottom: "16px" }}>
-              <CheckCircle />
+          <div className="px-[24px] py-[32px] md:px-[36px] md:py-[36px]">
+            {/* ─── Header ─── */}
+            <div className="flex flex-col items-center text-center mb-[24px]">
+              <div className="flex items-center justify-center w-[56px] h-[56px] rounded-full mb-[12px]" style={{ background: "linear-gradient(135deg, #35319B, #7B76D4)" }}>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+              <p className="m-0 text-[12px] font-semibold uppercase tracking-[0.06em] mb-[4px]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Assessment Complete</p>
+              <p className="m-0 text-[17px] font-medium" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{memberName ?? "You"}</p>
             </div>
-            <h3 className="m-0 text-[22px] font-semibold text-[#35319B] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginBottom: "4px" }}>
-              Your Chronotype Result
-            </h3>
-            <p className="m-0 text-[20px] font-bold text-[#F59A00] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, marginBottom: "6px" }}>
-              {chronotypeLabels[chronotypeResult.chronotype] ?? chronotypeResult.chronotype}
-            </p>
-            <p className="m-0 text-[14px] leading-[1.6] text-[#555] text-center max-w-[420px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginBottom: "16px" }}>
-              {chronotypeDescs[chronotypeResult.chronotype] ?? "Your unique sleep chronotype has been identified."}
-            </p>
 
-            <div className="w-full grid grid-cols-3 gap-[10px] mb-[20px] max-w-[380px]">
+            {/* ─── Chronotype Badge ─── */}
+            <div className="flex flex-col items-center mb-[20px]">
+              <span className="inline-flex items-center gap-[6px] text-[13px] font-semibold text-white px-[18px] py-[8px] rounded-full mb-[6px]" style={{ background: chronotypeResult.chronotype === "LARK" ? "linear-gradient(135deg, #F59A00, #FFB74D)" : chronotypeResult.chronotype === "EAGLE" ? "linear-gradient(135deg, #35319B, #7B76D4)" : "linear-gradient(135deg, #2C2255, #7B68AE)", fontFamily: "Poppins, sans-serif", boxShadow: "0 4px 14px rgba(53,49,155,0.2)" }}>
+                {chronotypeResult.chronotype === "LARK" ? "Lion (Morning Type)" : chronotypeResult.chronotype === "EAGLE" ? "Eagle (Intermediate Type)" : "Owl (Evening Type)"}
+              </span>
+              <p className="m-0 text-[14px] leading-[1.5] text-center max-w-[380px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
+                {chronotypeResult.chronotype === "LARK"
+                  ? "Your biology runs early. You wake naturally with the sun, and your mind is sharpest before noon."
+                  : chronotypeResult.chronotype === "EAGLE"
+                    ? "Your biology sits in the middle. You adapt well to most schedules with steady midday focus."
+                    : "Your biology leans later. You come alive when the day quiets down, with deeper creative focus toward evening."}
+              </p>
+            </div>
+
+            {/* ─── Stats Row ─── */}
+            <div className="grid grid-cols-2 gap-[12px] mb-[20px] max-w-[320px] mx-auto">
+              <div className="flex flex-col items-center p-[14px] rounded-xl" style={{ background: "rgba(53,49,155,0.05)" }}>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.05em] mb-[2px]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Confidence</span>
+                <span className="text-[24px] font-bold" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>{chronotypeResult.confidence_score}%</span>
+              </div>
+              <div className="flex flex-col items-center p-[14px] rounded-xl" style={{ background: "rgba(245,154,0,0.06)" }}>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.05em] mb-[2px]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Total Score</span>
+                <span className="text-[24px] font-bold" style={{ color: "#F59A00", fontFamily: "Poppins, sans-serif" }}>{chronotypeResult.total_score}</span>
+              </div>
+            </div>
+
+            {/* ─── Sub Scores ─── */}
+            <div className="flex items-center justify-center gap-[20px] mb-[24px]">
               {[
-                { label: "Lark", score: chronotypeResult.lark_score, color: "#f4b54d" },
-                { label: "Eagle", score: chronotypeResult.eagle_score, color: "#354a82" },
+                { label: "Lark", score: chronotypeResult.lark_score, color: "#F59A00" },
+                { label: "Eagle", score: chronotypeResult.eagle_score, color: "#35319B" },
                 { label: "Owl", score: chronotypeResult.owl_score, color: "#7B68AE" },
-              ].map((item) => (
-                <div key={item.label} className="flex flex-col items-center text-center p-[10px] rounded-xl" style={{ background: "rgba(53,49,155,0.04)" }}>
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
-                    {item.label}
-                  </span>
-                  <span className="text-[22px] font-bold" style={{ color: item.color, fontFamily: "Poppins, sans-serif" }}>
-                    {item.score}
-                  </span>
+              ].map((s) => (
+                <div key={s.label} className="flex flex-col items-center">
+                  <div
+                    className="flex items-center justify-center w-[8px] h-[8px] rounded-full mb-[4px]"
+                    style={{ background: s.color, boxShadow: "0 0 6px " + s.color + "60" }}
+                  />
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.04em]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>{s.label}</span>
+                  <span className="text-[16px] font-bold" style={{ color: s.color, fontFamily: "Poppins, sans-serif" }}>{s.score}</span>
                 </div>
               ))}
             </div>
 
-            <p className="m-0 text-[13px] leading-[1.5] text-[#888] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginBottom: "12px" }}>
-              Confidence: {chronotypeResult.confidence_score}% | Total Score: {chronotypeResult.total_score}
-            </p>
+            {/* ─── Strengths & Challenges ─── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-[12px] mb-[20px] max-w-[480px] mx-auto">
+              <div className="p-[16px] rounded-xl" style={{ background: "rgba(46,125,50,0.05)" }}>
+                <p className="m-0 text-[12px] font-bold mb-[8px] flex items-center gap-[5px]" style={{ color: "#2E7D32", fontFamily: "Poppins, sans-serif" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
+                  Strengths
+                </p>
+                <ul className="m-0 pl-[16px]" style={{ listStyle: "disc", color: "#2E7D32" }}>
+                  <li className="text-[12px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
+                    {chronotypeResult.chronotype === "LARK" ? "Early morning peak productivity" : chronotypeResult.chronotype === "EAGLE" ? "Flexible schedule adaptability" : "Late-day creative focus"}
+                  </li>
+                  <li className="text-[12px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
+                    {chronotypeResult.chronotype === "LARK" ? "Consistent natural wake-up" : chronotypeResult.chronotype === "EAGLE" ? "Steady midday energy" : "Creative problem solving at night"}
+                  </li>
+                  <li className="text-[12px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
+                    {chronotypeResult.chronotype === "LARK" ? "Strong morning discipline" : chronotypeResult.chronotype === "EAGLE" ? "Socially adaptable timing" : "Comfort with flexible late blocks"}
+                  </li>
+                </ul>
+              </div>
+              <div className="p-[16px] rounded-xl" style={{ background: "rgba(211,47,47,0.05)" }}>
+                <p className="m-0 text-[12px] font-bold mb-[8px] flex items-center gap-[5px]" style={{ color: "#D32F2F", fontFamily: "Poppins, sans-serif" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                  Challenges
+                </p>
+                <ul className="m-0 pl-[16px]" style={{ listStyle: "disc", color: "#D32F2F" }}>
+                  <li className="text-[12px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
+                    {chronotypeResult.chronotype === "LARK" ? "Evening social events drain quickly" : chronotypeResult.chronotype === "EAGLE" ? "Rigid schedules disrupt balance" : "Early starts are physically costly"}
+                  </li>
+                  <li className="text-[12px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
+                    {chronotypeResult.chronotype === "LARK" ? "Hard to stay awake past 10 PM" : chronotypeResult.chronotype === "EAGLE" ? "Can drift without a routine" : "Morning fog and slow waking"}
+                  </li>
+                  <li className="text-[12px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
+                    {chronotypeResult.chronotype === "LARK" ? "Late-night work is inefficient" : chronotypeResult.chronotype === "EAGLE" ? "Energy dips mid-afternoon" : "Fixed schedules create sleep debt"}
+                  </li>
+                </ul>
+              </div>
+            </div>
 
+            {/* ─── Optimization Tips ─── */}
+            <div className="p-[16px] rounded-xl mb-[20px] max-w-[480px] mx-auto" style={{ background: "rgba(53,49,155,0.04)" }}>
+              <p className="m-0 text-[12px] font-bold mb-[8px]" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>Optimize Your Rhythm</p>
+              <div className="flex flex-col gap-[6px]">
+                {[
+                  chronotypeResult.chronotype === "LARK" ? "Schedule important tasks before noon — your peak window" : chronotypeResult.chronotype === "EAGLE" ? "Block 10 AM – 2 PM for deep focused work" : "Use bright light within 30 min of waking to shift your clock",
+                  chronotypeResult.chronotype === "LARK" ? "Avoid caffeine after 2 PM to protect early sleep" : chronotypeResult.chronotype === "EAGLE" ? "Maintain consistent wake and bed times for stability" : "Avoid critical tasks before 9 AM if possible",
+                  chronotypeResult.chronotype === "LARK" ? "Wind down with dim lighting by 9 PM" : chronotypeResult.chronotype === "EAGLE" ? "Use your midday energy for exercise" : "Build a consistent 30-min pre-sleep wind-down",
+                ].map((tip, i) => (
+                  <div key={i} className="flex items-start gap-[8px]">
+                    <span className="text-[10px] font-bold mt-[2px]" style={{ color: "#35319B" }}>{i + 1}.</span>
+                    <span className="text-[12px] leading-[1.5]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{tip}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ─── Source Tag ─── */}
             {submissionMeta?.orgName && (
-              <p className="m-0 text-[12px] font-medium text-center px-[14px] py-[6px] rounded-full mb-[16px]" style={{ background: "rgba(53,49,155,0.06)", color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
-                Registered under {submissionMeta.orgName}
-              </p>
+              <div className="text-center mb-[16px]">
+                <span className="inline-block text-[11px] font-medium px-[10px] py-[4px] rounded-full" style={{ background: "rgba(53,49,155,0.06)", color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                  Registered under {submissionMeta.orgName}
+                </span>
+              </div>
             )}
             {submissionMeta?.sourceType === "REFERRAL" && !submissionMeta?.orgName && (
-              <p className="m-0 text-[12px] font-medium text-center px-[14px] py-[6px] rounded-full mb-[16px]" style={{ background: "rgba(245,154,0,0.08)", color: "#F59A00", fontFamily: "Poppins, sans-serif" }}>
-                You were referred by a friend
-              </p>
+              <div className="text-center mb-[16px]">
+                <span className="inline-block text-[11px] font-medium px-[10px] py-[4px] rounded-full" style={{ background: "rgba(245,154,0,0.08)", color: "#F59A00", fontFamily: "Poppins, sans-serif" }}>
+                  You were referred by a friend
+                </span>
+              </div>
             )}
 
-            <div className="flex flex-col gap-[10px] w-full max-w-[320px]">
+            {/* ─── Referral Code ─── */}
+            <div className="max-w-[480px] mx-auto mb-[20px] p-[16px] rounded-xl" style={{ background: "#FFFFFF", border: "1.5px solid #E8E8E8" }}>
+              <p className="m-0 text-[12px] font-semibold mb-[8px]" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                Refer a Friend
+              </p>
+              <p className="m-0 text-[11px] leading-[1.4] mb-[10px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
+                Share your referral link and help someone discover their chronotype.
+              </p>
+              {memberReferralCode ? (
+                <div className="flex items-center gap-[8px]">
+                  <code className="flex-1 px-[12px] py-[8px] text-[13px] font-mono font-semibold rounded-lg" style={{ background: "#F5F5F5", color: "#35319B" }}>
+                    {typeof window !== "undefined" ? window.location.origin + "/?ref=" + memberReferralCode : memberReferralCode}
+                  </code>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText((typeof window !== "undefined" ? window.location.origin + "/?ref=" : "") + memberReferralCode);
+                      setCopiedReferral(true);
+                      setTimeout(() => setCopiedReferral(false), 2000);
+                    }}
+                    className="flex items-center justify-center w-[36px] h-[36px] rounded-lg border-none cursor-pointer"
+                    style={{ background: copiedReferral ? "rgba(46,125,50,0.1)" : "rgba(53,49,155,0.08)" }}
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={copiedReferral ? "#2E7D32" : "#35319B"} strokeWidth="2" strokeLinecap="round">
+                      {copiedReferral
+                        ? <><polyline points="20 6 9 17 4 12" /></>
+                        : <><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></>
+                      }
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <p className="m-0 text-[11px] italic" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Generating referral code...</p>
+              )}
+            </div>
+
+            {/* ─── Dashboard Button ─── */}
+            <div className="flex flex-col gap-[8px] max-w-[320px] mx-auto">
+              <button
+                type="button"
+                onClick={() => { window.location.href = "/login"; }}
+                className="w-full text-white text-[14px] font-semibold py-[12px] border-none cursor-pointer rounded-xl transition-all"
+                style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)", fontFamily: "Poppins, sans-serif", boxShadow: "0 4px 16px rgba(53,49,155,0.2)" }}
+              >
+                Open My Dashboard
+              </button>
               <button
                 type="button"
                 onClick={resetAndClose}
-                className="bg-[#3B35A3] hover:bg-[#2D2890] text-white text-[15px] font-semibold px-[44px] py-[12px] border-none cursor-pointer transition-colors w-full"
-                style={{ borderRadius: "8px", fontFamily: "Poppins, sans-serif" }}
+                className="w-full text-[13px] font-medium py-[10px] border-none cursor-pointer rounded-xl transition-all"
+                style={{ color: "#888", background: "#F5F5F5", fontFamily: "Poppins, sans-serif" }}
               >
                 Close
               </button>
@@ -499,14 +634,37 @@ export default function AssessmentModal() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <Field label="Pincode *" value={form.pincode} onChange={(v) => updateForm("pincode", v)} error={errors.pincode} />
-              <Field label="Occupation *" value={form.occupation} onChange={(v) => updateForm("occupation", v)} error={errors.occupation} />
+              <div className="relative">
+                <SelectField label="Occupation *" value={form.occupation.startsWith("Other:") ? "Other" : form.occupation}
+                  onChange={(v) => {
+                    if (v === "Other") {
+                      updateForm("occupation", "Other: ");
+                    } else {
+                      updateForm("occupation", v);
+                    }
+                  }}
+                  error={errors.occupation}
+                  options={["Student", "Homemaker", "Working Professional", "Business Owner", "Healthcare Professional", "Retired", "Other"]}
+                />
+                {form.occupation.startsWith("Other:") && (
+                  <input
+                    type="text"
+                    value={form.occupation.replace("Other: ", "")}
+                    onChange={(e) => updateForm("occupation", `Other: ${e.target.value}`)}
+                    placeholder="Please specify..."
+                    autoFocus
+                    className="w-full px-[13px] py-[10px] text-[14px] bg-white rounded-lg outline-none mt-[8px]"
+                    style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
+                  />
+                )}
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <Field label="Email *" value={form.email} onChange={(v) => updateForm("email", v)} error={errors.email} type="email" />
               <Field label="Phone *" value={form.phone} onChange={(v) => updateForm("phone", v)} error={errors.phone} type="tel" />
             </div>
             <div className="mb-[14px]">
-              <Field label="State (Optional)" value={form.location} onChange={(v) => updateForm("location", v)} />
+              <Field label="State *" value={form.location} onChange={(v) => updateForm("location", v)} error={errors.location} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <Field label="Organization Code" value={form.orgCode} onChange={(v) => updateForm("orgCode", v)} readonly={lockedFields.orgCode} placeholder={lockedFields.orgCode ? "Auto-detected" : "Optional"} />

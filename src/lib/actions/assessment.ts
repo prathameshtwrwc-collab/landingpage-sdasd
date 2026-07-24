@@ -402,9 +402,20 @@ export async function submitAssessment(
   // Fetch member's source_type for result display
   const { data: member } = await supabase
     .from("members")
-    .select("source_type")
+    .select("id, source_type, first_name, last_name, email, referral_code")
     .eq("id", assessment.member_id)
     .single();
+
+  // Generate referral code if the member does not have one
+  let referralCode = member?.referral_code ?? null;
+  if (!referralCode && member) {
+    const emailPrefix = member.email?.split("@")[0]?.slice(0, 4).toUpperCase() ?? "REF";
+    const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+    referralCode = emailPrefix + randomPart;
+    const { data: dup } = await supabase.from("members").select("id").eq("referral_code", referralCode).maybeSingle();
+    if (dup) referralCode = emailPrefix + Date.now().toString(36).slice(-4).toUpperCase();
+    await supabase.from("members").update({ referral_code: referralCode }).eq("id", member.id);
+  }
 
   // Create report
   const { data: latestResult } = await supabase
@@ -433,6 +444,8 @@ export async function submitAssessment(
   return {
     result,
     memberId: assessment.member_id,
+    memberName: member ? (member.first_name || "") + " " + (member.last_name || "") : null,
+    referralCode,
     sourceType: member?.source_type ?? null,
     orgName,
   };
