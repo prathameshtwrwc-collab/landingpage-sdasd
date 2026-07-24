@@ -171,7 +171,7 @@ export default function AssessmentModal() {
     setLoading(true);
     setServerError("");
     try {
-      const { memberId: mId, assessmentId: aId } = await createMemberAndStartAssessment({
+      const result = await createMemberAndStartAssessment({
         first_name: form.fname,
         last_name: form.lname,
         age: form.age,
@@ -188,10 +188,17 @@ export default function AssessmentModal() {
         org_code: form.orgCode || undefined,
         referral_code: form.referralCode || undefined,
       });
-      setMemberId(mId);
-      setAssessmentId(aId);
-      setStep(1);
-      setAnswers({});
+      setMemberId(result.memberId);
+      setAssessmentId(result.assessmentId);
+
+      // Resume support: if user had an in-progress assessment, pick up where they left off
+      if ("resumeIndex" in result && result.resumeIndex !== undefined) {
+        setAnswers(result.existingAnswers as Record<number, string>);
+        setStep((result.resumeIndex as number) + 1);
+      } else {
+        setStep(1);
+        setAnswers({});
+      }
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Failed to start assessment");
     } finally {

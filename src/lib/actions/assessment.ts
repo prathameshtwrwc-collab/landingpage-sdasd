@@ -151,6 +151,55 @@ export async function createMemberAndStartAssessment(data: {
     }
   }
 
+  // If member already exists, check for an in-progress (STARTED) assessment
+  if (existing) {
+    const { data: started } = await supabase
+      .from("assessments")
+      .select("id, assessment_version_id")
+      .eq("member_id", memberId)
+      .eq("status", "STARTED")
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (started) {
+      // Get the last answered question index for this assessment
+      const { data: existingAnswers } = await supabase
+        .from("assessment_answers")
+        .select("question_id, selected_option_id")
+        .eq("assessment_id", started.id);
+
+      // Get the questions for this version in order
+      const { data: questions } = await supabase
+        .from("questions")
+        .select("id")
+        .eq("assessment_version_id", started.assessment_version_id)
+        .eq("is_active", true)
+        .order("question_order");
+
+      let lastAnsweredIndex = 0;
+      const existingAnswerMap: Record<string, string> = {};
+      if (existingAnswers && questions) {
+        const questionOrder = questions.map((q) => q.id);
+        existingAnswers.forEach((a) => {
+          const idx = questionOrder.indexOf(a.question_id);
+          if (idx >= 0) {
+            existingAnswerMap[idx] = a.selected_option_id;
+          }
+        });
+        // Find the first unanswered question index
+        lastAnsweredIndex = existingAnswers.length;
+      }
+
+      return {
+        memberId,
+        assessmentId: started.id,
+        resumeIndex: lastAnsweredIndex,
+        existingAnswers: existingAnswerMap,
+      };
+    }
+  }
+
   const { data: version } = await supabase
     .from("assessment_versions")
     .select("id")

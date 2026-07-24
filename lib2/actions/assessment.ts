@@ -68,6 +68,7 @@ export async function createMemberAndStartAssessment(data: {
 }) {
   const supabase = await createClient();
 
+  // Check for existing member by email
   const { data: existing } = await supabase
     .from("members")
     .select("id")
@@ -78,6 +79,7 @@ export async function createMemberAndStartAssessment(data: {
   let organizationId: string | null = null;
   let sourceType: "ORGANIZATION" | "DIRECT" | "REFERRAL" = "DIRECT";
 
+  // Look up organization by code if provided
   if (data.org_code) {
     const { data: orgLink } = await supabase
       .from("organization_links")
@@ -91,6 +93,7 @@ export async function createMemberAndStartAssessment(data: {
     }
   }
 
+  // If referral code is provided, set source to REFERRAL
   if (data.referral_code) {
     sourceType = "REFERRAL";
   }
@@ -130,6 +133,7 @@ export async function createMemberAndStartAssessment(data: {
     if (error) throw new Error(error.message);
     memberId = member.id;
 
+    // Create referral record if applicable
     if (data.referral_code) {
       const { data: referrer } = await supabase
         .from("members")
@@ -144,6 +148,55 @@ export async function createMemberAndStartAssessment(data: {
           status: "COMPLETED",
         });
       }
+    }
+  }
+
+  // If member already exists, check for an in-progress (STARTED) assessment
+  if (existing) {
+    const { data: started } = await supabase
+      .from("assessments")
+      .select("id, assessment_version_id")
+      .eq("member_id", memberId)
+      .eq("status", "STARTED")
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (started) {
+      // Get the last answered question index for this assessment
+      const { data: existingAnswers } = await supabase
+        .from("assessment_answers")
+        .select("question_id, selected_option_id")
+        .eq("assessment_id", started.id);
+
+      // Get the questions for this version in order
+      const { data: questions } = await supabase
+        .from("questions")
+        .select("id")
+        .eq("assessment_version_id", started.assessment_version_id)
+        .eq("is_active", true)
+        .order("question_order");
+
+      let lastAnsweredIndex = 0;
+      const existingAnswerMap: Record<string, string> = {};
+      if (existingAnswers && questions) {
+        const questionOrder = questions.map((q) => q.id);
+        existingAnswers.forEach((a) => {
+          const idx = questionOrder.indexOf(a.question_id);
+          if (idx >= 0) {
+            existingAnswerMap[idx] = a.selected_option_id;
+          }
+        });
+        // Find the first unanswered question index
+        lastAnsweredIndex = existingAnswers.length;
+      }
+
+      return {
+        memberId,
+        assessmentId: started.id,
+        resumeIndex: lastAnsweredIndex,
+        existingAnswers: existingAnswerMap,
+      };
     }
   }
 
@@ -259,6 +312,14 @@ export async function submitAssessment(
     );
   }
 
+  // Fetch member's source_type for result display
+  const { data: member } = await supabase
+    .from("members")
+    .select("source_type")
+    .eq("id", assessment.member_id)
+    .single();
+
+  // Create report
   const { data: latestResult } = await supabase
     .from("chronotype_results")
     .select("id")
@@ -281,13 +342,6 @@ export async function submitAssessment(
       time_taken_seconds: answers.length * 15,
     })
     .eq("id", assessmentId);
-
-  // Fetch member's source_type for result display
-  const { data: member } = await supabase
-    .from("members")
-    .select("source_type")
-    .eq("id", assessment.member_id)
-    .single();
 
   return {
     result,
