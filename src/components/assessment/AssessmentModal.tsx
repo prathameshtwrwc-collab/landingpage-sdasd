@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useAssessment } from "./AssessmentContext";
-import { getAssessmentData, createMemberAndStartAssessment, submitAssessment, abandonAndRestartAssessment } from "@/lib/actions/assessment";
+import { getAssessmentData, createMemberAndStartAssessment, submitAssessment, abandonAndRestartAssessment, saveAnswer } from "@/lib/actions/assessment";
 
 interface Question {
   id: string;
@@ -217,6 +217,13 @@ export default function AssessmentModal() {
   const answerQuestion = async (option: string) => {
     const newAnswers = { ...answers, [questionIndex]: option };
     setAnswers(newAnswers);
+
+    // Persist this answer to the database so resume works
+    try {
+      await saveAnswer(assessmentId, questions[questionIndex].id, option);
+    } catch {
+      // Non-blocking: continue even if save fails
+    }
 
     if (questionIndex < totalQuestions - 1) {
       setStep(step + 1);

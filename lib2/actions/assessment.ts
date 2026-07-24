@@ -285,6 +285,38 @@ export async function abandonAndRestartAssessment(prevAssessmentId: string, memb
   return { assessmentId: newAssessment.id };
 }
 
+export async function saveAnswer(assessmentId: string, questionId: string, selectedOptionId: string) {
+  const supabase = await createClient();
+
+  // Delete any previous answer for this assessment+question (in case of revisiting)
+  await supabase
+    .from("assessment_answers")
+    .delete()
+    .eq("assessment_id", assessmentId)
+    .eq("question_id", questionId);
+
+  const { error } = await supabase.from("assessment_answers").insert({
+    assessment_id: assessmentId,
+    question_id: questionId,
+    selected_option_id: selectedOptionId,
+  });
+
+  if (error) throw new Error(error.message);
+
+  // Also update the assessment's time_taken_seconds as a rough progress marker
+  const { data: count } = await supabase
+    .from("assessment_answers")
+    .select("id", { count: "exact", head: true })
+    .eq("assessment_id", assessmentId);
+
+  await supabase
+    .from("assessments")
+    .update({ time_taken_seconds: Number(count ?? 0) * 15 })
+    .eq("id", assessmentId);
+
+  return { success: true };
+}
+
 export async function submitAssessment(
   assessmentId: string,
   answers: { question_id: string; selected_option_id: string }[]
