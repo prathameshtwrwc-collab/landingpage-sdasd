@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { cachedFetch } from "@/lib/client-cache";
+
+// Start fetching immediately
+cachedFetch("/api/admin-portal");
 import { useAuth } from "@/components/auth/AuthProvider";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
@@ -30,10 +34,8 @@ export default function AdminDashboardPage() {
   const [fetchError, setFetchError] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin-portal")
-      .then(async (res) => {
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+    cachedFetch("/api/admin-portal").then((json: any) => {
+        
         if (json.stats) setStats(json.stats);
         setStatsLoading(false);
       })
@@ -71,10 +73,17 @@ export default function AdminDashboardPage() {
 
   return (
     <DashboardShell>
-      <div className="mb-[24px]">
-        <p className="m-0 text-[13px] font-medium mb-[4px]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>{s?.orgName ?? "Organization"} Dashboard</p>
-        <h2 className="m-0 text-[22px] font-bold leading-[1.2]" style={{ color: "#19164F", fontFamily: "Poppins, sans-serif" }}>Welcome, {user.name}</h2>
-        <p className="m-0 mt-[4px] text-[14px] leading-[1.5]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>Monitor participant progress, review assessment data, and manage your organization&apos;s sleep wellness program.</p>
+      <div
+        className="relative overflow-hidden rounded-[20px] p-[24px] md:p-[32px] mb-[24px] md:mb-[28px]"
+        style={{
+          background: "linear-gradient(135deg, #EEF2FF 0%, #E0F2FE 50%, #F0FDF4 100%)",
+        }}
+      >
+        <div className="relative z-10">
+          <p className="m-0 text-[13px] font-medium mb-[4px]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>{s?.orgName ?? "Organization"} Dashboard</p>
+          <h2 className="m-0 text-[22px] md:text-[26px] font-bold leading-[1.2]" style={{ color: "#19164F", fontFamily: "Poppins, sans-serif" }}>Welcome, {user.name}</h2>
+          <p className="m-0 mt-[4px] text-[14px] leading-[1.5]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>Monitor participant progress, review assessment data, and manage your organization&apos;s sleep wellness program.</p>
+        </div>
       </div>
 
       {fetchError && (

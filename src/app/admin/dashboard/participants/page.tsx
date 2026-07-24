@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation";;
+import { cachedFetch } from "@/lib/client-cache";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Users, Mail, Calendar, Search, Globe } from "lucide-react";
@@ -16,7 +17,7 @@ export default function ParticipantsPage() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin-portal").then((r) => r.json()).then((d) => { setMembers(d.members ?? []); setLoading(false); })
+    cachedFetch("/api/admin-portal").then((d: any) => { const m = d.members as Record<string, unknown>; setMembers(Array.isArray(m?.data) ? m.data as Array<Record<string, unknown>> : Array.isArray(m) ? m as Array<Record<string, unknown>> : []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { cachedFetch } from "@/lib/client-cache";
 import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
@@ -14,7 +15,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin-portal").then((r) => r.json()).then((d) => { setData({ results: d.results ?? [], stats: d.stats ?? null }); setLoading(false); })
+    cachedFetch("/api/admin-portal").then((d: any) => { setData({ results: d.results ?? [], stats: d.stats ?? null }); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 

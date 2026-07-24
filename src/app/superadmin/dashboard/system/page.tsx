@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { cachedFetch } from "@/lib/client-cache";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Shield, Server, Activity, Database, Wifi } from "lucide-react";
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { cachedFetch } from "@/lib/client-cache";
 import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Users, Plus, Copy, Check, Globe, Building2, Mail, Calendar, Power, ExternalLink, Edit2, Trash2, X, Save, Search } from "lucide-react";

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { cachedFetch } from "@/lib/client-cache";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { FileText, Search, Filter } from "lucide-react";
 

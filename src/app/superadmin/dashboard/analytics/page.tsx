@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation";;
+import { cachedFetch } from "@/lib/client-cache";
+import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
 import Bars from "@/components/charts/Bars";
@@ -14,9 +15,7 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin")
-      .then((r) => r.json())
-      .then((d) => { setStats(d.stats ?? null); setLoading(false); })
+    cachedFetch("/api/admin").then((d: any) => { setStats(d.stats ?? null); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 

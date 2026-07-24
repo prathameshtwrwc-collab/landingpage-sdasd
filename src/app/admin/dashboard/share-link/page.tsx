@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { cachedFetch } from "@/lib/client-cache";
 import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Link2, Copy, Check, ExternalLink } from "lucide-react";
@@ -12,7 +13,7 @@ export default function ShareLinkPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin-portal").then((r) => r.json()).then((d) => {
+    cachedFetch("/api/admin-portal").then((d: any) => {
         const s = d.stats ?? {};
         if (s.orgUniqueCode) {
           setLinkData({ code: s.orgUniqueCode, status: s.orgLinkStatus ?? "none" });

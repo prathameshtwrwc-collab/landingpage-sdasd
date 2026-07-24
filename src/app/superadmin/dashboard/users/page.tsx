@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation";;
+import { cachedFetch } from "@/lib/client-cache";
+import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Users, Plus, Shield, Mail, Search, Globe, Calendar, Building2, Eye, Edit2, Trash2, X, Check, Save } from "lucide-react";
 import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";

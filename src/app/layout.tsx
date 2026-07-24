@@ -19,6 +19,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={poppins.variable}>
+      <head>
+        <link rel="preconnect" href="https://wqoplsaxjjazctvcccxn.supabase.co" />
+        <link rel="dns-prefetch" href="https://wqoplsaxjjazctvcccxn.supabase.co" />
+      </head>
       <body className="bg-white text-[#171717] antialiased font-[var(--font-poppins)]">
         <ClientLayout>{children}</ClientLayout>
       </body>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation";;
+import { cachedFetch } from "@/lib/client-cache";
+import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Users, Shield, Mail } from "lucide-react";
 import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
@@ -13,7 +14,7 @@ export default function TeamPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin-portal").then((r) => r.json()).then((d) => { setAdmins(d.team ?? []); setLoading(false); })
+    cachedFetch("/api/admin-portal").then((d: any) => { setAdmins(d.team ?? []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
