@@ -145,3 +145,89 @@ export async function toggleOrgActiveLink(orgId: string, active: boolean) {
   await requireSuperadmin();
   return toggleOrgActiveLinkInternal(orgId, active);
 }
+
+// ─── Edit / Delete ──────────────────────────────────────────────────
+
+export async function editOrgInternal(orgId: string, data: Record<string, string>) {
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("organizations").update(data).eq("id", orgId);
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+
+export async function deleteOrgInternal(orgId: string) {
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("organizations").delete().eq("id", orgId);
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+
+export async function editAdminInternal(adminId: string, data: Record<string, string>) {
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("organization_admins").update(data).eq("id", adminId);
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+
+export async function deleteAdminInternal(adminId: string) {
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("organization_admins").delete().eq("id", adminId);
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+
+export async function editMemberInternal(memberId: string, data: Record<string, unknown>) {
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("members").update(data).eq("id", memberId);
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+
+export async function deleteMemberInternal(memberId: string) {
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("members").delete().eq("id", memberId);
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+
+// ─── Server-action wrappers (with auth check) ───────────────────────
+
+export async function editOrg(formData: FormData) {
+  await requireSuperadmin();
+  const orgId = formData.get("id") as string;
+  const data: Record<string, string> = {};
+  for (const [k, v] of formData.entries()) {
+    if (k !== "id") data[k] = v as string;
+  }
+  return editOrgInternal(orgId, data);
+}
+
+export async function deleteOrg(orgId: string) {
+  await requireSuperadmin();
+  return deleteOrgInternal(orgId);
+}
+
+export async function editAdmin(formData: FormData) {
+  await requireSuperadmin();
+  const adminId = formData.get("id") as string;
+  const data: Record<string, string> = {};
+  for (const [k, v] of formData.entries()) {
+    if (k !== "id") data[k] = v as string;
+  }
+  return editAdminInternal(adminId, data);
+}
+
+export async function deleteAdmin(adminId: string) {
+  await requireSuperadmin();
+  return deleteAdminInternal(adminId);
+}
+
+export async function editMember(memberId: string, data: Record<string, unknown>) {
+  await requireSuperadmin();
+  return editMemberInternal(memberId, data);
+}
+
+export async function deleteMember(memberId: string) {
+  await requireSuperadmin();
+  return deleteMemberInternal(memberId);
+}

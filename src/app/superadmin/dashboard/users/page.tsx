@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Users, Plus, Shield, Mail, Search, Globe, Calendar, Building2, Eye } from "lucide-react";
+import { Users, Plus, Shield, Mail, Search, Globe, Calendar, Building2, Eye, Edit2, Trash2, X, Check, Save } from "lucide-react";
 
 export default function UsersPage() {
   const [admins, setAdmins] = useState<Array<Record<string, unknown>>>([]);
@@ -14,18 +14,24 @@ export default function UsersPage() {
   const [creating, setCreating] = useState(false);
   const [search, setSearch] = useState("");
   const [memberSearch, setMemberSearch] = useState("");
+  const [editingAdmin, setEditingAdmin] = useState<string | null>(null);
+  const [editingMember, setEditingMember] = useState<string | null>(null);
+  const [editData, setEditData] = useState<Record<string, string>>({});
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [serverError, setServerError] = useState("");
 
-  useEffect(() => {
-    fetch("/api/admin")
-      .then((r) => r.json())
-      .then((data) => {
-        setAdmins(data.admins ?? []);
-        setMembers(data.members ?? []);
-        setOrgs(data.organizations ?? []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+  const loadData = async () => {
+    try {
+      const r = await fetch("/api/admin");
+      const data = await r.json();
+      setAdmins(data.admins ?? []);
+      setMembers(data.members ?? []);
+      setOrgs(data.organizations ?? []);
+    } catch {}
+    setLoading(false);
+  };
+
+  useEffect(() => { loadData(); }, []);
 
   const createAdmin = async () => {
     if (!form.first_name || !form.last_name || !form.email || !form.password || !form.organization_id) return;
@@ -36,11 +42,85 @@ export default function UsersPage() {
       await fetch("/api/admin?action=create_admin", { method: "POST", body: fd });
       setShowForm(false);
       setForm({ first_name: "", last_name: "", email: "", password: "", organization_id: "" });
-      const refreshed = await fetch("/api/admin").then((r) => r.json());
-      setAdmins(refreshed.admins ?? []);
-      setMembers(refreshed.members ?? []);
+      await loadData();
     } catch {}
     setCreating(false);
+  };
+
+  const startEditAdmin = (a: Record<string, unknown>) => {
+    setEditingAdmin(a.id as string);
+    setEditData({ first_name: a.first_name as string, last_name: a.last_name as string, email: a.email as string });
+  };
+
+  const saveEditAdmin = async () => {
+    if (!editingAdmin) return;
+    try {
+      const r = await fetch("/api/admin?action=edit_admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: editingAdmin, ...editData }),
+      });
+      const d = await r.json();
+      if (d.error) { setServerError(d.error); return; }
+      setEditingAdmin(null);
+      await loadData();
+    } catch { setServerError("Failed to edit admin"); }
+  };
+
+  const confirmDeleteAdmin = async (adminId: string) => {
+    setDeleting(adminId);
+    try {
+      const r = await fetch("/api/admin?action=delete_admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminId }),
+      });
+      const d = await r.json();
+      if (d.error) { setServerError(d.error); return; }
+      await loadData();
+    } catch { setServerError("Failed to delete admin"); }
+    setDeleting(null);
+  };
+
+  const startEditMember = (m: Record<string, unknown>) => {
+    setEditingMember(m.id as string);
+    setEditData({
+      first_name: (m.first_name as string) ?? "",
+      last_name: (m.last_name as string) ?? "",
+      email: (m.email as string) ?? "",
+      age: String(m.age ?? ""),
+      gender: (m.gender as string) ?? "",
+    });
+  };
+
+  const saveEditMember = async () => {
+    if (!editingMember) return;
+    try {
+      const r = await fetch("/api/admin?action=edit_member", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: editingMember, ...editData }),
+      });
+      const d = await r.json();
+      if (d.error) { setServerError(d.error); return; }
+      setEditingMember(null);
+      await loadData();
+    } catch { setServerError("Failed to edit member"); }
+  };
+
+  const confirmDeleteMember = async (memberId: string) => {
+    setDeleting(memberId);
+    try {
+      const r = await fetch("/api/admin?action=delete_member", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ memberId }),
+      });
+      const d = await r.json();
+      if (d.error) { setServerError(d.error); return; }
+      await loadData();
+    } catch { setServerError("Failed to delete member"); }
+    setDeleting(null);
   };
 
   const filteredAdmins = admins.filter((a) => {
@@ -63,6 +143,12 @@ export default function UsersPage() {
         <div className="flex items-center justify-center py-[60px]">Loading...</div>
       ) : (
         <>
+          {serverError && (
+            <div className="mb-[16px] p-[12px] rounded-xl text-[13px]" style={{ background: "rgba(211,47,47,0.08)", color: "#C62828", border: "1px solid rgba(211,47,47,0.15)" }}>
+              {serverError} <button onClick={() => setServerError("")} className="bg-transparent border-none cursor-pointer ml-[8px]" style={{ color: "#C62828" }}>✕</button>
+            </div>
+          )}
+
           {/* ====== ADMINS SECTION ====== */}
           <div className="flex items-center justify-between mb-[16px]">
             <div className="flex items-center gap-[8px]">
@@ -122,32 +208,68 @@ export default function UsersPage() {
               <table className="w-full text-left" style={{ fontFamily: "Poppins, sans-serif", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: "#F8F9FF" }}>
-                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Admin</th>
-                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Email</th>
-                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Role</th>
-                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Organization</th>
+                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase" style={{ color: "#888" }}>Admin</th>
+                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase" style={{ color: "#888" }}>Email</th>
+                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase" style={{ color: "#888" }}>Role</th>
+                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase" style={{ color: "#888" }}>Organization</th>
+                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase" style={{ color: "#888" }}></th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredAdmins.length === 0 ? (
-                    <tr><td colSpan={4} className="px-[16px] py-[24px] text-center text-[13px]" style={{ color: "#AAA" }}>No admins found</td></tr>
+                    <tr><td colSpan={5} className="px-[16px] py-[24px] text-center text-[13px]" style={{ color: "#AAA" }}>No admins found</td></tr>
                   ) : filteredAdmins.map((a, i) => {
                     const org = a.organizations as Record<string, unknown> | null;
+                    const isEditing = editingAdmin === a.id;
                     return (
                       <tr key={i} style={{ borderTop: "1px solid #F0F0F0" }}>
-                        <td className="px-[16px] py-[12px]">
-                          <div className="flex items-center gap-[10px]">
-                            <div className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-white text-[11px] font-bold" style={{ background: "linear-gradient(135deg, #D32F2F, #FF6B6B)" }}>
-                              {(a.first_name as string)?.[0] ?? "?"}{(a.last_name as string)?.[0] ?? ""}
-                            </div>
-                            <span className="text-[13px] font-medium" style={{ color: "#171717" }}>{a.first_name as string} {a.last_name as string}</span>
-                          </div>
-                        </td>
-                        <td className="px-[16px] py-[12px] text-[13px]" style={{ color: "#555" }}>{a.email as string}</td>
-                        <td className="px-[16px] py-[12px]">
-                          <span className="text-[11px] font-semibold px-[8px] py-[3px] rounded-full" style={{ background: "rgba(211,47,47,0.06)", color: "#D32F2F", fontFamily: "Poppins, sans-serif" }}>{a.role as string}</span>
-                        </td>
-                        <td className="px-[16px] py-[12px] text-[13px]" style={{ color: "#555" }}>{org?.name as string ?? "—"}</td>
+                        {isEditing ? (
+                          <>
+                            <td className="px-[16px] py-[8px]" colSpan={2}>
+                              <div className="flex gap-[6px]">
+                                <input value={editData.first_name ?? ""} onChange={(e) => setEditData({ ...editData, first_name: e.target.value })}
+                                  className="w-full px-[8px] py-[6px] text-[12px] rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5" }} placeholder="First" />
+                                <input value={editData.last_name ?? ""} onChange={(e) => setEditData({ ...editData, last_name: e.target.value })}
+                                  className="w-full px-[8px] py-[6px] text-[12px] rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5" }} placeholder="Last" />
+                                <input value={editData.email ?? ""} onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                                  className="w-full px-[8px] py-[6px] text-[12px] rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5" }} placeholder="Email" />
+                              </div>
+                            </td>
+                            <td className="px-[16px] py-[8px]"><span className="text-[11px] px-[6px] py-[2px] rounded-full" style={{ background: "rgba(211,47,47,0.06)", color: "#D32F2F" }}>{a.role as string}</span></td>
+                            <td className="px-[16px] py-[8px] text-[12px]" style={{ color: "#555" }}>{org?.name as string ?? "—"}</td>
+                            <td className="px-[16px] py-[8px]">
+                              <div className="flex gap-[6px]">
+                                <button onClick={saveEditAdmin} className="bg-transparent border-none cursor-pointer p-[4px] hover:opacity-70" title="Save"><Check size={14} stroke="#2E7D32" /></button>
+                                <button onClick={() => setEditingAdmin(null)} className="bg-transparent border-none cursor-pointer p-[4px] hover:opacity-70" title="Cancel"><X size={14} stroke="#D32F2F" /></button>
+                              </div>
+                            </td>
+                          </>
+                        ) : (
+                          <>
+                            <td className="px-[16px] py-[12px]">
+                              <div className="flex items-center gap-[10px]">
+                                <div className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-white text-[11px] font-bold" style={{ background: "linear-gradient(135deg, #D32F2F, #FF6B6B)" }}>
+                                  {(a.first_name as string)?.[0] ?? "?"}{(a.last_name as string)?.[0] ?? ""}
+                                </div>
+                                <span className="text-[13px] font-medium" style={{ color: "#171717" }}>{a.first_name as string} {a.last_name as string}</span>
+                              </div>
+                            </td>
+                            <td className="px-[16px] py-[12px] text-[13px]" style={{ color: "#555" }}>{a.email as string}</td>
+                            <td className="px-[16px] py-[12px]">
+                              <span className="text-[11px] font-semibold px-[8px] py-[3px] rounded-full" style={{ background: "rgba(211,47,47,0.06)", color: "#D32F2F", fontFamily: "Poppins, sans-serif" }}>{a.role as string}</span>
+                            </td>
+                            <td className="px-[16px] py-[12px] text-[13px]" style={{ color: "#555" }}>{org?.name as string ?? "—"}</td>
+                            <td className="px-[16px] py-[12px]">
+                              <div className="flex items-center gap-[6px]">
+                                <button onClick={() => startEditAdmin(a)} className="bg-transparent border-none cursor-pointer p-[4px] hover:opacity-70" title="Edit"><Edit2 size={14} stroke="#35319B" /></button>
+                                <button onClick={() => { if (confirm("Delete this admin?")) confirmDeleteAdmin(a.id as string); }} disabled={deleting === a.id}
+                                  className="bg-transparent border-none cursor-pointer p-[4px] hover:opacity-70 disabled:opacity-40" title="Delete">
+                                  <Trash2 size={14} stroke="#D32F2F" />
+                                </button>
+                              </div>
+                            </td>
+                          </>
+                        )}
                       </tr>
                     );
                   })}
@@ -165,7 +287,7 @@ export default function UsersPage() {
           <div className="flex items-center gap-[12px] mb-[16px]">
             <div className="flex-1 flex items-center px-[14px] py-[10px] rounded-xl" style={{ border: "1.5px solid #E0E0E0", background: "#FFFFFF" }}>
               <Search size={16} stroke="#AAA" />
-              <input type="text" value={memberSearch} onChange={(e) => setMemberSearch(e.target.value)} placeholder="Search members by name or email..."
+              <input type="text" value={memberSearch} onChange={(e) => setMemberSearch(e.target.value)} placeholder="Search members..."
                 className="flex-1 bg-transparent border-none ml-[10px] text-[14px] outline-none" style={{ fontFamily: "Poppins, sans-serif" }} />
             </div>
           </div>
@@ -180,42 +302,81 @@ export default function UsersPage() {
                     <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Age</th>
                     <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Gender</th>
                     <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Source</th>
+                    <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Org</th>
                     <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Joined</th>
                     <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}></th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredMembers.length === 0 ? (
-                    <tr><td colSpan={7} className="px-[14px] py-[24px] text-center text-[13px]" style={{ color: "#AAA" }}>No members found</td></tr>
+                    <tr><td colSpan={8} className="px-[14px] py-[24px] text-center text-[13px]" style={{ color: "#AAA" }}>No members found</td></tr>
                   ) : filteredMembers.map((m, i) => {
                     const org = orgs.find((o) => o.id === m.organization_id);
+                    const isEditing = editingMember === m.id;
                     return (
                       <tr key={i} style={{ borderTop: "1px solid #F0F0F0" }}>
-                        <td className="px-[14px] py-[10px]">
-                          <div className="flex items-center gap-[8px]">
-                            <div className="w-[28px] h-[28px] rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ background: "linear-gradient(135deg, #35319B, #7B76D4)" }}>
-                              {((m.first_name as string)?.[0] ?? "?").toUpperCase()}{((m.last_name as string)?.[0] ?? "").toUpperCase()}
-                            </div>
-                            <span className="text-[12px] font-medium" style={{ color: "#171717" }}>{m.first_name as string} {m.last_name as string}</span>
-                          </div>
-                        </td>
-                        <td className="px-[14px] py-[10px] text-[12px]" style={{ color: "#555" }}>{m.email as string}</td>
-                        <td className="px-[14px] py-[10px] text-[12px]" style={{ color: "#555" }}>{String(m.age ?? "—")}</td>
-                        <td className="px-[14px] py-[10px] text-[12px]" style={{ color: "#555" }}>{String(m.gender ?? "—")}</td>
-                        <td className="px-[14px] py-[10px]">
-                          <span className="text-[10px] font-semibold px-[6px] py-[2px] rounded-full" style={{
-                            background: (m.source_type as string) === "ORGANIZATION" ? "rgba(53,49,155,0.08)" : (m.source_type as string) === "REFERRAL" ? "rgba(245,154,0,0.08)" : "rgba(46,125,50,0.08)",
-                            color: (m.source_type as string) === "ORGANIZATION" ? "#35319B" : (m.source_type as string) === "REFERRAL" ? "#F59A00" : "#2E7D32",
-                          }}>{m.source_type as string}</span>
-                        </td>
-                        <td className="px-[14px] py-[10px] text-[12px]" style={{ color: "#888" }}>{m.created_at ? new Date(m.created_at as string).toLocaleDateString() : "—"}</td>
-                        <td className="px-[14px] py-[10px]">
-                          {org && (
-                            <span className="flex items-center gap-[4px] text-[10px]" style={{ color: "#AAA" }}>
-                              <Building2 size={10} /> {org.name as string}
-                            </span>
-                          )}
-                        </td>
+                        {isEditing ? (
+                          <>
+                            <td className="px-[14px] py-[6px]" colSpan={2}>
+                              <div className="flex gap-[4px]">
+                                <input value={editData.first_name ?? ""} onChange={(e) => setEditData({ ...editData, first_name: e.target.value })}
+                                  className="w-full px-[6px] py-[5px] text-[11px] rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5" }} placeholder="First" />
+                                <input value={editData.last_name ?? ""} onChange={(e) => setEditData({ ...editData, last_name: e.target.value })}
+                                  className="w-full px-[6px] py-[5px] text-[11px] rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5" }} placeholder="Last" />
+                                <input value={editData.email ?? ""} onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                                  className="w-full px-[6px] py-[5px] text-[11px] rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5" }} placeholder="Email" />
+                              </div>
+                            </td>
+                            <td className="px-[14px] py-[6px]">
+                              <input value={editData.age ?? ""} onChange={(e) => setEditData({ ...editData, age: e.target.value })}
+                                className="w-full px-[6px] py-[5px] text-[11px] rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5" }} placeholder="Age" />
+                            </td>
+                            <td className="px-[14px] py-[6px]">
+                              <input value={editData.gender ?? ""} onChange={(e) => setEditData({ ...editData, gender: e.target.value })}
+                                className="w-full px-[6px] py-[5px] text-[11px] rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5" }} placeholder="Gender" />
+                            </td>
+                            <td className="px-[14px] py-[6px] text-[11px]">{m.source_type as string}</td>
+                            <td className="px-[14px] py-[6px] text-[11px]">{org?.name as string ?? "—"}</td>
+                            <td className="px-[14px] py-[6px] text-[11px]">{m.created_at ? new Date(m.created_at as string).toLocaleDateString() : "—"}</td>
+                            <td className="px-[14px] py-[6px]">
+                              <div className="flex gap-[4px]">
+                                <button onClick={saveEditMember} className="bg-transparent border-none cursor-pointer p-[3px]" title="Save"><Check size={13} stroke="#2E7D32" /></button>
+                                <button onClick={() => setEditingMember(null)} className="bg-transparent border-none cursor-pointer p-[3px]" title="Cancel"><X size={13} stroke="#D32F2F" /></button>
+                              </div>
+                            </td>
+                          </>
+                        ) : (
+                          <>
+                            <td className="px-[14px] py-[10px]">
+                              <div className="flex items-center gap-[8px]">
+                                <div className="w-[28px] h-[28px] rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ background: "linear-gradient(135deg, #35319B, #7B76D4)" }}>
+                                  {((m.first_name as string)?.[0] ?? "?").toUpperCase()}{((m.last_name as string)?.[0] ?? "").toUpperCase()}
+                                </div>
+                                <span className="text-[12px] font-medium" style={{ color: "#171717" }}>{m.first_name as string} {m.last_name as string}</span>
+                              </div>
+                            </td>
+                            <td className="px-[14px] py-[10px] text-[12px]" style={{ color: "#555" }}>{m.email as string}</td>
+                            <td className="px-[14px] py-[10px] text-[12px]" style={{ color: "#555" }}>{String(m.age ?? "—")}</td>
+                            <td className="px-[14px] py-[10px] text-[12px]" style={{ color: "#555" }}>{String(m.gender ?? "—")}</td>
+                            <td className="px-[14px] py-[10px]">
+                              <span className="text-[10px] font-semibold px-[6px] py-[2px] rounded-full" style={{
+                                background: (m.source_type as string) === "ORGANIZATION" ? "rgba(53,49,155,0.08)" : (m.source_type as string) === "REFERRAL" ? "rgba(245,154,0,0.08)" : "rgba(46,125,50,0.08)",
+                                color: (m.source_type as string) === "ORGANIZATION" ? "#35319B" : (m.source_type as string) === "REFERRAL" ? "#F59A00" : "#2E7D32",
+                              }}>{m.source_type as string}</span>
+                            </td>
+                            <td className="px-[14px] py-[10px] text-[11px]" style={{ color: "#888" }}>{org?.name as string ?? "—"}</td>
+                            <td className="px-[14px] py-[10px] text-[11px]" style={{ color: "#888" }}>{m.created_at ? new Date(m.created_at as string).toLocaleDateString() : "—"}</td>
+                            <td className="px-[14px] py-[10px]">
+                              <div className="flex items-center gap-[4px]">
+                                <button onClick={() => startEditMember(m)} className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70" title="Edit"><Edit2 size={12} stroke="#35319B" /></button>
+                                <button onClick={() => { if (confirm("Delete this member?")) confirmDeleteMember(m.id as string); }} disabled={deleting === m.id}
+                                  className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70 disabled:opacity-40" title="Delete">
+                                  <Trash2 size={12} stroke="#D32F2F" />
+                                </button>
+                              </div>
+                            </td>
+                          </>
+                        )}
                       </tr>
                     );
                   })}

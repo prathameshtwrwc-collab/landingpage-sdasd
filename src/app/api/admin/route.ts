@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getPlatformStats, getOrganizations, getOrganizationAdmins, getAllMembers } from "@/lib/queries/admin";
-import { createOrganizationInternal, createOrganizationAdminInternal, toggleOrgActiveLinkInternal } from "@/lib/actions/superadmin";
+import { createOrganizationInternal, createOrganizationAdminInternal, toggleOrgActiveLinkInternal, editOrgInternal, deleteOrgInternal, editAdminInternal, deleteAdminInternal, editMemberInternal, deleteMemberInternal } from "@/lib/actions/superadmin";
 
 export async function GET() {
   try {
@@ -44,6 +44,42 @@ export async function POST(req: Request) {
     if (action === "toggle_link") {
       const { orgId, active } = await req.json();
       const result = await toggleOrgActiveLinkInternal(orgId, active);
+      return NextResponse.json(result);
+    }
+
+    if (action === "edit_org") {
+      const { id, ...data } = await req.json();
+      const result = await editOrgInternal(id, data);
+      return NextResponse.json(result);
+    }
+
+    if (action === "delete_org") {
+      const { orgId } = await req.json();
+      const result = await deleteOrgInternal(orgId);
+      return NextResponse.json(result);
+    }
+
+    if (action === "edit_admin") {
+      const { id, ...data } = await req.json();
+      const result = await editAdminInternal(id, data);
+      return NextResponse.json(result);
+    }
+
+    if (action === "delete_admin") {
+      const { adminId } = await req.json();
+      const result = await deleteAdminInternal(adminId);
+      return NextResponse.json(result);
+    }
+
+    if (action === "edit_member") {
+      const { id, ...data } = await req.json();
+      const result = await editMemberInternal(id, data);
+      return NextResponse.json(result);
+    }
+
+    if (action === "delete_member") {
+      const { memberId } = await req.json();
+      const result = await deleteMemberInternal(memberId);
       return NextResponse.json(result);
     }
 

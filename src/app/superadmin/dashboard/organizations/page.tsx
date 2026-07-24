@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Users, Plus, Copy, Check, Globe, Building2, Mail, Calendar, Power, ExternalLink } from "lucide-react";
+import { Users, Plus, Copy, Check, Globe, Building2, Mail, Calendar, Power, ExternalLink, Edit2, Trash2, X, Save } from "lucide-react";
 
 export default function OrganizationsPage() {
   const router = useRouter();
@@ -16,6 +16,9 @@ export default function OrganizationsPage() {
   const [copied, setCopied] = useState("");
   const [serverError, setServerError] = useState("");
   const [toggling, setToggling] = useState("");
+  const [editingOrg, setEditingOrg] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", organization_type: "", country: "", email: "" });
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const loadOrgs = async () => {
     try {
@@ -72,21 +75,44 @@ export default function OrganizationsPage() {
     setToggling("");
   };
 
-  const refreshLink = async (orgId: string) => {
-    setToggling(orgId);
+  const startEditOrg = (o: Record<string, unknown>) => {
+    setEditingOrg(o.id as string);
+    setEditForm({
+      name: (o.name as string) ?? "",
+      organization_type: (o.organization_type as string) ?? "",
+      country: (o.country as string) ?? "",
+      email: (o.email as string) ?? "",
+    });
+  };
+
+  const saveEditOrg = async () => {
+    if (!editingOrg) return;
     try {
-      const res = await fetch("/api/admin?action=refresh_link", {
+      const r = await fetch("/api/admin?action=edit_org", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: editingOrg, ...editForm }),
+      });
+      const d = await r.json();
+      if (d.error) { setServerError(d.error); return; }
+      setEditingOrg(null);
+      await loadOrgs();
+    } catch { setServerError("Failed to edit org"); }
+  };
+
+  const confirmDeleteOrg = async (orgId: string) => {
+    setDeleting(orgId);
+    try {
+      const r = await fetch("/api/admin?action=delete_org", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orgId }),
       });
-      const data = await res.json();
-      if (data.error) { setServerError(data.error); return; }
-      setCopied(data.unique_code);
-      setTimeout(() => setCopied(""), 2000);
+      const d = await r.json();
+      if (d.error) { setServerError(d.error); return; }
       await loadOrgs();
-    } catch { setServerError("Failed to refresh link"); }
-    setToggling("");
+    } catch { setServerError("Failed to delete org"); }
+    setDeleting(null);
   };
 
   return (
@@ -164,53 +190,94 @@ export default function OrganizationsPage() {
                     <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Type</th>
                     <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Link</th>
                     <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Created</th>
+                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}></th>
                   </tr>
                 </thead>
                 <tbody>
                   {orgs.map((o, i) => {
                     const isActive = o.link_active === true;
+                    const isEditing = editingOrg === o.id;
                     return (
                       <tr key={i} style={{ borderTop: "1px solid #F0F0F0" }}>
-                        <td className="px-[16px] py-[12px]">
-                          <button type="button" onClick={() => router.push(`/superadmin/dashboard/organizations/${o.id}`)}
-                            className="flex items-center gap-[10px] bg-transparent border-none cursor-pointer group text-left"
-                            title="Click to view organization details">
-                            <Building2 size={16} stroke="#35319B" className="shrink-0" />
-                            <span className="text-[13px] font-medium transition-colors" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>
-                              {o.name as string}
-                            </span>
-                            <span className="text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
-                              Click to view →
-                            </span>
-                          </button>
-                        </td>
-                        <td className="px-[16px] py-[12px]">
-                          <div className="flex items-center gap-[6px]">
-                            <code className="text-[12px] font-mono font-semibold" style={{ color: "#F59A00" }}>{String(o.link_code || o.unique_code || "")}</code>
-                            <button type="button" onClick={() => copyCode(String(o.link_code || o.unique_code || ""))}
-                              className="bg-transparent border-none cursor-pointer p-[4px] hover:opacity-70" style={{ color: "#888" }}>
-                              {copied === o.link_code || copied === o.unique_code ? <Check size={14} stroke="#2E7D32" /> : <Copy size={14} />}
-                            </button>
-                          </div>
-                        </td>
-                        <td className="px-[16px] py-[12px]">
-                          <span className="text-[11px] font-semibold px-[8px] py-[3px] rounded-full" style={{ background: "rgba(53,49,155,0.06)", color: "#35319B", fontFamily: "Poppins, sans-serif" }}>{o.organization_type as string}</span>
-                        </td>
-                        <td className="px-[16px] py-[12px]">
-                          <div className="flex items-center gap-[6px]">
-                            <button type="button" onClick={() => toggleOrgLink(o.id as string, isActive ? "active" : "inactive", o.name as string)} disabled={toggling === o.id}
-                              className="inline-flex items-center gap-[5px] text-[11px] font-semibold px-[8px] py-[3px] rounded-full border-none cursor-pointer transition-all disabled:opacity-60"
-                              style={{
-                                background: isActive ? "rgba(46,125,50,0.1)" : "rgba(211,47,47,0.1)",
-                                color: isActive ? "#2E7D32" : "#D32F2F",
-                                fontFamily: "Poppins, sans-serif",
-                              }}>
-                              <Power size={11} /> {isActive ? "Active" : "Paused"}
-                            </button>
-
-                          </div>
-                        </td>
-                        <td className="px-[16px] py-[12px] text-[13px]" style={{ color: "#888" }}>{o.created_at ? new Date(o.created_at as string).toLocaleDateString() : "—"}</td>
+                        {isEditing ? (
+                          <>
+                            <td className="px-[16px] py-[8px]" colSpan={2}>
+                              <div className="flex gap-[4px]">
+                                <input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                  className="w-full px-[8px] py-[5px] text-[11px] rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5" }} placeholder="Name" />
+                                <input value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                                  className="w-full px-[8px] py-[5px] text-[11px] rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5" }} placeholder="Email" />
+                              </div>
+                            </td>
+                            <td className="px-[16px] py-[8px]">
+                              <input value={editForm.organization_type} onChange={(e) => setEditForm({ ...editForm, organization_type: e.target.value })}
+                                className="w-full px-[8px] py-[5px] text-[11px] rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5" }} placeholder="Type" />
+                            </td>
+                            <td className="px-[16px] py-[8px]">
+                              <input value={editForm.country} onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
+                                className="w-full px-[8px] py-[5px] text-[11px] rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5" }} placeholder="Country" />
+                            </td>
+                            <td className="px-[16px] py-[8px] text-[11px]" style={{ color: "#888" }}>{o.created_at ? new Date(o.created_at as string).toLocaleDateString() : "—"}</td>
+                            <td className="px-[16px] py-[8px]">
+                              <div className="flex gap-[4px]">
+                                <button onClick={saveEditOrg} className="bg-transparent border-none cursor-pointer p-[3px]" title="Save"><Check size={13} stroke="#2E7D32" /></button>
+                                <button onClick={() => setEditingOrg(null)} className="bg-transparent border-none cursor-pointer p-[3px]" title="Cancel"><X size={13} stroke="#D32F2F" /></button>
+                              </div>
+                            </td>
+                          </>
+                        ) : (
+                          <>
+                            <td className="px-[16px] py-[12px]">
+                              <div className="flex items-center gap-[10px]">
+                                <Building2 size={16} stroke="#35319B" className="shrink-0" />
+                                <button type="button" onClick={() => router.push(`/superadmin/dashboard/organizations/${o.id}`)}
+                                  className="bg-transparent border-none cursor-pointer group text-left">
+                                  <span className="text-[13px] font-medium transition-colors" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>
+                                    {o.name as string}
+                                  </span>
+                                  <span className="text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity ml-[6px]" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                                    Click to view →
+                                  </span>
+                                </button>
+                              </div>
+                            </td>
+                            <td className="px-[16px] py-[12px]">
+                              <div className="flex items-center gap-[6px]">
+                                <code className="text-[12px] font-mono font-semibold" style={{ color: "#F59A00" }}>{String(o.link_code || o.unique_code || "")}</code>
+                                <button type="button" onClick={() => copyCode(String(o.link_code || o.unique_code || ""))}
+                                  className="bg-transparent border-none cursor-pointer p-[4px] hover:opacity-70" style={{ color: "#888" }}>
+                                  {copied === o.link_code || copied === o.unique_code ? <Check size={14} stroke="#2E7D32" /> : <Copy size={14} />}
+                                </button>
+                              </div>
+                            </td>
+                            <td className="px-[16px] py-[12px]">
+                              <span className="text-[11px] font-semibold px-[8px] py-[3px] rounded-full" style={{ background: "rgba(53,49,155,0.06)", color: "#35319B", fontFamily: "Poppins, sans-serif" }}>{o.organization_type as string}</span>
+                            </td>
+                            <td className="px-[16px] py-[12px]">
+                              <div className="flex items-center gap-[6px]">
+                                <button type="button" onClick={() => toggleOrgLink(o.id as string, isActive ? "active" : "inactive", o.name as string)} disabled={toggling === o.id}
+                                  className="inline-flex items-center gap-[5px] text-[11px] font-semibold px-[8px] py-[3px] rounded-full border-none cursor-pointer transition-all disabled:opacity-60"
+                                  style={{
+                                    background: isActive ? "rgba(46,125,50,0.1)" : "rgba(211,47,47,0.1)",
+                                    color: isActive ? "#2E7D32" : "#D32F2F",
+                                    fontFamily: "Poppins, sans-serif",
+                                  }}>
+                                  <Power size={11} /> {isActive ? "Active" : "Paused"}
+                                </button>
+                              </div>
+                            </td>
+                            <td className="px-[16px] py-[12px] text-[13px]" style={{ color: "#888" }}>{o.created_at ? new Date(o.created_at as string).toLocaleDateString() : "—"}</td>
+                            <td className="px-[16px] py-[12px]">
+                              <div className="flex items-center gap-[4px]">
+                                <button type="button" onClick={() => startEditOrg(o)} className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70" title="Edit"><Edit2 size={13} stroke="#35319B" /></button>
+                                <button type="button" onClick={() => { if (confirm("Delete this organization?")) confirmDeleteOrg(o.id as string); }} disabled={deleting === o.id}
+                                  className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70 disabled:opacity-40" title="Delete">
+                                  <Trash2 size={13} stroke="#D32F2F" />
+                                </button>
+                              </div>
+                            </td>
+                          </>
+                        )}
                       </tr>
                     );
                   })}
