@@ -5,15 +5,14 @@ import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
 import Bars from "@/components/charts/Bars";
 import { BarChart3, ClipboardList, Clock, CheckCircle, Activity } from "lucide-react";
+import { SkeletonTable, SkeletonChart, SkeletonStatCard, SkeletonHero } from "@/components/skeleton/SkeletonCard";
 
 export default function ReportsPage() {
   const [data, setData] = useState<{ results: Array<Record<string, unknown>>; stats: Record<string, unknown> | null }>({ results: [], stats: null });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin-portal")
-      .then((r) => r.json())
-      .then((d) => { setData({ results: d.results ?? [], stats: d.stats ?? null }); setLoading(false); })
+    fetch("/api/admin-portal").then((r) => r.json()).then((d) => { setData({ results: d.results ?? [], stats: d.stats ?? null }); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
@@ -24,7 +23,7 @@ export default function ReportsPage() {
   return (
     <DashboardShell title="Assessment Results">
       {loading ? (
-        <div className="flex items-center justify-center py-[60px]"><span className="text-[14px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>Loading...</span></div>
+        <SkeletonTable rows={8} cols={5} />
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-[16px] mb-[20px]">

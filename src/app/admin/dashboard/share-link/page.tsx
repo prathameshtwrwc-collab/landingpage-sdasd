@@ -10,9 +10,7 @@ export default function ShareLinkPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin-portal")
-      .then((r) => r.json())
-      .then((d) => {
+    fetch("/api/admin-portal").then((r) => r.json()).then((d) => {
         const s = d.stats ?? {};
         if (s.orgUniqueCode) {
           setLinkData({ code: s.orgUniqueCode, status: s.orgLinkStatus ?? "none" });

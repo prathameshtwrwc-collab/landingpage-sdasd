@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Users, Mail, Calendar, Search, Globe } from "lucide-react";
+import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
 
 export default function ParticipantsPage() {
   const { user } = useAuth();
@@ -12,9 +13,7 @@ export default function ParticipantsPage() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin-portal")
-      .then((r) => r.json())
-      .then((d) => { setMembers(d.members ?? []); setLoading(false); })
+    fetch("/api/admin-portal").then((r) => r.json()).then((d) => { setMembers(d.members ?? []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
@@ -35,7 +34,7 @@ export default function ParticipantsPage() {
   return (
     <DashboardShell title="Participants">
       {loading ? (
-        <div className="flex items-center justify-center py-[60px]"><span className="text-[14px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>Loading...</span></div>
+        <SkeletonTable rows={6} cols={4} />
       ) : (
         <>
           <div className="flex items-center gap-[12px] mb-[20px]">

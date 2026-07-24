@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Users, Plus, Copy, Check, Globe, Building2, Mail, Calendar, Power, ExternalLink, Edit2, Trash2, X, Save } from "lucide-react";
+import { Users, Plus, Copy, Check, Globe, Building2, Mail, Calendar, Power, ExternalLink, Edit2, Trash2, X, Save, Search } from "lucide-react";
+import PaginationBar from "@/components/pagination/PaginationBar";
+import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
 
 export default function OrganizationsPage() {
   const router = useRouter();
@@ -19,17 +21,30 @@ export default function OrganizationsPage() {
   const [editingOrg, setEditingOrg] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ name: "", organization_type: "", country: "", email: "" });
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const loadOrgs = async () => {
+  const loadOrgs = async (p?: number, search?: string) => {
     try {
-      const res = await fetch("/api/admin");
+      const params = new URLSearchParams();
+      params.set("org_page", String(p ?? page));
+      if (search ?? searchQuery) params.set("org_search", search ?? searchQuery);
+      const res = await fetch("/api/admin?" + params.toString());
       const data = await res.json();
-      setOrgs(data.organizations ?? []);
+      if (data.error) { setServerError(data.error); return; }
+      const o = data.organizations ?? {};
+      setOrgs(o.data ?? []);
+      setTotalPages(o.totalPages ?? 1);
+      setTotalCount(o.total ?? 0);
+      setPage(o.page ?? 1);
     } catch {}
     setLoading(false);
   };
 
-  useEffect(() => { loadOrgs(); }, []);
+  useEffect(() => { loadOrgs(1); }, []);
 
   const createOrg = async () => {
     if (!form.name) return;
@@ -118,9 +133,25 @@ export default function OrganizationsPage() {
   return (
     <DashboardShell title="Organizations">
       {loading ? (
-        <div className="flex items-center justify-center py-[60px]"><span className="text-[14px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>Loading...</span></div>
+        <div className="p-[20px] rounded-[16px]" style={{ background: "#FFFFFF" }}><SkeletonTable rows={8} cols={5} /></div>
       ) : (
         <>
+          <div className="flex items-center gap-[12px] mb-[16px]">
+            <div className="flex-1 flex items-center px-[14px] py-[10px] rounded-xl" style={{ border: "1.5px solid #E0E0E0", background: "#FFFFFF" }}>
+              <Search size={16} stroke="#AAA" />
+              <input type="text" placeholder="Search organizations..."
+                className="flex-1 bg-transparent border-none ml-[10px] text-[14px] outline-none" style={{ fontFamily: "Poppins, sans-serif" }}
+                value={searchQuery}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setSearchQuery(v);
+                  if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+                  searchTimerRef.current = setTimeout(() => { setLoading(true); loadOrgs(1, v || undefined); }, 300);
+                }}
+              />
+            </div>
+            <span className="text-[13px] font-medium shrink-0" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>{totalCount} organizations</span>
+          </div>
           <div className="flex items-center justify-between mb-[20px]">
             <span className="text-[13px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>{orgs.length} organizations</span>
             <button type="button" onClick={() => setShowForm(!showForm)}
@@ -284,6 +315,7 @@ export default function OrganizationsPage() {
                 </tbody>
               </table>
             </div>
+            <PaginationBar page={page} totalPages={totalPages} total={totalCount} limit={20} onPageChange={(p) => { setLoading(true); loadOrgs(p); }} />
           </div>
         </>
       )}

@@ -5,6 +5,7 @@ import DashboardShell from "@/components/dashboard/DashboardShell";
 import MiniLine from "@/components/charts/MiniLine";
 import Bars from "@/components/charts/Bars";
 import { BarChart3, TrendingUp, Clock, Users } from "lucide-react";
+import { SkeletonChart } from "@/components/skeleton/SkeletonCard";
 
 export default function AdminAnalyticsPage() {
   const [stats, setStats] = useState<Record<string, unknown> | null>(null);
@@ -23,7 +24,7 @@ export default function AdminAnalyticsPage() {
   return (
     <DashboardShell title="Deep Analytics">
       {loading ? (
-        <div className="flex items-center justify-center py-[60px]">Loading...</div>
+        <div><SkeletonChart /><div className="h-[16px]" /><SkeletonChart /></div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
           <div className="p-[20px] rounded-[16px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>

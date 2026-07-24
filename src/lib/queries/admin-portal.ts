@@ -140,17 +140,27 @@ export async function getAdminDashboardStats() {
   };
 }
 
-export async function getAdminMembers() {
+export async function getAdminMembers(opts?: { page?: number; limit?: number; search?: string }) {
   const { organizationId } = await getAdminOrg();
   const supabase = await createClient();
+  const page = opts?.page ?? 1;
+  const limit = opts?.limit ?? 50;
+  const search = opts?.search?.trim() ?? "";
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
 
-  const { data } = await supabase
+  let query = supabase
     .from("members")
-    .select("id, first_name, last_name, email, source_type, created_at")
-    .eq("organization_id", organizationId)
-    .order("created_at", { ascending: false });
+    .select("id, first_name, last_name, email, source_type, created_at", { count: "exact" })
+    .eq("organization_id", organizationId);
 
-  return data ?? [];
+  if (search) {
+    query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`);
+  }
+
+  const { data, error, count } = await query.order("created_at", { ascending: false }).range(from, to);
+  if (error) throw new Error(error.message);
+  return { data: data ?? [], total: count ?? 0, page, limit, totalPages: Math.ceil((count ?? 0) / limit) };
 }
 
 export async function getOrgTeamAdmins() {

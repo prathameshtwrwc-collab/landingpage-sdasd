@@ -7,6 +7,7 @@ import StatCard from "@/components/dashboard/StatCard";
 import MiniLine from "@/components/charts/MiniLine";
 import Bars from "@/components/charts/Bars";
 import Ring from "@/components/charts/Ring";
+import { SkeletonStatCard, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
 import { Users, ClipboardCheck, Brain, Link2, TrendingUp, BarChart3, Activity } from "lucide-react";
 
 interface DashboardStats {
@@ -45,9 +46,13 @@ export default function AdminDashboardPage() {
   if (isLoading || statsLoading) {
     return (
       <DashboardShell>
-        <div className="min-h-screen flex items-center justify-center" style={{ fontFamily: "Poppins, sans-serif" }}>
-          <p className="text-[14px] text-[#888]">Loading...</p>
-        </div>
+        <SkeletonHero />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[16px] md:gap-[20px] mb-[24px]">
+        <SkeletonStatCard /><SkeletonStatCard /><SkeletonStatCard /><SkeletonStatCard />
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[16px]">
+        <SkeletonChart /><SkeletonChart />
+      </div>
       </DashboardShell>
     );
   }

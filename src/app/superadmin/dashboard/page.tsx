@@ -5,6 +5,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
 import { Shield, Users, BarChart3, Activity, Server, AlertTriangle } from "lucide-react";
+import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
 
 interface PlatformStats {
   organizations: number;
@@ -37,9 +38,10 @@ export default function SuperAdminDashboardPage() {
   if (isLoading || statsLoading) {
     return (
       <DashboardShell>
-        <div className="min-h-screen flex items-center justify-center" style={{ fontFamily: "Poppins, sans-serif" }}>
-          <p className="text-[14px] text-[#888]">Loading...</p>
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[16px] md:gap-[20px] mb-[24px]">
+        <SkeletonStatCard /><SkeletonStatCard /><SkeletonStatCard />
+      </div>
+      <div className="p-[24px] rounded-[16px] animate-pulse" style={{ background: "#F5F5F5", minHeight: "200px" }} />
       </DashboardShell>
     );
   }

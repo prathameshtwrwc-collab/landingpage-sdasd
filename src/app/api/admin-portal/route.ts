@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server";
 import { getAdminDashboardStats, getAdminMembers, getAdminAssessmentResults, getOrgTeamAdmins } from "@/lib/queries/admin-portal";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     let stats, members, results, team;
     try {
+      const url = new URL(req.url);
+      const memberPage = Math.max(1, parseInt(url.searchParams.get("member_page") ?? "1", 10));
+      const memberLimit = Math.min(200, Math.max(1, parseInt(url.searchParams.get("member_limit") ?? "50", 10)));
+      const memberSearch = url.searchParams.get("member_search") || undefined;
+
       [stats, members, results, team] = await Promise.all([
         getAdminDashboardStats(),
-        getAdminMembers(),
+        getAdminMembers({ page: memberPage, limit: memberLimit, search: memberSearch }),
         getAdminAssessmentResults(),
         getOrgTeamAdmins(),
       ]);

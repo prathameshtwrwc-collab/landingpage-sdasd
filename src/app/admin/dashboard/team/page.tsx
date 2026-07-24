@@ -3,22 +3,21 @@
 import { useEffect, useState } from "react";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Users, Shield, Mail } from "lucide-react";
+import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
 
 export default function TeamPage() {
   const [admins, setAdmins] = useState<Array<Record<string, unknown>>>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin-portal")
-      .then((r) => r.json())
-      .then((d) => { setAdmins(d.team ?? []); setLoading(false); })
+    fetch("/api/admin-portal").then((r) => r.json()).then((d) => { setAdmins(d.team ?? []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
   return (
     <DashboardShell title="Team">
       {loading ? (
-        <div className="flex items-center justify-center py-[60px]">Loading...</div>
+        <SkeletonTable rows={4} cols={4} />
       ) : (
         <div className="rounded-[16px] overflow-hidden" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
           <div className="overflow-x-auto">

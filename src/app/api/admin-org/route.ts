@@ -13,12 +13,12 @@ export async function GET(req: Request) {
 
     const [org, allMembers, allAdmins] = await Promise.all([
       getOrganizationDetails(orgId),
-      getAllMembers(),
-      getOrganizationAdmins(),
+      getAllMembers({ limit: 10000 }),
+      getOrganizationAdmins({ limit: 10000 }),
     ]);
 
-    const members = allMembers.filter((m) => m.organization_id === orgId);
-    const admins = allAdmins.filter((a) => a.organization_id === orgId);
+    const members = (allMembers.data ?? []).filter((m: Record<string, unknown>) => m.organization_id === orgId);
+    const admins = (allAdmins.data ?? []).filter((a: Record<string, unknown>) => a.organization_id === orgId);
 
     return NextResponse.json({ org, members, admins });
   } catch (error) {

@@ -1,8 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 
+const DEFAULT_LIMIT = 50;
+
 export async function getPlatformStats() {
   const supabase = await createClient();
-
   const [{ count: orgs }, { count: members }, { count: assessments }, { count: admins }] =
     await Promise.all([
       supabase.from("organizations").select("*", { count: "exact", head: true }),
@@ -10,17 +11,14 @@ export async function getPlatformStats() {
       supabase.from("assessments").select("*", { count: "exact", head: true }).eq("status", "COMPLETED"),
       supabase.from("organization_admins").select("*", { count: "exact", head: true }),
     ]);
-
   const { data: chronoDist } = await supabase
     .from("chronotype_results")
     .select("chronotype");
-
   const chronoCounts = { LARK: 0, EAGLE: 0, OWL: 0 };
   chronoDist?.forEach((r) => {
     if (r.chronotype in chronoCounts) chronoCounts[r.chronotype as keyof typeof chronoCounts]++;
   });
   const totalChrono = chronoDist?.length || 1;
-
   return {
     organizations: orgs ?? 0,
     members: members ?? 0,
@@ -34,15 +32,28 @@ export async function getPlatformStats() {
   };
 }
 
-export async function getOrganizations() {
+export async function getOrganizations(opts?: { page?: number; limit?: number; search?: string }) {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const page = opts?.page ?? 1;
+  const limit = opts?.limit ?? DEFAULT_LIMIT;
+  const search = opts?.search?.trim() ?? "";
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  let query = supabase
     .from("organizations")
-    .select("id, name, organization_type, unique_code, status, country, created_at")
-    .order("created_at", { ascending: false });
+    .select("id, name, organization_type, unique_code, status, country, created_at", { count: "exact" });
+
+  if (search) {
+    query = query.or(`name.ilike.%${search}%,unique_code.ilike.%${search}%,email.ilike.%${search}%`);
+  }
+
+  query = query.order("created_at", { ascending: false }).range(from, to);
+
+  const { data, error, count } = await query;
   if (error) throw new Error(error.message);
 
-  // Fetch the latest link status for each organization
+  // Fetch link statuses for this page of orgs
   const orgIds = (data ?? []).map((o) => o.id);
   const { data: links } = await supabase
     .from("organization_links")
@@ -50,7 +61,6 @@ export async function getOrganizations() {
     .in("organization_id", orgIds)
     .order("created_at", { ascending: false });
 
-  // Merge link data into org records
   const linkMap = new Map<string, { active: boolean; unique_code: string }>();
   (links ?? []).forEach((l) => {
     if (!linkMap.has(l.organization_id)) {
@@ -58,51 +68,81 @@ export async function getOrganizations() {
     }
   });
 
-  return (data ?? []).map((o) => ({
-    ...o,
-    link_active: linkMap.get(o.id)?.active ?? false,
-    link_code: linkMap.get(o.id)?.unique_code ?? o.unique_code,
-  }));
+  return {
+    data: (data ?? []).map((o) => ({
+      ...o,
+      link_active: linkMap.get(o.id)?.active ?? false,
+      link_code: linkMap.get(o.id)?.unique_code ?? o.unique_code,
+    })),
+    total: count ?? 0,
+    page,
+    limit,
+    totalPages: Math.ceil((count ?? 0) / limit),
+  };
 }
 
-export async function getAllMembers() {
+export async function getAllMembers(opts?: { page?: number; limit?: number; search?: string }) {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const page = opts?.page ?? 1;
+  const limit = opts?.limit ?? DEFAULT_LIMIT;
+  const search = opts?.search?.trim() ?? "";
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  let query = supabase
     .from("members")
-    .select("id, first_name, last_name, email, age, gender, source_type, organization_id, created_at")
-    .order("created_at", { ascending: false });
+    .select("id, first_name, last_name, email, age, gender, source_type, organization_id, created_at", { count: "exact" });
+
+  if (search) {
+    query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`);
+  }
+
+  const { data, error, count } = await query.order("created_at", { ascending: false }).range(from, to);
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return { data: data ?? [], total: count ?? 0, page, limit, totalPages: Math.ceil((count ?? 0) / limit) };
 }
 
-export async function getOrganizationMembers(orgId: string) {
+export async function getOrganizationMembers(orgId: string, opts?: { page?: number; limit?: number }) {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const page = opts?.page ?? 1;
+  const limit = opts?.limit ?? 50;
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  const { data, error, count } = await supabase
     .from("members")
-    .select("id, first_name, last_name, email, age, gender, source_type, created_at")
+    .select("id, first_name, last_name, email, age, gender, source_type, created_at", { count: "exact" })
     .eq("organization_id", orgId)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(from, to);
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return { data: data ?? [], total: count ?? 0, page, limit, totalPages: Math.ceil((count ?? 0) / limit) };
 }
 
 export async function getOrganizationDetails(orgId: string) {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("organizations")
-    .select("*")
-    .eq("id", orgId)
-    .single();
+  const { data, error } = await supabase.from("organizations").select("*").eq("id", orgId).single();
   if (error) throw new Error(error.message);
   return data;
 }
 
-export async function getOrganizationAdmins() {
+export async function getOrganizationAdmins(opts?: { page?: number; limit?: number; search?: string }) {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const page = opts?.page ?? 1;
+  const limit = opts?.limit ?? DEFAULT_LIMIT;
+  const search = opts?.search?.trim() ?? "";
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  let query = supabase
     .from("organization_admins")
-    .select("id, first_name, last_name, email, role, status, organization_id, organizations(name)")
-    .order("created_at", { ascending: false });
+    .select("id, first_name, last_name, email, role, status, organization_id, organizations(name)", { count: "exact" });
+
+  if (search) {
+    query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`);
+  }
+
+  const { data, error, count } = await query.order("created_at", { ascending: false }).range(from, to);
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return { data: data ?? [], total: count ?? 0, page, limit, totalPages: Math.ceil((count ?? 0) / limit) };
 }

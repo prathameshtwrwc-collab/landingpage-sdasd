@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Users, Plus, Shield, Mail, Search, Globe, Calendar, Building2, Eye, Edit2, Trash2, X, Check, Save } from "lucide-react";
+import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
 
 export default function UsersPage() {
   const [admins, setAdmins] = useState<Array<Record<string, unknown>>>([]);
@@ -140,7 +141,7 @@ export default function UsersPage() {
   return (
     <DashboardShell title="Users">
       {loading ? (
-        <div className="flex items-center justify-center py-[60px]">Loading...</div>
+        <div><SkeletonTable rows={6} cols={4} /><div className="h-[40px]" /><SkeletonTable rows={8} cols={7} /></div>
       ) : (
         <>
           {serverError && (
