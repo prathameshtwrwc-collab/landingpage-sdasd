@@ -147,6 +147,7 @@ export default function AssessmentModal() {
   const isFormStep = step === 0;
   const questionIndex = step - 1;
   const isLastQuestion = step === totalQuestions;
+  const isResumeAllDone = step > 0 && !isFormStep && questionIndex >= totalQuestions && totalQuestions > 0;
 
   const updateForm = (field: keyof FormData, value: string | boolean) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -401,8 +402,25 @@ export default function AssessmentModal() {
                   setServerError("");
                   try {
                     setAnswers(existingAssessment.existingAnswers);
-                    setStep(existingAssessment.resumeIndex + 1);
+
+                    // If all questions already answered, submit instead of resuming
+                    if (existingAssessment.resumeIndex >= questions.length) {
+                      const answersArr = Object.entries(existingAssessment.existingAnswers).map(
+                        ([qIdx, optId]) => ({
+                          question_id: questions[Number(qIdx)].id,
+                          selected_option_id: optId,
+                        })
+                      );
+                      const result = await submitAssessment(assessmentId, answersArr);
+                      setChronotypeResult(result.result);
+                      setSubmissionMeta({ sourceType: result.sourceType ?? null, orgName: result.orgName ?? null });
+                      setSubmitted(true);
+                    } else {
+                      setStep(existingAssessment.resumeIndex + 1);
+                    }
                     setExistingAssessment(null);
+                  } catch (err) {
+                    setServerError(err instanceof Error ? err.message : "Failed to resume");
                   } finally {
                     setLoading(false);
                   }
@@ -639,6 +657,14 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
 
   const q = questions[displayedIdx];
   const progress = ((questionIndex + 1) / totalQuestions) * 100;
+
+  if (!q) {
+    return (
+      <div className="flex flex-col items-center justify-center px-[24px] py-[48px]" style={{ minHeight: "200px" }}>
+        <p className="text-[14px] text-[#888] text-center" style={{ fontFamily: "Poppins, sans-serif" }}>Loading question...</p>
+      </div>
+    );
+  }
 
   const handleOptionClick = (optId: string) => {
     if (loading || animating) return;
