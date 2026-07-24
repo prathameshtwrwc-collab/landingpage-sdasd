@@ -438,121 +438,16 @@ export default function AssessmentModal() {
             <p className="text-[14px] text-[#888]" style={{ fontFamily: "Poppins, sans-serif" }}>Loading questions...</p>
           </div>
         ) : questions.length > 0 ? (
-          <div className="px-[20px] py-[28px] md:px-[36px] md:py-[32px]">
-            <div className="mb-[24px]">
-              <div className="flex items-center justify-between mb-[8px]">
-                <span className="text-[13px] font-medium text-[#888]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
-                  Question {questionIndex + 1} of {totalQuestions}
-                </span>
-                <span className="text-[13px] font-semibold text-[#35319B]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
-                  {Math.round(((questionIndex + 1) / totalQuestions) * 100)}%
-                </span>
-              </div>
-              <div className="w-full h-[6px] bg-gray-100" style={{ borderRadius: "3px" }}>
-                <div
-                  className="h-full transition-all duration-300 ease-out"
-                  style={{
-                    width: `${((questionIndex + 1) / totalQuestions) * 100}%`,
-                    background: "linear-gradient(90deg, #35319B, #F59A00)",
-                    borderRadius: "3px",
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-[5px] mb-[24px] flex-wrap">
-              {Array.from({ length: totalQuestions }).map((_, idx) => {
-                const isAnswered = !!answers[idx];
-                const isCurrent = idx === questionIndex;
-                return (
-                  <div
-                    key={idx}
-                    className="transition-all duration-200"
-                    style={{
-                      width: isCurrent ? "24px" : "8px",
-                      height: "8px",
-                      borderRadius: "4px",
-                      background: isAnswered ? "#35319B" : isCurrent ? "#35319B" : "#E0E0E0",
-                      opacity: isCurrent ? 1 : answers[idx] ? 1 : 0.5,
-                    }}
-                  />
-                );
-              })}
-            </div>
-
-            <p className="m-0 text-[17px] leading-[1.55] font-semibold text-[#171717] mb-[22px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
-              {questions[questionIndex].question_text}
-            </p>
-
-            <div className="flex flex-col gap-[10px]">
-              {questions[questionIndex].options.map((opt, optIdx) => {
-                const isSelected = answers[questionIndex] === opt.id;
-                return (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => !loading && answerQuestion(opt.id)}
-                    disabled={loading}
-                    className="w-full text-left px-[18px] py-[14px] text-[14px] leading-[1.45] cursor-pointer transition-all duration-150 group disabled:opacity-60"
-                    style={{
-                      fontFamily: "Poppins, sans-serif",
-                      fontWeight: 400,
-                      borderRadius: "10px",
-                      border: isSelected ? "2px solid #35319B" : "1.5px solid #D5D5D5",
-                      background: isSelected ? "#F5F4FF" : "#FFFFFF",
-                      color: "#171717",
-                      boxShadow: isSelected ? "0 2px 8px rgba(53, 49, 155, 0.12)" : "none",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isSelected) {
-                        e.currentTarget.style.borderColor = "#35319B";
-                        e.currentTarget.style.background = "#FAFAFF";
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isSelected) {
-                        e.currentTarget.style.borderColor = "#D5D5D5";
-                        e.currentTarget.style.background = "#FFFFFF";
-                      }
-                    }}
-                  >
-                    <span
-                      className="inline-flex items-center justify-center font-semibold mr-[10px] shrink-0"
-                      style={{
-                        width: "26px",
-                        height: "26px",
-                        borderRadius: "50%",
-                        background: isSelected ? "#35319B" : "#F0F0F0",
-                        color: isSelected ? "#FFFFFF" : "#888",
-                        fontSize: "13px",
-                        fontFamily: "Poppins, sans-serif",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {String.fromCharCode(97 + optIdx)}
-                    </span>
-                    <span className="align-middle">{opt.option_text}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="flex justify-start mt-[24px]">
-              <button
-                type="button"
-                onClick={() => setStep(step - 1)}
-                className="text-[14px] font-medium text-[#888] bg-none border-none cursor-pointer hover:text-[#35319B] transition-colors"
-                style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, padding: "4px 0" }}
-              >
-                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <polyline points="15 18 9 12 15 6" />
-                  </svg>
-                  Back
-                </span>
-              </button>
-            </div>
-          </div>
+          <QuestionsView
+            questions={questions}
+            questionIndex={questionIndex}
+            totalQuestions={totalQuestions}
+            answers={answers}
+            step={step}
+            setStep={setStep}
+            loading={loading}
+            answerQuestion={answerQuestion}
+          />
         ) : (
           <div className="flex items-center justify-center py-[60px]">
             <p className="text-[14px] text-[#888]" style={{ fontFamily: "Poppins, sans-serif" }}>Loading questions...</p>
@@ -627,6 +522,252 @@ function SelectField({ label, value, onChange, error, options }: {
         ))}
       </select>
       {error && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
+    </div>
+  );
+}
+
+function QuestionsView({ questions, questionIndex, totalQuestions, answers, step, setStep, loading, answerQuestion }: {
+  questions: { id: string; question_text: string; question_order: number; category: string | null; options: { id: string; option_text: string; option_value: string; option_order: number }[] }[];
+  questionIndex: number;
+  totalQuestions: number;
+  answers: Record<number, string>;
+  step: number;
+  setStep: (s: number) => void;
+  loading: boolean;
+  answerQuestion: (optionId: string) => void;
+}) {
+  const [animDir, setAnimDir] = useState<"left" | "right">("left");
+  const [animating, setAnimating] = useState(false);
+  const [displayedIdx, setDisplayedIdx] = useState(questionIndex);
+
+  useEffect(() => {
+    if (questionIndex !== displayedIdx) {
+      setAnimating(true);
+      const timer = setTimeout(() => {
+        setDisplayedIdx(questionIndex);
+        setAnimating(false);
+      }, 180);
+      return () => clearTimeout(timer);
+    }
+  }, [questionIndex, displayedIdx]);
+
+  const q = questions[displayedIdx];
+  const progress = ((questionIndex + 1) / totalQuestions) * 100;
+
+  const handleOptionClick = (optId: string) => {
+    if (loading || animating) return;
+    answerQuestion(optId);
+  };
+
+  const handleBack = () => {
+    if (animating) return;
+    setAnimDir("right");
+    setStep(step - 1);
+  };
+
+  const catColors: Record<string, string> = {
+    sleep: "#2E7D32", routine: "#35319B", energy: "#F59A00", focus: "#D32F2F",
+    health: "#7B68AE", lifestyle: "#E91E63", default: "#35319B",
+  };
+  const catBg: Record<string, string> = {
+    sleep: "rgba(46,125,50,0.08)", routine: "rgba(53,49,155,0.08)", energy: "rgba(245,154,0,0.08)",
+    focus: "rgba(211,47,47,0.08)", health: "rgba(123,104,174,0.08)", lifestyle: "rgba(233,30,99,0.08)",
+    default: "rgba(53,49,155,0.08)",
+  };
+
+  return (
+    <div className="px-[24px] py-[28px] md:px-[40px] md:py-[36px]" style={{ position: "relative", overflow: "hidden" }}>
+      {/* Progress bar */}
+      <div className="mb-[16px]">
+        <div className="flex items-center justify-between mb-[6px]">
+          <span className="text-[12px] font-medium" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>
+            Question {questionIndex + 1} of {totalQuestions}
+          </span>
+          <span className="text-[12px] font-semibold" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+            {Math.round(progress)}%
+          </span>
+        </div>
+        <div className="w-full h-[5px]" style={{ background: "#F0F0F0", borderRadius: "3px", overflow: "hidden" }}>
+          <div
+            className="h-full transition-all duration-500 ease-out"
+            style={{
+              width: `${progress}%`,
+              background: "linear-gradient(90deg, #35319B, #7B76D4)",
+              borderRadius: "3px",
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Step dots */}
+      <div className="flex gap-[6px] mb-[24px] flex-wrap">
+        {Array.from({ length: totalQuestions }).map((_, idx) => {
+          const isAnswered = !!answers[idx];
+          const isCurrent = idx === questionIndex;
+          return (
+            <div
+              key={idx}
+              className="transition-all duration-300"
+              style={{
+                width: isCurrent ? "28px" : "8px",
+                height: "8px",
+                borderRadius: "4px",
+                background: isAnswered ? "linear-gradient(90deg, #35319B, #7B76D4)" : isCurrent ? "#35319B" : "#E8E8E8",
+                opacity: isCurrent ? 1 : isAnswered ? 0.9 : 0.45,
+                transform: isCurrent ? "scaleY(1.15)" : "scaleY(1)",
+                transition: "all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              }}
+            />
+          );
+        })}
+      </div>
+
+      {/* Category badge */}
+      {q.category && (
+        <div className="mb-[12px]">
+          <span
+            className="inline-block text-[11px] font-semibold px-[10px] py-[4px] rounded-full uppercase tracking-[0.04em]"
+            style={{
+              background: catBg[q.category.toLowerCase()] ?? catBg.default,
+              color: catColors[q.category.toLowerCase()] ?? catColors.default,
+              fontFamily: "Poppins, sans-serif",
+            }}
+          >
+            {q.category}
+          </span>
+        </div>
+      )}
+
+      {/* Question text */}
+      <div
+        className="mb-[22px]"
+        style={{
+          opacity: animating ? 0 : 1,
+          transform: animating ? `translateX(${animDir === "left" ? "16px" : "-16px"})` : "translateX(0)",
+          transition: "opacity 0.18s ease, transform 0.2s ease",
+        }}
+      >
+        <p
+          className="m-0 text-[18px] leading-[1.55] font-semibold"
+          style={{ color: "#171717", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
+        >
+          {q.question_text}
+        </p>
+      </div>
+
+      {/* Options */}
+      <div className="flex flex-col gap-[10px]">
+        {q.options.map((opt, optIdx) => {
+          const isSelected = answers[questionIndex] === opt.id;
+          const letter = String.fromCharCode(65 + optIdx);
+          return (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => handleOptionClick(opt.id)}
+              disabled={loading}
+              className="w-full text-left cursor-pointer transition-all duration-200 group"
+              style={{
+                fontFamily: "Poppins, sans-serif",
+                fontWeight: 400,
+                borderRadius: "12px",
+                border: "1.5px solid",
+                borderColor: isSelected ? "#35319B" : "#E8E8E8",
+                background: isSelected
+                  ? "linear-gradient(135deg, #F5F4FF 0%, #EDEBFF 100%)"
+                  : "#FFFFFF",
+                color: "#171717",
+                padding: 0,
+                opacity: loading ? 0.6 : 1,
+                boxShadow: isSelected
+                  ? "0 4px 16px rgba(53, 49, 155, 0.15), 0 1px 3px rgba(0,0,0,0.04)"
+                  : "0 1px 2px rgba(0,0,0,0.04)",
+                transform: isSelected ? "scale(1.01)" : "scale(1)",
+                transition: "all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              }}
+              onMouseEnter={(e) => {
+                if (!isSelected && !loading) {
+                  e.currentTarget.style.borderColor = "#7B76D4";
+                  e.currentTarget.style.background = "#FAFAFF";
+                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(53, 49, 155, 0.08)";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isSelected && !loading) {
+                  e.currentTarget.style.borderColor = "#E8E8E8";
+                  e.currentTarget.style.background = "#FFFFFF";
+                  e.currentTarget.style.boxShadow = "0 1px 2px rgba(0,0,0,0.04)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }
+              }}
+            >
+              <div className="flex items-center gap-[14px] px-[18px] py-[14px]">
+                <span
+                  className="inline-flex items-center justify-center font-bold shrink-0"
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "10px",
+                    background: isSelected ? "#35319B" : "#F0F0F0",
+                    color: isSelected ? "#FFFFFF" : "#888",
+                    fontSize: "13px",
+                    fontFamily: "Poppins, sans-serif",
+                    fontWeight: 700,
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  {letter}
+                </span>
+                <span className="flex-1 text-[15px] leading-[1.4]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+                  {opt.option_text}
+                </span>
+                {isSelected && (
+                  <span
+                    className="flex items-center justify-center shrink-0"
+                    style={{
+                      width: "24px",
+                      height: "24px",
+                      borderRadius: "50%",
+                      background: "#35319B",
+                      animation: "fadeInScale 0.25s ease",
+                    }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </span>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Back */}
+      <div className="flex justify-start mt-[22px]">
+        <button
+          type="button"
+          onClick={handleBack}
+          disabled={animating}
+          className="text-[13px] font-medium bg-transparent border-none cursor-pointer transition-all duration-200 inline-flex items-center gap-[5px] disabled:opacity-40"
+          style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "#35319B"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "#AAA"; }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Back
+        </button>
+      </div>
+
+      <style>{`
+        @keyframes fadeInScale {
+          0% { opacity: 0; transform: scale(0.5); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 }
