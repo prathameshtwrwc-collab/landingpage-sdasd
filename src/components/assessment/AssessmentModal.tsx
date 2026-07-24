@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useAssessment } from "./AssessmentContext";
-import { getAssessmentData, createMemberAndStartAssessment, submitAssessment } from "@/lib/actions/assessment";
+import { getAssessmentData, createMemberAndStartAssessment, submitAssessment, abandonAndRestartAssessment } from "@/lib/actions/assessment";
 
 interface Question {
   id: string;
@@ -73,6 +73,11 @@ export default function AssessmentModal() {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [memberId, setMemberId] = useState("");
   const [assessmentId, setAssessmentId] = useState("");
+  const [existingAssessment, setExistingAssessment] = useState<{
+    resumeIndex: number;
+    existingAnswers: Record<number, string>;
+    prevAssessmentId: string;
+  } | null>(null);
   const [chronotypeResult, setChronotypeResult] = useState<{
     chronotype: string;
     total_score: number;
@@ -191,10 +196,13 @@ export default function AssessmentModal() {
       setMemberId(result.memberId);
       setAssessmentId(result.assessmentId);
 
-      // Resume support: if user had an in-progress assessment, pick up where they left off
-      if ("resumeIndex" in result && result.resumeIndex !== undefined) {
-        setAnswers(result.existingAnswers as Record<number, string>);
-        setStep((result.resumeIndex as number) + 1);
+      // Resume support: if user has an in-progress assessment, show prompt
+      if ("hasExistingAssessment" in result && result.hasExistingAssessment) {
+        setExistingAssessment({
+          resumeIndex: (result as Record<string, unknown>).resumeIndex as number,
+          existingAnswers: (result as Record<string, unknown>).existingAnswers as Record<number, string>,
+          prevAssessmentId: result.assessmentId,
+        });
       } else {
         setStep(1);
         setAnswers({});
@@ -243,6 +251,7 @@ export default function AssessmentModal() {
     setServerError("");
     setChronotypeResult(null);
     setSubmissionMeta(null);
+    setExistingAssessment(null);
     setMemberId("");
     setAssessmentId("");
     setLockedFields({ orgCode: false, referralCode: false });
@@ -356,6 +365,69 @@ export default function AssessmentModal() {
                 style={{ borderRadius: "8px", fontFamily: "Poppins, sans-serif" }}
               >
                 Close
+              </button>
+            </div>
+          </div>
+        ) : existingAssessment ? (
+          <div className="flex flex-col items-center px-[24px] py-[36px] md:px-[40px] md:py-[44px] text-center">
+            <div
+              className="flex items-center justify-center w-[60px] h-[60px] rounded-full mb-[16px]"
+              style={{ background: "rgba(53,49,155,0.08)" }}
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#35319B" strokeWidth="2" strokeLinecap="round">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            </div>
+            <h3 className="m-0 text-[20px] font-bold mb-[6px]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>
+              Assessment In Progress
+            </h3>
+            <p className="m-0 text-[14px] leading-[1.5] max-w-[380px] mb-[24px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
+              You have an existing assessment in progress. Would you like to resume where you left off or start a fresh one?
+            </p>
+
+            <div className="flex flex-col gap-[10px] w-full max-w-[320px]">
+              <button
+                type="button"
+                onClick={async () => {
+                  setLoading(true);
+                  setServerError("");
+                  try {
+                    setAnswers(existingAssessment.existingAnswers);
+                    setStep(existingAssessment.resumeIndex + 1);
+                    setExistingAssessment(null);
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+                className="w-full text-white text-[15px] font-semibold py-[13px] border-none cursor-pointer transition-all disabled:opacity-60"
+                style={{ borderRadius: "10px", background: "linear-gradient(135deg, #35319B, #5A55C0)", fontFamily: "Poppins, sans-serif", boxShadow: "0 4px 16px rgba(53,49,155,0.25)" }}
+              >
+                Resume Assessment
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  setLoading(true);
+                  setServerError("");
+                  try {
+                    const result = await abandonAndRestartAssessment(existingAssessment.prevAssessmentId, memberId);
+                    setAssessmentId(result.assessmentId);
+                    setStep(1);
+                    setAnswers({});
+                    setExistingAssessment(null);
+                  } catch (err) {
+                    setServerError(err instanceof Error ? err.message : "Failed to restart");
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+                className="w-full text-[14px] font-medium py-[12px] border-none cursor-pointer transition-all disabled:opacity-60"
+                style={{ borderRadius: "10px", color: "#888", background: "#F5F5F5", fontFamily: "Poppins, sans-serif" }}
+              >
+                Start Over
               </button>
             </div>
           </div>

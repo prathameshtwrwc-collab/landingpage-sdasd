@@ -194,6 +194,7 @@ export async function createMemberAndStartAssessment(data: {
       return {
         memberId,
         assessmentId: started.id,
+        hasExistingAssessment: true,
         resumeIndex: lastAnsweredIndex,
         existingAnswers: existingAnswerMap,
       };
@@ -231,6 +232,57 @@ export async function createMemberAndStartAssessment(data: {
   if (asErr) throw new Error(asErr.message);
 
   return { memberId, assessmentId: assessment.id };
+}
+
+export async function abandonAndRestartAssessment(prevAssessmentId: string, memberId: string) {
+  const supabase = await createClient();
+
+  // Mark existing assessment as ABANDONED
+  const { error: abandonErr } = await supabase
+    .from("assessments")
+    .update({ status: "ABANDONED", completed_at: new Date().toISOString() })
+    .eq("id", prevAssessmentId);
+  if (abandonErr) throw new Error(abandonErr.message);
+
+  // Get the member's org info for the new assessment
+  const { data: member } = await supabase
+    .from("members")
+    .select("organization_id")
+    .eq("id", memberId)
+    .single();
+
+  // Get active version
+  const { data: version } = await supabase
+    .from("assessment_versions")
+    .select("id")
+    .eq("name", "Sleep Chronotype Assessment")
+    .eq("status", "ACTIVE")
+    .order("version", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (!version) throw new Error("No active assessment version");
+
+  const headersList = await headers();
+  const ip = headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || undefined;
+  const ua = headersList.get("user-agent") || undefined;
+
+  const { data: newAssessment, error: asErr } = await supabase
+    .from("assessments")
+    .insert({
+      member_id: memberId,
+      organization_id: member?.organization_id ?? null,
+      assessment_version_id: version.id,
+      status: "STARTED",
+      ip_address: ip,
+      user_agent: ua,
+    })
+    .select()
+    .single();
+
+  if (asErr) throw new Error(asErr.message);
+
+  return { assessmentId: newAssessment.id };
 }
 
 export async function submitAssessment(
