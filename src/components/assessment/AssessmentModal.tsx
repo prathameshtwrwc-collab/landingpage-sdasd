@@ -92,7 +92,7 @@ export default function AssessmentModal() {
       const path = window.location.pathname.replace(/\/+$/, "");
       // Match any single path segment that has 2+ letters followed by 2+ digits (org codes)
       const segments = path.split("/").filter(Boolean);
-      const urlOrgCode = segments.length === 1 && /^[A-Za-z]{2,8}\d{2,6}$/i.test(segments[0])
+      const urlOrgCode = segments.length === 1 && /^[A-Za-z]{1,8}\d{2,6}$/i.test(segments[0])
         ? segments[0].toUpperCase()
         : "";
 
