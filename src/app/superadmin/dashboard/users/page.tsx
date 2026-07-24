@@ -23,11 +23,18 @@ export default function UsersPage() {
 
   const loadData = async () => {
     try {
-      const r = await fetch("/api/admin");
+      const r = await fetch("/api/admin?org_limit=200");
       const data = await r.json();
-      setAdmins(data.admins ?? []);
-      setMembers(data.members ?? []);
-      setOrgs(data.organizations ?? []);
+      const toArr = (val: unknown): Array<Record<string, unknown>> => {
+        if (!val) return [];
+        const obj = val as Record<string, unknown>;
+        if (Array.isArray(obj?.data)) return obj.data as Array<Record<string, unknown>>;
+        if (Array.isArray(val)) return val as Array<Record<string, unknown>>;
+        return [];
+      };
+      setAdmins(toArr(data.admins));
+      setMembers(toArr(data.members));
+      setOrgs(toArr(data.organizations));
     } catch {}
     setLoading(false);
   };
@@ -220,7 +227,7 @@ export default function UsersPage() {
                   {filteredAdmins.length === 0 ? (
                     <tr><td colSpan={5} className="px-[16px] py-[24px] text-center text-[13px]" style={{ color: "#AAA" }}>No admins found</td></tr>
                   ) : filteredAdmins.map((a, i) => {
-                    const org = a.organizations as Record<string, unknown> | null;
+                    const org = (a.organizations as Record<string, unknown> | null);
                     const isEditing = editingAdmin === a.id;
                     return (
                       <tr key={i} style={{ borderTop: "1px solid #F0F0F0" }}>
@@ -312,7 +319,7 @@ export default function UsersPage() {
                   {filteredMembers.length === 0 ? (
                     <tr><td colSpan={8} className="px-[14px] py-[24px] text-center text-[13px]" style={{ color: "#AAA" }}>No members found</td></tr>
                   ) : filteredMembers.map((m, i) => {
-                    const org = orgs.find((o) => o.id === m.organization_id);
+                    const org = (Array.isArray(orgs) ? orgs : []).find((o: Record<string, unknown>) => o.id === m.organization_id);
                     const isEditing = editingMember === m.id;
                     return (
                       <tr key={i} style={{ borderTop: "1px solid #F0F0F0" }}>
