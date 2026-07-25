@@ -74,11 +74,14 @@ export async function POST(req: Request) {
     if (action === "create_draft") {
       const { name, description, questions } = body;
 
-      const { count: maxVer } = await supabase
+      // Use max version, not count
+      const { data: maxVersionData } = await supabase
         .from("assessment_versions")
-        .select("version", { count: "exact", head: true });
+        .select("version")
+        .order("version", { ascending: false })
+        .limit(1);
 
-      const version = (maxVer ?? 0) + 1;
+      const version = (maxVersionData?.[0]?.version ?? 0) + 1;
 
       const { data: av, error: avErr } = await supabase
         .from("assessment_versions")
@@ -88,25 +91,44 @@ export async function POST(req: Request) {
 
       if (avErr || !av) return NextResponse.json({ error: avErr?.message || "Failed" }, { status: 500 });
 
-      for (let qi = 0; qi < (questions ?? []).length; qi++) {
-        const q = questions[qi];
-        const { data: qIns, error: qErr } = await supabase
-          .from("questions")
-          .insert({ assessment_version_id: av.id, question_text: q.text, question_order: qi + 1, category: q.category || null, is_active: q.isRequired !== false })
-          .select("id")
-          .single();
-        if (qErr) return NextResponse.json({ error: qErr.message }, { status: 500 });
-
-        for (let oi = 0; oi < (q.options ?? []).length; oi++) {
-          const o = q.options[oi];
-          const { error: oErr } = await supabase
-            .from("question_options")
-            .insert({ question_id: qIns.id, option_text: o.text, option_value: o.value || null, option_order: oi + 1, lark_score: o.larkScore ?? 0, eagle_score: o.eagleScore ?? 0, owl_score: o.owlScore ?? 0 });
-          if (oErr) return NextResponse.json({ error: oErr.message }, { status: 500 });
-        }
-      }
+      const err = await insertQuestions(supabase, av.id, questions ?? []);
+      if (err) return NextResponse.json({ error: err }, { status: 500 });
 
       return NextResponse.json({ success: true, versionId: av.id });
+    }
+
+    if (action === "update_draft") {
+      const { versionId, name, description, questions } = body;
+
+      // Only allow updating DRAFT versions
+      const { data: existing } = await supabase
+        .from("assessment_versions")
+        .select("status")
+        .eq("id", versionId)
+        .single();
+
+      if (!existing) return NextResponse.json({ error: "Version not found" }, { status: 404 });
+      if (existing.status !== "DRAFT") return NextResponse.json({ error: "Only draft versions can be edited" }, { status: 400 });
+
+      // Update name/description
+      const { error: upErr } = await supabase
+        .from("assessment_versions")
+        .update({ name, description })
+        .eq("id", versionId);
+      if (upErr) return NextResponse.json({ error: upErr.message }, { status: 500 });
+
+      // Delete old questions + options (CASCADE handles options)
+      const { data: oldQs } = await supabase.from("questions").select("id").eq("assessment_version_id", versionId);
+      if (oldQs && oldQs.length > 0) {
+        await supabase.from("question_options").delete().in("question_id", oldQs.map((q) => q.id));
+        await supabase.from("questions").delete().eq("assessment_version_id", versionId);
+      }
+
+      // Insert new questions + options
+      const err = await insertQuestions(supabase, versionId, questions ?? []);
+      if (err) return NextResponse.json({ error: err }, { status: 500 });
+
+      return NextResponse.json({ success: true, versionId });
     }
 
     if (action === "publish") {
@@ -270,4 +292,25 @@ export async function POST(req: Request) {
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown" }, { status: 500 });
   }
+}
+
+async function insertQuestions(supabase: Awaited<ReturnType<typeof createClient>>, versionId: string, questions: { text: string; category: string; isRequired: boolean; options: { text: string; larkScore: number; eagleScore: number; owlScore: number }[] }[]): Promise<string | null> {
+  for (let qi = 0; qi < questions.length; qi++) {
+    const q = questions[qi];
+    const { data: qIns, error: qErr } = await supabase
+      .from("questions")
+      .insert({ assessment_version_id: versionId, question_text: q.text, question_order: qi + 1, category: q.category || null, is_active: q.isRequired !== false })
+      .select("id")
+      .single();
+    if (qErr) return qErr.message;
+
+    for (let oi = 0; oi < (q.options ?? []).length; oi++) {
+      const o = q.options[oi];
+      const { error: oErr } = await supabase
+        .from("question_options")
+        .insert({ question_id: qIns.id, option_text: o.text, option_value: null, option_order: oi + 1, lark_score: o.larkScore ?? 0, eagle_score: o.eagleScore ?? 0, owl_score: o.owlScore ?? 0 });
+      if (oErr) return oErr.message;
+    }
+  }
+  return null;
 }

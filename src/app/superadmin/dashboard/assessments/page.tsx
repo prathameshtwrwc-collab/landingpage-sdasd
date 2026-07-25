@@ -69,14 +69,26 @@ export default function SuperAdminAssessmentsPage() {
   const saveDraft = async () => {
     if (!vName.trim()) { showMsg("error", "Assessment name is required"); return; }
     setSaving(true);
+
+    // If editing existing draft, update it; otherwise create new
+    const action = editVersionId ? "update_draft" : "create_draft";
+    const body: Record<string, unknown> = { action, name: vName, description: vDesc, questions };
+
+    if (editVersionId) body.versionId = editVersionId;
+
     const res = await fetch("/api/admin-assessments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "create_draft", name: vName, description: vDesc, questions }),
+      body: JSON.stringify(body),
     });
     const d = await res.json();
-    if (d.error) showMsg("error", d.error); else showMsg("success", "Draft saved!");
-    setSaving(false); fetchVersions();
+    if (d.error) showMsg("error", d.error);
+    else {
+      showMsg("success", editVersionId ? "Draft updated!" : "Draft saved!");
+      if (d.versionId && !editVersionId) setEditVersionId(d.versionId);
+    }
+    setSaving(false);
+    fetchVersions();
   };
 
   const publishVersion = async (versionId?: string) => {
@@ -390,24 +402,23 @@ export default function SuperAdminAssessmentsPage() {
 
           {/* Actions */}
           <div className="flex items-center gap-[10px] flex-wrap">
-            {editVersionId && (
-              <button type="button" onClick={() => updateVersion(editVersionId)}
-                className="flex items-center gap-[5px] px-[16px] py-[9px] rounded-xl border-none cursor-pointer text-[12px] font-semibold transition-colors"
-                style={{ color: "#35319B", background: "rgba(53,49,155,0.08)", fontFamily: "Poppins, sans-serif" }} disabled={saving}>
-                Save Changes
-              </button>
-            )}
-            <button type="button" onClick={() => { if (editVersionId) saveScoringRules(editVersionId); saveDraft(); }}
+            <button type="button" onClick={async () => {
+              if (editVersionId) await saveScoringRules(editVersionId);
+              await saveDraft();
+            }}
               className="flex items-center gap-[5px] px-[16px] py-[9px] rounded-xl border-none cursor-pointer text-[12px] font-semibold transition-colors"
               style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }} disabled={saving}>
-              <RotateCcw size={14} /> {saving ? "Saving..." : "Save as Draft"}
+              <RotateCcw size={14} /> {saving ? "Saving..." : editVersionId ? "Save Draft" : "Save as Draft"}
             </button>
             <button type="button" onClick={() => setTab("preview")}
               className="flex items-center gap-[5px] px-[16px] py-[9px] rounded-xl border-none cursor-pointer text-[12px] font-semibold transition-colors"
               style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
               <Eye size={14} /> Preview
             </button>
-            <button type="button" onClick={() => { if (editVersionId) saveScoringRules(editVersionId); publishVersion(); }}
+            <button type="button" onClick={async () => {
+              if (editVersionId) await saveScoringRules(editVersionId);
+              await publishVersion();
+            }}
               disabled={!!validateMsg || saving || !editVersionId}
               className="flex items-center gap-[5px] px-[16px] py-[9px] rounded-xl border-none cursor-pointer text-[12px] font-semibold text-white transition-colors disabled:opacity-50"
               style={{ background: "linear-gradient(135deg, #2E7D32, #43A047)", fontFamily: "Poppins, sans-serif" }}>
