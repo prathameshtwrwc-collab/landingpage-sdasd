@@ -59,6 +59,11 @@ Phase: Feature Completion & Stabilization — Superadmin Dashboard, RLS Fixes, D
 - RLS disabled on organizations, organization_admins, organization_links tables
 - org_admin creation now creates Clerk user with password via clerkClient()
 - Add admin form includes Set Password field
+- **Branding Display** — Organization logo and company name displayed on user-facing pages
+- **Branding API fields** — public-result API returns brandingCompany and brandingLogo
+- **SiteNavbar branding props** — Accepts optional brandingLogo and brandingCompany props
+- **Admin settings API** — GET/POST endpoints for fetching and updating org settings with branding fields
+- **Admin settings page** — Fully functional with branding fields (logo URL, company name)
 
 ---
 

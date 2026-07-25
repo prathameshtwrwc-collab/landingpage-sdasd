@@ -2,6 +2,22 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.4.0] — 2026-07-26 — Branding Display & Admin Settings
+
+### Added
+- **Branding Display on User-Facing Pages** — Organization logo and company name now displayed on branded pages
+- **Branding fields in public-result API** — `/api/public-result/[assessmentId]` returns `brandingCompany` and `brandingLogo` from organization's branding settings
+- **Branding props in SiteNavbar** — Navbar accepts optional `brandingLogo` and `brandingCompany` props to display org branding
+- **Branding Display on Org Landing Page** — `[orgCode]/page.tsx` uses branding from org-link-status API to customize the page
+- **Branding Display on Public Result Pages** — `r/[assessmentId]/page.tsx` displays org logo and company name on shared results
+- **Admin Organization Settings API** — GET `/api/admin?action=org-settings` fetches current admin's org settings with branding fields
+- **Admin Organization Update API** — POST `/api/admin?action=update_org_settings` updates org settings including branding fields
+
+### Changed
+- **SiteNavbar** — Added `brandingLogo` and `brandingCompany` optional props; displays org logo when provided, falls back to Chronotype icon
+- **[orgCode]/page.tsx** — Stores branding data from API and passes to SiteNavbar
+- **r/[assessmentId]/page.tsx** — Displays org branding at top of result card, updates footer attribution
+
 ## [2.3.0] — 2026-07-24 — Superadmin Dashboard, RLS Fixes, Admin Creation
 
 ### Added
