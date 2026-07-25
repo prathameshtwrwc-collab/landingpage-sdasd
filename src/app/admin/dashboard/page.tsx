@@ -12,7 +12,7 @@ import MiniLine from "@/components/charts/MiniLine";
 import Bars from "@/components/charts/Bars";
 import Ring from "@/components/charts/Ring";
 import { SkeletonStatCard, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
-import { Users, ClipboardCheck, Brain, Link2, TrendingUp, BarChart3, Activity } from "lucide-react";
+import { Users, ClipboardCheck, Brain, Link2, TrendingUp, BarChart3, Activity, Copy, Share2, Check } from "lucide-react";
 
 interface DashboardStats {
   orgName: string;
@@ -32,6 +32,7 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
+  const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
     cachedFetch("/api/admin-portal").then((json: any) => {
@@ -236,9 +237,21 @@ export default function AdminDashboardPage() {
               </div>
               <div className="flex items-center justify-between p-[14px] rounded-xl" style={{ background: "rgba(53,49,155,0.04)" }}>
                 <span className="text-[13px] font-medium" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>Share URL</span>
-                <code className="text-[12px] font-mono" style={{ color: "#888" }}>
-                  {typeof window !== "undefined" ? `${window.location.origin}/${s.orgUniqueCode}` : `.../${s.orgUniqueCode}`}
-                </code>
+                <div className="flex items-center gap-[8px]">
+                  <code className="text-[12px] font-mono truncate max-w-[260px]" style={{ color: "#888" }}>
+                    {typeof window !== "undefined" ? `${window.location.origin}/${s.orgUniqueCode}` : `.../${s.orgUniqueCode}`}
+                  </code>
+                  <button type="button" onClick={() => { navigator.clipboard.writeText(typeof window !== "undefined" ? `${window.location.origin}/${s.orgUniqueCode}` : `/ ${s.orgUniqueCode}`); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000); }}
+                    className="flex items-center justify-center w-[30px] h-[30px] rounded-lg border-none cursor-pointer transition-colors shrink-0"
+                    style={{ color: linkCopied ? "#2E7D32" : "#888", background: linkCopied ? "rgba(46,125,50,0.1)" : "rgba(0,0,0,0.04)" }}>
+                    {linkCopied ? <Check size={13} /> : <Copy size={13} />}
+                  </button>
+                  <button type="button" onClick={async () => { const url = typeof window !== "undefined" ? `${window.location.origin}/${s.orgUniqueCode}` : `/${s.orgUniqueCode}`; if (navigator.share) try { await navigator.share({ url }); return; } catch {} navigator.clipboard.writeText(url); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000); }}
+                    className="flex items-center justify-center w-[30px] h-[30px] rounded-lg border-none cursor-pointer transition-colors shrink-0"
+                    style={{ color: "#888", background: "rgba(0,0,0,0.04)" }}>
+                    <Share2 size={13} />
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
