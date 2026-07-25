@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import MemberDetailModal from "@/components/modals/MemberDetailModal";
+import { useCsvSelection, CsvToolbar, CheckAllCell, CheckRowCell, exportCsv } from "@/components/admin/CsvExport";
 import { Building2, Mail, Globe, Calendar, Users, ArrowLeft, Eye, Activity, Tag, Shield } from "lucide-react";
 
 interface MemberRow {
@@ -27,6 +28,16 @@ export default function OrgDetailPage() {
   const [orgAdmins, setOrgAdmins] = useState<Array<Record<string, unknown>>>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const memberSel = useCsvSelection(members);
+  const MEMBER_CSV_COLS = [
+    { key: "first_name", label: "First Name" },
+    { key: "last_name", label: "Last Name" },
+    { key: "email", label: "Email" },
+    { key: "age", label: "Age" },
+    { key: "gender", label: "Gender" },
+    { key: "source_type", label: "Source" },
+    { key: "created_at", label: "Joined" },
+  ];
 
   useEffect(() => {
     if (!orgId) return;
@@ -144,9 +155,12 @@ export default function OrgDetailPage() {
 
       {/* Members Table */}
       <div className="p-[20px] rounded-[16px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-        <h3 className="m-0 text-[15px] font-bold mb-[14px] flex items-center gap-[8px]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>
-          <Users size={16} stroke="#35319B" /> Members ({members.length})
-        </h3>
+        <div className="flex items-center justify-between flex-wrap gap-[10px] mb-[14px]">
+          <h3 className="m-0 text-[15px] font-bold flex items-center gap-[8px]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>
+            <Users size={16} stroke="#35319B" /> Members ({members.length})
+          </h3>
+          <CsvToolbar selectedCount={memberSel.selected.size} totalCount={members.length} onExport={(mode) => exportCsv(members, memberSel.selected, MEMBER_CSV_COLS, mode, `org-members-${orgId?.slice(0, 8)}`)} />
+        </div>
         {members.length === 0 ? (
           <p className="m-0 text-[13px] py-[12px] text-center" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>No members yet</p>
         ) : (
@@ -154,6 +168,7 @@ export default function OrgDetailPage() {
             <table className="w-full text-left" style={{ fontFamily: "Poppins, sans-serif", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ background: "#F8F9FF" }}>
+                  <th className="px-[6px] py-[10px] w-[40px]"><CheckAllCell checked={memberSel.allSelected} onToggle={memberSel.toggleAll} /></th>
                   <th className="px-[12px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Member</th>
                   <th className="px-[12px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Email</th>
                   <th className="px-[12px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Age</th>
@@ -166,6 +181,7 @@ export default function OrgDetailPage() {
               <tbody>
                 {members.map((m, i) => (
                   <tr key={i} style={{ borderTop: "1px solid #F0F0F0" }}>
+                    <td className="px-[6px] py-[10px]"><CheckRowCell checked={memberSel.selected.has(i)} onToggle={() => memberSel.toggle(i)} /></td>
                     <td className="px-[12px] py-[10px]">
                       <div className="flex items-center gap-[8px]">
                         <div className="w-[28px] h-[28px] rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ background: "linear-gradient(135deg, #35319B, #7B76D4)" }}>

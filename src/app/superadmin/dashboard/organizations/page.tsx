@@ -4,9 +4,10 @@ import { useEffect, useState, useRef } from "react";
 import { cachedFetch } from "@/lib/client-cache";
 import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Users, Plus, Copy, Check, Globe, Building2, Mail, Calendar, Power, ExternalLink, Edit2, Trash2, X, Save, Search } from "lucide-react";
+import { Users, Plus, Copy, Check, Globe, Building2, Mail, Calendar, Power, ExternalLink, Edit2, Trash2, X, Save, Search, Download } from "lucide-react";
 import PaginationBar from "@/components/pagination/PaginationBar";
 import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
+import { exportCsv } from "@/components/admin/CsvExport";
 
 export default function OrganizationsPage() {
   const router = useRouter();
@@ -27,6 +28,17 @@ export default function OrganizationsPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [exportMode, setExportMode] = useState<"full" | "contacts" | "emails">("full");
+  const ORG_CSV_COLS = [
+    { key: "name", label: "Name" },
+    { key: "unique_code", label: "Code" },
+    { key: "organization_type", label: "Type" },
+    { key: "email", label: "Email" },
+    { key: "country", label: "Country" },
+    { key: "status", label: "Status" },
+    { key: "created_at", label: "Created" },
+    { key: "link_active", label: "Link Active" },
+  ];
 
   const loadOrgs = async (p?: number, search?: string) => {
     try {
@@ -160,14 +172,28 @@ export default function OrganizationsPage() {
             </div>
             <span className="text-[13px] font-medium shrink-0" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>{totalCount} organizations</span>
           </div>
-          <div className="flex items-center justify-between mb-[20px]">
+          <div className="flex items-center justify-between flex-wrap gap-[10px] mb-[20px]">
             <span className="text-[13px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>{orgs.length} organizations</span>
-            <button type="button" onClick={() => setShowForm(!showForm)}
-              className="inline-flex items-center gap-[6px] text-white text-[13px] font-semibold px-[16px] py-[10px] border-none cursor-pointer rounded-xl transition-all"
-              style={{ background: "linear-gradient(135deg, #D32F2F, #FF6B6B)", boxShadow: "0 4px 12px rgba(211,47,47,0.25)", fontFamily: "Poppins, sans-serif" }}
-            >
-              <Plus size={16} stroke="white" /> {showForm ? "Cancel" : "Onboard Org"}
-            </button>
+            <div className="flex items-center gap-[8px] flex-wrap">
+              <select value={exportMode} onChange={(e) => setExportMode(e.target.value as "full" | "contacts" | "emails")}
+                className="px-[10px] py-[7px] rounded-lg border text-[11px] cursor-pointer outline-none"
+                style={{ borderColor: "#E0E0E0", color: "#555", background: "#FFF", fontFamily: "Poppins, sans-serif" }}>
+                <option value="full">Full Details</option>
+                <option value="contacts">Contacts Only</option>
+                <option value="emails">Emails Only</option>
+              </select>
+              <button type="button" onClick={() => exportCsv(orgs, new Set(), ORG_CSV_COLS, exportMode, "organizations")}
+                className="flex items-center gap-[5px] px-[12px] py-[7px] rounded-lg border-none cursor-pointer text-[11px] font-semibold text-white transition-colors"
+                style={{ background: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                <Download size={13} /> CSV
+              </button>
+              <button type="button" onClick={() => setShowForm(!showForm)}
+                className="inline-flex items-center gap-[6px] text-white text-[13px] font-semibold px-[16px] py-[10px] border-none cursor-pointer rounded-xl transition-all"
+                style={{ background: "linear-gradient(135deg, #D32F2F, #FF6B6B)", boxShadow: "0 4px 12px rgba(211,47,47,0.25)", fontFamily: "Poppins, sans-serif" }}
+              >
+                <Plus size={16} stroke="white" /> {showForm ? "Cancel" : "Onboard Org"}
+              </button>
+            </div>
           </div>
 
           {serverError && (

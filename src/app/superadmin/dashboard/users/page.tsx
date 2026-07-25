@@ -1,11 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { cachedFetch } from "@/lib/client-cache";
 import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Users, Plus, Shield, Mail, Search, Globe, Calendar, Building2, Eye, Edit2, Trash2, X, Check, Save } from "lucide-react";
+import { Users, Plus, Shield, Mail, Search, Globe, Calendar, Building2, Eye, Edit2, Trash2, X, Check, Save, Download } from "lucide-react";
 import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
+import { exportCsv } from "@/components/admin/CsvExport";
+
+const ADMIN_CSV_COLS = [
+  { key: "first_name", label: "First Name" },
+  { key: "last_name", label: "Last Name" },
+  { key: "email", label: "Email" },
+  { key: "role", label: "Role" },
+  { key: "status", label: "Status" },
+  { key: "organizations", label: "Organization" },
+];
+const MEMBER_CSV_COLS = [
+  { key: "first_name", label: "First Name" },
+  { key: "last_name", label: "Last Name" },
+  { key: "email", label: "Email" },
+  { key: "source_type", label: "Source Type" },
+  { key: "created_at", label: "Joined" },
+  { key: "organization_id", label: "Organization ID" },
+];
 
 export default function UsersPage() {
   const router = useRouter();
@@ -24,6 +42,7 @@ export default function UsersPage() {
   const [editData, setEditData] = useState<Record<string, string>>({});
   const [deleting, setDeleting] = useState<string | null>(null);
   const [serverError, setServerError] = useState("");
+  const [exportMode, setExportMode] = useState<"full" | "contacts" | "emails">("full");
 
   const loadData = async () => {
     try {
@@ -169,16 +188,30 @@ export default function UsersPage() {
           )}
 
           {/* ====== ADMINS SECTION ====== */}
-          <div className="flex items-center justify-between mb-[16px]">
+          <div className="flex items-center justify-between flex-wrap gap-[10px] mb-[16px]">
             <div className="flex items-center gap-[8px]">
               <Shield size={18} stroke="#D32F2F" />
               <h3 className="m-0 text-[16px] font-bold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>Admins ({admins.length})</h3>
             </div>
-            <button type="button" onClick={() => setShowForm(!showForm)}
-              className="inline-flex items-center gap-[6px] text-white text-[13px] font-semibold px-[16px] py-[10px] border-none cursor-pointer rounded-xl transition-all"
-              style={{ background: "linear-gradient(135deg, #D32F2F, #FF6B6B)", boxShadow: "0 4px 12px rgba(211,47,47,0.25)", fontFamily: "Poppins, sans-serif" }}>
-              <Plus size={16} stroke="white" /> {showForm ? "Cancel" : "Add Admin"}
-            </button>
+            <div className="flex items-center gap-[8px] flex-wrap">
+              <button type="button" onClick={() => setShowForm(!showForm)}
+                className="inline-flex items-center gap-[6px] text-white text-[13px] font-semibold px-[16px] py-[10px] border-none cursor-pointer rounded-xl transition-all"
+                style={{ background: "linear-gradient(135deg, #D32F2F, #FF6B6B)", boxShadow: "0 4px 12px rgba(211,47,47,0.25)", fontFamily: "Poppins, sans-serif" }}>
+                <Plus size={16} stroke="white" /> {showForm ? "Cancel" : "Add Admin"}
+              </button>
+              <select value={exportMode} onChange={(e) => setExportMode(e.target.value as "full" | "contacts" | "emails")}
+                className="px-[10px] py-[7px] rounded-lg border text-[11px] cursor-pointer outline-none"
+                style={{ borderColor: "#E0E0E0", color: "#555", background: "#FFF", fontFamily: "Poppins, sans-serif" }}>
+                <option value="full">Full Details</option>
+                <option value="contacts">Contacts Only</option>
+                <option value="emails">Emails Only</option>
+              </select>
+              <button type="button" onClick={() => exportCsv(filteredAdmins, new Set(), ADMIN_CSV_COLS, exportMode, "admins")}
+                className="flex items-center gap-[5px] px-[12px] py-[7px] rounded-lg border-none cursor-pointer text-[11px] font-semibold text-white transition-colors"
+                style={{ background: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                <Download size={13} /> CSV
+              </button>
+            </div>
           </div>
 
           {showForm && (
@@ -298,9 +331,24 @@ export default function UsersPage() {
           </div>
 
           {/* ====== MEMBERS SECTION ====== */}
-          <div className="flex items-center gap-[8px] mb-[16px] mt-[8px]">
-            <Users size={18} stroke="#35319B" />
-            <h3 className="m-0 text-[16px] font-bold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>All Members ({members.length})</h3>
+          <div className="flex items-center justify-between flex-wrap gap-[10px] mb-[16px] mt-[8px]">
+            <div className="flex items-center gap-[8px]">
+              <Users size={18} stroke="#35319B" />
+              <h3 className="m-0 text-[16px] font-bold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>All Members ({members.length})</h3>
+            </div>
+            <div className="flex items-center gap-[8px]">
+              <select id="member-export-mode" className="px-[10px] py-[7px] rounded-lg border text-[11px] cursor-pointer outline-none"
+                style={{ borderColor: "#E0E0E0", color: "#555", background: "#FFF", fontFamily: "Poppins, sans-serif" }}>
+                <option value="full">Full Details</option>
+                <option value="contacts">Contacts Only</option>
+                <option value="emails">Emails Only</option>
+              </select>
+              <button type="button" onClick={() => exportCsv(filteredMembers, new Set(), MEMBER_CSV_COLS, (document.getElementById("member-export-mode") as HTMLSelectElement)?.value as "full" | "contacts" | "emails" || "full", "members")}
+                className="flex items-center gap-[5px] px-[12px] py-[7px] rounded-lg border-none cursor-pointer text-[11px] font-semibold text-white transition-colors"
+                style={{ background: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                <Download size={13} /> CSV
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center gap-[12px] mb-[16px]">

@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { BarChart3, Globe, Users, Building2, Filter, MapPin, Award, TrendingUp, Calendar, UserCheck } from "lucide-react";
+import { exportCsv } from "@/components/admin/CsvExport";
 
 type ChronoRow = { lark: number; eagle: number; owl: number; total: number };
 type InsightItem = { name: string; pct?: number; lark?: number; eagle?: number; owl?: number };
@@ -89,11 +90,33 @@ export default function AnalyticsPage() {
               {data ? `${data.rows.toLocaleString()} assessments · ${data.locationBreakdown.length} countries` : "Deep pattern discovery across demographics"}
             </p>
           </div>
-          <button type="button" onClick={() => router.push("/superadmin/dashboard")}
-            className="flex items-center gap-[5px] text-[13px] font-medium bg-transparent border-none cursor-pointer"
-            style={{ color: "#98A2B3", fontFamily: "Poppins, sans-serif" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg> Back
-          </button>
+          <div className="flex items-center gap-[8px]">
+            <button type="button" onClick={() => router.push("/superadmin/dashboard")}
+              className="flex items-center gap-[5px] text-[13px] font-medium bg-transparent border-none cursor-pointer"
+              style={{ color: "#98A2B3", fontFamily: "Poppins, sans-serif" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg> Back
+            </button>
+            {data && (
+              <button type="button" onClick={() => {
+                const cols = [
+                  { key: "section", label: "Section" }, { key: "name", label: "Name" },
+                  { key: "lark", label: "Lark %" }, { key: "eagle", label: "Eagle %" }, { key: "owl", label: "Owl %" }, { key: "total", label: "Total" },
+                ];
+                const rows: Record<string, unknown>[] = [];
+                data.locationBreakdown.forEach((r: Record<string, unknown>) => rows.push({ section: "Location", name: r.name, ...r }));
+                data.genderBreakdown.forEach((r: Record<string, unknown>) => rows.push({ section: "Gender", name: r.gender, ...r }));
+                data.orgTypeBreakdown.forEach((r: Record<string, unknown>) => rows.push({ section: "Org Type", name: r.type, ...r }));
+                data.orgBreakdown.forEach((r: Record<string, unknown>) => rows.push({ section: "Org", name: r.name, ...r }));
+                data.ageBreakdown?.forEach((r: Record<string, unknown>) => rows.push({ section: "Age", name: r.group, ...r }));
+                exportCsv(rows, new Set(), cols, "full", "analytics");
+              }}
+                className="flex items-center gap-[5px] text-[12px] font-semibold px-[14px] py-[7px] rounded-xl border-none cursor-pointer transition-colors"
+                style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export CSV
+              </button>
+            )}
+          </div>
         </div>
 
         {loading ? (
