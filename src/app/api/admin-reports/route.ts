@@ -55,7 +55,7 @@ export async function GET(req: Request) {
     const { data: raw } = await query.limit(5000);
 
     if (!raw || raw.length === 0) {
-      return NextResponse.json({ rows: 0, genderBreakdown: [], orgTypeBreakdown: [], orgBreakdown: [], heatmap: [], orgTypeLocation: [], locationBreakdown: [], insights: { mostOwlLocation: null, mostLarkOrg: null, mostBalancedOrg: null, highestEaglePct: null }, filters: { countries: [], states: [], cities: [], orgTypes: [], orgNames: [] } });
+      return NextResponse.json({ rows: 0, locationBreakdown: [], genderBreakdown: [], orgTypeBreakdown: [], orgBreakdown: [], heatmap: [], orgTypeLocation: [], ageBreakdown: [], trend: [], insights: { mostOwlLocation: null, mostLarkOrg: null, mostBalancedOrg: null, highestEaglePct: null, owlTrend: "stable" }, filters: { countries: [], states: [], cities: [], orgTypes: [], orgNames: [] } });
     }
 
     type Row = {
