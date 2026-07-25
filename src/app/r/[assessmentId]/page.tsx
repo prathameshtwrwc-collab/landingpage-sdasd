@@ -53,6 +53,8 @@ export default function SharedResultPage() {
   const label = CHRONO_LABEL[chrono] || "";
   const desc = CHRONO_DESC[chrono] || "";
   const name = [String(data.firstName || ""), String(data.lastName || "")].filter(Boolean).join(" ") || "Someone";
+  const brandingCompany = String(data.brandingCompany || "");
+  const brandingLogo = String(data.brandingLogo || "");
 
   return (
     <html lang="en">
@@ -69,6 +71,16 @@ export default function SharedResultPage() {
         <div style={{ maxWidth: "520px", width: "100%", background: "#fff", borderRadius: "20px", boxShadow: "0 8px 40px rgba(0,0,0,0.08)", overflow: "hidden" }}>
           <div style={{ height: "4px", background: `linear-gradient(90deg, ${color}, ${color}88)` }} />
           <div style={{ padding: "32px 28px" }}>
+            {brandingCompany && (
+              <div style={{ textAlign: "center", marginBottom: "16px" }}>
+                {brandingLogo ? (
+                  <img src={brandingLogo} alt={brandingCompany} style={{ width: "48px", height: "48px", borderRadius: "50%", objectFit: "cover", margin: "0 auto 8px" }} />
+                ) : (
+                  <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#35319B", margin: "0 auto 8px" }} />
+                )}
+                <p style={{ fontSize: "14px", fontWeight: 600, color: "#333", margin: 0 }}>{brandingCompany}</p>
+              </div>
+            )}
             <div style={{ textAlign: "center", marginBottom: "24px" }}>
               <span style={{ fontSize: "48px", display: "block", marginBottom: "8px" }}>{icon}</span>
               <span style={{ display: "inline-block", fontSize: "11px", fontWeight: 600, color: "#aaa", textTransform: "uppercase", letterSpacing: "0.08em" }}>Shared Result</span>
@@ -107,7 +119,7 @@ export default function SharedResultPage() {
               </div>
             </div>
             <div style={{ textAlign: "center", borderTop: "1px solid #eee", paddingTop: "16px" }}>
-              <p style={{ fontSize: "11px", color: "#bbb", margin: 0, letterSpacing: "0.04em" }}>CHRONOTYPE Intelligence by WelcomeCure HealthTech</p>
+              <p style={{ fontSize: "11px", color: "#bbb", margin: 0, letterSpacing: "0.04em" }}>{brandingCompany ? `${brandingCompany} Chronotype` : "CHRONOTYPE Intelligence by WelcomeCure HealthTech"}</p>
             </div>
           </div>
         </div>

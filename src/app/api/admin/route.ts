@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { getPlatformStats, getOrganizations, getOrganizationAdmins, getAllMembers } from "@/lib/queries/admin";
+import { getPlatformStats, getOrganizations, getOrganizationAdmins, getAllMembers, getOrganizationDetails } from "@/lib/queries/admin";
 import { createOrganizationInternal, createOrganizationAdminInternal, toggleOrgActiveLinkInternal, editOrgInternal, deleteOrgInternal, editAdminInternal, deleteAdminInternal, editMemberInternal, deleteMemberInternal } from "@/lib/actions/superadmin";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: Request) {
   try {
@@ -9,6 +10,34 @@ export async function GET(req: Request) {
     if (!session?.userId) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
     const url = new URL(req.url);
+    const action = url.searchParams.get("action");
+
+    if (action === "org-settings") {
+      const supabase = await createClient();
+      const { data: admin } = await supabase
+        .from("organization_admins")
+        .select("organization_id")
+        .eq("clerk_user_id", session.userId)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (!admin?.organization_id) {
+        return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+      }
+
+      const org = await getOrganizationDetails(admin.organization_id);
+      return NextResponse.json({
+        id: org.id,
+        name: org.name,
+        type: org.organization_type,
+        email: org.email,
+        country: org.country,
+        status: org.status,
+        brandingLogo: org.branding_logo ?? "",
+        brandingCompany: org.branding_company ?? "",
+      });
+    }
+
     const parsePage = (key: string) => {
       const v = url.searchParams.get(key);
       return v ? Math.max(1, parseInt(v, 10)) : undefined;
@@ -103,6 +132,37 @@ export async function POST(req: Request) {
       const { memberId } = await req.json();
       const result = await deleteMemberInternal(memberId);
       return NextResponse.json(result);
+    }
+
+    if (action === "update_org_settings") {
+      const supabase = await createClient();
+      const { data: admin } = await supabase
+        .from("organization_admins")
+        .select("organization_id")
+        .eq("clerk_user_id", session.userId)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (!admin?.organization_id) {
+        return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+      }
+
+      const { name, type, email, country, brandingLogo, brandingCompany } = await req.json();
+      const updateData: Record<string, unknown> = {};
+      if (name !== undefined) updateData.name = name;
+      if (type !== undefined) updateData.organization_type = type;
+      if (email !== undefined) updateData.email = email;
+      if (country !== undefined) updateData.country = country;
+      if (brandingLogo !== undefined) updateData.branding_logo = brandingLogo || null;
+      if (brandingCompany !== undefined) updateData.branding_company = brandingCompany || null;
+
+      const { error } = await supabase
+        .from("organizations")
+        .update(updateData)
+        .eq("id", admin.organization_id);
+
+      if (error) throw new Error(error.message);
+      return NextResponse.json({ success: true });
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });

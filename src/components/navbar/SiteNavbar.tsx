@@ -17,7 +17,12 @@ const navItems: NavItem[] = [
   { label: "FAQ", href: "#faq-section", id: "faq-section" },
 ];
 
-export default function SiteNavbar() {
+interface SiteNavbarProps {
+  brandingLogo?: string;
+  brandingCompany?: string;
+}
+
+export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbarProps) {
   const { open: openAssessment } = useAssessment();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -182,7 +187,7 @@ export default function SiteNavbar() {
               }}
               className="inline-flex items-center gap-[10px] no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-2 rounded-sm"
               style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}
-              aria-label="Chronotype - Home"
+              aria-label={brandingCompany ? `${brandingCompany} - Home` : "Chronotype - Home"}
             >
               {/* Icon circle 36x36 desktop 32 mobile */}
               <span
@@ -192,30 +197,37 @@ export default function SiteNavbar() {
                   height: "36px",
                   background: "#35319B",
                   color: "#FFFFFF",
+                  overflow: "hidden",
                 }}
               >
-                <span className="md:hidden" style={{ width: "32px", height: "32px", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path
-                      d="M16.5 20.5A7.5 7.5 0 0 1 8 12 7.5 7.5 0 0 1 16.5 3.5 5.5 5.5 0 0 0 16.5 20.5Z"
-                      fill="white"
-                      stroke="white"
-                      strokeWidth="1.2"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-                <span className="hidden md:inline-flex" style={{ width: "36px", height: "36px", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path
-                      d="M16.5 20.5A7.5 7.5 0 0 1 8 12 7.5 7.5 0 0 1 16.5 3.5 5.5 5.5 0 0 0 16.5 20.5Z"
-                      fill="white"
-                      stroke="white"
-                      strokeWidth="1.2"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
+                {brandingLogo ? (
+                  <img src={brandingLogo} alt={brandingCompany ?? "Brand"} style={{ width: "36px", height: "36px", objectFit: "cover" }} />
+                ) : (
+                  <span className="md:hidden" style={{ width: "32px", height: "32px", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="M16.5 20.5A7.5 7.5 0 0 1 8 12 7.5 7.5 0 0 1 16.5 3.5 5.5 5.5 0 0 0 16.5 20.5Z"
+                        fill="white"
+                        stroke="white"
+                        strokeWidth="1.2"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                )}
+                {!brandingLogo && (
+                  <span className="hidden md:inline-flex" style={{ width: "36px", height: "36px", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="M16.5 20.5A7.5 7.5 0 0 1 8 12 7.5 7.5 0 0 1 16.5 3.5 5.5 5.5 0 0 0 16.5 20.5Z"
+                        fill="white"
+                        stroke="white"
+                        strokeWidth="1.2"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                )}
               </span>
               <span
                 className="font-semibold leading-[1] tracking-[-0.01em]"
@@ -227,7 +239,7 @@ export default function SiteNavbar() {
                   color: "#2F2A86",
                 }}
               >
-                <span className="text-[16px] md:text-[18px]">Chronotype</span>
+                <span className="text-[16px] md:text-[18px]">{brandingCompany ?? "Chronotype"}</span>
               </span>
             </a>
 

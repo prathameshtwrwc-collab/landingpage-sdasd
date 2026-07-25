@@ -23,6 +23,7 @@ export default function OrgCodeLandingPage() {
   const params = useParams();
   const orgCode = params.orgCode as string;
   const [linkStatus, setLinkStatus] = useState<"loading" | "active" | "deactivated" | "not_found">("loading");
+  const [branding, setBranding] = useState<{ company: string; logo: string }>({ company: "", logo: "" });
 
   useEffect(() => {
     if (!orgCode) return;
@@ -31,7 +32,10 @@ export default function OrgCodeLandingPage() {
       .then((d) => {
         if (!d.exists) setLinkStatus("not_found");
         else if (!d.active) setLinkStatus("deactivated");
-        else setLinkStatus("active");
+        else {
+          setLinkStatus("active");
+          setBranding({ company: d.brandingCompany ?? "", logo: d.brandingLogo ?? "" });
+        }
       })
       .catch(() => setLinkStatus("not_found"));
   }, [orgCode]);
@@ -69,7 +73,7 @@ export default function OrgCodeLandingPage() {
 
   return (
     <main className="min-h-screen w-full bg-white">
-      <SiteNavbar />
+      <SiteNavbar brandingLogo={branding.logo || undefined} brandingCompany={branding.company || undefined} />
       <HeroSection />
       <HeroStatementStrip />
       <ChronotypeIntroductionSection />

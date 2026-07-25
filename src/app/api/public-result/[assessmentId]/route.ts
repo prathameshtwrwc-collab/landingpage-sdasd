@@ -11,7 +11,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ ass
 
   const { data: assessment } = await supabase
     .from("assessments")
-    .select("member_id")
+    .select("member_id, organization_id")
     .eq("id", assessmentId)
     .eq("status", "COMPLETED")
     .maybeSingle();
@@ -36,6 +36,36 @@ export async function GET(_request: Request, { params }: { params: Promise<{ ass
     return NextResponse.json({ error: "Result not found" }, { status: 404 });
   }
 
+  let brandingCompany = "";
+  let brandingLogo = "";
+
+  if (assessment.organization_id) {
+    const { data: org } = await supabase
+      .from("organizations")
+      .select("branding_company, branding_logo")
+      .eq("id", assessment.organization_id)
+      .maybeSingle();
+
+    brandingCompany = org?.branding_company ?? "";
+    brandingLogo = org?.branding_logo ?? "";
+
+    if (!brandingCompany || !brandingLogo) {
+      const { data: orgLink } = await supabase
+        .from("organization_links")
+        .select("branding_company, branding_logo")
+        .eq("organization_id", assessment.organization_id)
+        .eq("active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (orgLink) {
+        brandingCompany = orgLink.branding_company ?? brandingCompany;
+        brandingLogo = orgLink.branding_logo ?? brandingLogo;
+      }
+    }
+  }
+
   return NextResponse.json({
     firstName: member?.first_name ?? "",
     lastName: member?.last_name ?? "",
@@ -46,5 +76,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ ass
     larkScore: result.lark_score,
     eagleScore: result.eagle_score,
     owlScore: result.owl_score,
+    brandingCompany,
+    brandingLogo,
   });
 }
