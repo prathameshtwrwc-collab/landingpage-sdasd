@@ -48,17 +48,17 @@ export default function ChronotypePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-[16px]">
           <div className="flex flex-col items-center p-[28px] rounded-[16px] text-center" style={{
             background: chronotype === "LARK"
-              ? "linear-gradient(135deg, #FDE68A 0%, #F59A00 100%)"
+              ? "linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)"
               : chronotype === "EAGLE"
-                ? "linear-gradient(135deg, #E0E7FF 0%, #818CF8 100%)"
-                : "linear-gradient(135deg, #1A1668 0%, #35319B 100%)",
+                ? "linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%)"
+                : "linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)",
           }}>
-            <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-[16px]" style={{ background: chronotype === "EAGLE" ? "rgba(53,49,155,0.1)" : "rgba(255,255,255,0.1)" }}>
-              <Moon size={36} stroke={chronotype === "EAGLE" ? "#35319B" : "#F59A00"} strokeWidth={1.5} />
+            <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-[16px]" style={{ background: "rgba(53,49,155,0.08)" }}>
+              <Moon size={36} stroke="#35319B" strokeWidth={1.5} />
             </div>
-            <h2 className="m-0 text-[24px] font-bold" style={{ color: chronotype === "EAGLE" ? "#171717" : "#FFFFFF", fontFamily: "Poppins, sans-serif" }}>{CHRONOTYPE_LABELS[chronotype]}</h2>
-            <p className="m-0 mt-[8px] text-[14px] leading-[1.6]" style={{ color: chronotype === "EAGLE" ? "rgba(23,23,23,0.7)" : "rgba(255,255,255,0.7)", fontFamily: "Poppins, sans-serif" }}>{info?.tagline}</p>
-            <div className="mt-[16px]"><Ring value={confidence} size={80} color={chronotype === "EAGLE" ? "#35319B" : "#F59A00"} label="Match" /></div>
+            <h2 className="m-0 text-[24px] font-bold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>{CHRONOTYPE_LABELS[chronotype]}</h2>
+            <p className="m-0 mt-[8px] text-[14px] leading-[1.6]" style={{ color: "rgba(23,23,23,0.65)", fontFamily: "Poppins, sans-serif" }}>{info?.tagline}</p>
+            <div className="mt-[16px]"><Ring value={confidence} size={80} color="#35319B" label="Match" /></div>
           </div>
 
           <div className="flex items-center justify-center p-[20px] rounded-[16px] min-h-[180px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
