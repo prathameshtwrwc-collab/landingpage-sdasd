@@ -192,16 +192,80 @@ export async function GET(req: Request) {
       })
       .sort((a, b) => b.total - a.total);
 
-    // ── 7. Insights ──
-    const insights = {
-      mostOwlLocation: locationBreakdown.length > 0 ? locationBreakdown.reduce((a, b) => a.owl > b.owl ? a : b) : null,
-      mostLarkOrg: orgBreakdown.length > 0 ? orgBreakdown.reduce((a, b) => a.lark > b.lark ? a : b) : null,
-      mostBalancedOrg: orgBreakdown.length > 0
-        ? orgBreakdown.map((o) => ({ ...o, diff: Math.max(o.lark, o.eagle, o.owl) - Math.min(o.lark, o.eagle, o.owl) }))
-            .reduce((a, b) => a.diff < b.diff ? a : b)
-        : null,
-      highestEaglePct: orgBreakdown.length > 0 ? orgBreakdown.reduce((a, b) => a.eagle > b.eagle ? a : b) : null,
-    };
+    // ── 7. Age group breakdown ──
+    const ageGroups = ["Under 18", "18–25", "26–35", "36–45", "46–60", "60+"];
+    function ageGroup(age: string | null): string {
+      const n = parseInt(age ?? "", 10);
+      if (isNaN(n) || n <= 0) return "Unknown";
+      if (n < 18) return "Under 18";
+      if (n <= 25) return "18–25";
+      if (n <= 35) return "26–35";
+      if (n <= 45) return "36–45";
+      if (n <= 60) return "46–60";
+      return "60+";
+    }
+    const ageMap = new Map<string, { lark: number; eagle: number; owl: number; total: number }>();
+    ageGroups.forEach((g) => ageMap.set(g, { lark: 0, eagle: 0, owl: 0, total: 0 }));
+    rows.forEach((r) => {
+      const ag = ageGroup(r.assessments.members.age);
+      if (!ageMap.has(ag)) return;
+      const d = ageMap.get(ag)!;
+      d.total++;
+      if (r.chronotype === "LARK") d.lark++;
+      else if (r.chronotype === "EAGLE") d.eagle++;
+      else if (r.chronotype === "OWL") d.owl++;
+    });
+    const ageBreakdown = ageGroups
+      .filter((g) => (ageMap.get(g)?.total ?? 0) > 0)
+      .map((group) => {
+        const d = ageMap.get(group)!;
+        return { group, lark: pct(d.lark, d.total), eagle: pct(d.eagle, d.total), owl: pct(d.owl, d.total), total: d.total };
+      });
+
+    // ── 8. Chronotype trend over time (monthly) ──
+    const monthMap = new Map<string, { lark: number; eagle: number; owl: number; total: number }>();
+    rows.forEach((r) => {
+      const date = r.assessments.completed_at;
+      if (!date) return;
+      const month = date.slice(0, 7); // "YYYY-MM"
+      if (!monthMap.has(month)) monthMap.set(month, { lark: 0, eagle: 0, owl: 0, total: 0 });
+      const d = monthMap.get(month)!;
+      d.total++;
+      if (r.chronotype === "LARK") d.lark++;
+      else if (r.chronotype === "EAGLE") d.eagle++;
+      else if (r.chronotype === "OWL") d.owl++;
+    });
+    const trend = Array.from(monthMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, d]) => ({
+        month,
+        lark: pct(d.lark, d.total),
+        eagle: pct(d.eagle, d.total),
+        owl: pct(d.owl, d.total),
+        total: d.total,
+      }));
+
+    // ── 9. Enhanced insights ──
+    const mostOwlLocation = locationBreakdown.length > 0 ? locationBreakdown.reduce((a, b) => a.owl > b.owl ? a : b) : null;
+    const mostLarkOrg = orgBreakdown.length > 0 ? orgBreakdown.reduce((a, b) => a.lark > b.lark ? a : b) : null;
+    const mostBalancedOrg = orgBreakdown.length > 0
+      ? orgBreakdown.map((o) => ({ ...o, diff: Math.max(o.lark, o.eagle, o.owl) - Math.min(o.lark, o.eagle, o.owl) }))
+          .reduce((a, b) => a.diff < b.diff ? a : b)
+      : null;
+    const highestEaglePct = orgBreakdown.length > 0 ? orgBreakdown.reduce((a, b) => a.eagle > b.eagle ? a : b) : null;
+
+    // Owl trend direction
+    let owlTrend: "up" | "down" | "stable" = "stable";
+    if (trend.length >= 2) {
+      const firstHalf = trend.slice(0, Math.ceil(trend.length / 2));
+      const secondHalf = trend.slice(Math.ceil(trend.length / 2));
+      const avgFirst = firstHalf.reduce((s, m) => s + m.owl, 0) / firstHalf.length;
+      const avgSecond = secondHalf.reduce((s, m) => s + m.owl, 0) / secondHalf.length;
+      if (avgSecond - avgFirst > 3) owlTrend = "up";
+      else if (avgFirst - avgSecond > 3) owlTrend = "down";
+    }
+
+    const insights = { mostOwlLocation, mostLarkOrg, mostBalancedOrg, highestEaglePct, owlTrend };
 
     return NextResponse.json({
       rows: rows.length,
@@ -211,6 +275,8 @@ export async function GET(req: Request) {
       orgBreakdown,
       heatmap,
       orgTypeLocation,
+      ageBreakdown,
+      trend,
       insights,
       filters: {
         countries: Array.from(filterOpts.countries).sort(),
