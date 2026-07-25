@@ -14,6 +14,9 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Sleep Foundation – Sleep Chronotype Blueprint",
   description: "Sleep is the Foundation. Sleep Chronotype is the Blueprint. Better Sleep, Better Energy, Better Life.",
+  icons: {
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2335319B'/><text x='16' y='22' font-size='18' text-anchor='middle' fill='white'>S</text></svg>",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

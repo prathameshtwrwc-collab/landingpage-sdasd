@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -23,16 +23,11 @@ interface NavItem {
 const roleNavItems: Record<Role, NavItem[]> = {
   member: [
     { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={18} /> },
-    { label: "Sleep Assessment", href: "/dashboard/assessment", icon: <Activity size={18} /> },
-    { label: "Sleep Score", href: "/dashboard/score", icon: <Activity size={18} /> },
     { label: "Chronotype", href: "/dashboard/chronotype", icon: <Sparkles size={18} /> },
     { label: "Energy Timeline", href: "/dashboard/energy", icon: <TrendingUp size={18} /> },
-    { label: "Blueprint", href: "/dashboard/blueprint", icon: <FileText size={18} /> },
     { label: "Recommendations", href: "/dashboard/recommendations", icon: <Star size={18} /> },
     { label: "Progress", href: "/dashboard/progress", icon: <TrendingUp size={18} /> },
     { label: "Goals", href: "/dashboard/goals", icon: <Star size={18} /> },
-    { label: "Insights", href: "/dashboard/insights", icon: <TrendingUp size={18} /> },
-    { label: "Calendar", href: "/dashboard/calendar", icon: <Calendar size={18} /> },
     { label: "Profile", href: "/dashboard/profile", icon: <User size={18} /> },
     { label: "Settings", href: "/dashboard/settings", icon: <Settings size={18} /> },
   ],
@@ -122,8 +117,33 @@ export default function DashboardShell({
   const pathname = usePathname();
   const [isMounted, setIsMounted] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => { setIsMounted(true); }, []);
+
+  // Apply dark mode on all dashboard pages
+  const applyDark = useCallback(() => {
+    const stored = typeof window !== "undefined" ? localStorage.getItem("chronotype_preferences") : null;
+    if (stored) {
+      try {
+        const prefs = JSON.parse(stored);
+        setDarkMode(!!prefs.darkMode);
+        if (prefs.darkMode) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        } else {
+          document.documentElement.removeAttribute("data-theme");
+        }
+      } catch {}
+    }
+  }, []);
+
+  useEffect(() => { applyDark(); }, [applyDark]);
+
+  // Poll for dark mode changes from settings (same tab)
+  useEffect(() => {
+    const interval = setInterval(applyDark, 1000);
+    return () => clearInterval(interval);
+  }, [applyDark]);
 
   const navItems = user ? (roleNavItems[user.role] ?? roleNavItems.member) : roleNavItems.member;
 
@@ -144,19 +164,33 @@ export default function DashboardShell({
   }
 
   return (
-    <div className="min-h-screen flex" style={{ fontFamily: "Poppins, sans-serif", background: "#F8FAFC" }}>
+    <div className={`min-h-screen flex ${darkMode ? "dark" : ""}`} style={{ fontFamily: "Poppins, sans-serif", background: darkMode ? "#0F0F23" : "#F8FAFC" }}>
+      {/* Dark mode CSS overrides */}
+      <style>{`
+        .dark .dm-bg-card { background: #1A1A2E !important; }
+        .dark .dm-bg-sidebar { background: #16162A !important; }
+        .dark .dm-border { border-color: #2A2A4A !important; }
+        .dark .dm-text { color: #E0E0E0 !important; }
+        .dark .dm-text-secondary { color: #999 !important; }
+        .dark .dm-text-muted { color: #666 !important; }
+        .dark .dm-bg-hover:hover { background: rgba(255,255,255,0.05) !important; }
+        .dark .dm-nav-active { background: rgba(89,83,203,0.2) !important; }
+        .dark .dm-nav-inactive { color: #888 !important; }
+        .dark .dm-nav-active-text { color: #818CF8 !important; }
+      `}</style>
+
       {/* ── DESKTOP SIDEBAR ── */}
       <aside className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:left-0 md:w-[260px] md:z-40"
-        style={{ background: "#FFFFFF", borderRight: "1px solid #E6E8F0" }}>
+        style={{ background: darkMode ? "#16162A" : "#FFFFFF", borderRight: darkMode ? "1px solid #2A2A4A" : "1px solid #E6E8F0" }}>
         {/* Brand */}
-        <div className="flex items-center gap-[10px] px-[20px] h-[68px] shrink-0" style={{ borderBottom: "1px solid #F1F4FA" }}>
+        <div className="flex items-center gap-[10px] px-[20px] h-[68px] shrink-0" style={{ borderBottom: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA" }}>
           <span className="flex items-center justify-center w-[34px] h-[34px] rounded-xl shrink-0"
             style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)" }}>
             <Moon size={16} stroke="white" strokeWidth={2} />
           </span>
           <div className="flex flex-col">
-            <span className="text-[15px] font-bold leading-[1.2]" style={{ color: "#19164F", fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>Chronotype</span>
-            <span className="text-[10px] font-medium" style={{ color: "#667085", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+            <span className="text-[15px] font-bold leading-[1.2]" style={{ color: darkMode ? "#E0E0E0" : "#19164F", fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>Chronotype</span>
+            <span className="text-[10px] font-medium" style={{ color: darkMode ? "#888" : "#667085", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
               {ROLE_LABELS[user?.role ?? "member"]}
             </span>
           </div>
@@ -172,12 +206,12 @@ export default function DashboardShell({
                 style={{
                   fontFamily: "Poppins, sans-serif",
                   fontWeight: active ? 600 : 500,
-                  background: active ? "rgba(59,53,163,0.08)" : "transparent",
-                  color: active ? "#35319B" : "#667085",
+                  background: active ? (darkMode ? "rgba(89,83,203,0.2)" : "rgba(59,53,163,0.08)") : "transparent",
+                  color: active ? (darkMode ? "#818CF8" : "#35319B") : (darkMode ? "#888" : "#667085"),
                   position: "relative",
                 }}>
                 <span className="flex items-center gap-[10px]">
-                  <span style={{ color: active ? "#35319B" : "#98A2B3" }}>{item.icon}</span>
+                  <span style={{ color: active ? (darkMode ? "#818CF8" : "#35319B") : (darkMode ? "#666" : "#98A2B3") }}>{item.icon}</span>
                   {item.label}
                 </span>
                 <span className="flex items-center gap-[4px]">
@@ -195,14 +229,14 @@ export default function DashboardShell({
 
         {/* Bottom */}
         <div className="px-[12px] pb-[16px] flex items-center justify-between"
-          style={{ borderTop: "1px solid #F1F4FA", paddingTop: "12px" }}>
+          style={{ borderTop: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA", paddingTop: "12px" }}>
           <Link href="/" className="flex items-center gap-[8px] text-[12px] font-medium no-underline"
-            style={{ color: "#98A2B3", fontFamily: "Poppins, sans-serif" }}>
+            style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif" }}>
             <Home size={14} /> Home
           </Link>
           <button onClick={async () => { await logout(); window.location.href = "/login"; }}
             className="flex items-center gap-[6px] text-[12px] font-medium bg-none border-none cursor-pointer"
-            style={{ color: "#98A2B3", fontFamily: "Poppins, sans-serif" }}>
+            style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif" }}>
             <LogOut size={14} /> Logout
           </button>
         </div>
@@ -213,10 +247,10 @@ export default function DashboardShell({
 
         {/* Top header */}
         <header className="sticky top-0 z-30 flex items-center justify-between px-[20px] md:px-[32px]"
-          style={{ height: "68px", background: "#FFFFFF", borderBottom: "1px solid #F1F4FA" }}>
+          style={{ height: "68px", background: darkMode ? "#16162A" : "#FFFFFF", borderBottom: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA" }}>
           <div>
             <h1 className="m-0 text-[20px] md:text-[22px] font-bold tracking-[-0.02em]"
-              style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, color: "#19164F" }}>
+              style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, color: darkMode ? "#E0E0E0" : "#19164F" }}>
               {title || (activeItem?.label ?? "Dashboard")}
             </h1>
           </div>
@@ -226,7 +260,7 @@ export default function DashboardShell({
                 style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)" }}>
                 {user.name.charAt(0).toUpperCase()}
               </div>
-              <span className="text-[13px] font-medium hidden sm:block" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>
+              <span className="text-[13px] font-medium hidden sm:block" style={{ color: darkMode ? "#999" : "#667085", fontFamily: "Poppins, sans-serif" }}>
                 {user.name}
               </span>
             </div>
@@ -234,39 +268,39 @@ export default function DashboardShell({
         </header>
 
         {/* Page content */}
-        <main className="flex-1 px-[16px] md:px-[32px] py-[20px] md:py-[28px] pb-[110px] md:pb-[28px]">
+        <main className="flex-1 px-[16px] md:px-[32px] py-[20px] md:py-[28px] pb-[110px] md:pb-[28px]" style={{ background: darkMode ? "#0F0F23" : "transparent" }}>
           {children}
         </main>
       </div>
 
       {/* ── MOBILE BOTTOM NAV ── */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around"
-        style={{ height: "68px", background: "#FFFFFF", borderTop: "1px solid #E6E8F0", paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+        style={{ height: "68px", background: darkMode ? "#16162A" : "#FFFFFF", borderTop: darkMode ? "1px solid #2A2A4A" : "1px solid #E6E8F0", paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
         {mobileMainItems.map((item) => {
           const active = isActive(item.href);
           return (
             <Link key={item.href} href={item.href}
               className="flex flex-col items-center justify-center gap-[2px] no-underline min-w-0 flex-1 relative"
               style={{ padding: "4px 2px", height: "100%" }}>
-              <span className="flex items-center justify-center" style={{ color: active ? "#35319B" : "#98A2B3" }}>
+              <span className="flex items-center justify-center" style={{ color: active ? (darkMode ? "#818CF8" : "#35319B") : (darkMode ? "#666" : "#98A2B3") }}>
                 {item.icon}
               </span>
               <span className="text-[10px] font-semibold leading-[1] text-center truncate w-full max-w-[60px]"
-                style={{ fontFamily: "Poppins, sans-serif", fontWeight: active ? 600 : 500, color: active ? "#35319B" : "#98A2B3" }}>
+                style={{ fontFamily: "Poppins, sans-serif", fontWeight: active ? 600 : 500, color: active ? (darkMode ? "#818CF8" : "#35319B") : (darkMode ? "#666" : "#98A2B3") }}>
                 {item.label}
               </span>
-              {active && <span className="absolute top-0 left-[25%] right-[25%] h-[2px] rounded-full" style={{ background: "#35319B" }} />}
+              {active && <span className="absolute top-0 left-[25%] right-[25%] h-[2px] rounded-full" style={{ background: darkMode ? "#818CF8" : "#35319B" }} />}
             </Link>
           );
         })}
         <button onClick={() => setMoreOpen(true)}
           className="flex flex-col items-center justify-center gap-[2px] no-underline min-w-0 flex-1 bg-transparent border-none cursor-pointer"
           style={{ padding: "4px 2px", height: "100%" }}>
-          <span style={{ color: "#98A2B3" }}>
+          <span style={{ color: darkMode ? "#666" : "#98A2B3" }}>
             <Menu size={18} />
           </span>
           <span className="text-[10px] font-semibold leading-[1] text-center truncate w-full max-w-[60px]"
-            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, color: "#98A2B3" }}>
+            style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, color: darkMode ? "#666" : "#98A2B3" }}>
             More
           </span>
         </button>

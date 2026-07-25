@@ -59,11 +59,50 @@ export async function GET(req: Request) {
       .eq("member_id", member.id)
       .order("started_at", { ascending: false });
 
+    const { data: reports } = await supabase
+      .from("reports")
+      .select("id, result_id, generated_at")
+      .eq("member_id", member.id)
+      .order("generated_at", { ascending: false });
+
+    const reportsEnriched = (reports ?? []).map((r) => ({
+      id: r.id,
+      result_id: r.result_id,
+      generated_at: r.generated_at,
+      chronotype: null as string | null,
+      totalScore: null as number | null,
+      larkScore: null as number | null,
+      eagleScore: null as number | null,
+      owlScore: null as number | null,
+    }));
+
+    const resultIds = reportsEnriched.filter((r) => r.result_id).map((r) => r.result_id);
+    if (resultIds.length > 0) {
+      const { data: chronoResults } = await supabase
+        .from("chronotype_results")
+        .select("id, chronotype, total_score, lark_score, eagle_score, owl_score")
+        .in("id", resultIds);
+      if (chronoResults) {
+        const resultMap = new Map(chronoResults.map((cr: Record<string, unknown>) => [cr.id, cr]));
+        reportsEnriched.forEach((r) => {
+          const cr = r.result_id ? resultMap.get(r.result_id) : undefined;
+          if (cr) {
+            r.chronotype = cr.chronotype as string | null;
+            r.totalScore = cr.total_score as number | null;
+            r.larkScore = cr.lark_score as number | null;
+            r.eagleScore = cr.eagle_score as number | null;
+            r.owlScore = cr.owl_score as number | null;
+          }
+        });
+      }
+    }
+
     return NextResponse.json({
       member,
       result: latestResult ?? null,
       recommendations: recData?.map((r: Record<string, unknown>) => r.recommendations) ?? [],
       assessments: assessments ?? [],
+      reports: reportsEnriched,
     });
   } catch (error) {
     return NextResponse.json({ error: `Internal error: ${error instanceof Error ? error.message : "Unknown"}` }, { status: 500 });

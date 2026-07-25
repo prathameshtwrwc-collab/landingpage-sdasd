@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useAssessment } from "./AssessmentContext";
 import { getAssessmentData, createMemberAndStartAssessment, submitAssessment, abandonAndRestartAssessment, saveAnswer } from "@/lib/actions/assessment";
+import { downloadPdf, openPdfForPrint } from "@/lib/client-pdf";
 
 interface Question {
   id: string;
@@ -328,189 +329,225 @@ export default function AssessmentModal() {
         )}
 
         {submitted && chronotypeResult ? (
-          <div className="px-[24px] py-[32px] md:px-[36px] md:py-[36px]">
-            {/* ─── Header ─── */}
-            <div className="flex flex-col items-center text-center mb-[24px]">
-              <div className="flex items-center justify-center w-[56px] h-[56px] rounded-full mb-[12px]" style={{ background: "linear-gradient(135deg, #35319B, #7B76D4)" }}>
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              </div>
-              <p className="m-0 text-[12px] font-semibold uppercase tracking-[0.06em] mb-[4px]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Assessment Complete</p>
-              <p className="m-0 text-[17px] font-medium" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{memberName ?? "You"}</p>
-            </div>
+          <div className="px-[20px] py-[28px] md:px-[32px] md:py-[32px]">
 
-            {/* ─── Chronotype Badge ─── */}
-            <div className="flex flex-col items-center mb-[20px]">
-              <span className="inline-flex items-center gap-[6px] text-[13px] font-semibold text-white px-[18px] py-[8px] rounded-full mb-[6px]" style={{ background: chronotypeResult.chronotype === "LARK" ? "linear-gradient(135deg, #F59A00, #FFB74D)" : chronotypeResult.chronotype === "EAGLE" ? "linear-gradient(135deg, #35319B, #7B76D4)" : "linear-gradient(135deg, #2C2255, #7B68AE)", fontFamily: "Poppins, sans-serif", boxShadow: "0 4px 14px rgba(53,49,155,0.2)" }}>
-                {chronotypeResult.chronotype === "LARK" ? "Lion (Morning Type)" : chronotypeResult.chronotype === "EAGLE" ? "Eagle (Intermediate Type)" : "Owl (Evening Type)"}
-              </span>
-              <p className="m-0 text-[14px] leading-[1.5] text-center max-w-[380px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
-                {chronotypeResult.chronotype === "LARK"
-                  ? "Your biology runs early. You wake naturally with the sun, and your mind is sharpest before noon."
-                  : chronotypeResult.chronotype === "EAGLE"
-                    ? "Your biology sits in the middle. You adapt well to most schedules with steady midday focus."
-                    : "Your biology leans later. You come alive when the day quiets down, with deeper creative focus toward evening."}
-              </p>
-            </div>
-
-            {/* ─── Stats Row ─── */}
-            <div className="grid grid-cols-2 gap-[12px] mb-[20px] max-w-[320px] mx-auto">
-              <div className="flex flex-col items-center p-[14px] rounded-xl" style={{ background: "rgba(53,49,155,0.05)" }}>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.05em] mb-[2px]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Confidence</span>
-                <span className="text-[24px] font-bold" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>{chronotypeResult.confidence_score}%</span>
-              </div>
-              <div className="flex flex-col items-center p-[14px] rounded-xl" style={{ background: "rgba(245,154,0,0.06)" }}>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.05em] mb-[2px]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Total Score</span>
-                <span className="text-[24px] font-bold" style={{ color: "#F59A00", fontFamily: "Poppins, sans-serif" }}>{chronotypeResult.total_score}</span>
-              </div>
-            </div>
-
-            {/* ─── Sub Scores ─── */}
-            <div className="flex items-center justify-center gap-[20px] mb-[24px]">
-              {[
-                { label: "Lark", score: chronotypeResult.lark_score, color: "#F59A00" },
-                { label: "Eagle", score: chronotypeResult.eagle_score, color: "#35319B" },
-                { label: "Owl", score: chronotypeResult.owl_score, color: "#7B68AE" },
-              ].map((s) => (
-                <div key={s.label} className="flex flex-col items-center">
-                  <div
-                    className="flex items-center justify-center w-[8px] h-[8px] rounded-full mb-[4px]"
-                    style={{ background: s.color, boxShadow: "0 0 6px " + s.color + "60" }}
-                  />
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.04em]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>{s.label}</span>
-                  <span className="text-[16px] font-bold" style={{ color: s.color, fontFamily: "Poppins, sans-serif" }}>{s.score}</span>
+              {/* ─── Header ─── */}
+              <div className="flex items-center gap-[14px] mb-[20px]">
+                <div className="flex items-center justify-center w-[48px] h-[48px] rounded-xl shrink-0" style={{ background: chronotypeResult.chronotype === "LARK" ? "linear-gradient(135deg, #F59A00, #FBBF24)" : chronotypeResult.chronotype === "EAGLE" ? "linear-gradient(135deg, #35319B, #818CF8)" : "linear-gradient(135deg, #2C2255, #7B68AE)" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
                 </div>
-              ))}
-            </div>
-
-            {/* ─── Strengths & Challenges ─── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-[12px] mb-[20px] max-w-[480px] mx-auto">
-              <div className="p-[16px] rounded-xl" style={{ background: "rgba(46,125,50,0.05)" }}>
-                <p className="m-0 text-[12px] font-bold mb-[8px] flex items-center gap-[5px]" style={{ color: "#2E7D32", fontFamily: "Poppins, sans-serif" }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
-                  Strengths
-                </p>
-                <ul className="m-0 pl-[16px]" style={{ listStyle: "disc", color: "#2E7D32" }}>
-                  <li className="text-[12px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
-                    {chronotypeResult.chronotype === "LARK" ? "Early morning peak productivity" : chronotypeResult.chronotype === "EAGLE" ? "Flexible schedule adaptability" : "Late-day creative focus"}
-                  </li>
-                  <li className="text-[12px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
-                    {chronotypeResult.chronotype === "LARK" ? "Consistent natural wake-up" : chronotypeResult.chronotype === "EAGLE" ? "Steady midday energy" : "Creative problem solving at night"}
-                  </li>
-                  <li className="text-[12px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
-                    {chronotypeResult.chronotype === "LARK" ? "Strong morning discipline" : chronotypeResult.chronotype === "EAGLE" ? "Socially adaptable timing" : "Comfort with flexible late blocks"}
-                  </li>
-                </ul>
+                <div>
+                  <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Assessment Complete</p>
+                  <p className="m-0 text-[18px] font-medium" style={{ color: "#333", fontFamily: "Poppins, sans-serif" }}>Welcome, {memberName ?? "You"}</p>
+                </div>
               </div>
-              <div className="p-[16px] rounded-xl" style={{ background: "rgba(211,47,47,0.05)" }}>
-                <p className="m-0 text-[12px] font-bold mb-[8px] flex items-center gap-[5px]" style={{ color: "#D32F2F", fontFamily: "Poppins, sans-serif" }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                  Challenges
-                </p>
-                <ul className="m-0 pl-[16px]" style={{ listStyle: "disc", color: "#D32F2F" }}>
-                  <li className="text-[12px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
-                    {chronotypeResult.chronotype === "LARK" ? "Evening social events drain quickly" : chronotypeResult.chronotype === "EAGLE" ? "Rigid schedules disrupt balance" : "Early starts are physically costly"}
-                  </li>
-                  <li className="text-[12px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
-                    {chronotypeResult.chronotype === "LARK" ? "Hard to stay awake past 10 PM" : chronotypeResult.chronotype === "EAGLE" ? "Can drift without a routine" : "Morning fog and slow waking"}
-                  </li>
-                  <li className="text-[12px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
-                    {chronotypeResult.chronotype === "LARK" ? "Late-night work is inefficient" : chronotypeResult.chronotype === "EAGLE" ? "Energy dips mid-afternoon" : "Fixed schedules create sleep debt"}
-                  </li>
-                </ul>
-              </div>
-            </div>
 
-            {/* ─── Optimization Tips ─── */}
-            <div className="p-[16px] rounded-xl mb-[20px] max-w-[480px] mx-auto" style={{ background: "rgba(53,49,155,0.04)" }}>
-              <p className="m-0 text-[12px] font-bold mb-[8px]" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>Optimize Your Rhythm</p>
-              <div className="flex flex-col gap-[6px]">
-                {[
-                  chronotypeResult.chronotype === "LARK" ? "Schedule important tasks before noon — your peak window" : chronotypeResult.chronotype === "EAGLE" ? "Block 10 AM – 2 PM for deep focused work" : "Use bright light within 30 min of waking to shift your clock",
-                  chronotypeResult.chronotype === "LARK" ? "Avoid caffeine after 2 PM to protect early sleep" : chronotypeResult.chronotype === "EAGLE" ? "Maintain consistent wake and bed times for stability" : "Avoid critical tasks before 9 AM if possible",
-                  chronotypeResult.chronotype === "LARK" ? "Wind down with dim lighting by 9 PM" : chronotypeResult.chronotype === "EAGLE" ? "Use your midday energy for exercise" : "Build a consistent 30-min pre-sleep wind-down",
-                ].map((tip, i) => (
-                  <div key={i} className="flex items-start gap-[8px]">
-                    <span className="text-[10px] font-bold mt-[2px]" style={{ color: "#35319B" }}>{i + 1}.</span>
-                    <span className="text-[12px] leading-[1.5]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{tip}</span>
+              {/* ─── Chronotype Hero Card ─── */}
+              <div className="rounded-2xl p-[20px] md:p-[24px] mb-[20px]" style={{
+                background: chronotypeResult.chronotype === "LARK"
+                  ? "linear-gradient(135deg, #FFFBEB, #FEF3C7)"
+                  : chronotypeResult.chronotype === "EAGLE"
+                    ? "linear-gradient(135deg, #EEF2FF, #E0E7FF)"
+                    : "linear-gradient(135deg, #F5F3FF, #EDE9FE)",
+              }}>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="inline-flex items-center text-[15px] font-semibold px-[18px] py-[8px] rounded-full text-white" style={{
+                      background: chronotypeResult.chronotype === "LARK"
+                        ? "linear-gradient(135deg, #F59A00, #F97316)"
+                        : chronotypeResult.chronotype === "EAGLE"
+                          ? "linear-gradient(135deg, #35319B, #6366F1)"
+                          : "linear-gradient(135deg, #2C2255, #7B68AE)",
+                      fontFamily: "Poppins, sans-serif",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    }}>
+                      {chronotypeResult.chronotype === "LARK" ? "🦁 Lion · Morning Type" : chronotypeResult.chronotype === "EAGLE" ? "🦅 Eagle · Intermediate Type" : "🦉 Owl · Evening Type"}
+                    </span>
+                    <p className="m-0 mt-[14px] text-[15px] leading-[1.7] max-w-[420px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
+                      {chronotypeResult.chronotype === "LARK"
+                        ? "Your biology runs early. You wake naturally with the sun, and your mind is at its sharpest before noon. Mornings are your superpower."
+                        : chronotypeResult.chronotype === "EAGLE"
+                          ? "Your biology sits in the middle. You adapt well to most schedules with steady, balanced energy throughout the day."
+                          : "Your biology leans later. You come alive when the day quiets down, with deeper creative focus toward evening."}
+                    </p>
                   </div>
-                ))}
+                </div>
+                {/* Stats inline */}
+                <div className="flex gap-[16px] mt-[16px]">
+                  <div className="flex items-center gap-[10px] px-[14px] py-[8px] rounded-lg" style={{ background: "rgba(255,255,255,0.7)" }}>
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.04em]" style={{ color: "#999", fontFamily: "Poppins, sans-serif" }}>Confidence</span>
+                    <span className="text-[22px] font-bold" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>{chronotypeResult.confidence_score}%</span>
+                  </div>
+                  <div className="flex items-center gap-[10px] px-[14px] py-[8px] rounded-lg" style={{ background: "rgba(255,255,255,0.7)" }}>
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.04em]" style={{ color: "#999", fontFamily: "Poppins, sans-serif" }}>Score</span>
+                    <span className="text-[22px] font-bold" style={{ color: "#F59A00", fontFamily: "Poppins, sans-serif" }}>{chronotypeResult.total_score}</span>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            {/* ─── Source Tag ─── */}
-            {submissionMeta?.orgName && (
-              <div className="text-center mb-[16px]">
-                <span className="inline-block text-[11px] font-medium px-[10px] py-[4px] rounded-full" style={{ background: "rgba(53,49,155,0.06)", color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
-                  Registered under {submissionMeta.orgName}
-                </span>
+              {/* ─── Score Bars ─── */}
+              <div className="mb-[22px]">
+                <p className="m-0 text-[14px] font-semibold mb-[12px]" style={{ color: "#444", fontFamily: "Poppins, sans-serif" }}>Dimension Scores</p>
+                <div className="flex flex-col gap-[10px]">
+                  {[
+                    { label: "Lark", score: chronotypeResult.lark_score, color: "#F59A00", max: 60 },
+                    { label: "Eagle", score: chronotypeResult.eagle_score, color: "#35319B", max: 60 },
+                    { label: "Owl", score: chronotypeResult.owl_score, color: "#7B68AE", max: 60 },
+                  ].map((s) => (
+                    <div key={s.label} className="flex items-center gap-[12px]">
+                      <span className="text-[13px] font-semibold w-[52px] shrink-0 text-right" style={{ color: s.color, fontFamily: "Poppins, sans-serif" }}>{s.label}</span>
+                      <div className="flex-1 h-[9px] rounded-full" style={{ background: "#F0F0F0" }}>
+                        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${Math.min(100, (s.score / s.max) * 100)}%`, background: `linear-gradient(90deg, ${s.color}, ${s.color}dd)` }} />
+                      </div>
+                      <span className="text-[16px] font-bold w-[32px] text-right" style={{ color: s.color, fontFamily: "Poppins, sans-serif" }}>{s.score}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            )}
-            {submissionMeta?.sourceType === "REFERRAL" && !submissionMeta?.orgName && (
-              <div className="text-center mb-[16px]">
-                <span className="inline-block text-[11px] font-medium px-[10px] py-[4px] rounded-full" style={{ background: "rgba(245,154,0,0.08)", color: "#F59A00", fontFamily: "Poppins, sans-serif" }}>
-                  You were referred by a friend
-                </span>
-              </div>
-            )}
 
-            {/* ─── Referral Code ─── */}
-            <div className="max-w-[480px] mx-auto mb-[20px] p-[16px] rounded-xl" style={{ background: "#FFFFFF", border: "1.5px solid #E8E8E8" }}>
-              <p className="m-0 text-[12px] font-semibold mb-[8px]" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
-                Refer a Friend
-              </p>
-              <p className="m-0 text-[11px] leading-[1.4] mb-[10px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
-                Share your referral link and help someone discover their chronotype.
-              </p>
-              {memberReferralCode ? (
-                <div className="flex items-center gap-[8px]">
-                  <code className="flex-1 px-[12px] py-[8px] text-[13px] font-mono font-semibold rounded-lg" style={{ background: "#F5F5F5", color: "#35319B" }}>
-                    {typeof window !== "undefined" ? window.location.origin + "/?ref=" + memberReferralCode : memberReferralCode}
-                  </code>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText((typeof window !== "undefined" ? window.location.origin + "/?ref=" : "") + memberReferralCode);
-                      setCopiedReferral(true);
-                      setTimeout(() => setCopiedReferral(false), 2000);
-                    }}
-                    className="flex items-center justify-center w-[36px] h-[36px] rounded-lg border-none cursor-pointer"
-                    style={{ background: copiedReferral ? "rgba(46,125,50,0.1)" : "rgba(53,49,155,0.08)" }}
-                  >
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={copiedReferral ? "#2E7D32" : "#35319B"} strokeWidth="2" strokeLinecap="round">
-                      {copiedReferral
-                        ? <><polyline points="20 6 9 17 4 12" /></>
-                        : <><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></>
-                      }
-                    </svg>
+              {/* ─── Strengths & Challenges (side by side on md+) ─── */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-[16px] mb-[22px]">
+                <div className="p-[16px] rounded-xl" style={{ background: "rgba(46,125,50,0.06)", border: "1px solid rgba(46,125,50,0.12)" }}>
+                  <p className="m-0 text-[13px] font-bold mb-[10px] flex items-center gap-[6px]" style={{ color: "#2E7D32", fontFamily: "Poppins, sans-serif" }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
+                    Strengths
+                  </p>
+                  {[
+                    chronotypeResult.chronotype === "LARK" ? "Early morning peak productivity" : chronotypeResult.chronotype === "EAGLE" ? "Flexible schedule adaptability" : "Late-day creative focus",
+                    chronotypeResult.chronotype === "LARK" ? "Consistent natural wake-up" : chronotypeResult.chronotype === "EAGLE" ? "Steady midday energy" : "Creative problem solving at night",
+                    chronotypeResult.chronotype === "LARK" ? "Strong morning discipline" : chronotypeResult.chronotype === "EAGLE" ? "Socially adaptable timing" : "Comfort with flexible late blocks",
+                  ].map((t, i) => (
+                    <div key={i} className="flex items-start gap-[8px] mb-[6px] last:mb-0">
+                      <span className="text-[11px] mt-[3px] text-[#2E7D32]">●</span>
+                      <span className="text-[13px] leading-[1.5]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{t}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="p-[16px] rounded-xl" style={{ background: "rgba(211,47,47,0.05)", border: "1px solid rgba(211,47,47,0.1)" }}>
+                  <p className="m-0 text-[13px] font-bold mb-[10px] flex items-center gap-[6px]" style={{ color: "#D32F2F", fontFamily: "Poppins, sans-serif" }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                    Challenges
+                  </p>
+                  {[
+                    chronotypeResult.chronotype === "LARK" ? "Evening social events drain quickly" : chronotypeResult.chronotype === "EAGLE" ? "Rigid schedules disrupt balance" : "Early starts are physically costly",
+                    chronotypeResult.chronotype === "LARK" ? "Hard to stay awake past 10 PM" : chronotypeResult.chronotype === "EAGLE" ? "Can drift without a routine" : "Morning fog and slow waking",
+                    chronotypeResult.chronotype === "LARK" ? "Late-night work is inefficient" : chronotypeResult.chronotype === "EAGLE" ? "Energy dips mid-afternoon" : "Fixed schedules create sleep debt",
+                  ].map((t, i) => (
+                    <div key={i} className="flex items-start gap-[8px] mb-[6px] last:mb-0">
+                      <span className="text-[11px] mt-[3px] text-[#D32F2F]">●</span>
+                      <span className="text-[13px] leading-[1.5]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{t}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ─── Optimization Tips ─── */}
+              <div className="p-[16px] rounded-xl mb-[18px]" style={{ background: "rgba(53,49,155,0.04)", border: "1px solid rgba(53,49,155,0.08)" }}>
+                <p className="m-0 text-[13px] font-bold mb-[10px]" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>Optimize Your Rhythm</p>
+                <div className="flex flex-col gap-[6px]">
+                  {[
+                    chronotypeResult.chronotype === "LARK" ? "Schedule important tasks before noon — your peak window" : chronotypeResult.chronotype === "EAGLE" ? "Block 10 AM – 2 PM for deep focused work" : "Use bright light within 30 min of waking to shift your clock",
+                    chronotypeResult.chronotype === "LARK" ? "Avoid caffeine after 2 PM to protect early sleep" : chronotypeResult.chronotype === "EAGLE" ? "Maintain consistent wake and bed times for stability" : "Avoid critical tasks before 9 AM if possible",
+                    chronotypeResult.chronotype === "LARK" ? "Wind down with dim lighting by 9 PM" : chronotypeResult.chronotype === "EAGLE" ? "Use your midday energy for exercise" : "Build a consistent 30-min pre-sleep wind-down",
+                  ].map((tip, i) => (
+                    <div key={i} className="flex items-start gap-[10px]">
+                      <span className="flex items-center justify-center w-[22px] h-[22px] rounded-full text-[10px] font-bold shrink-0 mt-[1px]" style={{ background: "rgba(53,49,155,0.1)", color: "#35319B", fontFamily: "Poppins, sans-serif" }}>{i + 1}</span>
+                      <span className="text-[13px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{tip}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ─── Source Tag ─── */}
+              {submissionMeta?.orgName && (
+                <div className="text-center mb-[12px]">
+                  <span className="inline-block text-[10px] font-medium px-[10px] py-[3px] rounded-full" style={{ background: "rgba(53,49,155,0.06)", color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                    {submissionMeta.orgName}
+                  </span>
+                </div>
+              )}
+
+              {/* ─── Referral Code ─── */}
+              <div className="mb-[18px] p-[16px] rounded-xl" style={{ background: "#FFFFFF", border: "1.5px solid #EEEEEE" }}>
+                <p className="m-0 text-[13px] font-semibold mb-[4px]" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                  Refer a Friend
+                </p>
+                <p className="m-0 text-[12px] leading-[1.4] mb-[10px]" style={{ color: "#999", fontFamily: "Poppins, sans-serif" }}>
+                  Share your link and help someone discover their chronotype.
+                </p>
+                {memberReferralCode ? (
+                  <div className="flex items-center gap-[8px]">
+                    <code className="flex-1 px-[12px] py-[9px] text-[14px] font-mono font-semibold rounded-lg truncate" style={{ background: "#F5F5F5", color: "#35319B" }}>
+                      {typeof window !== "undefined" ? window.location.origin + "/?ref=" + memberReferralCode : memberReferralCode}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText((typeof window !== "undefined" ? window.location.origin + "/?ref=" : "") + memberReferralCode);
+                        setCopiedReferral(true);
+                        setTimeout(() => setCopiedReferral(false), 2000);
+                      }}
+                      className="flex items-center justify-center w-[38px] h-[38px] rounded-lg border-none cursor-pointer"
+                      style={{ background: copiedReferral ? "rgba(46,125,50,0.1)" : "rgba(53,49,155,0.08)" }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={copiedReferral ? "#2E7D32" : "#35319B"} strokeWidth="2" strokeLinecap="round">
+                        {copiedReferral
+                          ? <><polyline points="20 6 9 17 4 12" /></>
+                          : <><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></>
+                        }
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <p className="m-0 text-[12px] italic" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Generating...</p>
+                )}
+              </div>
+
+              {/* ─── Action Buttons ─── */}
+              <div className="flex flex-col gap-[10px] max-w-[340px] mx-auto">
+                <div className="grid grid-cols-3 gap-[10px]">
+                  <button type="button" onClick={() => chronotypeResult && downloadPdf({ firstName: form.fname, lastName: form.lname, email: form.email, chronotype: chronotypeResult.chronotype, totalScore: chronotypeResult.total_score, larkScore: chronotypeResult.lark_score, eagleScore: chronotypeResult.eagle_score, owlScore: chronotypeResult.owl_score, summary: chronotypeDescs[chronotypeResult.chronotype], orgName: submissionMeta?.orgName ?? undefined })}
+                    className="flex flex-col items-center gap-[4px] text-[12px] font-semibold py-[12px] px-[8px] border-none cursor-pointer rounded-xl transition-all"
+                    style={{ color: "#fff", background: "linear-gradient(135deg, #35319B, #5A55C0)", fontFamily: "Poppins, sans-serif" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    PDF
+                  </button>
+                  <button type="button" onClick={() => chronotypeResult && openPdfForPrint({ firstName: form.fname, lastName: form.lname, email: form.email, chronotype: chronotypeResult.chronotype, totalScore: chronotypeResult.total_score, larkScore: chronotypeResult.lark_score, eagleScore: chronotypeResult.eagle_score, owlScore: chronotypeResult.owl_score, summary: chronotypeDescs[chronotypeResult.chronotype], orgName: submissionMeta?.orgName ?? undefined })}
+                    className="flex flex-col items-center gap-[4px] text-[12px] font-semibold py-[12px] px-[8px] border-none cursor-pointer rounded-xl transition-all"
+                    style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    Print
+                  </button>
+                  <button type="button" onClick={async () => {
+                    if (!assessmentId) return;
+                    const shareUrl = typeof window !== "undefined" ? window.location.origin + "/r/" + assessmentId : "";
+                    if (typeof navigator !== "undefined" && navigator.share) {
+                      try { await navigator.share({ title: "My Chronotype Result", url: shareUrl }); return; } catch {}
+                    }
+                    await navigator.clipboard.writeText(shareUrl);
+                    setCopiedReferral(true);
+                    setTimeout(() => setCopiedReferral(false), 2000);
+                  }}
+                    className="flex flex-col items-center gap-[4px] text-[12px] font-semibold py-[12px] px-[8px] border-none cursor-pointer rounded-xl transition-all"
+                    style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    {copiedReferral ? "Copied!" : "Share"}
                   </button>
                 </div>
-              ) : (
-                <p className="m-0 text-[11px] italic" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Generating referral code...</p>
-              )}
+                <button type="button" onClick={() => { window.location.href = "/login"; }}
+                  className="w-full text-white text-[14px] font-semibold py-[12px] border-none cursor-pointer rounded-xl transition-all"
+                  style={{ background: "#171717", fontFamily: "Poppins, sans-serif" }}>
+                  Open My Dashboard
+                </button>
+                <button type="button" onClick={resetAndClose}
+                  className="w-full text-[13px] font-medium py-[10px] border-none cursor-pointer rounded-xl transition-all"
+                  style={{ color: "#888", background: "#F5F5F5", fontFamily: "Poppins, sans-serif" }}>
+                  Close
+                </button>
+              </div>
             </div>
-
-            {/* ─── Dashboard Button ─── */}
-            <div className="flex flex-col gap-[8px] max-w-[320px] mx-auto">
-              <button
-                type="button"
-                onClick={() => { window.location.href = "/login"; }}
-                className="w-full text-white text-[14px] font-semibold py-[12px] border-none cursor-pointer rounded-xl transition-all"
-                style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)", fontFamily: "Poppins, sans-serif", boxShadow: "0 4px 16px rgba(53,49,155,0.2)" }}
-              >
-                Open My Dashboard
-              </button>
-              <button
-                type="button"
-                onClick={resetAndClose}
-                className="w-full text-[13px] font-medium py-[10px] border-none cursor-pointer rounded-xl transition-all"
-                style={{ color: "#888", background: "#F5F5F5", fontFamily: "Poppins, sans-serif" }}
-              >
-                Close
-              </button>
-            </div>
-          </div>
         ) : existingAssessment ? (
           <div className="flex flex-col items-center px-[24px] py-[36px] md:px-[40px] md:py-[44px] text-center">
             <div

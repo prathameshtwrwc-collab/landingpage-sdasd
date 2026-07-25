@@ -46,18 +46,33 @@ export default function ChronotypePage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-[16px]">
-          <div className="flex flex-col items-center p-[28px] rounded-[16px] text-center" style={{ background: "linear-gradient(135deg, #1A1668 0%, #35319B 100%)" }}>
-            <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-[16px]" style={{ background: "rgba(255,255,255,0.1)" }}>
-              <Moon size={36} stroke="#F59A00" strokeWidth={1.5} />
+          <div className="flex flex-col items-center p-[28px] rounded-[16px] text-center" style={{
+            background: chronotype === "LARK"
+              ? "linear-gradient(135deg, #FDE68A 0%, #F59A00 100%)"
+              : chronotype === "EAGLE"
+                ? "linear-gradient(135deg, #E0E7FF 0%, #818CF8 100%)"
+                : "linear-gradient(135deg, #1A1668 0%, #35319B 100%)",
+          }}>
+            <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-[16px]" style={{ background: chronotype === "EAGLE" ? "rgba(53,49,155,0.1)" : "rgba(255,255,255,0.1)" }}>
+              <Moon size={36} stroke={chronotype === "EAGLE" ? "#35319B" : "#F59A00"} strokeWidth={1.5} />
             </div>
-            <h2 className="m-0 text-[24px] font-bold text-white" style={{ fontFamily: "Poppins, sans-serif" }}>{CHRONOTYPE_LABELS[chronotype]}</h2>
-            <p className="m-0 mt-[8px] text-[14px] leading-[1.6]" style={{ color: "rgba(255,255,255,0.7)", fontFamily: "Poppins, sans-serif" }}>{info?.tagline}</p>
-            <div className="mt-[16px]"><Ring value={confidence} size={80} color="#F59A00" label="Match" /></div>
+            <h2 className="m-0 text-[24px] font-bold" style={{ color: chronotype === "EAGLE" ? "#171717" : "#FFFFFF", fontFamily: "Poppins, sans-serif" }}>{CHRONOTYPE_LABELS[chronotype]}</h2>
+            <p className="m-0 mt-[8px] text-[14px] leading-[1.6]" style={{ color: chronotype === "EAGLE" ? "rgba(23,23,23,0.7)" : "rgba(255,255,255,0.7)", fontFamily: "Poppins, sans-serif" }}>{info?.tagline}</p>
+            <div className="mt-[16px]"><Ring value={confidence} size={80} color={chronotype === "EAGLE" ? "#35319B" : "#F59A00"} label="Match" /></div>
           </div>
 
-          <div className="p-[20px] rounded-[16px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-            <h3 className="m-0 text-[14px] font-bold mb-[10px]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>What This Means For You</h3>
-            <p className="m-0 text-[13px] leading-[1.7]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{info?.description}</p>
+          <div className="flex items-center justify-center p-[20px] rounded-[16px] min-h-[180px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+            <div className="flex flex-col items-center text-center">
+              <div className="w-[64px] h-[64px] rounded-xl flex items-center justify-center mb-[12px]" style={{ background: "rgba(53,49,155,0.06)" }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#35319B" strokeWidth="1.5" strokeLinecap="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+              <p className="m-0 text-[13px] font-medium" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Visual illustration coming soon</p>
+              <p className="m-0 mt-[4px] text-[11px]" style={{ color: "#CCC", fontFamily: "Poppins, sans-serif" }}>Image placeholder for chronotype visual</p>
+            </div>
           </div>
 
           {peaks && (
