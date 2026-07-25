@@ -183,10 +183,9 @@ export default function OrgDetailPage() {
                     </td>
                     <td className="px-[12px] py-[10px] text-[13px]" style={{ color: "#888" }}>{m.created_at ? new Date(m.created_at).toLocaleDateString() : "—"}</td>
                     <td className="px-[12px] py-[10px]">
-                      <button type="button" className="inline-flex items-center gap-[4px] text-[11px] font-medium bg-transparent border-none cursor-pointer transition-colors"
-                        style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = "#D32F2F"}
-                        onMouseLeave={(e) => e.currentTarget.style.color = "#35319B"}>
+                      <button type="button" onClick={() => router.push(`/superadmin/dashboard/users?search=${encodeURIComponent(m.email)}`)}
+                        className="inline-flex items-center gap-[4px] text-[11px] font-medium bg-transparent border-none cursor-pointer transition-colors"
+                        style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
                         <Eye size={12} /> View
                       </button>
                     </td>
