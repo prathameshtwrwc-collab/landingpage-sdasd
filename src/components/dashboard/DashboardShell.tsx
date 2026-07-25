@@ -43,10 +43,11 @@ const roleNavItems: Record<Role, NavItem[]> = {
   ],
   superadmin: [
     { label: "Dashboard", href: "/superadmin/dashboard", icon: <LayoutDashboard size={18} /> },
+    { label: "Assessments", href: "/superadmin/dashboard/assessments", icon: <ClipboardList size={18} /> },
     { label: "Organizations", href: "/superadmin/dashboard/organizations", icon: <Building2 size={18} /> },
     { label: "Users", href: "/superadmin/dashboard/users", icon: <Users size={18} /> },
     { label: "Reports", href: "/superadmin/dashboard/reports", icon: <BarChart3 size={18} /> },
-    { label: "Analytics", href: "/superadmin/dashboard/analytics", icon: <Activity size={18} /> },
+    { label: "Analytics", href: "/superadmin/dashboard/analytics", icon: <TrendingUp size={18} /> },
     { label: "Audit Log", href: "/superadmin/dashboard/audit", icon: <FileText size={18} /> },
     { label: "System", href: "/superadmin/dashboard/system", icon: <Shield size={18} /> },
     { label: "Settings", href: "/superadmin/dashboard/settings", icon: <Settings size={18} /> },
