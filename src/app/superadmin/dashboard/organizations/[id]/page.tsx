@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Building2, Mail, Globe, Calendar, Users, ArrowLeft, ChevronRight, Eye, BarChart3, Activity, Tag, MapPin, Shield } from "lucide-react";
+import MemberDetailModal from "@/components/modals/MemberDetailModal";
+import { Building2, Mail, Globe, Calendar, Users, ArrowLeft, Eye, Activity, Tag, Shield } from "lucide-react";
 
 interface MemberRow {
   id: string;
@@ -25,6 +26,7 @@ export default function OrgDetailPage() {
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [orgAdmins, setOrgAdmins] = useState<Array<Record<string, unknown>>>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!orgId) return;
@@ -183,7 +185,7 @@ export default function OrgDetailPage() {
                     </td>
                     <td className="px-[12px] py-[10px] text-[13px]" style={{ color: "#888" }}>{m.created_at ? new Date(m.created_at).toLocaleDateString() : "—"}</td>
                     <td className="px-[12px] py-[10px]">
-                      <button type="button" onClick={() => router.push(`/superadmin/dashboard/users?search=${encodeURIComponent(m.email)}`)}
+                      <button type="button" onClick={() => setSelectedMemberId(m.id)}
                         className="inline-flex items-center gap-[4px] text-[11px] font-medium bg-transparent border-none cursor-pointer transition-colors"
                         style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
                         <Eye size={12} /> View
@@ -196,6 +198,10 @@ export default function OrgDetailPage() {
           </div>
         )}
       </div>
+
+      {selectedMemberId && (
+        <MemberDetailModal memberId={selectedMemberId} onClose={() => setSelectedMemberId(null)} />
+      )}
     </DashboardShell>
   );
 }
