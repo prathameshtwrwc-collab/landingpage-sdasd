@@ -17,26 +17,6 @@ function ageGroup(age: string | null): string {
   return "60+";
 }
 
-async function batchIn<T extends Record<string, unknown>>(
-  supabase: ReturnType<typeof createAdminClient>,
-  table: string,
-  ids: string[],
-  select: string,
-  batchSize = 200
-): Promise<T[]> {
-  const results: T[] = [];
-  for (let i = 0; i < ids.length; i += batchSize) {
-    const batch = ids.slice(i, i + batchSize);
-    const { data } = await supabase.from(table).select(select).in("id", batch);
-    if (data) results.push(...(data as unknown as T[]));
-  }
-  return results;
-}
-
-function emptyResponse() {
-  return NextResponse.json({ rows: 0, locationBreakdown: [], genderBreakdown: [], orgTypeBreakdown: [], orgBreakdown: [], heatmap: [], orgTypeLocation: [], ageBreakdown: [], trend: [], insights: { mostOwlLocation: null, mostLarkOrg: null, mostBalancedOrg: null, highestEaglePct: null, owlTrend: "stable" }, filters: { countries: [], states: [], cities: [], orgTypes: [], orgNames: [] } });
-}
-
 export async function GET(req: Request) {
   try {
     const session = await auth();
@@ -44,6 +24,7 @@ export async function GET(req: Request) {
 
     const supabase = createAdminClient();
     const url = new URL(req.url);
+    const isDebug = url.searchParams.get("debug") === "1";
 
     const filterCountry = url.searchParams.get("country") || undefined;
     const filterState = url.searchParams.get("state") || undefined;
@@ -56,50 +37,53 @@ export async function GET(req: Request) {
     const filterOrgName = url.searchParams.get("org_name") || url.searchParams.get("orgName") || undefined;
     const filterAgeGroup = url.searchParams.get("age_group") || url.searchParams.get("ageGroup") || undefined;
 
-    // Step 1: Get chronotype results
-    let chronoQuery = supabase.from("chronotype_results").select("id, assessment_id, chronotype, confidence_score");
-    if (filterChronotype) chronoQuery = chronoQuery.eq("chronotype", filterChronotype);
-    const { data: chronoResults } = await chronoQuery.limit(10000);
-    if (!chronoResults || chronoResults.length === 0) return emptyResponse();
+    // ── Step 1: Get completed assessments with member + org info (start from assessments, not chronotype_results) ──
+    let assessQuery = supabase
+      .from("assessments")
+      .select("id, member_id, organization_id, completed_at")
+      .eq("status", "COMPLETED")
+      .not("completed_at", "is", null);
 
-    const assessmentIds = chronoResults.map((r) => r.assessment_id).filter(Boolean) as string[];
-    if (assessmentIds.length === 0) return emptyResponse();
+    if (filterDateFrom) assessQuery = assessQuery.gte("completed_at", filterDateFrom);
+    if (filterDateTo) assessQuery = assessQuery.lte("completed_at", filterDateTo);
 
-    // Step 2: Get assessments (batched)
-    const rawAssessments = await batchIn<{ id: string; member_id: string; organization_id: string | null; completed_at: string | null }>(
-      supabase, "assessments", assessmentIds, "id, member_id, organization_id, completed_at"
-    );
+    const { data: assessments, error: assessErr } = await assessQuery.limit(10000);
 
-    let assessments = rawAssessments.filter((a) => a.completed_at);
-    if (filterDateFrom) assessments = assessments.filter((a) => a.completed_at! >= filterDateFrom);
-    if (filterDateTo) assessments = assessments.filter((a) => a.completed_at! <= filterDateTo);
-    if (assessments.length === 0) return emptyResponse();
+    if (isDebug) {
+      return NextResponse.json({
+        assessmentCount: assessments?.length ?? 0,
+        assessError: assessErr?.message ?? null,
+        sampleAssessments: (assessments ?? []).slice(0, 3),
+      });
+    }
 
-    const assessMap = new Map(assessments.map((a) => [a.id, a]));
+    if (!assessments || assessments.length === 0) return emptyResponse();
+
+    // ── Step 2: Get chronotype_results for these assessments ──
+    const assessmentIds = assessments.map((a) => a.id);
+    const { data: chronoResults, error: chronoErr } = await supabase
+      .from("chronotype_results")
+      .select("id, assessment_id, member_id, chronotype, confidence_score")
+      .in("assessment_id", assessmentIds);
+
+    if (!chronoResults || chronoResults.length === 0) {
+      // Fallback: no chronotype results yet, but assessments exist
+      return emptyResponse();
+    }
+
+    const chronoMap = new Map(chronoResults.map((r) => [r.assessment_id, r]));
+
+    // ── Step 3: Get member and org data ──
     const memberIds = [...new Set(assessments.map((a) => a.member_id).filter(Boolean) as string[])];
     const orgIds = [...new Set(assessments.map((a) => a.organization_id).filter(Boolean) as string[])];
 
-    // Step 3: Get members (batched)
-    const allMembers = await batchIn<{ id: string; age: string | null; gender: string | null; country: string | null; state: string | null; city: string | null }>(
-      supabase, "members", memberIds, "id, age, gender, country, state, city"
-    );
+    const { data: members } = await supabase.from("members").select("*").in("id", memberIds);
+    const memberMap = new Map((members ?? []).map((m) => [m.id, m]));
 
-    let filteredMembers = allMembers;
-    if (filterCountry) filteredMembers = filteredMembers.filter((m) => m.country === filterCountry);
-    if (filterState) filteredMembers = filteredMembers.filter((m) => m.state === filterState);
-    if (filterCity) filteredMembers = filteredMembers.filter((m) => m.city === filterCity);
-    if (filterGender) filteredMembers = filteredMembers.filter((m) => m.gender === filterGender);
-    const memberMap = new Map(filteredMembers.map((m) => [m.id, m]));
+    const { data: orgs } = await supabase.from("organizations").select("*").in("id", orgIds.length > 0 ? orgIds : ["none"]);
+    const orgMap = new Map((orgs ?? []).map((o) => [o.id, o]));
 
-    // Step 4: Get organizations
-    const orgs = orgIds.length > 0
-      ? await batchIn<{ id: string; name: string | null; organization_type: string | null; country: string | null }>(
-          supabase, "organizations", orgIds, "id, name, organization_type, country"
-        )
-      : [];
-    const orgMap = new Map(orgs.map((o) => [o.id, o]));
-
-    // Step 5: Join in memory
+    // ── Step 4: Join ──
     const rows: Array<{
       chronotype: string; confidence_score: number | null;
       age: string | null; gender: string | null;
@@ -108,13 +92,19 @@ export async function GET(req: Request) {
       completed_at: string | null; ageGroup: string;
     }> = [];
 
-    for (const cr of chronoResults) {
-      const as = cr.assessment_id ? assessMap.get(cr.assessment_id) : undefined;
-      if (!as) continue;
+    for (const as of assessments) {
+      const cr = as.id ? chronoMap.get(as.id) : undefined;
+      if (!cr) continue;
+      if (filterChronotype && cr.chronotype !== filterChronotype) continue;
+
       const mem = as.member_id ? memberMap.get(as.member_id) : undefined;
       if (!mem) continue;
-      const org = as.organization_id ? orgMap.get(as.organization_id) : undefined;
+      if (filterCountry && mem.country !== filterCountry) continue;
+      if (filterState && mem.state !== filterState) continue;
+      if (filterCity && mem.city !== filterCity) continue;
+      if (filterGender && mem.gender !== filterGender) continue;
 
+      const org = as.organization_id ? orgMap.get(as.organization_id) : undefined;
       if (filterOrgType && org?.organization_type !== filterOrgType) continue;
       if (filterOrgName && org?.name !== filterOrgName) continue;
 
@@ -148,7 +138,7 @@ export async function GET(req: Request) {
 
     if (rows.length === 0) return emptyResponse();
 
-    // ── 1. Location breakdown ──
+    // ── Breakdown computations (same as before) ──
     const locMap = new Map<string, { lark: number; eagle: number; owl: number; total: number }>();
     rows.forEach((r) => {
       const loc = r.country || "Unknown";
@@ -161,7 +151,6 @@ export async function GET(req: Request) {
       .map(([name, d]) => ({ name, lark: pct(d.lark, d.total), eagle: pct(d.eagle, d.total), owl: pct(d.owl, d.total), total: d.total }))
       .sort((a, b) => b.total - a.total);
 
-    // ── 2. Gender breakdown ──
     const gMap = new Map<string, { lark: number; eagle: number; owl: number; total: number }>();
     rows.forEach((r) => {
       const g = r.gender || "Other";
@@ -173,7 +162,6 @@ export async function GET(req: Request) {
       gender, lark: pct(d.lark, d.total), eagle: pct(d.eagle, d.total), owl: pct(d.owl, d.total), total: d.total,
     }));
 
-    // ── 3. Org type breakdown ──
     const otMap = new Map<string, { lark: number; eagle: number; owl: number; total: number }>();
     rows.forEach((r) => {
       const ot = r.orgType || "Other";
@@ -185,7 +173,6 @@ export async function GET(req: Request) {
       .map(([type, d]) => ({ type, lark: pct(d.lark, d.total), eagle: pct(d.eagle, d.total), owl: pct(d.owl, d.total), total: d.total }))
       .sort((a, b) => b.total - a.total);
 
-    // ── 4. Per-organization breakdown ──
     const oMap = new Map<string, { name: string; lark: number; eagle: number; owl: number; total: number }>();
     rows.forEach((r) => {
       const name = r.orgName || "(No Org)";
@@ -198,7 +185,6 @@ export async function GET(req: Request) {
       .map(([, d]) => ({ name: d.name, lark: pct(d.lark, d.total), eagle: pct(d.eagle, d.total), owl: pct(d.owl, d.total), total: d.total }))
       .sort((a, b) => b.total - a.total);
 
-    // ── 5. Location × gender heatmap ──
     const hmMap = new Map<string, { lark: number; eagle: number; owl: number; total: number }>();
     rows.forEach((r) => {
       const key = `${r.country || "Unknown"}|${r.gender || "Other"}`;
@@ -217,7 +203,6 @@ export async function GET(req: Request) {
       })
       .sort((a, b) => b.total - a.total);
 
-    // ── 6. Org type × location ──
     const otlMap = new Map<string, { lark: number; eagle: number; owl: number; total: number }>();
     rows.forEach((r) => {
       const ot = r.orgType || "Other"; const loc = r.country || "Unknown";
@@ -234,7 +219,6 @@ export async function GET(req: Request) {
       })
       .sort((a, b) => b.total - a.total);
 
-    // ── 7. Age group breakdown ──
     const ageGroups = ["Under 18", "18–25", "26–35", "36–45", "46–60", "60+"];
     const ageMap = new Map<string, { lark: number; eagle: number; owl: number; total: number }>();
     ageGroups.forEach((g) => ageMap.set(g, { lark: 0, eagle: 0, owl: 0, total: 0 }));
@@ -246,12 +230,8 @@ export async function GET(req: Request) {
     });
     const ageBreakdown = ageGroups
       .filter((g) => (ageMap.get(g)?.total ?? 0) > 0)
-      .map((group) => {
-        const d = ageMap.get(group)!;
-        return { group, lark: pct(d.lark, d.total), eagle: pct(d.eagle, d.total), owl: pct(d.owl, d.total), total: d.total };
-      });
+      .map((group) => { const d = ageMap.get(group)!; return { group, lark: pct(d.lark, d.total), eagle: pct(d.eagle, d.total), owl: pct(d.owl, d.total), total: d.total }; });
 
-    // ── 8. Chronotype trend over time (monthly) ──
     const monthMap = new Map<string, { lark: number; eagle: number; owl: number; total: number }>();
     rows.forEach((r) => {
       if (!r.completed_at) return;
@@ -264,7 +244,6 @@ export async function GET(req: Request) {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([month, d]) => ({ month, lark: pct(d.lark, d.total), eagle: pct(d.eagle, d.total), owl: pct(d.owl, d.total), total: d.total }));
 
-    // ── 9. Insights ──
     const mostOwlLocation = locationBreakdown.length > 0 ? locationBreakdown.reduce((a, b) => a.owl > b.owl ? a : b) : null;
     const mostLarkOrg = orgBreakdown.length > 0 ? orgBreakdown.reduce((a, b) => a.lark > b.lark ? a : b) : null;
     const mostBalancedOrg = orgBreakdown.length > 0
@@ -296,4 +275,8 @@ export async function GET(req: Request) {
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown" }, { status: 500 });
   }
+}
+
+function emptyResponse() {
+  return NextResponse.json({ rows: 0, locationBreakdown: [], genderBreakdown: [], orgTypeBreakdown: [], orgBreakdown: [], heatmap: [], orgTypeLocation: [], ageBreakdown: [], trend: [], insights: { mostOwlLocation: null, mostLarkOrg: null, mostBalancedOrg: null, highestEaglePct: null, owlTrend: "stable" }, filters: { countries: [], states: [], cities: [], orgTypes: [], orgNames: [] } });
 }
