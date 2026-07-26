@@ -48,16 +48,18 @@ export default function AnalyticsPage() {
   const router = useRouter();
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
   const [filters, setFilters] = useState({ country: "", state: "", city: "", orgType: "", orgName: "", gender: "", ageGroup: "", chronotype: "" });
 
   const fetchData = () => {
     setLoading(true);
+    setFetchError("");
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v); });
     fetch(`/api/admin-reports?${params.toString()}`)
       .then((r) => r.json())
-      .then((d) => { if (!d.error) setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
+      .then((d) => { if (!d.error) { setData(d); } else { setFetchError(d.error); setData(null); } setLoading(false); })
+      .catch((err) => { setFetchError(err.message); setLoading(false); });
   };
 
   useEffect(() => { fetchData(); }, []);
@@ -130,6 +132,7 @@ export default function AnalyticsPage() {
           <div className="flex flex-col items-center justify-center py-[80px] rounded-[16px]" style={{ border: "1.5px dashed #E0E0E0" }}>
             <BarChart3 size={40} stroke="#CCC" strokeWidth={1.5} />
             <p className="m-0 mt-[12px] text-[14px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>No data available.</p>
+            {fetchError && <p className="m-0 mt-[8px] text-[12px] text-center" style={{ color: "#D32F2F", fontFamily: "Poppins, sans-serif", maxWidth: "400px" }}>{fetchError}</p>}
           </div>
         ) : (
           <>

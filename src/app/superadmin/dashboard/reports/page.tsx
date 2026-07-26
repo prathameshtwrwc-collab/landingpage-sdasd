@@ -45,6 +45,7 @@ export default function SuperAdminReportsPage() {
   const router = useRouter();
   const [data, setData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
   const [filters, setFilters] = useState({ country: "", state: "", city: "", gender: "", orgType: "", orgName: "", chronotype: "" });
 
   const buildQuery = () => {
@@ -55,10 +56,11 @@ export default function SuperAdminReportsPage() {
 
   const fetchData = () => {
     setLoading(true);
+    setFetchError("");
     fetch(buildQuery())
       .then((r) => r.json())
-      .then((d) => { if (!d.error) setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
+      .then((d) => { if (!d.error) { setData(d); } else { setFetchError(d.error); setData(null); } setLoading(false); })
+      .catch((err) => { setFetchError(err.message); setLoading(false); });
   };
 
   useEffect(() => { fetchData(); }, []);
@@ -129,6 +131,7 @@ export default function SuperAdminReportsPage() {
           <div className="flex flex-col items-center justify-center py-[80px] rounded-[16px]" style={{ border: "1.5px dashed #E0E0E0" }}>
             <BarChart3 size={40} stroke="#CCC" strokeWidth={1.5} />
             <p className="m-0 mt-[12px] text-[14px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>No data available.</p>
+            {fetchError && <p className="m-0 mt-[8px] text-[12px] text-center" style={{ color: "#D32F2F", fontFamily: "Poppins, sans-serif", maxWidth: "400px" }}>{fetchError}</p>}
           </div>
         ) : (
           <>
