@@ -10,7 +10,7 @@ import {
   BarChart3, LogOut, Home, User, TrendingUp, Calendar,
   Bell, FileText, Sparkles, Star, ChevronRight, ChevronUp,
   ChevronDown, Building2, ClipboardList, Link2, Search,
-  X, Menu, Palette
+  X, Menu, Palette, Phone
 } from "lucide-react";
 
 interface NavItem {
@@ -48,6 +48,7 @@ const roleNavItems: Record<Role, NavItem[]> = {
     { label: "Organizations", href: "/superadmin/dashboard/organizations", icon: <Building2 size={18} /> },
     { label: "Users", href: "/superadmin/dashboard/users", icon: <Users size={18} /> },
     { label: "Reports", href: "/superadmin/dashboard/reports", icon: <BarChart3 size={18} /> },
+    { label: "Consult Leads", href: "/superadmin/dashboard/consultations", icon: <Phone size={18} /> },
     { label: "Analytics", href: "/superadmin/dashboard/analytics", icon: <TrendingUp size={18} /> },
     { label: "Audit Log", href: "/superadmin/dashboard/audit", icon: <FileText size={18} /> },
     { label: "System", href: "/superadmin/dashboard/system", icon: <Shield size={18} /> },

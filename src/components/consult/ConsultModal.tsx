@@ -63,6 +63,7 @@ export default function ConsultModal() {
   const [form, setForm] = useState<ConsultForm>(initialForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaError, setCaptchaError] = useState("");
   const captchaRef = useRef<ReCAPTCHA>(null);
@@ -106,10 +107,23 @@ export default function ConsultModal() {
     return Object.keys(e).length === 0 && !!captchaToken;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    setSubmitted(true);
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/consultation-leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error("Failed to submit");
+      setSubmitted(true);
+    } catch {
+      setErrors({ submit: "Submission failed. Please try again." });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const resetAndClose = () => {
