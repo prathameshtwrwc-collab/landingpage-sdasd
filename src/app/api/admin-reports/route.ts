@@ -127,7 +127,7 @@ export async function GET(req: Request) {
         age: mem.age,
         gender: mem.gender,
         country: mem.country,
-        state: mem.state,
+        state: mem.location,
         city: mem.city,
         orgName: org?.name ?? null,
         orgType: org?.organization_type ?? null,
