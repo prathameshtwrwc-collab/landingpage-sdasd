@@ -63,7 +63,12 @@ export default function SuperAdminReportsPage() {
       .catch((err) => { setFetchError(err.message); setLoading(false); });
   };
 
-  useEffect(() => { fetchData(); }, [filters]);
+  useEffect(() => { fetchData(); }, []);
+
+  const hasActiveFilters = Object.values(filters).some((v) => v !== "");
+  const clearFilters = () => {
+    setFilters({ country: "", state: "", city: "", gender: "", orgType: "", orgName: "", chronotype: "" });
+  };
 
   const filterOpts = data?.filters;
 
@@ -153,6 +158,25 @@ export default function SuperAdminReportsPage() {
                     </select>
                   );
                 })}
+              </div>
+              <div className="flex items-center gap-[8px] mt-[14px]">
+                <button type="button" onClick={fetchData}
+                  className="px-[20px] py-[8px] rounded-lg border-none cursor-pointer text-[12px] font-semibold text-white transition-colors"
+                  style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)", fontFamily: "Poppins, sans-serif" }}>
+                  Apply Filters
+                </button>
+                {hasActiveFilters && (
+                  <button type="button" onClick={clearFilters}
+                    className="px-[16px] py-[8px] rounded-lg border cursor-pointer text-[12px] font-semibold transition-colors"
+                    style={{ borderColor: "#E0E0E0", color: "#888", background: "#FFF", fontFamily: "Poppins, sans-serif" }}>
+                    Clear Filters
+                  </button>
+                )}
+                {hasActiveFilters && (
+                  <span className="text-[11px] ml-[4px]" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                    Filters active
+                  </span>
+                )}
               </div>
             </div>
 
