@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Phone, Mail, Calendar, Clock, MapPin, Search, ChevronLeft, ChevronRight, CheckCircle, XCircle, Clock as ClockIcon, Eye, Trash2, ArrowUpDown } from "lucide-react";
+import { Phone, Mail, Calendar, Clock, MapPin, Search, ChevronLeft, ChevronRight, ChevronDown, CheckCircle, XCircle, Clock as ClockIcon, Eye, Trash2 } from "lucide-react";
 
 interface ConsultationLead {
   id: string;
@@ -42,17 +42,6 @@ const STATUS_STYLES: Record<string, { bg: string; color: string; icon: React.Rea
   CANCELLED: { bg: "rgba(211,47,47,0.08)", color: "#D32F2F", icon: <XCircle size={12} /> },
 };
 
-function StatusBadge({ status, onClick }: { status: string; onClick?: () => void }) {
-  const s = STATUS_STYLES[status] || STATUS_STYLES.PENDING;
-  return (
-    <span onClick={onClick}
-      className={`inline-flex items-center gap-[4px] text-[11px] font-semibold px-[8px] py-[3px] rounded-full ${onClick ? "cursor-pointer hover:opacity-80" : ""}`}
-      style={{ background: s.bg, color: s.color, fontFamily: "Poppins, sans-serif", transition: "opacity 0.15s" }}>
-      {s.icon} {status.charAt(0) + status.slice(1).toLowerCase()}
-    </span>
-  );
-}
-
 export default function ConsultationLeadsPage() {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,6 +51,7 @@ export default function ConsultationLeadsPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [selectedLead, setSelectedLead] = useState<ConsultationLead | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [dropdownOpenId, setDropdownOpenId] = useState<string | null>(null);
 
   const fetchLeads = useCallback(() => {
     setLoading(true);
@@ -77,6 +67,19 @@ export default function ConsultationLeadsPage() {
   }, [page, statusFilter, searchQuery]);
 
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!dropdownOpenId) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest("[data-status-dropdown]")) {
+        setDropdownOpenId(null);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [dropdownOpenId]);
 
   const doSearch = () => {
     setPage(1);
@@ -108,11 +111,6 @@ export default function ConsultationLeadsPage() {
       setSelectedLead(null);
       fetchLeads();
     } catch {}
-  };
-
-  const cycleStatus = (current: string) => {
-    const idx = STATUS_OPTIONS.indexOf(current as typeof STATUS_OPTIONS[number]);
-    return STATUS_OPTIONS[(idx + 1) % STATUS_OPTIONS.length];
   };
 
   return (
@@ -181,7 +179,6 @@ export default function ConsultationLeadsPage() {
                   </span>
                   <div className="flex items-center gap-[6px] md:hidden">
                     <span className="text-[11px]" style={{ color: "#888" }}>{lead.age} · {lead.gender}</span>
-                    <StatusBadge status={lead.status} />
                   </div>
                 </div>
                 <div className="flex flex-col gap-[2px]">
@@ -195,9 +192,32 @@ export default function ConsultationLeadsPage() {
                   <span className="text-[12px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{lead.schedule_date}</span>
                   <span className="text-[12px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>{lead.schedule_time}</span>
                 </div>
-                {/* Status - click to cycle */}
-                <div title="Click to cycle status">
-                  <StatusBadge status={lead.status} onClick={() => updateStatus(lead.id, cycleStatus(lead.status))} />
+                {/* Status - click to open dropdown */}
+                <div className="relative" data-status-dropdown>
+                  <button type="button" onClick={() => setDropdownOpenId(dropdownOpenId === lead.id ? null : lead.id)}
+                    className="inline-flex items-center gap-[4px] border-none cursor-pointer rounded-full px-[8px] py-[3px] transition-colors hover:opacity-80"
+                    style={{ background: (STATUS_STYLES[lead.status] || STATUS_STYLES.PENDING).bg, color: (STATUS_STYLES[lead.status] || STATUS_STYLES.PENDING).color, fontFamily: "Poppins, sans-serif" }}>
+                    {(STATUS_STYLES[lead.status] || STATUS_STYLES.PENDING).icon}
+                    <span className="text-[11px] font-semibold">{lead.status.charAt(0) + lead.status.slice(1).toLowerCase()}</span>
+                    <ChevronDown size={10} />
+                  </button>
+                  {dropdownOpenId === lead.id && (
+                    <div className="absolute right-0 top-full mt-[4px] z-50 min-w-[140px] rounded-lg overflow-hidden shadow-lg"
+                      style={{ background: "#FFF", border: "1px solid #E0E0E0" }}>
+                      {STATUS_OPTIONS.map((s) => {
+                        const st = STATUS_STYLES[s];
+                        return (
+                          <button key={s} type="button" onClick={() => { updateStatus(lead.id, s); setDropdownOpenId(null); }}
+                            className="w-full flex items-center gap-[8px] px-[10px] py-[7px] text-[12px] font-medium border-none cursor-pointer transition-colors hover:opacity-80"
+                            style={{ background: lead.status === s ? `${st.bg}` : "#FFF", color: st.color, fontFamily: "Poppins, sans-serif" }}>
+                            {st.icon}
+                            {s.charAt(0) + s.slice(1).toLowerCase()}
+                            {lead.status === s && <span className="ml-auto text-[10px]">✓</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
                 {/* Actions */}
                 <div className="flex items-center justify-center gap-[4px]">
@@ -296,7 +316,11 @@ export default function ConsultationLeadsPage() {
                 <DetailRow label="Submitted At" value={new Date(selectedLead.created_at).toLocaleString()} />
                 <div className="flex items-center gap-[8px] py-[2px]">
                   <span className="text-[12px] font-semibold w-[120px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>Status</span>
-                  <StatusBadge status={selectedLead.status} />
+                  <span className="inline-flex items-center gap-[4px] text-[11px] font-semibold px-[8px] py-[3px] rounded-full"
+                    style={{ background: (STATUS_STYLES[selectedLead.status] || STATUS_STYLES.PENDING).bg, color: (STATUS_STYLES[selectedLead.status] || STATUS_STYLES.PENDING).color, fontFamily: "Poppins, sans-serif" }}>
+                    {(STATUS_STYLES[selectedLead.status] || STATUS_STYLES.PENDING).icon}
+                    {selectedLead.status.charAt(0) + selectedLead.status.slice(1).toLowerCase()}
+                  </span>
                 </div>
               </div>
 
