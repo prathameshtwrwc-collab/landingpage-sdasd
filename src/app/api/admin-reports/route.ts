@@ -136,15 +136,26 @@ export async function GET(req: Request) {
       });
     }
 
-    // Collect filter options
-    const filterOpts = { countries: new Set<string>(), states: new Set<string>(), cities: new Set<string>(), orgTypes: new Set<string>(), orgNames: new Set<string>() };
-    rows.forEach((r) => {
-      if (r.country) filterOpts.countries.add(r.country);
-      if (r.state) filterOpts.states.add(r.state);
-      if (r.city) filterOpts.cities.add(r.city);
-      if (r.orgType) filterOpts.orgTypes.add(r.orgType);
-      if (r.orgName) filterOpts.orgNames.add(r.orgName);
-    });
+    // Collect filter options — deduplicated case-insensitively, title-cased for display
+    const titleCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    const unique = <T>(items: T[], keyFn: (item: T) => string): T[] => {
+      const map = new Map<string, T>();
+      items.forEach((item) => { const k = keyFn(item).toLowerCase().trim(); if (!map.has(k)) map.set(k, item); });
+      return Array.from(map.values()).sort((a, b) => String(a).localeCompare(String(b)));
+    };
+    const rawCountries = rows.map((r) => r.country?.trim()).filter(Boolean) as string[];
+    const rawStates = rows.map((r) => r.state?.trim()).filter(Boolean) as string[];
+    const rawCities = rows.map((r) => r.city?.trim()).filter(Boolean) as string[];
+    const rawOrgTypes = rows.map((r) => r.orgType?.trim()).filter(Boolean) as string[];
+    const rawOrgNames = rows.map((r) => r.orgName?.trim()).filter(Boolean) as string[];
+
+    const filterOpts = {
+      countries: unique(rawCountries, (s) => s).map(titleCase),
+      states: unique(rawStates, (s) => s).map(titleCase),
+      cities: unique(rawCities, (s) => s).map(titleCase),
+      orgTypes: unique(rawOrgTypes, (s) => s),
+      orgNames: unique(rawOrgNames, (s) => s),
+    };
 
     if (rows.length === 0) return emptyResponse();
 
@@ -275,11 +286,11 @@ export async function GET(req: Request) {
       locationBreakdown, genderBreakdown, orgTypeBreakdown, orgBreakdown,
       heatmap, orgTypeLocation, ageBreakdown, trend, insights,
       filters: {
-        countries: Array.from(filterOpts.countries).sort(),
-        states: Array.from(filterOpts.states).sort(),
-        cities: Array.from(filterOpts.cities).sort(),
-        orgTypes: Array.from(filterOpts.orgTypes).sort(),
-        orgNames: Array.from(filterOpts.orgNames).sort(),
+        countries: filterOpts.countries,
+        states: filterOpts.states,
+        cities: filterOpts.cities,
+        orgTypes: filterOpts.orgTypes,
+        orgNames: filterOpts.orgNames,
       },
     });
   } catch (error) {
