@@ -62,7 +62,7 @@ export default function AnalyticsPage() {
       .catch((err) => { setFetchError(err.message); setLoading(false); });
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, [filters]);
   const fo = data?.filters;
 
   const insights = useMemo(() => {
@@ -156,11 +156,6 @@ export default function AnalyticsPage() {
                     {opts?.map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
                 ))}
-                <button type="button" onClick={fetchData}
-                  className="px-[16px] py-[8px] rounded-lg border-none cursor-pointer text-[12px] font-semibold text-white transition-colors"
-                  style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)", fontFamily: "Poppins, sans-serif" }}>
-                  Apply
-                </button>
               </div>
             </div>
 

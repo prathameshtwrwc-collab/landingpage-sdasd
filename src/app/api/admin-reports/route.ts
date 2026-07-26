@@ -92,24 +92,34 @@ export async function GET(req: Request) {
       completed_at: string | null; ageGroup: string;
     }> = [];
 
+    const fc = (v: string | null | undefined) => v?.trim().toLowerCase() ?? "";
+    const filterCountryLC = fc(filterCountry);
+    const filterStateLC = fc(filterState);
+    const filterCityLC = fc(filterCity);
+    const filterGenderLC = fc(filterGender);
+    const filterChronotypeLC = fc(filterChronotype);
+    const filterOrgTypeLC = fc(filterOrgType);
+    const filterOrgNameLC = fc(filterOrgName);
+    const filterAgeGroupLC = fc(filterAgeGroup);
+
     for (const as of assessments) {
       const cr = as.id ? chronoMap.get(as.id) : undefined;
       if (!cr) continue;
-      if (filterChronotype && cr.chronotype !== filterChronotype) continue;
+      if (filterChronotypeLC && fc(cr.chronotype) !== filterChronotypeLC) continue;
 
       const mem = as.member_id ? memberMap.get(as.member_id) : undefined;
       if (!mem) continue;
-      if (filterCountry && mem.country !== filterCountry) continue;
-      if (filterState && mem.state !== filterState) continue;
-      if (filterCity && mem.city !== filterCity) continue;
-      if (filterGender && mem.gender !== filterGender) continue;
+      if (filterCountryLC && fc(mem.country) !== filterCountryLC) continue;
+      if (filterStateLC && fc(mem.state) !== filterStateLC) continue;
+      if (filterCityLC && fc(mem.city) !== filterCityLC) continue;
+      if (filterGenderLC && fc(mem.gender) !== filterGenderLC) continue;
 
       const org = as.organization_id ? orgMap.get(as.organization_id) : undefined;
-      if (filterOrgType && org?.organization_type !== filterOrgType) continue;
-      if (filterOrgName && org?.name !== filterOrgName) continue;
+      if (filterOrgTypeLC && fc(org?.organization_type) !== filterOrgTypeLC) continue;
+      if (filterOrgNameLC && fc(org?.name) !== filterOrgNameLC) continue;
 
       const ag = ageGroup(mem.age);
-      if (filterAgeGroup && ag !== filterAgeGroup) continue;
+      if (filterAgeGroupLC && fc(ag) !== filterAgeGroupLC) continue;
 
       rows.push({
         chronotype: cr.chronotype,
