@@ -116,6 +116,7 @@ export async function createMemberAndStartAssessment(data: {
       marital_status: data.marital_status || null,
       department: data.department || null,
       country: data.country || null,
+      state: data.location || null,
       location: data.location || null,
       city: data.city || null,
       pincode: data.pincode || null,

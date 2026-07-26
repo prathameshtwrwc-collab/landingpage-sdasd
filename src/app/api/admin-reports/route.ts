@@ -77,7 +77,7 @@ export async function GET(req: Request) {
     const memberIds = [...new Set(assessments.map((a) => a.member_id).filter(Boolean) as string[])];
     const orgIds = [...new Set(assessments.map((a) => a.organization_id).filter(Boolean) as string[])];
 
-    const { data: members } = await supabase.from("members").select("*").in("id", memberIds);
+    const { data: members } = await supabase.from("members").select("id, age, gender, country, state, city, location").in("id", memberIds);
     const memberMap = new Map((members ?? []).map((m) => [m.id, m]));
 
     const { data: orgs } = await supabase.from("organizations").select("*").in("id", orgIds.length > 0 ? orgIds : ["none"]);
@@ -127,7 +127,7 @@ export async function GET(req: Request) {
         age: mem.age,
         gender: mem.gender,
         country: mem.country,
-        state: mem.state,
+        state: mem.state || mem.location,
         city: mem.city,
         orgName: org?.name ?? null,
         orgType: org?.organization_type ?? null,
