@@ -110,7 +110,7 @@ export async function GET(req: Request) {
       const mem = as.member_id ? memberMap.get(as.member_id) : undefined;
       if (!mem) continue;
       if (filterCountryLC && fc(mem.country) !== filterCountryLC) continue;
-      if (filterStateLC && fc(mem.state) !== filterStateLC) continue;
+      if (filterStateLC && fc(mem.location) !== filterStateLC) continue;
       if (filterCityLC && fc(mem.city) !== filterCityLC) continue;
       if (filterGenderLC && fc(mem.gender) !== filterGenderLC) continue;
 

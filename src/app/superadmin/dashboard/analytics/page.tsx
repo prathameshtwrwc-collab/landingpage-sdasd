@@ -67,6 +67,12 @@ export default function AnalyticsPage() {
   const hasActiveFilters = Object.values(filters).some((v) => v !== "");
   const clearFilters = () => {
     setFilters({ country: "", state: "", city: "", orgType: "", orgName: "", gender: "", ageGroup: "", chronotype: "" });
+    setLoading(true);
+    setFetchError("");
+    fetch("/api/admin-reports")
+      .then((r) => r.json())
+      .then((d) => { if (!d.error) { setData(d); } else { setFetchError(d.error); setData(null); } setLoading(false); })
+      .catch((err) => { setFetchError(err.message); setLoading(false); });
   };
 
   const fo = data?.filters;
