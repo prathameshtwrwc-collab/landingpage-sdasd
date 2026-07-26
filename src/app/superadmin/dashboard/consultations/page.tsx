@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Phone, Mail, Calendar, Clock, MapPin, Search, ChevronLeft, ChevronRight, CheckCircle, XCircle, Clock as ClockIcon, Eye } from "lucide-react";
+import { Phone, Mail, Calendar, Clock, MapPin, Search, ChevronLeft, ChevronRight, CheckCircle, XCircle, Clock as ClockIcon, Eye, Trash2, ArrowUpDown } from "lucide-react";
 
 interface ConsultationLead {
   id: string;
@@ -32,58 +32,91 @@ interface ApiResponse {
   totalPages: number;
 }
 
+const STATUS_OPTIONS = ["PENDING", "CONTACTED", "SCHEDULED", "COMPLETED", "CANCELLED"] as const;
+
+const STATUS_STYLES: Record<string, { bg: string; color: string; icon: React.ReactNode }> = {
+  PENDING: { bg: "rgba(245,154,0,0.1)", color: "#F59A00", icon: <ClockIcon size={12} /> },
+  CONTACTED: { bg: "rgba(53,49,155,0.08)", color: "#35319B", icon: <Phone size={12} /> },
+  SCHEDULED: { bg: "rgba(46,125,50,0.08)", color: "#2E7D32", icon: <Calendar size={12} /> },
+  COMPLETED: { bg: "rgba(46,125,50,0.1)", color: "#2E7D32", icon: <CheckCircle size={12} /> },
+  CANCELLED: { bg: "rgba(211,47,47,0.08)", color: "#D32F2F", icon: <XCircle size={12} /> },
+};
+
+function StatusBadge({ status, onClick }: { status: string; onClick?: () => void }) {
+  const s = STATUS_STYLES[status] || STATUS_STYLES.PENDING;
+  return (
+    <span onClick={onClick}
+      className={`inline-flex items-center gap-[4px] text-[11px] font-semibold px-[8px] py-[3px] rounded-full ${onClick ? "cursor-pointer hover:opacity-80" : ""}`}
+      style={{ background: s.bg, color: s.color, fontFamily: "Poppins, sans-serif", transition: "opacity 0.15s" }}>
+      {s.icon} {status.charAt(0) + status.slice(1).toLowerCase()}
+    </span>
+  );
+}
+
 export default function ConsultationLeadsPage() {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [selectedLead, setSelectedLead] = useState<ConsultationLead | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const fetchLeads = () => {
+  const fetchLeads = useCallback(() => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page), limit: "50" });
     if (statusFilter) params.set("status", statusFilter);
-    if (search) params.set("search", search);
+    if (searchQuery) params.set("search", searchQuery);
 
     fetch(`/api/consultation-leads?${params}`)
       .then((r) => r.json())
       .then((json) => setData(json))
       .catch(() => setData(null))
       .finally(() => setLoading(false));
-  };
+  }, [page, statusFilter, searchQuery]);
 
-  useEffect(() => { fetchLeads(); }, [page, statusFilter]);
+  useEffect(() => { fetchLeads(); }, [fetchLeads]);
+
+  const doSearch = () => {
+    setPage(1);
+    setSearchQuery(searchInput);
+  };
 
   const updateStatus = async (id: string, status: string) => {
-    await fetch("/api/consultation-leads", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, status }),
-    });
-    fetchLeads();
-    setSelectedLead(null);
+    try {
+      const res = await fetch("/api/consultation-leads", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      fetchLeads();
+      setSelectedLead(null);
+    } catch {}
   };
 
-  const statusBadge = (status: string) => {
-    const styles: Record<string, { bg: string; color: string; icon: React.ReactNode }> = {
-      PENDING: { bg: "rgba(245,154,0,0.1)", color: "#F59A00", icon: <ClockIcon size={12} /> },
-      CONTACTED: { bg: "rgba(53,49,155,0.08)", color: "#35319B", icon: <Phone size={12} /> },
-      SCHEDULED: { bg: "rgba(46,125,50,0.08)", color: "#2E7D32", icon: <Calendar size={12} /> },
-      COMPLETED: { bg: "rgba(46,125,50,0.1)", color: "#2E7D32", icon: <CheckCircle size={12} /> },
-      CANCELLED: { bg: "rgba(211,47,47,0.08)", color: "#D32F2F", icon: <XCircle size={12} /> },
-    };
-    const s = styles[status] || styles.PENDING;
-    return (
-      <span className="inline-flex items-center gap-[4px] text-[11px] font-semibold px-[8px] py-[3px] rounded-full" style={{ background: s.bg, color: s.color, fontFamily: "Poppins, sans-serif" }}>
-        {s.icon} {status.charAt(0) + status.slice(1).toLowerCase()}
-      </span>
-    );
+  const deleteLead = async (id: string) => {
+    try {
+      const res = await fetch("/api/consultation-leads", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setDeleteConfirm(null);
+      setSelectedLead(null);
+      fetchLeads();
+    } catch {}
+  };
+
+  const cycleStatus = (current: string) => {
+    const idx = STATUS_OPTIONS.indexOf(current as typeof STATUS_OPTIONS[number]);
+    return STATUS_OPTIONS[(idx + 1) % STATUS_OPTIONS.length];
   };
 
   return (
     <DashboardShell title="Consultation Leads">
-      {/* ── Header ── */}
       <div className="mb-[20px]">
         <p className="m-0 text-[13px] font-medium" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>
           {data ? `${data.total} total lead(s)` : "Loading..."}
@@ -94,24 +127,22 @@ export default function ConsultationLeadsPage() {
       <div className="flex flex-wrap items-center gap-[12px] mb-[20px]">
         <div className="relative flex-1 min-w-[200px] max-w-[320px]">
           <Search size={16} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#AAA", pointerEvents: "none" }} />
-          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+          <input type="text" value={searchInput} onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search by name, email, phone..."
             className="w-full pl-[36px] pr-[12px] py-[9px] text-[13px] rounded-lg outline-none"
             style={{ border: "1.5px solid #E0E0E0", fontFamily: "Poppins, sans-serif", background: "#FFF" }}
-            onKeyDown={(e) => { if (e.key === "Enter") { setPage(1); fetchLeads(); } }}
+            onKeyDown={(e) => { if (e.key === "Enter") doSearch(); }}
           />
         </div>
         <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
           className="px-[12px] py-[9px] text-[13px] rounded-lg outline-none cursor-pointer"
           style={{ border: "1.5px solid #E0E0E0", fontFamily: "Poppins, sans-serif", background: "#FFF" }}>
           <option value="">All Status</option>
-          <option value="PENDING">Pending</option>
-          <option value="CONTACTED">Contacted</option>
-          <option value="SCHEDULED">Scheduled</option>
-          <option value="COMPLETED">Completed</option>
-          <option value="CANCELLED">Cancelled</option>
+          {STATUS_OPTIONS.map((s) => (
+            <option key={s} value={s}>{s.charAt(0) + s.slice(1).toLowerCase()}</option>
+          ))}
         </select>
-        <button type="button" onClick={() => { setPage(1); fetchLeads(); }}
+        <button type="button" onClick={doSearch}
           className="px-[16px] py-[9px] text-[13px] font-semibold rounded-lg border-none cursor-pointer text-white transition-colors"
           style={{ background: "#35319B", fontFamily: "Poppins, sans-serif" }}>
           Search
@@ -138,64 +169,68 @@ export default function ConsultationLeadsPage() {
               <span>Location</span>
               <span>Scheduled</span>
               <span>Status</span>
-              <span />
+              <span className="text-center">Actions</span>
             </div>
 
             {/* Table rows */}
             {data.data.map((lead) => (
               <div key={lead.id} className="grid grid-cols-1 md:grid-cols-[2fr_1.5fr_1.5fr_1fr_1fr_auto] gap-[8px] md:gap-[12px] px-[20px] py-[14px] items-start" style={{ borderBottom: "1px solid #F8F8F8" }}>
-                {/* Name - Mobile: show as block */}
                 <div className="flex flex-col md:flex-row md:items-center gap-[4px]">
                   <span className="text-[14px] font-semibold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>
                     {lead.fname} {lead.lname}
                   </span>
                   <div className="flex items-center gap-[6px] md:hidden">
                     <span className="text-[11px]" style={{ color: "#888" }}>{lead.age} · {lead.gender}</span>
-                    {statusBadge(lead.status)}
+                    <StatusBadge status={lead.status} />
                   </div>
                 </div>
-                {/* Contact */}
                 <div className="flex flex-col gap-[2px]">
-                  <div className="flex items-center gap-[5px]">
-                    <Mail size={12} style={{ color: "#AAA", flexShrink: 0 }} />
-                    <span className="text-[12px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif", wordBreak: "break-all" }}>{lead.email}</span>
-                  </div>
-                  <div className="flex items-center gap-[5px]">
-                    <Phone size={12} style={{ color: "#AAA", flexShrink: 0 }} />
-                    <span className="text-[12px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{lead.phone}</span>
-                  </div>
+                  <span className="text-[12px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif", wordBreak: "break-all" }}>{lead.email}</span>
+                  <span className="text-[12px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>{lead.phone}</span>
                 </div>
-                {/* Location */}
-                <div className="flex items-start gap-[5px]">
-                  <MapPin size={12} style={{ color: "#AAA", flexShrink: 0, marginTop: "2px" }} />
-                  <span className="text-[12px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
-                    {lead.city}, {lead.state}, {lead.country} - {lead.pincode}
-                  </span>
-                </div>
-                {/* Scheduled */}
+                <span className="text-[12px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
+                  {lead.city}, {lead.state}
+                </span>
                 <div className="flex flex-col gap-[2px]">
-                  <div className="flex items-center gap-[5px]">
-                    <Calendar size={12} style={{ color: "#AAA", flexShrink: 0 }} />
-                    <span className="text-[12px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{lead.schedule_date}</span>
-                  </div>
-                  <div className="flex items-center gap-[5px]">
-                    <Clock size={12} style={{ color: "#AAA", flexShrink: 0 }} />
-                    <span className="text-[12px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{lead.schedule_time}</span>
-                  </div>
+                  <span className="text-[12px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{lead.schedule_date}</span>
+                  <span className="text-[12px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>{lead.schedule_time}</span>
                 </div>
-                {/* Status - hidden on mobile (shown in name section) */}
-                <div className="hidden md:flex items-center">{statusBadge(lead.status)}</div>
+                {/* Status - click to cycle */}
+                <div title="Click to cycle status">
+                  <StatusBadge status={lead.status} onClick={() => updateStatus(lead.id, cycleStatus(lead.status))} />
+                </div>
                 {/* Actions */}
-                <div className="flex items-center gap-[6px]">
+                <div className="flex items-center justify-center gap-[4px]">
                   <button type="button" onClick={() => setSelectedLead(lead)}
                     className="flex items-center justify-center w-[30px] h-[30px] rounded-lg border-none cursor-pointer transition-colors"
-                    style={{ color: "#888", background: "rgba(0,0,0,0.04)" }}
+                    style={{ color: "#35319B", background: "rgba(53,49,155,0.06)" }}
                     title="View Details">
                     <Eye size={14} />
                   </button>
+                  {deleteConfirm === lead.id ? (
+                    <div className="flex items-center gap-[4px]">
+                      <button type="button" onClick={() => deleteLead(lead.id)}
+                        className="text-[10px] font-semibold px-[8px] py-[4px] rounded border-none cursor-pointer text-white"
+                        style={{ background: "#D32F2F", fontFamily: "Poppins, sans-serif" }}>
+                        Confirm
+                      </button>
+                      <button type="button" onClick={() => setDeleteConfirm(null)}
+                        className="text-[10px] font-semibold px-[8px] py-[4px] rounded border-none cursor-pointer"
+                        style={{ background: "#F5F5F5", color: "#888", fontFamily: "Poppins, sans-serif" }}>
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button type="button" onClick={() => setDeleteConfirm(lead.id)}
+                      className="flex items-center justify-center w-[30px] h-[30px] rounded-lg border-none cursor-pointer transition-colors"
+                      style={{ color: "#D32F2F", background: "rgba(211,47,47,0.06)" }}
+                      title="Delete Lead">
+                      <Trash2 size={14} />
+                    </button>
+                  )}
                 </div>
 
-                {/* Status + Age/Gender row on mobile */}
+                {/* Mobile extra info */}
                 <div className="flex items-center gap-[8px] md:hidden col-span-full mt-[-4px] mb-[4px]">
                   <span className="text-[11px]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Age: {lead.age}</span>
                   <span style={{ color: "#DDD" }}>|</span>
@@ -248,7 +283,7 @@ export default function ConsultationLeadsPage() {
                 </button>
               </div>
 
-              <div className="flex flex-col gap-[12px] mb-[20px]">
+              <div className="flex flex-col gap-[10px] mb-[20px]">
                 <DetailRow label="Name" value={`${selectedLead.fname} ${selectedLead.lname}`} />
                 <DetailRow label="Age" value={selectedLead.age} />
                 <DetailRow label="Gender" value={selectedLead.gender} />
@@ -259,18 +294,18 @@ export default function ConsultationLeadsPage() {
                 <DetailRow label="Schedule Date" value={selectedLead.schedule_date} />
                 <DetailRow label="Schedule Time" value={selectedLead.schedule_time} />
                 <DetailRow label="Submitted At" value={new Date(selectedLead.created_at).toLocaleString()} />
-                <div className="flex items-center gap-[8px] py-[4px]">
+                <div className="flex items-center gap-[8px] py-[2px]">
                   <span className="text-[12px] font-semibold w-[120px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>Status</span>
-                  {statusBadge(selectedLead.status)}
+                  <StatusBadge status={selectedLead.status} />
                 </div>
               </div>
 
               {/* Status Actions */}
               <p className="m-0 text-[12px] font-semibold mb-[8px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>Update Status</p>
-              <div className="flex flex-wrap gap-[6px] mb-[8px]">
-                {["PENDING", "CONTACTED", "SCHEDULED", "COMPLETED", "CANCELLED"].map((s) => (
+              <div className="flex flex-wrap gap-[6px] mb-[12px]">
+                {STATUS_OPTIONS.map((s) => (
                   <button key={s} type="button" onClick={() => updateStatus(selectedLead.id, s)}
-                    className="text-[11px] font-semibold px-[10px] py-[5px] rounded-full border-none cursor-pointer transition-colors"
+                    className="text-[11px] font-semibold px-[10px] py-[5px] rounded-full border-none cursor-pointer transition-all"
                     style={{
                       background: selectedLead.status === s ? "rgba(53,49,155,0.12)" : "#F5F5F5",
                       color: selectedLead.status === s ? "#35319B" : "#888",
@@ -281,9 +316,16 @@ export default function ConsultationLeadsPage() {
                 ))}
               </div>
 
+              {/* Delete */}
+              <button type="button" onClick={() => { if (confirm("Delete this lead permanently?")) { deleteLead(selectedLead.id); } }}
+                className="w-full flex items-center justify-center gap-[6px] py-[10px] rounded-xl border-none cursor-pointer text-white text-[14px] font-semibold transition-colors"
+                style={{ background: "#D32F2F", fontFamily: "Poppins, sans-serif" }}>
+                <Trash2 size={14} /> Delete Lead
+              </button>
+
               <button type="button" onClick={() => setSelectedLead(null)}
-                className="w-full mt-[12px] py-[10px] rounded-xl border-none cursor-pointer text-white text-[14px] font-semibold transition-colors"
-                style={{ background: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                className="w-full mt-[8px] py-[10px] rounded-xl border-none cursor-pointer text-[14px] font-semibold transition-colors"
+                style={{ background: "#F5F5F5", color: "#555", fontFamily: "Poppins, sans-serif" }}>
                 Close
               </button>
             </div>
