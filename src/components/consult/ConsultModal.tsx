@@ -59,8 +59,8 @@ function CheckCircle() {
 }
 
 export default function ConsultModal() {
-  const { isOpen, close } = useConsult();
-  const [form, setForm] = useState<ConsultForm>(initialForm);
+  const { isOpen, close, prefill } = useConsult();
+  const [form, setForm] = useState<ConsultForm>(() => prefill ? { ...initialForm, ...prefill } : initialForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);

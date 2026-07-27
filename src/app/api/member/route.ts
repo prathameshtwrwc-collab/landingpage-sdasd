@@ -40,6 +40,20 @@ export async function GET(req: Request) {
     if (memberErr) return NextResponse.json({ error: `DB error: ${memberErr.message}` }, { status: 500 });
     if (!member) return NextResponse.json({ member: null, result: null, recommendations: [], assessments: [] });
 
+    // Get org code if member belongs to an organization
+    let orgCode = "";
+    if (member.organization_id) {
+      const { data: orgLink } = await supabase
+        .from("organization_links")
+        .select("unique_code")
+        .eq("organization_id", member.organization_id)
+        .eq("active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (orgLink) orgCode = orgLink.unique_code;
+    }
+
     const { data: latestResult } = await supabase
       .from("chronotype_results")
       .select("*, assessments(assessment_version_id)")
@@ -99,6 +113,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       member,
+      orgCode,
       result: latestResult ?? null,
       recommendations: recData?.map((r: Record<string, unknown>) => r.recommendations) ?? [],
       assessments: assessments ?? [],

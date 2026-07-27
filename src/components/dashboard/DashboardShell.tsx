@@ -112,9 +112,11 @@ function MobileBottomSheet({
 export default function DashboardShell({
   children,
   title,
+  orgCode,
 }: {
   children: ReactNode;
   title?: string;
+  orgCode?: string;
 }) {
   const { user, logout, isLoading } = useAuth();
   const pathname = usePathname();
@@ -149,6 +151,7 @@ export default function DashboardShell({
   }, [applyDark]);
 
   const navItems = user ? (roleNavItems[user.role] ?? roleNavItems.member) : roleNavItems.member;
+  const resolvedNavItems = orgCode ? navItems.map((item) => item.label === "Dashboard" ? { ...item, href: `/${orgCode}` } : item) : navItems;
 
   const isActive = (href: string) => pathname === href;
   const activeItem = navItems.find((i) => isActive(i.href));
@@ -201,7 +204,7 @@ export default function DashboardShell({
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-[12px] py-[16px] space-y-[2px]">
-          {navItems.map((item) => {
+          {resolvedNavItems.map((item) => {
             const active = isActive(item.href);
             return (
               <Link key={item.href} href={item.href}

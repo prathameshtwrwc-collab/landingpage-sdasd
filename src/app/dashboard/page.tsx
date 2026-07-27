@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { cachedFetch } from "@/lib/client-cache";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useConsult } from "@/components/consult/ConsultContext";
+import { useAssessment } from "@/components/assessment/AssessmentContext";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
 import { useRouter } from "next/navigation";
@@ -12,6 +13,7 @@ import { downloadPdf, openPdfForPrint, shareReport } from "@/lib/client-pdf";
 
 interface DashboardData {
   member: Record<string, unknown> | null;
+  orgCode: string;
   result: Record<string, unknown> | null;
   recommendations: Record<string, unknown>[];
   assessments: Record<string, unknown>[];
@@ -29,7 +31,8 @@ interface DashboardData {
 
 export default function MemberDashboardPage() {
   const { user, isLoading } = useAuth();
-  const { open: openConsult } = useConsult();
+  const { open: openConsult, openPrefilled } = useConsult();
+  const { openForRetest } = useAssessment();
   const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
@@ -116,7 +119,7 @@ export default function MemberDashboardPage() {
   };
 
   return (
-    <DashboardShell>
+    <DashboardShell orgCode={data?.orgCode || undefined}>
       <div
         className="relative overflow-hidden rounded-[20px] p-[24px] md:p-[32px] mb-[24px] md:mb-[28px]"
         style={{
@@ -224,7 +227,21 @@ export default function MemberDashboardPage() {
         {/* ─── Consult Card ─── */}
         <button
           type="button"
-          onClick={openConsult}
+          onClick={() => {
+            const m = data?.member;
+            openPrefilled({
+              fname: m?.first_name as string || undefined,
+              lname: m?.last_name as string || undefined,
+              email: m?.email as string || undefined,
+              phone: m?.phone as string || undefined,
+              age: m?.age as string || undefined,
+              gender: m?.gender as string || undefined,
+              country: m?.country as string || undefined,
+              state: m?.location as string || undefined,
+              city: m?.city as string || undefined,
+              pincode: m?.pincode as string || undefined,
+            });
+          }}
           className="w-full text-left border-none cursor-pointer rounded-[16px] p-[22px] md:p-[28px] transition-all hover:translate-y-[-2px]"
           style={{
             background: "#FFFFFF",
@@ -458,6 +475,17 @@ export default function MemberDashboardPage() {
               ))}
             </div>
           </div>
+          {data?.assessments && data.assessments.length > 0 && (
+            <button type="button" onClick={() => {
+              const memberData = data.member;
+              if (memberData?.id) openForRetest(memberData.id as string);
+            }}
+              className="mt-[12px] w-full flex items-center justify-center gap-[6px] text-[12px] font-semibold py-[9px] rounded-xl border-none cursor-pointer transition-colors"
+              style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              Take Test Again
+            </button>
+          )}
         </div>
       )}
     </DashboardShell>
