@@ -111,17 +111,35 @@ export default function SuperAdminReportsPage() {
             Back
           </button>
           {data && (
-            <button type="button" onClick={() => {
+            <button type="button" onClick={async () => {
+              const params = new URLSearchParams();
+              Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v); });
+              params.set("export", "1");
+              const res = await fetch(`/api/admin-reports?${params.toString()}`);
+              const d = await res.json();
+              if (!d.rowsData || d.rowsData.length === 0) return;
+              const flatRows: Record<string, unknown>[] = d.rowsData;
               const cols = [
-                { key: "section", label: "Section" }, { key: "name", label: "Name" },
-                { key: "lark", label: "Lark %" }, { key: "eagle", label: "Eagle %" }, { key: "owl", label: "Owl %" }, { key: "total", label: "Total" },
+                { key: "chronotype", label: "Chronotype" }, { key: "confidence_score", label: "Confidence" },
+                { key: "age", label: "Age" }, { key: "gender", label: "Gender" },
+                { key: "country", label: "Country" }, { key: "state", label: "State" },
+                { key: "city", label: "City" }, { key: "orgName", label: "Organization" },
+                { key: "orgType", label: "Org Type" }, { key: "ageGroup", label: "Age Group" },
+                { key: "completed_at", label: "Completed At" },
               ];
-              const rows: Record<string, unknown>[] = [];
-              data.locationBreakdown.forEach((r: Record<string, unknown>) => rows.push({ section: "Location", ...r }));
-              data.genderBreakdown.forEach((r: Record<string, unknown>) => rows.push({ section: "Gender", ...r }));
-              data.orgTypeBreakdown.forEach((r: Record<string, unknown>) => rows.push({ section: "Org Type", ...r }));
-              data.orgBreakdown.forEach((r: Record<string, unknown>) => rows.push({ section: "Org", ...r }));
-              exportCsv(rows, new Set(), cols, "full", "chronotype-intelligence");
+              const csvRows: string[][] = [cols.map((c) => c.label)];
+              flatRows.forEach((r) => {
+                csvRows.push(cols.map((c) => {
+                  const val = r[c.key];
+                  const s = val === null || val === undefined ? "" : String(val);
+                  return s.includes(",") || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
+                }));
+              });
+              const csv = csvRows.map((r) => r.join(",")).join("\r\n");
+              const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;bom" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a"); a.href = url; a.download = "chronotype-data.csv"; a.click();
+              URL.revokeObjectURL(url);
             }}
               className="flex items-center gap-[5px] text-[12px] font-semibold px-[14px] py-[7px] rounded-xl border-none cursor-pointer transition-colors"
               style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>

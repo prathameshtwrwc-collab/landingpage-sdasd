@@ -110,26 +110,43 @@ export default function AnalyticsPage() {
               style={{ color: "#98A2B3", fontFamily: "Poppins, sans-serif" }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg> Back
             </button>
-            {data && (
-              <button type="button" onClick={() => {
-                const cols = [
-                  { key: "section", label: "Section" }, { key: "name", label: "Name" },
-                  { key: "lark", label: "Lark %" }, { key: "eagle", label: "Eagle %" }, { key: "owl", label: "Owl %" }, { key: "total", label: "Total" },
-                ];
-                const rows: Record<string, unknown>[] = [];
-                data.locationBreakdown.forEach((r: Record<string, unknown>) => rows.push({ section: "Location", name: r.name, ...r }));
-                data.genderBreakdown.forEach((r: Record<string, unknown>) => rows.push({ section: "Gender", name: r.gender, ...r }));
-                data.orgTypeBreakdown.forEach((r: Record<string, unknown>) => rows.push({ section: "Org Type", name: r.type, ...r }));
-                data.orgBreakdown.forEach((r: Record<string, unknown>) => rows.push({ section: "Org", name: r.name, ...r }));
-                data.ageBreakdown?.forEach((r: Record<string, unknown>) => rows.push({ section: "Age", name: r.group, ...r }));
-                exportCsv(rows, new Set(), cols, "full", "analytics");
-              }}
-                className="flex items-center gap-[5px] text-[12px] font-semibold px-[14px] py-[7px] rounded-xl border-none cursor-pointer transition-colors"
-                style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Export CSV
-              </button>
-            )}
+{data && (
+            <button type="button" onClick={async () => {
+              const params = new URLSearchParams();
+              Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v); });
+              params.set("export", "1");
+              const res = await fetch(`/api/admin-reports?${params.toString()}`);
+              const d = await res.json();
+              if (!d.rowsData || d.rowsData.length === 0) return;
+              const flatRows: Record<string, unknown>[] = d.rowsData;
+              const cols = [
+                { key: "chronotype", label: "Chronotype" }, { key: "confidence_score", label: "Confidence" },
+                { key: "age", label: "Age" }, { key: "gender", label: "Gender" },
+                { key: "country", label: "Country" }, { key: "state", label: "State" },
+                { key: "city", label: "City" }, { key: "orgName", label: "Organization" },
+                { key: "orgType", label: "Org Type" }, { key: "ageGroup", label: "Age Group" },
+                { key: "completed_at", label: "Completed At" },
+              ];
+              const csvRows: string[][] = [cols.map((c) => c.label)];
+              flatRows.forEach((r) => {
+                csvRows.push(cols.map((c) => {
+                  const val = r[c.key];
+                  const s = val === null || val === undefined ? "" : String(val);
+                  return s.includes(",") || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
+                }));
+              });
+              const csv = csvRows.map((r) => r.join(",")).join("\r\n");
+              const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;bom" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a"); a.href = url; a.download = "analytics-data.csv"; a.click();
+              URL.revokeObjectURL(url);
+            }}
+              className="flex items-center gap-[5px] text-[12px] font-semibold px-[14px] py-[7px] rounded-xl border-none cursor-pointer transition-colors"
+              style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export CSV
+            </button>
+          )}
           </div>
         </div>
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Phone, Mail, Calendar, Clock, MapPin, Search, ChevronLeft, ChevronRight, ChevronDown, CheckCircle, XCircle, Clock as ClockIcon, Eye, Trash2 } from "lucide-react";
+import { Phone, Mail, Calendar, Clock, MapPin, Search, ChevronLeft, ChevronRight, ChevronDown, CheckCircle, XCircle, Clock as ClockIcon, Eye, Trash2, Download } from "lucide-react";
 
 interface ConsultationLead {
   id: string;
@@ -145,6 +145,38 @@ export default function ConsultationLeadsPage() {
           style={{ background: "#35319B", fontFamily: "Poppins, sans-serif" }}>
           Search
         </button>
+        {data && data.data.length > 0 && (
+          <button type="button" onClick={() => {
+            const cols = [
+              { key: "fname", label: "First Name" }, { key: "lname", label: "Last Name" },
+              { key: "age", label: "Age" }, { key: "gender", label: "Gender" },
+              { key: "marital_status", label: "Marital Status" }, { key: "email", label: "Email" },
+              { key: "phone", label: "Phone" }, { key: "country", label: "Country" },
+              { key: "state", label: "State" }, { key: "city", label: "City" },
+              { key: "pincode", label: "Pincode" },
+              { key: "schedule_date", label: "Schedule Date" }, { key: "schedule_time", label: "Schedule Time" },
+              { key: "status", label: "Status" }, { key: "created_at", label: "Submitted At" },
+            ];
+            const csvRows: string[][] = [cols.map((c) => c.label)];
+            data.data.forEach((lead) => {
+              csvRows.push(cols.map((c) => {
+                const val = (lead as unknown as Record<string, unknown>)[c.key];
+                const s = val === null || val === undefined ? "" : String(val);
+                return s.includes(",") || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
+              }));
+            });
+            const csv = csvRows.map((r) => r.join(",")).join("\r\n");
+            const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;bom" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url; a.download = "consultation-leads.csv"; a.click();
+            URL.revokeObjectURL(url);
+          }}
+            className="px-[16px] py-[9px] text-[13px] font-semibold rounded-lg border cursor-pointer transition-colors"
+            style={{ borderColor: "#E0E0E0", color: "#555", background: "#FFF", fontFamily: "Poppins, sans-serif" }}>
+            <Download size={14} style={{ marginRight: "4px", verticalAlign: "middle" }} /> Export CSV
+          </button>
+        )}
       </div>
 
       {/* ── Table ── */}

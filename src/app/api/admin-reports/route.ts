@@ -25,6 +25,7 @@ export async function GET(req: Request) {
     const supabase = createAdminClient();
     const url = new URL(req.url);
     const isDebug = url.searchParams.get("debug") === "1";
+    const isExport = url.searchParams.get("export") === "1";
 
     const filterCountry = url.searchParams.get("country") || undefined;
     const filterState = url.searchParams.get("state") || undefined;
@@ -158,6 +159,25 @@ export async function GET(req: Request) {
     };
 
     if (rows.length === 0) return emptyResponse();
+
+    if (isExport) {
+      return NextResponse.json({
+        rows: rows.length,
+        rowsData: rows.map((r) => ({
+          chronotype: r.chronotype,
+          confidence_score: r.confidence_score,
+          age: r.age,
+          gender: r.gender,
+          country: r.country,
+          state: r.state,
+          city: r.city,
+          orgName: r.orgName,
+          orgType: r.orgType,
+          completed_at: r.completed_at,
+          ageGroup: r.ageGroup,
+        })),
+      });
+    }
 
     // ── Breakdown computations (same as before) ──
     const locMap = new Map<string, { lark: number; eagle: number; owl: number; total: number }>();
