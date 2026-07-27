@@ -60,7 +60,7 @@ function CheckCircle() {
 
 export default function ConsultModal() {
   const { isOpen, close, prefill } = useConsult();
-  const [form, setForm] = useState<ConsultForm>(() => prefill ? { ...initialForm, ...prefill } : initialForm);
+  const [form, setForm] = useState<ConsultForm>(initialForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -71,6 +71,7 @@ export default function ConsultModal() {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      if (prefill) setForm((prev) => ({ ...prev, ...prefill }));
     } else {
       document.body.style.overflow = "";
     }
