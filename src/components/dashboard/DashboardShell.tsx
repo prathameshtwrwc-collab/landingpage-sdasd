@@ -238,7 +238,7 @@ export default function DashboardShell({
         {/* Bottom */}
         <div className="px-[12px] pb-[16px] flex items-center justify-between"
           style={{ borderTop: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA", paddingTop: "12px" }}>
-          <Link href="/" className="flex items-center gap-[8px] text-[12px] font-medium no-underline"
+          <Link href={orgCode ? `/${orgCode}` : "/"} className="flex items-center gap-[8px] text-[12px] font-medium no-underline"
             style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif" }}>
             <Home size={14} /> Home
           </Link>
@@ -324,7 +324,7 @@ export default function DashboardShell({
           items={mobileMoreItems}
           onClose={() => setMoreOpen(false)}
           onLogout={async () => { await logout(); window.location.href = "/login"; }}
-          onHome={() => { window.location.href = "/"; }}
+          onHome={() => { window.location.href = orgCode ? `/${orgCode}` : "/"; }}
         />
       )}
 
