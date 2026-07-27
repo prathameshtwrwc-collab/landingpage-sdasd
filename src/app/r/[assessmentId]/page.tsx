@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 const CHRONO_COLORS: Record<string, string> = { LARK: "#F59A00", EAGLE: "#35319B", OWL: "#7B68AE" };
 const CHRONO_BG: Record<string, string> = { LARK: "linear-gradient(135deg, #FFFBEB, #FEF3C7)", EAGLE: "linear-gradient(135deg, #EEF2FF, #E0E7FF)", OWL: "linear-gradient(135deg, #F5F3FF, #EDE9FE)" };
 const CHRONO_ICON: Record<string, string> = { LARK: "\u2600\uFE0F", EAGLE: "\uD83D\uDE09", OWL: "\uD83C\uDF19" };
-const CHRONO_LABEL: Record<string, string> = { LARK: "Lion \u00B7 Morning Type", EAGLE: "Eagle \u00B7 Intermediate Type", OWL: "Owl \u00B7 Evening Type" };
+const CHRONO_LABEL: Record<string, string> = { LARK: "Lark \u00B7 Morning Type", EAGLE: "Eagle \u00B7 Intermediate Type", OWL: "Owl \u00B7 Evening Type" };
 const CHRONO_DESC: Record<string, string> = {
   LARK: "Your biology runs early. You wake naturally with the sun, and your mind is at its sharpest before noon.",
   EAGLE: "Your biology sits in the middle. You adapt well to most schedules with steady, balanced energy.",

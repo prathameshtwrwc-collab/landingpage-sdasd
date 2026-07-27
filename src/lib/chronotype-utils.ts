@@ -1,7 +1,7 @@
 export type Chronotype = "LARK" | "EAGLE" | "OWL";
 
 export const CHRONOTYPE_LABELS: Record<Chronotype, string> = {
-  LARK: "Lion (Morning Type)",
+  LARK: "Lark (Morning Type)",
   EAGLE: "Eagle (Intermediate Type)",
   OWL: "Owl (Evening Type)",
 };

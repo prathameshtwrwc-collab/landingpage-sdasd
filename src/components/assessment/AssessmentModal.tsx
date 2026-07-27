@@ -277,7 +277,7 @@ export default function AssessmentModal() {
   };
 
   const chronotypeLabels: Record<string, string> = {
-    LARK: "Lion (Morning Type)",
+    LARK: "Lark (Morning Type)",
     EAGLE: "Eagle (Intermediate Type)",
     OWL: "Owl (Evening Type)",
   };
@@ -363,7 +363,7 @@ export default function AssessmentModal() {
                       fontFamily: "Poppins, sans-serif",
                       boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                     }}>
-                      {chronotypeResult.chronotype === "LARK" ? "🦁 Lion · Morning Type" : chronotypeResult.chronotype === "EAGLE" ? "🦅 Eagle · Intermediate Type" : "🦉 Owl · Evening Type"}
+                      {chronotypeResult.chronotype === "LARK" ? " Lark · Morning Type" : chronotypeResult.chronotype === "EAGLE" ? "🦅 Eagle · Intermediate Type" : "🦉 Owl · Evening Type"}
                     </span>
                     <p className="m-0 mt-[14px] text-[15px] leading-[1.7] max-w-[420px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
                       {chronotypeResult.chronotype === "LARK"

@@ -112,7 +112,7 @@ export default function MemberDashboardPage() {
   const confidenceScore = (result?.confidence_score as number) ?? 0;
 
   const chronotypeLabels: Record<string, string> = {
-    LARK: "Lion", EAGLE: "Eagle", OWL: "Owl",
+    LARK: "Lark", EAGLE: "Eagle", OWL: "Owl",
   };
 
   return (

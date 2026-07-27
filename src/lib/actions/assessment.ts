@@ -100,6 +100,28 @@ export async function createMemberAndStartAssessment(data: {
 
   if (existing) {
     memberId = existing.id;
+    // Update member details in case they changed
+    const parsedAge = (() => {
+      const n = parseInt(data.age, 10);
+      return isNaN(n) ? null : n;
+    })();
+    await supabase.from("members").update({
+      first_name: data.first_name,
+      last_name: data.last_name,
+      age: parsedAge,
+      phone: data.phone,
+      gender: data.gender || null,
+      marital_status: data.marital_status || null,
+      department: data.department || null,
+      country: data.country || null,
+      location: data.location || null,
+      city: data.city || null,
+      pincode: data.pincode || null,
+      occupation: data.occupation || null,
+      organization_id: organizationId,
+      source_type: sourceType,
+      referral_code: data.referral_code || null,
+    }).eq("id", memberId);
   } else {
     const parsedAge = (() => {
       const n = parseInt(data.age, 10);
