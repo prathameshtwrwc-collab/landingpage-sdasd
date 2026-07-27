@@ -65,116 +65,65 @@ export async function createMemberAndStartAssessment(data: {
   occupation?: string;
   org_code?: string;
   referral_code?: string;
+  member_id?: string;
 }) {
   const supabase = await createClient();
-
-  // Check for existing member by email
-  const { data: existing } = await supabase
-    .from("members")
-    .select("id")
-    .eq("email", data.email)
-    .maybeSingle();
 
   let memberId: string;
   let organizationId: string | null = null;
   let sourceType: "ORGANIZATION" | "DIRECT" | "REFERRAL" = "DIRECT";
+  let existingMember: { id: string } | null = null;
 
-  // Look up organization by code if provided
-  if (data.org_code) {
-    const { data: orgLink } = await supabase
-      .from("organization_links")
-      .select("organization_id")
-      .eq("unique_code", data.org_code)
-      .eq("active", true)
-      .maybeSingle();
-    if (orgLink) {
-      organizationId = orgLink.organization_id;
-      sourceType = "ORGANIZATION";
-    }
-  }
-
-  // If referral code is provided, set source to REFERRAL
-  if (data.referral_code) {
-    sourceType = "REFERRAL";
-  }
-
-  if (existing) {
-    memberId = existing.id;
-    // Update member details in case they changed
-    const parsedAge = (() => {
-      const n = parseInt(data.age, 10);
-      return isNaN(n) ? null : n;
-    })();
-    await supabase.from("members").update({
-      first_name: data.first_name,
-      last_name: data.last_name,
-      age: parsedAge,
-      phone: data.phone,
-      gender: data.gender || null,
-      marital_status: data.marital_status || null,
-      department: data.department || null,
-      country: data.country || null,
-      location: data.location || null,
-      city: data.city || null,
-      pincode: data.pincode || null,
-      occupation: data.occupation || null,
-      organization_id: organizationId,
-      source_type: sourceType,
-      referral_code: data.referral_code || null,
-    }).eq("id", memberId);
+  if (data.member_id) {
+    memberId = data.member_id;
+    existingMember = { id: memberId };
+    const { data: member } = await supabase.from("members").select("organization_id").eq("id", memberId).maybeSingle();
+    if (member?.organization_id) organizationId = member.organization_id;
   } else {
-    const parsedAge = (() => {
-      const n = parseInt(data.age, 10);
-      return isNaN(n) ? null : n;
-    })();
+    const { data: existing } = await supabase.from("members").select("id").eq("email", data.email).maybeSingle();
 
-    const memberData: Record<string, unknown> = {
-      first_name: data.first_name,
-      last_name: data.last_name,
-      age: parsedAge,
-      email: data.email,
-      phone: data.phone,
-      gender: data.gender || null,
-      marital_status: data.marital_status || null,
-      department: data.department || null,
-      country: data.country || null,
-      location: data.location || null,
-      city: data.city || null,
-      pincode: data.pincode || null,
-      occupation: data.occupation || null,
-      organization_id: organizationId,
-      source_type: sourceType,
-      referral_code: data.referral_code || null,
-    };
+    if (data.org_code) {
+      const { data: orgLink } = await supabase.from("organization_links").select("organization_id").eq("unique_code", data.org_code).eq("active", true).maybeSingle();
+      if (orgLink) { organizationId = orgLink.organization_id; sourceType = "ORGANIZATION"; }
+    }
+    if (data.referral_code) sourceType = "REFERRAL";
 
-    const { data: member, error } = await supabase
-      .from("members")
-      .insert(memberData)
-      .select()
-      .single();
-    if (error) throw new Error(error.message);
-    memberId = member.id;
+    if (existing) {
+      memberId = existing.id;
+      existingMember = existing;
+      const parsedAge = (() => { const n = parseInt(data.age, 10); return isNaN(n) ? null : n; })();
+      await supabase.from("members").update({
+        first_name: data.first_name, last_name: data.last_name, age: parsedAge,
+        phone: data.phone, gender: data.gender || null, marital_status: data.marital_status || null,
+        department: data.department || null, country: data.country || null, location: data.location || null,
+        city: data.city || null, pincode: data.pincode || null, occupation: data.occupation || null,
+        organization_id: organizationId, source_type: sourceType, referral_code: data.referral_code || null,
+      }).eq("id", memberId);
+    } else {
+      const parsedAge = (() => { const n = parseInt(data.age, 10); return isNaN(n) ? null : n; })();
+      const memberData: Record<string, unknown> = {
+        first_name: data.first_name, last_name: data.last_name, age: parsedAge,
+        email: data.email, phone: data.phone,
+        gender: data.gender || null, marital_status: data.marital_status || null,
+        department: data.department || null, country: data.country || null, location: data.location || null,
+        city: data.city || null, pincode: data.pincode || null, occupation: data.occupation || null,
+        organization_id: organizationId, source_type: sourceType, referral_code: data.referral_code || null,
+      };
+      const { data: member, error } = await supabase.from("members").insert(memberData).select().single();
+      if (error) throw new Error(error.message);
+      memberId = member.id;
 
-    // Create referral record if applicable
-    if (data.referral_code) {
-      const { data: referrer } = await supabase
-        .from("members")
-        .select("id")
-        .eq("referral_code", data.referral_code)
-        .maybeSingle();
-      if (referrer) {
-        await supabase.from("referrals").insert({
-          referrer_member_id: referrer.id,
-          referred_member_id: memberId,
-          referral_code: data.referral_code,
-          status: "COMPLETED",
-        });
+      if (data.referral_code) {
+        const { data: referrer } = await supabase.from("members").select("id").eq("referral_code", data.referral_code).maybeSingle();
+        if (referrer) {
+          await supabase.from("referrals").insert({ referrer_member_id: referrer.id, referred_member_id: memberId, referral_code: data.referral_code, status: "COMPLETED" });
+        }
       }
     }
   }
 
   // If member already exists, check for an in-progress (STARTED) assessment
-  if (existing) {
+  if (existingMember) {
     const { data: started } = await supabase
       .from("assessments")
       .select("id, assessment_version_id")
@@ -185,13 +134,11 @@ export async function createMemberAndStartAssessment(data: {
       .maybeSingle();
 
     if (started) {
-      // Get the last answered question index for this assessment
       const { data: existingAnswers } = await supabase
         .from("assessment_answers")
         .select("question_id, selected_option_id")
         .eq("assessment_id", started.id);
 
-      // Get the questions for this version in order
       const { data: questions } = await supabase
         .from("questions")
         .select("id")
@@ -205,21 +152,12 @@ export async function createMemberAndStartAssessment(data: {
         const questionOrder = questions.map((q) => q.id);
         existingAnswers.forEach((a) => {
           const idx = questionOrder.indexOf(a.question_id);
-          if (idx >= 0) {
-            existingAnswerMap[idx] = a.selected_option_id;
-          }
+          if (idx >= 0) existingAnswerMap[idx] = a.selected_option_id;
         });
-        // Find the first unanswered question index
         lastAnsweredIndex = existingAnswers.length;
       }
 
-      return {
-        memberId,
-        assessmentId: started.id,
-        hasExistingAssessment: true,
-        resumeIndex: lastAnsweredIndex,
-        existingAnswers: existingAnswerMap,
-      };
+      return { memberId, assessmentId: started.id, hasExistingAssessment: true, resumeIndex: lastAnsweredIndex, existingAnswers: existingAnswerMap };
     }
   }
 

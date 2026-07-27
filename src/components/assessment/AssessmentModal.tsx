@@ -57,7 +57,7 @@ function CheckCircle() {
 }
 
 export default function AssessmentModal() {
-  const { isOpen, close } = useAssessment();
+  const { isOpen, close, retestMemberId } = useAssessment();
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(initialForm);
@@ -136,6 +136,39 @@ export default function AssessmentModal() {
     }
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
+
+  // Auto-advance to questions when retesting
+  useEffect(() => {
+    if (isOpen && retestMemberId && step === 0) {
+      setStep(1);
+      loadAssessmentData();
+      // Start a new assessment for this member
+      (async () => {
+        try {
+          const result = await createMemberAndStartAssessment({
+            first_name: "",
+            last_name: "",
+            age: "",
+            email: "",
+            phone: "",
+            gender: "",
+            marital_status: "",
+            department: "",
+            country: "",
+            location: "",
+            city: "",
+            pincode: "",
+            occupation: "",
+            member_id: retestMemberId,
+          });
+          setMemberId(result.memberId);
+          setAssessmentId(result.assessmentId);
+        } catch {
+          setServerError("Failed to start retest. Please try again.");
+        }
+      })();
+    }
+  }, [isOpen, retestMemberId]);
 
   const loadAssessmentData = useCallback(async () => {
     try {
