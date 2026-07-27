@@ -1,16 +1,39 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import Ring from "@/components/charts/Ring";
-import { Moon, Brain, Sparkles, Clock } from "lucide-react";
+import { Moon, Brain, Sparkles, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { CHRONOTYPE_LABELS, CHRONOTYPE_DESCRIPTIONS, CHRONOTYPE_PEAK_TIMES } from "@/lib/chronotype-utils";
+
+const CHRONO_IMAGES = [
+  "About-Us (002).jpg", "Clinic-detials.jpg",
+  "Eagle-1.jpg", "Eagle-2.jpg", "Eagle-3.jpg", "Eagle-4.jpg", "Eagles Hompage.jpg",
+  "Home page.jpg",
+  "How to use your unique biorhythm to stay-1.jpg",
+  "How to use your unique biorhythm to stay-2.jpg",
+  "How to use your unique biorhythm to stay-3.jpg",
+  "Lark-1.jpg", "Lark-2.jpg", "Lark-3.jpg", "Lark-5.jpg", "Larks Hompage.jpg",
+  "Owl-1.jpg", "Owl-2.jpg", "Owl-3.jpg", "Owl-4.jpg", "Owls Hompage.jpg",
+  "Question-1.jpg", "Question-2.jpg",
+  "Sleep disorders a paractical holisti guide 1.jpg",
+  "Sleep disorders a paractical holisti guide 2.jpg",
+  "Sleep disorders a paractical holisti guide 3.jpg",
+  "Sleep disorders a paractical holisti guide 4.jpg",
+  "Sleep disorders a paractical holisti guide 5.jpg",
+  "Sleep disorders a paractical holisti guide 6.jpg",
+  "Sleep disorders a paractical holisti guide 7.jpg",
+  "Sleep disorders a paractical holisti guide 8.jpg",
+  "Sleep disorders a paractical holisti guide 9.jpg",
+];
 
 export default function ChronotypePage() {
   const { user } = useAuth();
   const [data, setData] = useState<{ result: Record<string, unknown> | null } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [slideIdx, setSlideIdx] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (user?.email) {
@@ -20,6 +43,22 @@ export default function ChronotypePage() {
         .catch(() => setLoading(false));
     } else { setLoading(false); }
   }, [user]);
+
+  // Auto-slide carousel
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setSlideIdx((prev) => (prev + 1) % CHRONO_IMAGES.length);
+    }, 5000);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, []);
+
+  const goTo = (idx: number) => {
+    setSlideIdx(idx);
+    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+    intervalRef.current = setInterval(() => {
+      setSlideIdx((prev) => (prev + 1) % CHRONO_IMAGES.length);
+    }, 5000);
+  };
 
   const result = data?.result as Record<string, unknown> | undefined;
   const chronotype = (result?.chronotype as "LARK" | "EAGLE" | "OWL") ?? null;
@@ -61,17 +100,34 @@ export default function ChronotypePage() {
             <div className="mt-[16px]"><Ring value={confidence} size={80} color="#35319B" label="Match" /></div>
           </div>
 
-          <div className="flex items-center justify-center p-[20px] rounded-[16px] min-h-[180px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-            <div className="flex flex-col items-center text-center">
-              <div className="w-[64px] h-[64px] rounded-xl flex items-center justify-center mb-[12px]" style={{ background: "rgba(53,49,155,0.06)" }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#35319B" strokeWidth="1.5" strokeLinecap="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                  <circle cx="8.5" cy="8.5" r="1.5"/>
-                  <polyline points="21 15 16 10 5 21"/>
-                </svg>
+          <div className="relative overflow-hidden rounded-[16px] min-h-[240px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+            <div className="relative w-full h-[260px] md:h-[300px]">
+              {CHRONO_IMAGES.map((src, i) => (
+                <img key={src} src={`/chronotype_media/${src}`} alt={`Chronotype illustration ${i + 1}`}
+                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+                  style={{ opacity: i === slideIdx ? 1 : 0 }}
+                  loading="lazy"
+                />
+              ))}
+              {/* Prev / Next buttons */}
+              <button type="button" onClick={() => goTo((slideIdx - 1 + CHRONO_IMAGES.length) % CHRONO_IMAGES.length)}
+                className="absolute left-[8px] top-1/2 -translate-y-1/2 w-[32px] h-[32px] rounded-full border-none cursor-pointer flex items-center justify-center"
+                style={{ background: "rgba(255,255,255,0.85)", color: "#555" }}>
+                <ChevronLeft size={18} />
+              </button>
+              <button type="button" onClick={() => goTo((slideIdx + 1) % CHRONO_IMAGES.length)}
+                className="absolute right-[8px] top-1/2 -translate-y-1/2 w-[32px] h-[32px] rounded-full border-none cursor-pointer flex items-center justify-center"
+                style={{ background: "rgba(255,255,255,0.85)", color: "#555" }}>
+                <ChevronRight size={18} />
+              </button>
+              {/* Dots */}
+              <div className="absolute bottom-[10px] left-1/2 -translate-x-1/2 flex items-center gap-[5px]">
+                {CHRONO_IMAGES.map((_, i) => (
+                  <button key={i} type="button" onClick={() => goTo(i)}
+                    className="w-[7px] h-[7px] rounded-full border-none cursor-pointer transition-all duration-300"
+                    style={{ background: i === slideIdx ? "#35319B" : "rgba(255,255,255,0.6)", transform: i === slideIdx ? "scale(1.3)" : "scale(1)" }} />
+                ))}
               </div>
-              <p className="m-0 text-[13px] font-medium" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Visual illustration coming soon</p>
-              <p className="m-0 mt-[4px] text-[11px]" style={{ color: "#CCC", fontFamily: "Poppins, sans-serif" }}>Image placeholder for chronotype visual</p>
             </div>
           </div>
 

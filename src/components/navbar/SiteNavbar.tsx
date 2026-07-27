@@ -298,25 +298,19 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
             <div className="hidden lg:flex items-center justify-end gap-[10px]">
               <a
                 href="/login"
-                className="inline-flex items-center justify-center border-none transition-all duration-[220ms] ease-[ease] cursor-pointer no-underline"
+                className="inline-flex items-center justify-center border-none transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer no-underline"
                 style={{
                   width: "100px",
                   height: "40px",
-                  background: "transparent",
-                  color: "#29275E",
+                  background: "#F59A00",
+                  color: "#FFFFFF",
                   borderRadius: 0,
                   fontFamily: "Poppins, sans-serif",
                   fontSize: "13px",
                   fontWeight: 600,
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#F59A00";
-                  e.currentTarget.style.color = "#FFFFFF";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.color = "#29275E";
-                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "#E08A00"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "#F59A00"; }}
               >
                 Login
               </a>
@@ -324,8 +318,8 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                 className="inline-flex items-center justify-center border cursor-pointer transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px]"
                 style={{
                   width: "130px", height: "40px",
-                  borderColor: "#FF6B6B", color: "#FF6B6B",
-                  background: "rgba(255,107,107,0.06)",
+                  borderColor: "#F59A00", color: "#F59A00",
+                  background: "rgba(245,154,0,0.08)",
                   borderRadius: 0, fontFamily: "Poppins, sans-serif",
                   fontSize: "13px", fontWeight: 600,
                 }}>
@@ -520,18 +514,16 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
             fontFamily: "Poppins, sans-serif",
             fontSize: "15px",
             fontWeight: 600,
-            border: "1.5px solid #29275E",
-            background: "transparent",
+            border: "1.5px solid #F59A00",
+            background: "#F59A00",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#F59A00";
-            e.currentTarget.style.color = "#FFFFFF";
-            e.currentTarget.style.borderColor = "#F59A00";
+            e.currentTarget.style.background = "#E08A00";
+            e.currentTarget.style.borderColor = "#E08A00";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = "#29275E";
-            e.currentTarget.style.borderColor = "#29275E";
+            e.currentTarget.style.background = "#F59A00";
+            e.currentTarget.style.borderColor = "#F59A00";
           }}
         >
           Login
