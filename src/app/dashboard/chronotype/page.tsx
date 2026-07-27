@@ -7,7 +7,7 @@ import Ring from "@/components/charts/Ring";
 import { Moon, Brain, Sparkles, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { CHRONOTYPE_LABELS, CHRONOTYPE_DESCRIPTIONS, CHRONOTYPE_PEAK_TIMES } from "@/lib/chronotype-utils";
 
-const CHRONO_IMAGES = [
+const ALL_IMAGES = [
   "About-Us (002).jpg", "Clinic-detials.jpg",
   "Eagle-1.jpg", "Eagle-2.jpg", "Eagle-3.jpg", "Eagle-4.jpg", "Eagles Hompage.jpg",
   "Home page.jpg",
@@ -26,6 +26,11 @@ const CHRONO_IMAGES = [
   "Sleep disorders a paractical holisti guide 7.jpg",
   "Sleep disorders a paractical holisti guide 8.jpg",
   "Sleep disorders a paractical holisti guide 9.jpg",
+];
+
+const EAGLE_IMAGES = [
+  "1.jpg", "2.jpg", "3.jpg", "3a.jpg", "4.jpg", "5.jpg", "6.jpg",
+  "7.jpg", "8.jpg", "9.jpg", "10.jpg", "hompage.jpg", "hompage-2.jpg",
 ];
 
 export default function ChronotypePage() {
@@ -48,7 +53,7 @@ export default function ChronotypePage() {
   // Auto-slide carousel
   useEffect(() => {
     intervalRef.current = setInterval(() => {
-      setSlideIdx((prev) => (prev + 1) % CHRONO_IMAGES.length);
+      setSlideIdx((prev) => (prev + 1) % chronoImages.length);
     }, 5000);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, []);
@@ -64,7 +69,7 @@ export default function ChronotypePage() {
     setSlideIdx(idx);
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
     intervalRef.current = setInterval(() => {
-      setSlideIdx((prev) => (prev + 1) % CHRONO_IMAGES.length);
+      setSlideIdx((prev) => (prev + 1) % chronoImages.length);
     }, 5000);
   };
 
@@ -73,6 +78,11 @@ export default function ChronotypePage() {
   const info = chronotype ? CHRONOTYPE_DESCRIPTIONS[chronotype] : null;
   const peaks = chronotype ? CHRONOTYPE_PEAK_TIMES[chronotype] : null;
   const confidence = (result?.confidence_score as number) ?? 0;
+
+  // Choose images based on chronotype
+  const isEagle = chronotype === "EAGLE";
+  const chronoImages = isEagle ? EAGLE_IMAGES : ALL_IMAGES;
+  const imageFolder = isEagle ? "chronotype_media/eagle" : "chronotype_media";
 
   return (
     <DashboardShell>
@@ -111,27 +121,27 @@ export default function ChronotypePage() {
           <div className="relative rounded-[16px] overflow-hidden cursor-pointer" style={{ background: "#F0F0F0", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}
             onClick={() => setLightboxOpen(true)}>
             <div className="relative w-full" style={{ height: "420px" }}>
-              {CHRONO_IMAGES.map((src, i) => (
-                <img key={src} src={`/chronotype_media/${src}`} alt={`Chronotype illustration ${i + 1}`}
+              {chronoImages.map((src, i) => (
+                <img key={src} src={`${imageFolder}/${src}`} alt={`Chronotype illustration ${i + 1}`}
                   className="absolute inset-0 w-full h-full transition-opacity duration-700"
                   style={{ opacity: i === slideIdx ? 1 : 0, objectFit: "contain", padding: "16px" }}
                   loading="lazy"
                 />
               ))}
               {/* Prev / Next buttons */}
-              <button type="button" onClick={(e) => { e.stopPropagation(); goTo((slideIdx - 1 + CHRONO_IMAGES.length) % CHRONO_IMAGES.length); }}
+              <button type="button" onClick={(e) => { e.stopPropagation(); goTo((slideIdx - 1 + chronoImages.length) % chronoImages.length); }}
                 className="absolute left-[8px] top-1/2 -translate-y-1/2 w-[32px] h-[32px] rounded-full border-none cursor-pointer flex items-center justify-center"
                 style={{ background: "rgba(255,255,255,0.85)", color: "#555" }}>
                 <ChevronLeft size={18} />
               </button>
-              <button type="button" onClick={(e) => { e.stopPropagation(); goTo((slideIdx + 1) % CHRONO_IMAGES.length); }}
+              <button type="button" onClick={(e) => { e.stopPropagation(); goTo((slideIdx + 1) % chronoImages.length); }}
                 className="absolute right-[8px] top-1/2 -translate-y-1/2 w-[32px] h-[32px] rounded-full border-none cursor-pointer flex items-center justify-center"
                 style={{ background: "rgba(255,255,255,0.85)", color: "#555" }}>
                 <ChevronRight size={18} />
               </button>
               {/* Dots */}
               <div className="absolute bottom-[10px] left-1/2 -translate-x-1/2 flex items-center gap-[5px]">
-                {CHRONO_IMAGES.map((_, i) => (
+                {chronoImages.map((_, i) => (
                   <button key={i} type="button" onClick={(e) => { e.stopPropagation(); goTo(i); }}
                     className="w-[7px] h-[7px] rounded-full border-none cursor-pointer transition-all duration-300"
                     style={{ background: i === slideIdx ? "#35319B" : "rgba(255,255,255,0.6)", transform: i === slideIdx ? "scale(1.3)" : "scale(1)" }} />
@@ -170,22 +180,22 @@ export default function ChronotypePage() {
               style={{ background: "rgba(255,255,255,0.15)", color: "#FFF" }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
-            <img src={`/chronotype_media/${CHRONO_IMAGES[slideIdx]}`} alt="Enlarged view"
+            <img src={`${imageFolder}/${chronoImages[slideIdx]}`} alt="Enlarged view"
               className="max-w-full max-h-full object-contain rounded-[8px]"
               style={{ maxWidth: "95vw", maxHeight: "90vh" }}
             />
-            <button type="button" onClick={(e) => { e.stopPropagation(); goTo((slideIdx - 1 + CHRONO_IMAGES.length) % CHRONO_IMAGES.length); }}
+            <button type="button" onClick={(e) => { e.stopPropagation(); goTo((slideIdx - 1 + chronoImages.length) % chronoImages.length); }}
               className="absolute left-[12px] top-1/2 -translate-y-1/2 w-[44px] h-[44px] rounded-full border-none cursor-pointer flex items-center justify-center"
               style={{ background: "rgba(255,255,255,0.15)", color: "#FFF" }}>
               <ChevronLeft size={24} />
             </button>
-            <button type="button" onClick={(e) => { e.stopPropagation(); goTo((slideIdx + 1) % CHRONO_IMAGES.length); }}
+            <button type="button" onClick={(e) => { e.stopPropagation(); goTo((slideIdx + 1) % chronoImages.length); }}
               className="absolute right-[12px] top-1/2 -translate-y-1/2 w-[44px] h-[44px] rounded-full border-none cursor-pointer flex items-center justify-center"
               style={{ background: "rgba(255,255,255,0.15)", color: "#FFF" }}>
               <ChevronRight size={24} />
             </button>
             <div className="absolute bottom-[20px] left-1/2 -translate-x-1/2 flex items-center gap-[6px]">
-              {CHRONO_IMAGES.map((_, i) => (
+              {chronoImages.map((_, i) => (
                 <button key={i} type="button" onClick={(e) => { e.stopPropagation(); goTo(i); }}
                   className="w-[8px] h-[8px] rounded-full border-none cursor-pointer transition-all"
                   style={{ background: i === slideIdx ? "#FFF" : "rgba(255,255,255,0.4)", transform: i === slideIdx ? "scale(1.3)" : "scale(1)" }} />

@@ -175,7 +175,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
             className="mx-auto w-full h-full grid items-center px-[18px] md:px-[32px] lg:px-[48px] max-w-[1380px]"
             style={{
               display: "grid",
-              gridTemplateColumns: "auto 1fr auto",
+              gridTemplateColumns: "max-content minmax(0,1fr) auto",
               alignItems: "center",
               height: "100%",
             }}
@@ -187,8 +187,8 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                 e.preventDefault();
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
-              className="inline-flex items-center gap-[10px] no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-2 rounded-sm shrink-0"
-              style={{ display: "inline-flex", alignItems: "center", gap: "10px", minWidth: 0 }}
+              className="inline-flex items-center gap-[10px] no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-2 rounded-sm"
+              style={{ display: "inline-flex", alignItems: "center", gap: "10px", minWidth: 0, overflow: "hidden" }}
               aria-label={brandingCompany ? `${brandingCompany} - Home` : "Chronotype - Home"}
             >
               {/* Logo — no circle bg, larger size */}
@@ -214,7 +214,10 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                   lineHeight: "1",
                   fontWeight: 600,
                   color: "#2F2A86",
-                  maxWidth: "180px",
+                  maxWidth: "200px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
                 }}
               >
                 <span className="text-[16px] md:text-[18px]">{brandingCompany ?? "Chronotype"}</span>
