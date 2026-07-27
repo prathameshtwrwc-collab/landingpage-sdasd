@@ -2,6 +2,41 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.5.0] — 2026-07-27 — Bug Fixes, Consult Leads, CSV Exports, Donate, Image Gallery
+
+### Fixed
+- **"Lion" chronotype bug** — Changed all `"Lion"` labels to `"Lark"` across dashboard, result pages, assessment modal, and chronotype-utils (only Lark/Eagle/Owl are valid)
+- **Duplicate email reassessment** — Member details (name, phone, etc.) now update when same email retakes the assessment
+- **Consult leads page data loading** — Switched to `createAdminClient()` for GET/PATCH/DELETE to bypass RLS; added batch `.in()` queries to avoid URL length limits
+- **Reports/analytics page data loading** — Replaced complex nested Supabase joins with simpler multi-step queries; added batch processing; fixed filter param name mismatch (orgType/orgName)
+- **State filter empty** — State dropdown now reads from `member.location` column (form "State" field stores to `location`)
+- **Reports/analytics filter case sensitivity** — All filter comparisons now case-insensitive; deduplicated filter options via lowercase map; title-cased for display
+- **Reports PDF dummy data** — Reports without `result_id` now fall back to the latest chronotype_result data
+- **Duplicate filter options** — Case-insensitive deduplication for country/state/city/orgType/orgName dropdowns
+- **Apply button missing on analytics page** — Moved into Filters section (was misplaced inside Trend SectionCard)
+- **Consult modal prefill not updating** — Changed from `useState` initializer (runs once) to `useEffect` that applies prefill on modal open
+
+### Added
+- **Terms & Conditions modal** — Clickable "terms and conditions" / "privacy policy" links in assessment checkbox open a styled modal with full T&C content
+- **Retest support** — `AssessmentContext.openForRetest(memberId)` skips the details form and auto-creates a new assessment for logged-in members
+- **Consult modal prefill** — `ConsultContext.openPrefilled(data)` passes member data; dashboard consult button auto-fills name, email, phone, age, gender, location from member profile
+- **Home button org redirect** — DashboardShell accepts `orgCode` prop; "Home" link and mobile sheet redirect to `/{orgCode}` when member belongs to an organization
+- **Member API orgCode** — `/api/member` now returns `orgCode` field (looked up from active `organization_links` for the member's organization)
+- **CSV export — Consult leads** — Functional export button with all fields (name, age, gender, email, phone, location, schedule, status)
+- **CSV export — Reports/Analytics** — Raw data export via `?export=1` param; respects all active filters; includes state from location, org name, chronotype, scores, age group
+- **Donate modal** — Beautiful premium donate modal with heart icon, impact list, amount selector buttons, gradient CTA; added to SiteNavbar and DashboardShell sidebar
+- **Image gallery slider** — Auto-advancing carousel (5s) of all 32 chronotype media images on `/dashboard/chronotype` with prev/next buttons and dot indicators
+- **Image lightbox** — Click on any slider image opens full-screen lightbox with nav arrows, dots, close button, and Escape key support
+- **Login & Donate button styling** — Orange (`#F59A00`) solid background for Login buttons (desktop + mobile); orange border/color for Donate button
+
+### Changed
+- **Admin-reports API** — Entirely rewritten to start from `assessments` table (instead of `chronotype_results`), with in-memory joining and filtering
+- **Filters auto-apply** — Removed (reverted to "Apply" button + "Clear Filters" button pattern per user request)
+- **DashboardShell** — Accepts `orgCode` prop for home redirect; added Donate button in sidebar bottom
+- **AssessmentModal** — TermsModal import, retest flow, showTerms state
+- **ConsultContext** — Added `openPrefilled`, `prefill` state, and `ConsultPrefill` interface
+- **Client-navbar** — Login/Done buttons orange, DonateModal integration
+
 ## [2.4.0] — 2026-07-26 — Branding Display & Admin Settings
 
 ### Added

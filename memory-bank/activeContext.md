@@ -64,22 +64,33 @@ Phase: Feature Completion & Stabilization — Superadmin Dashboard, RLS Fixes, D
 - **SiteNavbar branding props** — Accepts optional brandingLogo and brandingCompany props
 - **Admin settings API** — GET/POST endpoints for fetching and updating org settings with branding fields
 - **Admin settings page** — Fully functional with branding fields (logo URL, company name)
+- **Consultation leads** — SQL migration, API (POST/GET/PATCH/DELETE), superadmin page with search/filter/pagination/detail modal/status management
+- **Consult modal persistence** — Form data now persists to consultation_leads table via API
+- **Reports & Analytics data** — Fully functional data loading with batch queries, in-memory joining, all demographic breakdowns
+- **Reports & Analytics filters** — Case-insensitive, deduplicated dropdowns, state from location column, Apply + Clear buttons
+- **CSV exports** — Consult leads, reports, and analytics pages with raw data export respecting active filters
+- **"Lion" → "Lark" chronotype fix** — All display labels corrected to Lark/Eagle/Owl only
+- **Duplicate email reassignment** — Member details update on reassessment with same email
+- **Terms & Conditions modal** — Clickable links in assessment checkbox open styled T&C modal
+- **Retest support** — Logged-in members can retake assessment without re-entering details; multiple results stored
+- **Consult modal prefill** — Logged-in member data auto-filled in consult form
+- **Home button org redirect** — Sidebar Home links redirect to org's unique code when member belongs to an organization
+- **Donate modal** — Premium donate modal with impact list, amount selector; buttons in SiteNavbar and DashboardShell
+- **Chronotype image gallery** — Auto-sliding carousel of 32 images on /dashboard/chronotype with lightbox
+- **Orange login/donate buttons** — Solid orange styling for all login and donate CTAs
 
 ---
 
 # In Progress
 
 - End-to-end testing of all role flows
-- Member dashboard subpage data wiring from real API
-- Reports/analytics subpages with real data
+- Supabase Project Setup (production) � database migrations pending
 
 ---
 
 # Pending
 
-- Supabase Project Setup (production)
-- Database Migrations
-- PDF Report Generation
+- PDF Report Generation (template done, rendering needs html2canvas fixes)
 - Referral Analytics
 - Advanced Analytics Engine
 - Doctor/Counsellor Portal
@@ -179,3 +190,4 @@ Generated via `generateOrgCode(name)` in `src/lib/utils/org-code.ts`:
 4. Return `${prefix}${max + 1}` zero-padded to 4 digits
 
 Both `createOrganizationInternal` and `toggleOrgActiveLinkInternal` use this function.
+
