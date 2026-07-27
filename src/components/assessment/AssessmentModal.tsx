@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useAssessment } from "./AssessmentContext";
 import { getAssessmentData, createMemberAndStartAssessment, submitAssessment, abandonAndRestartAssessment, saveAnswer } from "@/lib/actions/assessment";
 import { downloadPdf, openPdfForPrint } from "@/lib/client-pdf";
+import TermsModal from "./TermsModal";
 
 interface Question {
   id: string;
@@ -64,6 +65,7 @@ export default function AssessmentModal() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
+  const [showTerms, setShowTerms] = useState(false);
 
   // URL-detected codes (locked fields)
   const [lockedFields, setLockedFields] = useState<{ orgCode: boolean; referralCode: boolean }>({ orgCode: false, referralCode: false });
@@ -717,7 +719,19 @@ export default function AssessmentModal() {
                 style={{ borderRadius: "3px" }}
               />
               <span className="text-[13px] leading-[1.45] text-[#444] group-hover:text-[#35319B] transition-colors" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
-                I agree to the terms and conditions and privacy policy *
+                I agree to the{" "}
+                <button type="button" onClick={() => setShowTerms(true)}
+                  className="text-[#35319B] underline font-semibold bg-transparent border-none cursor-pointer inline text-[13px] p-0"
+                  style={{ fontFamily: "Poppins, sans-serif" }}>
+                  terms and conditions
+                </button>{" "}
+                and{" "}
+                <button type="button" onClick={() => setShowTerms(true)}
+                  className="text-[#35319B] underline font-semibold bg-transparent border-none cursor-pointer inline text-[13px] p-0"
+                  style={{ fontFamily: "Poppins, sans-serif" }}>
+                  privacy policy
+                </button>{" "}
+                *
               </span>
             </label>
             {errors.agreed && <p className="m-0 text-[12px] text-red-500 mb-[12px]" style={{ fontFamily: "Poppins, sans-serif" }}>Please agree to continue</p>}
@@ -764,6 +778,8 @@ export default function AssessmentModal() {
             `,
           }}
         />
+
+        <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
       </div>
     </div>
   );
