@@ -14,14 +14,14 @@ export default function OrganizationsPage() {
   const [orgs, setOrgs] = useState<Array<Record<string, unknown>>>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name: "", organization_type: "Corporate", country: "", email: "" });
+  const [form, setForm] = useState({ name: "", organization_type: "Corporate", country: "", email: "", department: "", branch: "", pincode: "", city: "", state: "" });
   const [creating, setCreating] = useState(false);
   const [createdCode, setCreatedCode] = useState("");
   const [copied, setCopied] = useState("");
   const [serverError, setServerError] = useState("");
   const [toggling, setToggling] = useState("");
   const [editingOrg, setEditingOrg] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", organization_type: "", country: "", email: "" });
+  const [editForm, setEditForm] = useState({ name: "", organization_type: "", country: "", email: "", department: "", branch: "", pincode: "", city: "", state: "" });
   const [deleting, setDeleting] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -72,7 +72,7 @@ export default function OrganizationsPage() {
       if (data.success) {
         setCreatedCode(data.org.unique_code);
         setShowForm(false);
-        setForm({ name: "", organization_type: "Corporate", country: "", email: "" });
+        setForm({ name: "", organization_type: "Corporate", country: "", email: "", department: "", branch: "", pincode: "", city: "", state: "" });
         setCopied(data.org.unique_code);
         setTimeout(() => setCopied(""), 2000);
         await loadOrgs();
@@ -110,6 +110,11 @@ export default function OrganizationsPage() {
       organization_type: (o.organization_type as string) ?? "",
       country: (o.country as string) ?? "",
       email: (o.email as string) ?? "",
+      department: (o.department as string) ?? "",
+      branch: (o.branch as string) ?? "",
+      pincode: (o.pincode as string) ?? "",
+      city: (o.city as string) ?? "",
+      state: (o.state as string) ?? "",
     });
   };
 
@@ -211,6 +216,11 @@ export default function OrganizationsPage() {
                   { label: "Type", key: "type", value: form.organization_type, onChange: (v: string) => setForm({ ...form, organization_type: v }), options: ["Corporate", "Healthcare", "Education", "NGO", "Other"] },
                   { label: "Country", key: "country", value: form.country, onChange: (v: string) => setForm({ ...form, country: v }) },
                   { label: "Email", key: "email", value: form.email, onChange: (v: string) => setForm({ ...form, email: v }) },
+                  { label: "Department", key: "department", value: form.department, onChange: (v: string) => setForm({ ...form, department: v }) },
+                  { label: "Branch", key: "branch", value: form.branch, onChange: (v: string) => setForm({ ...form, branch: v }) },
+                  { label: "City", key: "city", value: form.city, onChange: (v: string) => setForm({ ...form, city: v }) },
+                  { label: "State", key: "state", value: form.state, onChange: (v: string) => setForm({ ...form, state: v }) },
+                  { label: "Pincode", key: "pincode", value: form.pincode, onChange: (v: string) => setForm({ ...form, pincode: v }) },
                 ].map((f, i) => (
                   <div key={i}>
                     <label className="block text-[11px] font-semibold mb-[4px] uppercase tracking-[0.04em]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{f.label}</label>
@@ -282,6 +292,7 @@ export default function OrganizationsPage() {
                               <input value={editForm.country} onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
                                 className="w-full px-[8px] py-[5px] text-[11px] rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5" }} placeholder="Country" />
                             </td>
+
                             <td className="px-[16px] py-[8px] text-[11px]" style={{ color: "#888" }}>{o.created_at ? new Date(o.created_at as string).toLocaleDateString() : "—"}</td>
                             <td className="px-[16px] py-[8px]">
                               <div className="flex gap-[4px]">

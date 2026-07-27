@@ -19,6 +19,11 @@ export async function createOrganizationInternal(formData: FormData) {
   const orgType = (formData.get("organization_type") as string) || "Corporate";
   const country = formData.get("country") as string;
   const email = formData.get("email") as string;
+  const department = formData.get("department") as string || "";
+  const branch = formData.get("branch") as string || "";
+  const pincode = formData.get("pincode") as string || "";
+  const city = formData.get("city") as string || "";
+  const state = formData.get("state") as string || "";
 
   if (!name) throw new Error("Organization name is required");
 
@@ -27,7 +32,7 @@ export async function createOrganizationInternal(formData: FormData) {
 
   const { data: org, error: orgErr } = await supabase
     .from("organizations")
-    .insert({ name, organization_type: orgType, unique_code: code, email, country })
+    .insert({ name, organization_type: orgType, unique_code: code, email, country, department, branch, pincode, city, state })
     .select()
     .single();
 
