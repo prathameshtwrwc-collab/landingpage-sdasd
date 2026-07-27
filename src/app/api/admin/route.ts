@@ -33,6 +33,11 @@ export async function GET(req: Request) {
         email: org.email,
         country: org.country,
         status: org.status,
+        department: org.department ?? "",
+        branch: org.branch ?? "",
+        pincode: org.pincode ?? "",
+        city: org.city ?? "",
+        state: org.state ?? "",
         brandingLogo: org.branding_logo ?? "",
         brandingCompany: org.branding_company ?? "",
       });
@@ -147,12 +152,17 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Organization not found" }, { status: 404 });
       }
 
-      const { name, type, email, country, brandingLogo, brandingCompany } = await req.json();
+      const { name, type, email, country, brandingLogo, brandingCompany, department, branch, pincode, city, state } = await req.json();
       const updateData: Record<string, unknown> = {};
       if (name !== undefined) updateData.name = name;
       if (type !== undefined) updateData.organization_type = type;
       if (email !== undefined) updateData.email = email;
       if (country !== undefined) updateData.country = country;
+      if (department !== undefined) updateData.department = department;
+      if (branch !== undefined) updateData.branch = branch;
+      if (pincode !== undefined) updateData.pincode = pincode;
+      if (city !== undefined) updateData.city = city;
+      if (state !== undefined) updateData.state = state;
       if (brandingLogo !== undefined) updateData.branding_logo = brandingLogo || null;
       if (brandingCompany !== undefined) updateData.branding_company = brandingCompany || null;
 

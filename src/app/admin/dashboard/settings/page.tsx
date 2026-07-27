@@ -11,6 +11,11 @@ interface OrgSettings {
   email: string;
   country: string;
   status: string;
+  department: string;
+  branch: string;
+  pincode: string;
+  city: string;
+  state: string;
   brandingLogo: string;
   brandingCompany: string;
 }
@@ -46,6 +51,11 @@ export default function AdminSettingsPage() {
           type: settings.type,
           email: settings.email,
           country: settings.country,
+          department: settings.department,
+          branch: settings.branch,
+          pincode: settings.pincode,
+          city: settings.city,
+          state: settings.state,
           brandingLogo: settings.brandingLogo,
           brandingCompany: settings.brandingCompany,
         }),
@@ -91,6 +101,11 @@ export default function AdminSettingsPage() {
             { label: "Organization Name", key: "name", value: settings.name, type: "text" },
             { label: "Organization Type", key: "type", value: settings.type, type: "select", options: ["Corporate", "Healthcare", "Education", "NGO", "Other"] },
             { label: "Contact Email", key: "email", value: settings.email, type: "email" },
+            { label: "Department", key: "department", value: settings.department, type: "text" },
+            { label: "Branch", key: "branch", value: settings.branch, type: "text" },
+            { label: "City", key: "city", value: settings.city, type: "text" },
+            { label: "State", key: "state", value: settings.state, type: "text" },
+            { label: "Pincode", key: "pincode", value: settings.pincode, type: "text" },
             { label: "Country", key: "country", value: settings.country, type: "text" },
           ].map((f, i) => (
             <div key={i}>

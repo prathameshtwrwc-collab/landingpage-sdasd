@@ -187,58 +187,34 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                 e.preventDefault();
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
-              className="inline-flex items-center gap-[10px] no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-2 rounded-sm"
-              style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}
+              className="inline-flex items-center gap-[10px] no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-2 rounded-sm shrink-0"
+              style={{ display: "inline-flex", alignItems: "center", gap: "10px", minWidth: 0 }}
               aria-label={brandingCompany ? `${brandingCompany} - Home` : "Chronotype - Home"}
             >
-              {/* Icon circle 36x36 desktop 32 mobile */}
+              {/* Logo — no circle bg, larger size */}
+              {brandingLogo ? (
+                <img src={brandingLogo} alt={brandingCompany ?? "Brand"} className="shrink-0" style={{ width: "48px", height: "48px", objectFit: "contain" }} />
+              ) : (
+                <span className="inline-flex items-center justify-center shrink-0" style={{ width: "48px", height: "48px" }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="#35319B" aria-hidden="true">
+                    <path
+                      d="M16.5 20.5A7.5 7.5 0 0 1 8 12 7.5 7.5 0 0 1 16.5 3.5 5.5 5.5 0 0 0 16.5 20.5Z"
+                      stroke="#35319B"
+                      strokeWidth="1.2"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+              )}
               <span
-                className="inline-flex items-center justify-center rounded-full shrink-0"
-                style={{
-                  width: "36px",
-                  height: "36px",
-                  background: "#35319B",
-                  color: "#FFFFFF",
-                  overflow: "hidden",
-                }}
-              >
-                {brandingLogo ? (
-                  <img src={brandingLogo} alt={brandingCompany ?? "Brand"} style={{ width: "36px", height: "36px", objectFit: "cover" }} />
-                ) : (
-                  <span className="md:hidden" style={{ width: "32px", height: "32px", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path
-                        d="M16.5 20.5A7.5 7.5 0 0 1 8 12 7.5 7.5 0 0 1 16.5 3.5 5.5 5.5 0 0 0 16.5 20.5Z"
-                        fill="white"
-                        stroke="white"
-                        strokeWidth="1.2"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </span>
-                )}
-                {!brandingLogo && (
-                  <span className="hidden md:inline-flex" style={{ width: "36px", height: "36px", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path
-                        d="M16.5 20.5A7.5 7.5 0 0 1 8 12 7.5 7.5 0 0 1 16.5 3.5 5.5 5.5 0 0 0 16.5 20.5Z"
-                        fill="white"
-                        stroke="white"
-                        strokeWidth="1.2"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </span>
-                )}
-              </span>
-              <span
-                className="font-semibold leading-[1] tracking-[-0.01em]"
+                className="font-semibold leading-[1] tracking-[-0.01em] truncate"
                 style={{
                   fontFamily: "Poppins, sans-serif",
                   fontSize: "18px",
                   lineHeight: "1",
                   fontWeight: 600,
                   color: "#2F2A86",
+                  maxWidth: "180px",
                 }}
               >
                 <span className="text-[16px] md:text-[18px]">{brandingCompany ?? "Chronotype"}</span>
@@ -246,7 +222,8 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
             </a>
 
             {/* Center: Navigation — hidden below 1024 */}
-            <nav aria-label="Primary navigation" className="hidden lg:flex items-center justify-center gap-[30px] h-full">
+            <nav aria-label="Primary navigation" className="hidden lg:flex items-center justify-center h-full min-w-0 overflow-x-auto"
+              style={{ gap: "clamp(10px, 2vw, 30px)" }}>
               {navItems.map((item) => {
                 const isActive = activeId === item.id;
                 return (

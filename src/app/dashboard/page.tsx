@@ -139,234 +139,43 @@ export default function MemberDashboardPage() {
           <h2 className="m-0 text-[24px] md:text-[28px] font-bold leading-[1.2] tracking-[-0.02em]" style={{ color: "#19164F", fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
             {result ? `Your Chronotype: ${chronotypeLabels[chronotype] ?? chronotype}` : "Ready to understand your sleep?"}
           </h2>
-          <p className="m-0 mt-[4px] text-[14px] leading-[1.5]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>
-            {result
-              ? `You scored Lark: ${larkScore} | Eagle: ${eagleScore} | Owl: ${owlScore} | Confidence: ${confidenceScore}%`
-              : "Complete your assessment to unlock personalized insights, recommendations, and your unique sleep chronotype."}
-          </p>
+          <div className="flex flex-wrap items-center gap-[16px] mt-[8px]">
+            <span className="text-[13px]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>
+              Sleep Score: <strong>{totalScore > 0 ? totalScore : "\u2014"}</strong>
+            </span>
+            <span className="text-[13px]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>
+              Assessments: <strong>{String(data?.assessments?.length ?? 0)}</strong>
+            </span>
+            {result && (
+              <span className="text-[13px]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>
+                Confidence: <strong>{confidenceScore}%</strong>
+              </span>
+            )}
+          </div>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[16px] md:gap-[20px] mb-[24px] md:mb-[28px]">
-        <StatCard
-          label="Sleep Score"
-          value={totalScore > 0 ? String(totalScore) : "—"}
-          icon={<Activity size={20} />}
-          trend={result ? `${confidenceScore}% confidence` : undefined}
-          trendUp
-        />
-        <StatCard
-          label="Chronotype"
-          value={chronotypeLabels[chronotype] ?? "—"}
-          icon={<Moon size={20} />}
-        />
-        <StatCard
-          label="Assessments"
-          value={String(data?.assessments?.length ?? 0)}
-          icon={<TrendingUp size={20} />}
-        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-[16px] md:gap-[20px]">
-        <div
-          className="lg:col-span-2 rounded-[16px] p-[22px] md:p-[28px]"
-          style={{
-            background: "#FFFFFF",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
-          }}
-        >
-          <div className="flex items-center gap-[10px] mb-[16px]">
-            <div
-              className="w-[36px] h-[36px] rounded-xl flex items-center justify-center"
-              style={{ background: "rgba(53,49,155,0.06)" }}
-            >
-              <Calendar size={18} stroke="#35319B" />
-            </div>
-            <h3 className="m-0 text-[16px] font-bold text-[#171717]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
-              Recent Activity
-            </h3>
-          </div>
-          {data?.assessments && data.assessments.length > 0 ? (
-            <div className="flex flex-col gap-[10px]">
-              {(data.assessments as Array<Record<string, unknown>>).slice(0, 5).map((a, i) => {
-                const isCompleted = a.status === "COMPLETED";
-                const linkHref = isCompleted ? "/r/" + a.id : "/dashboard";
-                return (
-                  <a
-                    key={i}
-                    href={linkHref}
-                    target={isCompleted ? "_blank" : undefined}
-                    rel={isCompleted ? "noopener noreferrer" : undefined}
-                    className="flex items-center justify-between py-[8px] px-[12px] rounded-lg no-underline transition-all hover:translate-x-[2px]"
-                    style={{ background: "#F8F9FF", cursor: "pointer" }}
-                  >
-                    <span className="text-[13px] font-medium" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
-                      Assessment #{String(i + 1)}
-                    </span>
-                    <span className="flex items-center gap-[5px] text-[12px] font-medium" style={{ fontFamily: "Poppins, sans-serif", color: isCompleted ? "#2E7D32" : "#F59A00" }}>
-                      {String(a.status ?? "—")}
-                      {isCompleted && <Eye size={13} />}
-                    </span>
-                  </a>
-                );
-              })}
-            </div>
-          ) : (
-            <div
-              className="flex flex-col items-center justify-center py-[20px]"
-              style={{ border: "1.5px dashed #E0E0E0", borderRadius: "12px" }}
-            >
-              <Sparkles size={32} stroke="#CCC" strokeWidth={1.5} />
-              <p className="m-0 mt-[10px] text-[13px] leading-[1.5] text-[#AAA] text-center max-w-[280px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
-                Complete your sleep assessment to see personalized insights and recommendations here.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* ─── Consult Card ─── */}
-        <button
-          type="button"
-          onClick={() => {
-            const m = data?.member;
-            openPrefilled({
-              fname: m?.first_name as string || undefined,
-              lname: m?.last_name as string || undefined,
-              email: m?.email as string || undefined,
-              phone: m?.phone as string || undefined,
-              age: m?.age as string || undefined,
-              gender: m?.gender as string || undefined,
-              country: m?.country as string || undefined,
-              state: m?.location as string || undefined,
-              city: m?.city as string || undefined,
-              pincode: m?.pincode as string || undefined,
-            });
-          }}
-          className="w-full text-left border-none cursor-pointer rounded-[16px] p-[22px] md:p-[28px] transition-all hover:translate-y-[-2px]"
-          style={{
-            background: "#FFFFFF",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
-            fontFamily: "Poppins, sans-serif",
-          }}
-        >
+        <div className="rounded-[16px] p-[22px] md:p-[28px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
           <div className="flex items-center gap-[10px] mb-[12px]">
-            <div
-              className="w-[36px] h-[36px] rounded-xl flex items-center justify-center"
-              style={{ background: "rgba(53,49,155,0.08)" }}
-            >
-              <Stethoscope size={18} stroke="#35319B" />
-            </div>
-            <h3 className="m-0 text-[16px] font-bold text-[#171717]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
-              Consult a Sleep Specialist
-            </h3>
-          </div>
-          <p className="m-0 text-[13px] leading-[1.5] mb-[12px]" style={{ color: "#666", fontFamily: "Poppins, sans-serif" }}>
-            Get personalized guidance from a qualified sleep professional. Discuss your chronotype results and create a tailored plan.
-          </p>
-          <span
-            className="inline-flex items-center gap-[6px] text-[12px] font-semibold px-[14px] py-[7px] rounded-lg transition-colors"
-            style={{ color: "#fff", background: "linear-gradient(135deg, #35319B, #5A55C0)" }}
-          >
-            Book a Consultation <ArrowRight size={14} />
-          </span>
-        </button>
-
-        {/* ─── My Reports Card ─── */}
-        {data?.reports && data.reports.length > 0 && (
-          <button
-            type="button"
-            onClick={() => router.push("/dashboard/progress")}
-            className="w-full text-left border-none cursor-pointer rounded-[16px] p-[22px] md:p-[28px] transition-all hover:translate-y-[-2px]"
-            style={{
-              background: "#FFFFFF",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
-              fontFamily: "Poppins, sans-serif",
-            }}
-          >
-            <div className="flex items-center gap-[10px] mb-[12px]">
-              <div
-                className="w-[36px] h-[36px] rounded-xl flex items-center justify-center"
-                style={{ background: "rgba(53,49,155,0.06)" }}
-              >
-                <FileText size={18} stroke="#35319B" />
-              </div>
-              <h3 className="m-0 text-[16px] font-bold text-[#171717]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
-                My Reports
-              </h3>
-            </div>
-            <p className="m-0 text-[13px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
-              {data.reports.length} report{data.reports.length > 1 ? "s" : ""} available
-            </p>
-            <span
-              className="inline-flex items-center gap-[6px] text-[12px] font-semibold mt-[12px] px-[14px] py-[7px] rounded-lg transition-colors"
-              style={{ color: "#35319B", background: "rgba(53,49,155,0.06)" }}
-            >
-              View All <ArrowRight size={14} />
-            </span>
-          </button>
-        )}
-
-        {/* ─── My Referral Link ─── */}
-        <div
-          className="rounded-[16px] p-[22px] md:p-[28px]"
-          style={{
-            background: "#FFFFFF",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
-          }}
-        >
-          <div className="flex items-center gap-[10px] mb-[12px]">
-            <div
-              className="w-[36px] h-[36px] rounded-xl flex items-center justify-center"
-              style={{ background: "rgba(245,154,0,0.08)" }}
-            >
+            <div className="w-[36px] h-[36px] rounded-xl flex items-center justify-center" style={{ background: "rgba(245,154,0,0.08)" }}>
               <Share2 size={18} stroke="#F59A00" />
             </div>
-            <h3 className="m-0 text-[16px] font-bold text-[#171717]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
-              My Referral Link
-            </h3>
+            <h3 className="m-0 text-[16px] font-bold text-[#171717]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>My Referral Link</h3>
           </div>
           <p className="m-0 text-[12px] leading-[1.4] mb-[10px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
             Share your link and help someone discover their chronotype.
           </p>
           {data?.member?.referral_code ? (
             <div>
-              <code
-                className="block w-full px-[12px] py-[9px] text-[13px] font-mono font-semibold rounded-lg truncate mb-[8px]"
-                style={{ background: "#F5F5F5", color: "#35319B" }}
-              >
+              <code className="block w-full px-[12px] py-[9px] text-[13px] font-mono font-semibold rounded-lg truncate mb-[8px]" style={{ background: "#F5F5F5", color: "#35319B" }}>
                 {typeof window !== "undefined" ? window.location.origin + "/?ref=" + (data.member?.referral_code as string) : data.member?.referral_code as string}
               </code>
               <div className="flex gap-[8px]">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const code = data.member?.referral_code as string;
-                    const url = (typeof window !== "undefined" ? window.location.origin + "/?ref=" : "") + code;
-                    navigator.clipboard.writeText(url);
-                    setRefCopied(true);
-                    setTimeout(() => setRefCopied(false), 2000);
-                  }}
+                <button type="button" onClick={() => { const code = data.member?.referral_code as string; navigator.clipboard.writeText((typeof window !== "undefined" ? window.location.origin + "/?ref=" : "") + code); setRefCopied(true); setTimeout(() => setRefCopied(false), 2000); }}
                   className="flex items-center gap-[6px] text-[12px] font-semibold px-[14px] py-[7px] rounded-lg border-none cursor-pointer transition-colors"
-                  style={{ color: "#35319B", background: refCopied ? "rgba(46,125,50,0.1)" : "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}
-                >
+                  style={{ color: "#35319B", background: refCopied ? "rgba(46,125,50,0.1)" : "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
                   <ClipboardCopy size={14} /> {refCopied ? "Copied!" : "Copy Link"}
-                </button>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    const code = data?.member?.referral_code as string;
-                    const url = (typeof window !== "undefined" ? window.location.origin + "/?ref=" : "") + code;
-                    if (typeof navigator !== "undefined" && navigator.share) {
-                      try { await navigator.share({ title: "Discover Your Chronotype", url }); return; } catch {}
-                    }
-                    await navigator.clipboard.writeText(url);
-                    setRefCopied(true);
-                    setTimeout(() => setRefCopied(false), 2000);
-                  }}
-                  className="flex items-center gap-[6px] text-[12px] font-semibold px-[14px] py-[7px] rounded-lg border-none cursor-pointer transition-colors"
-                  style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}
-                >
-                  <Share2 size={14} /> Share
                 </button>
               </div>
             </div>
@@ -374,112 +183,49 @@ export default function MemberDashboardPage() {
             <p className="m-0 text-[12px] italic" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Complete an assessment to get your referral link.</p>
           )}
         </div>
-      </div>
 
-      {/* ── Reports Section ── */}
-      {data?.reports && data.reports.length > 0 && (
-        <div className="mt-[24px] md:mt-[28px]">
-          <div
-            className="rounded-[16px] p-[22px] md:p-[28px]"
-            style={{
-              background: "#FFFFFF",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
-            }}
-          >
-            <div className="flex items-center gap-[10px] mb-[16px]">
-              <div
-                className="w-[36px] h-[36px] rounded-xl flex items-center justify-center"
-                style={{ background: "rgba(53,49,155,0.06)" }}
-              >
-                <FileText size={18} stroke="#35319B" />
-              </div>
-              <h3 className="m-0 text-[16px] font-bold text-[#171717]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
-                Past Reports
-              </h3>
+        <div className="lg:col-span-2 rounded-[16px] p-[22px] md:p-[28px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
+          <div className="flex items-center gap-[10px] mb-[16px]">
+            <div className="w-[36px] h-[36px] rounded-xl flex items-center justify-center" style={{ background: "rgba(53,49,155,0.06)" }}>
+              <FileText size={18} stroke="#35319B" />
             </div>
+            <h3 className="m-0 text-[16px] font-bold text-[#171717]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>My Reports</h3>
+          </div>
+          {data?.reports && data.reports.length > 0 ? (
             <div className="flex flex-col gap-[10px]">
-              {data.reports.map((r, i) => (
-                <div
-                  key={r.id || i}
-                  className="flex items-center justify-between py-[10px] px-[14px] rounded-lg"
-                  style={{ background: "#F8F9FF" }}
-                >
+              {(data.reports as Array<Record<string, unknown>>).slice(0, 10).map((r, i) => (
+                <div key={String(r.id ?? i)} className="flex items-center justify-between py-[10px] px-[14px] rounded-lg" style={{ background: "#F8F9FF" }}>
                   <div className="flex items-center gap-[10px]">
                     <FileText size={16} stroke="#98A2B3" />
                     <div>
                       <p className="m-0 text-[13px] font-medium text-[#555]" style={{ fontFamily: "Poppins, sans-serif" }}>
-                        Chronotype Report{r.chronotype ? ` - ${r.chronotype}` : ""}
+                        Report - {String(r.chronotype ?? "Chronotype")}
                       </p>
                       <p className="m-0 text-[11px]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>
-                        {r.generated_at ? new Date(r.generated_at).toLocaleDateString() : ""}
+                        {r.generated_at ? new Date(r.generated_at as string).toLocaleDateString() : ""}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-[6px]">
-                    <button
-                      type="button"
-                      onClick={() => downloadPdf({
-                        firstName: data.member?.first_name as string || "",
-                        lastName: data.member?.last_name as string || "",
-                        email: data.member?.email as string || "",
-                        chronotype: r.chronotype || "EAGLE",
-                        totalScore: r.totalScore || 0,
-                        larkScore: r.larkScore || 0,
-                        eagleScore: r.eagleScore || 0,
-                        owlScore: r.owlScore || 0,
-                      })}
+                    <button type="button" onClick={() => downloadPdf({ firstName: data.member?.first_name as string || "", lastName: data.member?.last_name as string || "", email: data.member?.email as string || "", chronotype: r.chronotype as string || "EAGLE", totalScore: r.totalScore as number || 0, larkScore: r.larkScore as number || 0, eagleScore: r.eagleScore as number || 0, owlScore: r.owlScore as number || 0 })}
                       className="flex items-center gap-[5px] text-[11px] font-medium no-underline px-[10px] py-[5px] rounded-lg border-none cursor-pointer transition-colors"
-                      style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}
-                      title="Download PDF"
-                    >
-                      <Download size={13} /> PDF
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => openPdfForPrint({
-                        firstName: data.member?.first_name as string || "",
-                        lastName: data.member?.last_name as string || "",
-                        email: data.member?.email as string || "",
-                        chronotype: r.chronotype || "EAGLE",
-                        totalScore: r.totalScore || 0,
-                        larkScore: r.larkScore || 0,
-                        eagleScore: r.eagleScore || 0,
-                        owlScore: r.owlScore || 0,
-                      })}
-                      className="flex items-center gap-[5px] text-[11px] font-medium no-underline px-[10px] py-[5px] rounded-lg border-none cursor-pointer transition-colors"
-                      style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}
-                      title="Print"
-                    >
-                      <Printer size={13} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => shareReport({
-                        firstName: data.member?.first_name as string || "",
-                        lastName: data.member?.last_name as string || "",
-                        email: data.member?.email as string || "",
-                        chronotype: r.chronotype || "EAGLE",
-                        totalScore: r.totalScore || 0,
-                        larkScore: r.larkScore || 0,
-                        eagleScore: r.eagleScore || 0,
-                        owlScore: r.owlScore || 0,
-                      })}
-                      className="flex items-center gap-[5px] text-[11px] font-medium no-underline px-[10px] py-[5px] rounded-lg border-none cursor-pointer transition-colors"
-                      style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}
-                      title="Share"
-                    >
-                      <Share2 size={13} />
+                      style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF
                     </button>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-[20px]" style={{ border: "1.5px dashed #E0E0E0", borderRadius: "12px" }}>
+              <FileText size={32} stroke="#CCC" strokeWidth={1.5} />
+              <p className="m-0 mt-[10px] text-[13px] leading-[1.5] text-[#AAA] text-center max-w-[280px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+                Complete your assessment to see your reports here.
+              </p>
+            </div>
+          )}
           {data?.assessments && data.assessments.length > 0 && (
-            <button type="button" onClick={() => {
-              const memberData = data.member;
-              if (memberData?.id) openForRetest(memberData.id as string);
-            }}
+            <button type="button" onClick={() => { const m = data.member; if (m?.id) openForRetest(m.id as string); }}
               className="mt-[12px] w-full flex items-center justify-center gap-[6px] text-[12px] font-semibold py-[9px] rounded-xl border-none cursor-pointer transition-colors"
               style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
@@ -487,7 +233,7 @@ export default function MemberDashboardPage() {
             </button>
           )}
         </div>
-      )}
+      </div>
     </DashboardShell>
   );
 }
