@@ -10,7 +10,7 @@ import {
   BarChart3, LogOut, Home, User, TrendingUp, Calendar,
   Bell, FileText, Sparkles, Star, ChevronRight, ChevronUp,
   ChevronDown, Building2, ClipboardList, Link2, Search,
-  X, Menu, Palette, Phone, Heart
+  X, Menu, Palette, Phone, Heart, ChevronLeft
 } from "lucide-react";
 import DonateModal from "@/components/DonateModal";
 
@@ -125,6 +125,7 @@ export default function DashboardShell({
   const [moreOpen, setMoreOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [donateOpen, setDonateOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
 
   useEffect(() => { setIsMounted(true); }, []);
 
@@ -188,27 +189,49 @@ export default function DashboardShell({
       `}</style>
 
       {/* ── DESKTOP SIDEBAR ── */}
-      <aside className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:left-0 md:w-[260px] md:z-40"
-        style={{ background: darkMode ? "#16162A" : "#FFFFFF", borderRight: darkMode ? "1px solid #2A2A4A" : "1px solid #E6E8F0" }}>
-        {/* Brand */}
-        <div className="flex items-center gap-[10px] px-[20px] h-[68px] shrink-0" style={{ borderBottom: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA" }}>
-          <span className="flex items-center justify-center w-[34px] h-[34px] rounded-xl shrink-0"
-            style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)" }}>
-            <Moon size={16} stroke="white" strokeWidth={2} />
-          </span>
-          <div className="flex flex-col">
-            <span className="text-[15px] font-bold leading-[1.2]" style={{ color: darkMode ? "#E0E0E0" : "#19164F", fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>Chronotype</span>
-            <span className="text-[10px] font-medium" style={{ color: darkMode ? "#888" : "#667085", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
-              {ROLE_LABELS[user?.role ?? "member"]}
+      <aside className={`hidden md:flex md:flex-col md:fixed md:inset-y-0 md:left-0 md:z-40 transition-all duration-200`}
+        style={{
+          width: sidebarCollapsed ? "72px" : "260px",
+          background: darkMode ? "#16162A" : "#FFFFFF",
+          borderRight: darkMode ? "1px solid #2A2A4A" : "1px solid #E6E8F0",
+        }}>
+        {/* Brand + Toggle */}
+        <div className="flex items-center justify-between px-[16px] h-[68px] shrink-0" style={{ borderBottom: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA" }}>
+          <div className="flex items-center gap-[10px]">
+            <span className="flex items-center justify-center w-[34px] h-[34px] rounded-xl shrink-0"
+              style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)" }}>
+              <Moon size={16} stroke="white" strokeWidth={2} />
             </span>
+            {!sidebarCollapsed && (
+              <div className="flex flex-col">
+                <span className="text-[15px] font-bold leading-[1.2]" style={{ color: darkMode ? "#E0E0E0" : "#19164F", fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>Chronotype</span>
+                <span className="text-[10px] font-medium" style={{ color: darkMode ? "#888" : "#667085", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+                  {ROLE_LABELS[user?.role ?? "member"]}
+                </span>
+              </div>
+            )}
           </div>
+          <button type="button" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="flex items-center justify-center w-[24px] h-[24px] rounded-lg border-none cursor-pointer bg-transparent shrink-0"
+            style={{ color: darkMode ? "#666" : "#98A2B3" }}>
+            <ChevronLeft size={14} style={{ transform: sidebarCollapsed ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+          </button>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto px-[12px] py-[16px] space-y-[2px]">
+        <nav className="flex-1 overflow-y-auto px-[8px] py-[16px] space-y-[2px]">
           {resolvedNavItems.map((item) => {
             const active = isActive(item.href);
-            return (
+            return sidebarCollapsed ? (
+              <Link key={item.href} href={item.href} title={item.label}
+                className="flex items-center justify-center px-[0] py-[10px] rounded-xl no-underline transition-all duration-150"
+                style={{
+                  background: active ? (darkMode ? "rgba(89,83,203,0.2)" : "rgba(59,53,163,0.08)") : "transparent",
+                  color: active ? (darkMode ? "#818CF8" : "#35319B") : (darkMode ? "#666" : "#98A2B3"),
+                }}>
+                {item.icon}
+              </Link>
+            ) : (
               <Link key={item.href} href={item.href}
                 className="flex items-center justify-between px-[12px] py-[10px] rounded-xl text-[13px] font-medium no-underline transition-all duration-150"
                 style={{
@@ -216,7 +239,6 @@ export default function DashboardShell({
                   fontWeight: active ? 600 : 500,
                   background: active ? (darkMode ? "rgba(89,83,203,0.2)" : "rgba(59,53,163,0.08)") : "transparent",
                   color: active ? (darkMode ? "#818CF8" : "#35319B") : (darkMode ? "#888" : "#667085"),
-                  position: "relative",
                 }}>
                 <span className="flex items-center gap-[10px]">
                   <span style={{ color: active ? (darkMode ? "#818CF8" : "#35319B") : (darkMode ? "#666" : "#98A2B3") }}>{item.icon}</span>
@@ -236,27 +258,28 @@ export default function DashboardShell({
         </nav>
 
         {/* Bottom */}
-        <div className="px-[12px] pb-[16px] flex items-center justify-between"
+        <div className="px-[8px] pb-[16px] flex items-center justify-center gap-[4px] flex-wrap"
           style={{ borderTop: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA", paddingTop: "12px" }}>
-          <Link href={orgCode ? `/${orgCode}` : "/"} className="flex items-center gap-[8px] text-[12px] font-medium no-underline"
-            style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif" }}>
-            <Home size={14} /> Home
+          <Link href={orgCode ? `/${orgCode}` : "/"} className="flex items-center gap-[6px] text-[12px] font-medium no-underline"
+            style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif", padding: sidebarCollapsed ? "6px" : "0" }}>
+            <Home size={14} /> {!sidebarCollapsed && "Home"}
           </Link>
           <button onClick={() => setDonateOpen(true)}
             className="flex items-center gap-[6px] text-[12px] font-medium bg-none border-none cursor-pointer"
-            style={{ color: "#FF6B6B", fontFamily: "Poppins, sans-serif" }}>
-            <Heart size={14} /> Donate
+            style={{ color: "#FF6B6B", fontFamily: "Poppins, sans-serif", padding: sidebarCollapsed ? "6px" : "0" }}>
+            <Heart size={14} /> {!sidebarCollapsed && "Donate"}
           </button>
           <button onClick={async () => { await logout(); window.location.href = "/login"; }}
             className="flex items-center gap-[6px] text-[12px] font-medium bg-none border-none cursor-pointer"
-            style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif" }}>
-            <LogOut size={14} /> Logout
+            style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif", padding: sidebarCollapsed ? "6px" : "0" }}>
+            <LogOut size={14} /> {!sidebarCollapsed && "Logout"}
           </button>
         </div>
       </aside>
 
       {/* ── MAIN CONTENT ── */}
-      <div className="md:ml-[260px] flex-1 flex flex-col min-h-screen">
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-200`}
+        style={{ marginLeft: sidebarCollapsed ? "72px" : "260px" }}>
 
         {/* Top header */}
         <header className="sticky top-0 z-30 flex items-center justify-between px-[20px] md:px-[32px]"
