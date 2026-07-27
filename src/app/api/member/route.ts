@@ -111,6 +111,19 @@ export async function GET(req: Request) {
       }
     }
 
+    // Fallback: if any report has no chronotype data, use latestResult
+    if (latestResult) {
+      reportsEnriched.forEach((r) => {
+        if (!r.chronotype) {
+          r.chronotype = (latestResult as Record<string, unknown>).chronotype as string | null;
+          r.totalScore = (latestResult as Record<string, unknown>).total_score as number | null;
+          r.larkScore = (latestResult as Record<string, unknown>).lark_score as number | null;
+          r.eagleScore = (latestResult as Record<string, unknown>).eagle_score as number | null;
+          r.owlScore = (latestResult as Record<string, unknown>).owl_score as number | null;
+        }
+      });
+    }
+
     return NextResponse.json({
       member,
       orgCode,

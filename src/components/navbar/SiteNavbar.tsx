@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useAssessment } from "@/components/assessment/AssessmentContext";
+import DonateModal from "@/components/DonateModal";
 
 type NavItem = {
   label: string;
@@ -24,6 +25,7 @@ interface SiteNavbarProps {
 
 export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbarProps) {
   const { open: openAssessment } = useAssessment();
+  const [donateOpen, setDonateOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeId, setActiveId] = useState<string>("");
@@ -318,6 +320,17 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
               >
                 Login
               </a>
+              <button type="button" onClick={() => setDonateOpen(true)}
+                className="inline-flex items-center justify-center border cursor-pointer transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px]"
+                style={{
+                  width: "130px", height: "40px",
+                  borderColor: "#FF6B6B", color: "#FF6B6B",
+                  background: "rgba(255,107,107,0.06)",
+                  borderRadius: 0, fontFamily: "Poppins, sans-serif",
+                  fontSize: "13px", fontWeight: 600,
+                }}>
+                ❤ Donate
+              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -537,6 +550,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
           onClick={() => setIsMenuOpen(false)}
         />
       )}
+      <DonateModal isOpen={donateOpen} onClose={() => setDonateOpen(false)} />
     </>
   );
 }

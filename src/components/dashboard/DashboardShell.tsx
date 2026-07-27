@@ -10,8 +10,9 @@ import {
   BarChart3, LogOut, Home, User, TrendingUp, Calendar,
   Bell, FileText, Sparkles, Star, ChevronRight, ChevronUp,
   ChevronDown, Building2, ClipboardList, Link2, Search,
-  X, Menu, Palette, Phone
+  X, Menu, Palette, Phone, Heart
 } from "lucide-react";
+import DonateModal from "@/components/DonateModal";
 
 interface NavItem {
   label: string;
@@ -123,6 +124,7 @@ export default function DashboardShell({
   const [isMounted, setIsMounted] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [donateOpen, setDonateOpen] = useState(false);
 
   useEffect(() => { setIsMounted(true); }, []);
 
@@ -240,6 +242,11 @@ export default function DashboardShell({
             style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif" }}>
             <Home size={14} /> Home
           </Link>
+          <button onClick={() => setDonateOpen(true)}
+            className="flex items-center gap-[6px] text-[12px] font-medium bg-none border-none cursor-pointer"
+            style={{ color: "#FF6B6B", fontFamily: "Poppins, sans-serif" }}>
+            <Heart size={14} /> Donate
+          </button>
           <button onClick={async () => { await logout(); window.location.href = "/login"; }}
             className="flex items-center gap-[6px] text-[12px] font-medium bg-none border-none cursor-pointer"
             style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif" }}>
@@ -322,6 +329,7 @@ export default function DashboardShell({
       )}
 
       <div className="md:hidden h-[68px]" />
+      <DonateModal isOpen={donateOpen} onClose={() => setDonateOpen(false)} />
     </div>
   );
 }
