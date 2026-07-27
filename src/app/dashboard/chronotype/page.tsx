@@ -100,12 +100,12 @@ export default function ChronotypePage() {
             <div className="mt-[16px]"><Ring value={confidence} size={80} color="#35319B" label="Match" /></div>
           </div>
 
-          <div className="relative overflow-hidden rounded-[16px] min-h-[240px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-            <div className="relative w-full h-[260px] md:h-[300px]">
+          <div className="relative rounded-[16px] overflow-hidden" style={{ background: "#F0F0F0", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+            <div className="relative w-full" style={{ height: "420px" }}>
               {CHRONO_IMAGES.map((src, i) => (
                 <img key={src} src={`/chronotype_media/${src}`} alt={`Chronotype illustration ${i + 1}`}
-                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
-                  style={{ opacity: i === slideIdx ? 1 : 0 }}
+                  className="absolute inset-0 w-full h-full transition-opacity duration-700"
+                  style={{ opacity: i === slideIdx ? 1 : 0, objectFit: "contain", padding: "16px" }}
                   loading="lazy"
                 />
               ))}
