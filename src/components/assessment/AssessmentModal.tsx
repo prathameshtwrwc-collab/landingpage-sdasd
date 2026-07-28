@@ -377,9 +377,7 @@ export default function AssessmentModal() {
       <div
         className="relative bg-white result-modal-container"
         style={{
-          width: "calc(100vw - 48px)",
           maxWidth: isResultView ? "1480px" : "600px",
-          maxHeight: "calc(100dvh - 20px)",
           borderRadius: isResultView ? "22px" : "16px",
           fontFamily: "Poppins, sans-serif",
           margin: "auto",
@@ -687,7 +685,7 @@ export default function AssessmentModal() {
               input[type="number"]::-webkit-outer-spin-button,
               input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
               input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
-              .result-modal-container { overflow-y: auto; overflow-x: hidden; scrollbar-gutter: stable; box-sizing: border-box; }
+              .result-modal-container { overflow-y: auto; overflow-x: hidden; scrollbar-gutter: stable; box-sizing: border-box; width: calc(100vw - 48px); max-height: calc(100dvh - 20px); }
               .result-modal-container > :last-child { margin-bottom: 0; }
               .result-content .result-hero { min-height: 0; }
               .result-next-steps .result-step-item:first-child { border-left: none !important; }
@@ -695,7 +693,7 @@ export default function AssessmentModal() {
               .chronotype-illustration svg { display: block; width: 100%; height: auto; max-height: 76px; }
               @media (max-width: 767px) {
                 .result-modal-container { border-radius: 0 !important; max-width: 100% !important; max-height: 100dvh !important; width: 100% !important; min-height: 100dvh !important; }
-                .result-hero { grid-template-columns: 1fr !important; }
+                .result-hero { grid-template-columns: 1fr !important; gap: 12px !important; }
                 .result-hero .chronotype-illustration { max-width: 90px !important; }
                 .result-metrics-grid { grid-template-columns: 1fr !important; min-height: auto !important; }
                 .result-metrics-grid > .result-metric-item { border-left: none !important; border-bottom: 1px solid #E2E2EA !important; padding: 10px 16px !important; }
@@ -709,6 +707,23 @@ export default function AssessmentModal() {
                 .result-bottom-actions { grid-template-columns: 1fr !important; }
                 .result-success-banner { max-width: 100% !important; }
                 .result-footer { grid-template-columns: 1fr !important; gap: 6px !important; justify-items: center !important; text-align: center !important; }
+              }
+              @media (max-width: 399px) {
+                .result-hero h2 { font-size: 1.5rem !important; }
+                .result-hero .inline-block { font-size: 13px !important; padding: 4px 10px !important; }
+                .result-hero p { font-size: 13px !important; }
+                .result-metric-item { padding: 8px 12px !important; gap: 10px !important; }
+                .result-metric-item > div:first-child { width: 40px !important; height: 40px !important; }
+                .result-metric-item p:first-of-type { font-size: 16px !important; }
+                .result-insights > div { padding: 8px 12px !important; }
+                .result-insights p.text-\[15px\] { font-size: 14px !important; }
+                .result-action-card { padding: 8px 12px !important; }
+                .result-action-card h4 { font-size: 13px !important; }
+                .result-bottom-actions button { font-size: 13px !important; min-height: 40px !important; }
+                .result-content { gap: 6px !important; padding-left: 14px !important; padding-right: 14px !important; }
+                .result-success-banner { padding: 7px 10px !important; }
+                .result-success-banner p:first-of-type { font-size: 14px !important; }
+                .result-success-banner p:last-of-type { font-size: 11px !important; }
               }
               @media (min-width: 768px) and (max-width: 899px) {
                 .result-modal-container { max-width: calc(100vw - 32px) !important; }

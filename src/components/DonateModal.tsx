@@ -353,6 +353,7 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
 
       <style>{`
         @keyframes donate-spin { to { transform: rotate(360deg); } }
+        .donate-modal { width: min(1180px, calc(100vw - 48px)); max-height: calc(100dvh - 40px); }
         @media (max-width: 767px) {
           .donate-overlay { padding: 0 !important; }
           .donate-modal { width: 100% !important; min-height: 100dvh !important; max-height: 100dvh !important; border-radius: 0 !important; display: block !important; overflow-y: auto !important; }
@@ -360,6 +361,19 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
           .donate-content { padding: 20px 18px !important; }
           .donate-content .impact-grid { gap: 8px; padding: 12px 8px !important; }
           .donate-content .amount-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 399px) {
+          .donate-visual { grid-template-rows: 100px 50px 70px !important; }
+          .donate-content { padding: 16px 14px !important; gap: 12px !important; }
+          .donate-content .impact-grid { padding: 10px 6px !important; gap: 6px !important; }
+          .donate-content .impact-grid .w-\[48px\] { width: 36px !important; height: 36px !important; }
+          .donate-content .impact-grid svg { width: 22px !important; height: 22px !important; }
+          .donate-content .amount-grid button { min-height: 46px !important; font-size: 13px !important; }
+          .donate-content .donate-btn { font-size: 14px !important; min-height: 48px !important; }
+          .donate-content .flex.items-start.gap-\[14px\] > div:first-child { width: 44px !important; height: 44px !important; min-width: 44px !important; }
+          .donate-content .flex.items-start.gap-\[14px\] svg { width: 22px !important; height: 22px !important; }
+          .donate-content h2 { font-size: 1.4rem !important; }
+          .donate-content p.text-\[14px\] { font-size: 13px !important; }
         }
         @media (min-width: 768px) and (max-width: 899px) {
           .donate-modal { display: block !important; width: calc(100vw - 24px) !important; overflow-y: auto !important; }
@@ -398,8 +412,6 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
       onClick={(e) => { if (e.target === e.currentTarget) resetAndClose(); }}
     >
       <div className="donate-modal" style={{
-        width: "min(1180px, calc(100vw - 48px))",
-        maxHeight: "calc(100dvh - 40px)",
         display: "grid",
         gridTemplateColumns: "minmax(390px, 42%) minmax(0, 58%)",
         overflow: "hidden",
