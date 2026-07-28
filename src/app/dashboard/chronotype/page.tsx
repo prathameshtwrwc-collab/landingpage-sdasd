@@ -38,6 +38,11 @@ const LARK_IMAGES = [
   "7.jpg", "8.jpg", "9.jpg", "10.jpg", "11.jpg",
 ];
 
+const OWL_IMAGES = [
+  "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg",
+  "7.jpg", "8.jpg", "9.jpg", "10.jpg", "11.jpg",
+];
+
 export default function ChronotypePage() {
   const { user } = useAuth();
   const [data, setData] = useState<{ result: Record<string, unknown> | null } | null>(null);
@@ -85,8 +90,8 @@ export default function ChronotypePage() {
   const confidence = (result?.confidence_score as number) ?? 0;
 
   // Choose images based on chronotype
-  const chronoImages = chronotype === "EAGLE" ? EAGLE_IMAGES : chronotype === "LARK" ? LARK_IMAGES : ALL_IMAGES;
-  const imageFolder = chronotype === "EAGLE" ? "/chronotype_media/eagle" : chronotype === "LARK" ? "/chronotype_media/lark" : "/chronotype_media";
+  const chronoImages = chronotype === "EAGLE" ? EAGLE_IMAGES : chronotype === "LARK" ? LARK_IMAGES : OWL_IMAGES;
+  const imageFolder = chronotype === "EAGLE" ? "/chronotype_media/eagle" : chronotype === "LARK" ? "/chronotype_media/lark" : "/chronotype_media/owl";
 
   return (
     <DashboardShell>
