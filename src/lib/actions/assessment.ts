@@ -320,15 +320,17 @@ export async function submitAssessment(
 
   if (!assessment) throw new Error("Assessment not found");
 
-  // Fetch organization name if linked
+  // Fetch organization name and branding if linked
   let orgName: string | null = null;
+  let orgLogoUrl: string | null = null;
   if (assessment.organization_id) {
     const { data: org } = await supabase
       .from("organizations")
-      .select("name")
+      .select("name, branding_logo")
       .eq("id", assessment.organization_id)
       .single();
     orgName = org?.name ?? null;
+    orgLogoUrl = (org?.branding_logo as string) ?? null;
   }
 
   const { error: resErr } = await supabase.from("chronotype_results").insert({
@@ -408,6 +410,7 @@ export async function submitAssessment(
     referralCode,
     sourceType: member?.source_type ?? null,
     orgName,
+    orgLogoUrl,
   };
 }
 

@@ -1,9 +1,16 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import {
+  CheckCircle2, X, SunMedium, BriefcaseBusiness, MoonStar, Zap,
+  UsersRound, Target, Coffee, Moon, CalendarDays, Stethoscope,
+  UserRoundPlus, ArrowRight, Download, Share2, ShieldCheck, Bird, Sunrise,
+} from "lucide-react";
 import { useAssessment } from "./AssessmentContext";
 import { getAssessmentData, createMemberAndStartAssessment, submitAssessment, abandonAndRestartAssessment, saveAnswer } from "@/lib/actions/assessment";
 import { downloadPdf, openPdfForPrint } from "@/lib/client-pdf";
+import { CHRONOTYPE_LABELS, CHRONOTYPE_DESCRIPTIONS, CHRONOTYPE_PEAK_TIMES, CHRONOTYPE_BLUEPRINT } from "@/lib/chronotype-utils";
+import { useConsult } from "@/components/consult/ConsultContext";
 import TermsModal from "./TermsModal";
 
 interface Question {
@@ -58,6 +65,7 @@ function CheckCircle() {
 
 export default function AssessmentModal() {
   const { isOpen, close, retestMemberId } = useAssessment();
+  const { open: openConsult } = useConsult();
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(initialForm);
@@ -90,52 +98,66 @@ export default function AssessmentModal() {
     eagle_score: number;
     owl_score: number;
   } | null>(null);
-  const [submissionMeta, setSubmissionMeta] = useState<{ sourceType: string | null; orgName: string | null } | null>(null);
+  const [submissionMeta, setSubmissionMeta] = useState<{ sourceType: string | null; orgName: string | null; orgLogoUrl?: string | null } | null>(null);
   const [memberName, setMemberName] = useState<string | null>(null);
   const [memberReferralCode, setMemberReferralCode] = useState<string | null>(null);
   const [copiedReferral, setCopiedReferral] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-      loadAssessmentData();
+    if (!isOpen) return;
 
-      // Detect org code from URL path (e.g. /AB0001, /TO0001, /AAB001)
-      const path = window.location.pathname.replace(/\/+$/, "");
-      // Match any single path segment that has 2+ letters followed by 2+ digits (org codes)
-      const segments = path.split("/").filter(Boolean);
-      const urlOrgCode = segments.length === 1 && /^[A-Za-z]{1,8}\d{2,6}$/i.test(segments[0])
-        ? segments[0].toUpperCase()
-        : "";
+    loadAssessmentData();
 
-      // Detect referral code from URL query params (e.g. ?ref=XXXXX)
-      const params = new URLSearchParams(window.location.search);
-      const urlRefCode = params.get("ref") || "";
+    // Lock body scroll, save position
+    const scrollY = window.scrollY;
+    const prevOverflow = document.body.style.overflow;
+    const prevPosition = document.body.style.position;
+    const prevTop = document.body.style.top;
+    const prevWidth = document.body.style.width;
 
-      const newForm: Partial<FormData> = {};
-      const locks = { orgCode: false, referralCode: false };
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
 
-      if (urlOrgCode && !urlRefCode) {
-        newForm.orgCode = urlOrgCode;
-        locks.orgCode = true;
-        locks.referralCode = true;
-      }
+    // Detect org code from URL path (e.g. /AB0001, /TO0001, /AAB001)
+    const path = window.location.pathname.replace(/\/+$/, "");
+    const segments = path.split("/").filter(Boolean);
+    const urlOrgCode = segments.length === 1 && /^[A-Za-z]{1,8}\d{2,6}$/i.test(segments[0])
+      ? segments[0].toUpperCase()
+      : "";
 
-      if (urlRefCode) {
-        newForm.referralCode = urlRefCode;
-        locks.orgCode = true;
-        locks.referralCode = true;
-        if (!urlOrgCode) newForm.orgCode = "";
-      }
+    const params = new URLSearchParams(window.location.search);
+    const urlRefCode = params.get("ref") || "";
 
-      if (urlOrgCode || urlRefCode) {
-        setForm((prev) => ({ ...prev, ...newForm }));
-        setLockedFields(locks);
-      }
-    } else {
-      document.body.style.overflow = "";
+    const newForm: Partial<FormData> = {};
+    const locks = { orgCode: false, referralCode: false };
+
+    if (urlOrgCode && !urlRefCode) {
+      newForm.orgCode = urlOrgCode;
+      locks.orgCode = true;
+      locks.referralCode = true;
     }
-    return () => { document.body.style.overflow = ""; };
+
+    if (urlRefCode) {
+      newForm.referralCode = urlRefCode;
+      locks.orgCode = true;
+      locks.referralCode = true;
+      if (!urlOrgCode) newForm.orgCode = "";
+    }
+
+    if (urlOrgCode || urlRefCode) {
+      setForm((prev) => ({ ...prev, ...newForm }));
+      setLockedFields(locks);
+    }
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.position = prevPosition;
+      document.body.style.top = prevTop;
+      document.body.style.width = prevWidth;
+      window.scrollTo(0, scrollY);
+    };
   }, [isOpen]);
 
   // Handle retest: check for in-progress assessment or start fresh
@@ -293,7 +315,7 @@ export default function AssessmentModal() {
         }))
       );
       setChronotypeResult(result.result);
-      setSubmissionMeta({ sourceType: result.sourceType ?? null, orgName: result.orgName ?? null });
+      setSubmissionMeta({ sourceType: result.sourceType ?? null, orgName: result.orgName ?? null, orgLogoUrl: result.orgLogoUrl ?? null });
       setMemberName(result.memberName ?? null);
       setMemberReferralCode(result.referralCode ?? null);
       setSubmitted(true);
@@ -335,37 +357,55 @@ export default function AssessmentModal() {
     OWL: "You naturally peak in the evening and prefer later schedules. Your creativity shines at night.",
   };
 
+  const isResultView = submitted && chronotypeResult;
+
   return (
     <div
       data-lenis-prevent
-      className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto"
-      style={{ background: "rgba(15, 13, 45, 0.65)", padding: "40px 16px" }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="result-heading"
+      className="fixed inset-0 z-[9999] flex items-start justify-center result-modal-overlay"
+      style={{
+        background: "rgba(19, 22, 64, 0.72)",
+        backdropFilter: isResultView ? "blur(5px)" : "none",
+        padding: isResultView ? "12px 24px" : "40px 16px",
+        overflow: "hidden",
+      }}
       onClick={(e) => { if (e.target === e.currentTarget) resetAndClose(); }}
     >
       <div
-        className="relative w-full bg-white shadow-2xl overflow-hidden"
+        className="relative bg-white result-modal-container"
         style={{
-          maxWidth: "600px",
-          borderRadius: "16px",
+          width: "calc(100vw - 48px)",
+          maxWidth: isResultView ? "1480px" : "600px",
+          maxHeight: "calc(100dvh - 20px)",
+          borderRadius: isResultView ? "22px" : "16px",
           fontFamily: "Poppins, sans-serif",
-          marginTop: "auto",
-          marginBottom: "auto",
+          margin: "auto",
+          overflowY: "auto",
+          overflowX: "hidden",
+          scrollbarGutter: "stable",
+          boxSizing: "border-box",
+          boxShadow: isResultView ? "0 24px 80px rgba(18, 20, 57, 0.28)" : undefined,
         }}
       >
-        <div style={{ height: "4px", background: "linear-gradient(90deg, #35319B, #F59A00)", width: "100%" }} />
+        {!isResultView && <div style={{ height: "4px", background: "linear-gradient(90deg, #35319B, #F59A00)", width: "100%" }} />}
 
-        <button
-          type="button"
-          onClick={resetAndClose}
-          aria-label="Close"
-          className="absolute top-[14px] right-[16px] w-[34px] h-[34px] flex items-center justify-center bg-transparent border-none cursor-pointer z-10 hover:bg-gray-100"
-          style={{ borderRadius: "50%" }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
+        {!isResultView && (
+          <button
+            type="button"
+            onClick={resetAndClose}
+            aria-label="Close"
+            className="absolute top-[14px] right-[16px] w-[34px] h-[34px] flex items-center justify-center bg-transparent border-none cursor-pointer z-10 hover:bg-gray-100"
+            style={{ borderRadius: "50%" }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        )}
 
         {serverError && (
           <div className="px-[20px] pt-[16px]">
@@ -387,6 +427,7 @@ export default function AssessmentModal() {
             copiedReferral={copiedReferral}
             setCopiedReferral={setCopiedReferral}
             resetAndClose={resetAndClose}
+            openConsult={openConsult}
           />
         ) : submitting ? (
           <div className="flex flex-col items-center justify-center px-[24px] py-[60px] text-center">
@@ -455,7 +496,7 @@ export default function AssessmentModal() {
                       );
                       const result = await submitAssessment(assessmentId, answersArr);
                       setChronotypeResult(result.result);
-                      setSubmissionMeta({ sourceType: result.sourceType ?? null, orgName: result.orgName ?? null });
+                      setSubmissionMeta({ sourceType: result.sourceType ?? null, orgName: result.orgName ?? null, orgLogoUrl: result.orgLogoUrl ?? null });
                       setSubmitted(true);
                     } else {
                       setStep(existingAssessment.resumeIndex + 1);
@@ -646,6 +687,56 @@ export default function AssessmentModal() {
               input[type="number"]::-webkit-outer-spin-button,
               input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
               input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+              .result-modal-container { overflow-y: auto; overflow-x: hidden; scrollbar-gutter: stable; box-sizing: border-box; }
+              .result-modal-container > :last-child { margin-bottom: 0; }
+              .result-content .result-hero { min-height: 0; }
+              .result-next-steps .result-step-item:first-child { border-left: none !important; }
+              .result-overlay { overflow: hidden; }
+              .chronotype-illustration svg { display: block; width: 100%; height: auto; max-height: 76px; }
+              @media (max-width: 767px) {
+                .result-modal-container { border-radius: 0 !important; max-width: 100% !important; max-height: 100dvh !important; width: 100% !important; min-height: 100dvh !important; }
+                .result-hero { grid-template-columns: 1fr !important; }
+                .result-hero .chronotype-illustration { max-width: 90px !important; }
+                .result-metrics-grid { grid-template-columns: 1fr !important; min-height: auto !important; }
+                .result-metrics-grid > .result-metric-item { border-left: none !important; border-bottom: 1px solid #E2E2EA !important; padding: 10px 16px !important; }
+                .result-metrics-grid > .result-metric-item:last-child { border-bottom: none !important; }
+                .result-insights { grid-template-columns: 1fr !important; }
+                .result-next-steps-grid { grid-template-columns: 1fr !important; }
+                .result-next-steps .result-step-item { border-left: none !important; padding: 6px 0 !important; }
+                .result-action-cards { grid-template-columns: 1fr !important; }
+                .result-action-card { grid-template-columns: 1fr !important; justify-items: center; text-align: center; min-height: auto !important; }
+                .result-action-card > .min-w-0 { text-align: center; }
+                .result-bottom-actions { grid-template-columns: 1fr !important; }
+                .result-success-banner { max-width: 100% !important; }
+                .result-footer { grid-template-columns: 1fr !important; gap: 6px !important; justify-items: center !important; text-align: center !important; }
+              }
+              @media (min-width: 768px) and (max-width: 899px) {
+                .result-modal-container { max-width: calc(100vw - 32px) !important; }
+                .result-hero { grid-template-columns: 1fr 1fr !important; }
+                .result-metric-item { padding: 0 14px !important; gap: 12px !important; }
+              }
+              @media (min-width: 900px) and (max-width: 1199px) {
+                .result-modal-container { max-width: calc(100vw - 40px) !important; }
+              }
+              @media (max-width: 899px) {
+                .result-insights { grid-template-columns: 1fr !important; }
+                .result-action-cards { grid-template-columns: 1fr !important; }
+                .result-bottom-actions { grid-template-columns: 1fr !important; }
+              }
+              @media (max-width: 899px) {
+                .result-action-card { grid-template-columns: 1fr !important; justify-items: center; text-align: center; min-height: auto !important; }
+                .result-action-card > .min-w-0 { text-align: center; }
+              }
+              @media (max-width: 767px) {
+                .result-modal-overlay { padding: 0 !important; }
+              }
+              @media (prefers-reduced-motion: reduce) {
+                *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+                .result-bottom-actions button, .result-action-card button { transform: none !important; }
+              }
+              @media (hover: none) {
+                .result-bottom-actions button:hover, .result-action-card button:hover { transform: none !important; }
+              }
             `,
           }}
         />
@@ -1020,14 +1111,39 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
   );
 }
 
-/* ─── ENHANCED PREMIUM RESULT SCREEN ─── */
+/* ─── CHRONOTYPE ILLUSTRATIONS ─── */
+
+function LarkIllustration() {
+  return <Sunrise size={80} strokeWidth={1.4} stroke="#EE8300" aria-hidden="true" />;
+}
+
+function EagleIllustration() {
+  return <Bird size={80} strokeWidth={1.4} stroke="#30268F" aria-hidden="true" />;
+}
+
+function OwlIllustration() {
+  return (
+    <svg viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="w-full h-auto">
+      <path d="M60 60 Q100 100 140 60" stroke="#30268F" strokeWidth="1.6" fill="#F6F4FF" opacity="0.7" strokeLinecap="round" />
+      <circle cx="72" cy="75" r="4" fill="#30268F" opacity="0.3" />
+      <circle cx="128" cy="75" r="4" fill="#30268F" opacity="0.3" />
+      <circle cx="100" cy="85" r="12" stroke="#30268F" strokeWidth="1.3" fill="#F6F4FF" opacity="0.5" strokeLinecap="round" />
+      <path d="M60 42 L60 120" stroke="#30268F" strokeWidth="1.2" opacity="0.2" />
+      <path d="M140 42 L140 120" stroke="#30268F" strokeWidth="1.2" opacity="0.2" />
+      <circle cx="30" cy="40" r="6" stroke="#30268F" strokeWidth="1" fill="#F6F4FF" opacity="0.4" />
+      <circle cx="170" cy="50" r="4" stroke="#30268F" strokeWidth="0.8" fill="#F6F4FF" opacity="0.3" />
+    </svg>
+  );
+}
+
+/* ─── REDESIGNED RESULT SCREEN ─── */
 
 function EnhancedResult({
   chronotypeResult, submissionMeta, memberName, memberReferralCode,
-  assessmentId, form, chronotypeDescs, copiedReferral, setCopiedReferral, resetAndClose,
+  assessmentId, form, chronotypeDescs, copiedReferral, setCopiedReferral, resetAndClose, openConsult,
 }: {
   chronotypeResult: { chronotype: string; total_score: number; confidence_score: number; lark_score: number; eagle_score: number; owl_score: number };
-  submissionMeta: { sourceType: string | null; orgName: string | null } | null;
+  submissionMeta: { sourceType: string | null; orgName: string | null; orgLogoUrl?: string | null } | null;
   memberName: string | null;
   memberReferralCode: string | null;
   assessmentId: string;
@@ -1036,219 +1152,374 @@ function EnhancedResult({
   copiedReferral: boolean;
   setCopiedReferral: (v: boolean) => void;
   resetAndClose: () => void;
+  openConsult: () => void;
 }) {
-  const chrono = chronotypeResult.chronotype;
+  const chrono = chronotypeResult.chronotype as "LARK" | "EAGLE" | "OWL";
   const isLark = chrono === "LARK";
   const isEagle = chrono === "EAGLE";
   const isOwl = chrono === "OWL";
 
-  const badgeBg = isLark
-    ? "linear-gradient(135deg, #F59A00, #F97316)"
-    : isEagle
-      ? "linear-gradient(135deg, #35319B, #6366F1)"
-      : "linear-gradient(135deg, #2C2255, #7B68AE)";
+  const peaks = CHRONOTYPE_PEAK_TIMES[chrono];
+  const blueprint = CHRONOTYPE_BLUEPRINT[chrono];
+  const label = CHRONOTYPE_LABELS[chrono];
 
-  const heroBg = isLark
-    ? "linear-gradient(135deg, #FFFBEB, #FEF3C7, #FFEAA7)"
-    : isEagle
-      ? "linear-gradient(135deg, #EEF2FF, #E0E7FF, #C7D2FE)"
-      : "linear-gradient(135deg, #F5F3FF, #EDE9FE, #DDD6FE)";
+  const subtitle = isLark ? "Morning Type" : isEagle ? "Intermediate Type" : "Evening Type";
 
-  const labelText = isLark ? "Lark · Morning Type" : isEagle ? "Eagle · Intermediate Type" : "Owl · Evening Type";
-  const emoji = isLark ? "☀️" : isEagle ? "🦅" : "🦉";
+  const wakeTime = blueprint.window.split(" – ")[1] ?? "";
+  const bedtime = blueprint.window.split(" – ")[0] ?? "";
+
+  const wakeHour = wakeTime.replace(/^0/, "");
+  const bedHour = bedtime;
 
   const strengths = isLark
-    ? ["Early morning peak productivity", "Consistent natural wake-up", "Strong morning discipline"]
+    ? [
+        { text: "Daytime energy peaks before noon", icon: Zap },
+        { text: "Consistent early-morning wake-up", icon: SunMedium },
+        { text: "Strong focus in the early hours", icon: Target },
+      ]
     : isEagle
-      ? ["Flexible schedule adaptability", "Steady midday energy", "Socially adaptable timing"]
-      : ["Late-day creative focus", "Creative problem solving at night", "Comfort with flexible late blocks"];
+      ? [
+          { text: "Steady midday energy for deep work", icon: Zap },
+          { text: "Adaptable to most daily routines", icon: UsersRound },
+          { text: "Balanced social and work timing", icon: Target },
+        ]
+      : [
+          { text: "Late-day creative focus", icon: Zap },
+          { text: "Comfortable with flexible schedules", icon: UsersRound },
+          { text: "Strong problem-solving at night", icon: Target },
+        ];
 
-  const challenges = isLark
-    ? ["Evening social events drain quickly", "Hard to stay awake past 10 PM", "Late-night work is inefficient"]
+  const watchOuts = isLark
+    ? [
+        { text: "Evening social events drain energy quickly", icon: Coffee },
+        { text: "Hard to stay awake past 10 PM", icon: Moon },
+        { text: "Weekend sleep drift disrupts rhythm", icon: CalendarDays },
+      ]
     : isEagle
-      ? ["Rigid schedules disrupt balance", "Can drift without a routine", "Energy dips mid-afternoon"]
-      : ["Early starts are physically costly", "Morning fog and slow waking", "Fixed schedules create sleep debt"];
+      ? [
+          { text: "Rigid schedules can disrupt balance", icon: Coffee },
+          { text: "Energy dips mid-afternoon", icon: Moon },
+          { text: "Can drift without a consistent routine", icon: CalendarDays },
+        ]
+      : [
+          { text: "Early mornings feel physically costly", icon: Coffee },
+          { text: "Morning fog and slow waking", icon: Moon },
+          { text: "Fixed schedules create sleep debt", icon: CalendarDays },
+        ];
 
   const tips = isLark
-    ? ["Schedule important tasks before noon — your peak window", "Avoid caffeine after 2 PM to protect early sleep", "Wind down with dim lighting by 9 PM"]
+    ? ["Schedule important tasks before your noon peak", "Avoid caffeine after 2 PM to protect early sleep", "Wind down with dim lighting by 9 PM"]
     : isEagle
-      ? ["Block 10 AM – 2 PM for deep focused work", "Maintain consistent wake and bed times for stability", "Use your midday energy for exercise"]
-      : ["Use bright light within 30 min of waking to shift your clock", "Avoid critical tasks before 9 AM if possible", "Build a consistent 30-min pre-sleep wind-down"];
+      ? ["Block 10 AM – 2 PM for your deepest focus", "Keep consistent wake and bed times for stability", "Use midday energy for physical activity"]
+      : ["Use bright light within 30 min of waking", "Avoid critical tasks before 9 AM if possible", "Build a consistent 30-min pre-sleep routine"];
+
+  const chronotypeName = label.split(" (")[0];
+
+  const IllustrationComponent = isLark ? LarkIllustration : isEagle ? EagleIllustration : OwlIllustration;
 
   return (
-    <div className="px-[16px] py-[24px] md:px-[28px] md:py-[28px]">
-      {/* ─── Header ─── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-[12px] mb-[16px]">
-        <div className="flex items-center justify-center w-[52px] h-[52px] rounded-2xl shrink-0" style={{ background: badgeBg }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        </div>
+    <div className="result-content px-[18px] lg:px-[28px] lg:pt-[18px] lg:pb-[8px]" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+      {/* ─── Close Button ─── */}
+      <button
+        type="button"
+        onClick={resetAndClose}
+        aria-label="Close result"
+        className="absolute top-[20px] right-[20px] flex items-center justify-center bg-transparent border-none cursor-pointer z-50 rounded-lg transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f] hover:bg-[#E6E6EE]"
+        style={{ width: "44px", height: "44px", minWidth: "44px", minHeight: "44px" }}
+      >
+        <X size={25} strokeWidth={1.75} stroke="#66677A" />
+      </button>
+
+      {/* ─── Success Message ─── */}
+      <div
+        className="flex items-center gap-[10px] rounded-xl result-success-banner"
+      style={{
+        background: "#F5FBF7",
+        border: "1px solid #C9DFD1",
+        padding: "9px 14px",
+        maxWidth: "62%",
+        minHeight: "0",
+      }}
+      >
+        <CheckCircle2 size={22} strokeWidth={1.75} stroke="#18794E" className="shrink-0" />
         <div>
-          <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Assessment Complete</p>
-          <p className="m-0 text-[18px] md:text-[20px] font-semibold leading-[1.3]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>Welcome, {memberName ?? "You"}!</p>
+          <p className="m-0 text-[15px] font-semibold leading-[1.35]" style={{ color: "#17172B", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+            Assessment complete
+          </p>
+          <p className="m-0 text-[12px] leading-[1.35] mt-[1px]" style={{ color: "#66677A", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+            Thank you for taking the Sleep Chronotype Assessment. Your personalised result is ready.
+          </p>
         </div>
-      </div>
-      <div className="mb-[18px] flex flex-col gap-[6px]">
-        <p className="m-0 text-[13px] md:text-[14px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
-          A huge thank you for completing the assessment! We truly appreciate you taking this step toward better sleep and wellness. 🌙
-        </p>
-        <p className="m-0 text-[12px] md:text-[13px] leading-[1.5]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
-          Every great journey begins with self-awareness. You're off to a wonderful start!
-        </p>
       </div>
 
-      {/* ─── Chronotype Hero Card ─── */}
-      <div className="rounded-2xl p-[20px] md:p-[24px] mb-[16px] relative overflow-hidden" style={{ background: heroBg }}>
-        <div className="absolute top-[-20px] right-[-10px] text-[80px] md:text-[100px] opacity-[0.08]" style={{ lineHeight: 1 }}>{emoji}</div>
-        <div className="relative z-10">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-[12px]">
-            <div className="flex-1 min-w-0">
-              <span className="inline-flex items-center text-[13px] md:text-[14px] font-semibold px-[14px] py-[6px] rounded-full text-white" style={{ background: badgeBg, fontFamily: "Poppins, sans-serif", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                {emoji} {labelText}
-              </span>
-              <p className="m-0 mt-[12px] text-[14px] md:text-[15px] leading-[1.7]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
-                {isLark
-                  ? "Your biology runs early. You wake naturally with the sun, and your mind is at its sharpest before noon. Mornings are your superpower."
-                  : isEagle
-                    ? "Your biology sits in the middle. You adapt well to most schedules with steady, balanced energy throughout the day."
-                    : "Your biology leans later. You come alive when the day quiets down, with deeper creative focus toward evening."}
+      {/* ─── Chronotype Hero ─── */}
+      <div className="result-hero" style={{
+        display: "grid",
+        gridTemplateColumns: "minmax(0, 1.4fr) minmax(240px, 0.6fr)",
+        alignItems: "center",
+        gap: "24px",
+        minHeight: "118px",
+      }}>
+        <div>
+          <h2 id="result-heading" className="m-0 font-bold tracking-[-0.025em] leading-[1.08]" style={{
+            color: "#30268F",
+            fontFamily: "Poppins, sans-serif",
+            fontWeight: 700,
+            fontSize: "clamp(1.8rem, 2.2vw, 2.6rem)",
+          }}>
+            Your chronotype is {chronotypeName}
+          </h2>
+          <span className="inline-block mt-[8px] px-[14px] py-[5px] text-[15px] font-medium rounded-[999px]" style={{
+            color: "#EE8300",
+            background: "#FFF8EF",
+            border: "1px solid #F5CF9E",
+            fontFamily: "Poppins, sans-serif",
+            fontWeight: 500,
+          }}>
+            {subtitle}
+          </span>
+          <p className="m-0 mt-[9px] leading-[1.4] max-w-[64ch]" style={{
+            color: "#66677A",
+            fontFamily: "Poppins, sans-serif",
+            fontWeight: 400,
+            fontSize: "14px",
+          }}>
+            {chronotypeDescs[chrono]}
+          </p>
+        </div>
+        <div className="flex flex-col items-center justify-center chronotype-visual-group" style={{ gap: "7px", height: "120px", overflow: "visible" }}>
+          <div className="chronotype-illustration" style={{ width: "100%", maxWidth: "110px", maxHeight: "76px", overflow: "visible" }}>
+            <IllustrationComponent />
+          </div>
+          <span className="inline-flex items-center text-[13px] font-medium px-[12px] py-[4px] rounded-[999px]" style={{
+            color: "#30268F",
+            background: "#F6F4FF",
+            border: "1px solid #D8D3FA",
+            fontFamily: "Poppins, sans-serif",
+            fontWeight: 500,
+          }}>
+            Peak focus &middot; {peaks.focus}
+          </span>
+        </div>
+      </div>
+
+      {/* ─── Key Schedule Metrics ─── */}
+      <div className="result-metrics-grid" style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+        border: "1px solid #E2E2EA",
+        borderRadius: "12px",
+        background: "#FFFFFF",
+        padding: "9px 0",
+        minHeight: "82px",
+      }}>
+        {[
+          { icon: SunMedium, label: "Ideal wake time", value: wakeHour, color: "#EE8300" },
+          { icon: BriefcaseBusiness, label: "Best focus window", value: peaks.focus, color: "#30268F" },
+          { icon: MoonStar, label: "Ideal bedtime", value: bedHour, color: "#30268F" },
+        ].map((item, i) => (
+          <div key={item.label} className="result-metric-item" style={{
+            display: "grid",
+            gridTemplateColumns: "52px minmax(0, 1fr)",
+            alignItems: "center",
+            gap: "14px",
+            padding: "0 24px",
+            borderLeft: i > 0 ? "1px solid #E2E2EA" : "none",
+          }}>
+            <div className="flex items-center justify-center rounded-full" style={{ width: "48px", height: "48px", background: `${item.color}0d` }}>
+              <item.icon size={23} strokeWidth={1.75} stroke={item.color} />
+            </div>
+            <div className="min-w-0">
+              <p className="m-0 font-semibold leading-[1.3] truncate" style={{ fontSize: "clamp(18px, 1.8vw, 22px)", color: "#17172B", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+                {item.value}
+              </p>
+              <p className="m-0 mt-[1px] text-[12px]" style={{ color: "#66677A", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+                {item.label}
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap gap-[10px] mt-[14px]">
-            <div className="flex items-center gap-[8px] px-[12px] py-[7px] rounded-lg" style={{ background: "rgba(255,255,255,0.75)" }}>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.04em]" style={{ color: "#999", fontFamily: "Poppins, sans-serif" }}>Confidence</span>
-              <span className="text-[20px] md:text-[24px] font-bold" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>{chronotypeResult.confidence_score}%</span>
-            </div>
-            <div className="flex items-center gap-[8px] px-[12px] py-[7px] rounded-lg" style={{ background: "rgba(255,255,255,0.75)" }}>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.04em]" style={{ color: "#999", fontFamily: "Poppins, sans-serif" }}>Score</span>
-              <span className="text-[20px] md:text-[24px] font-bold" style={{ color: "#F59A00", fontFamily: "Poppins, sans-serif" }}>{chronotypeResult.total_score}</span>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* ─── Dimension Scores ─── */}
-      <div className="mb-[16px]">
-        <p className="m-0 text-[13px] font-semibold mb-[10px]" style={{ color: "#444", fontFamily: "Poppins, sans-serif" }}>Dimension Scores</p>
-        <div className="flex flex-col gap-[8px]">
-          {[
-            { label: "Lark", score: chronotypeResult.lark_score, color: "#F59A00", max: 60 },
-            { label: "Eagle", score: chronotypeResult.eagle_score, color: "#35319B", max: 60 },
-            { label: "Owl", score: chronotypeResult.owl_score, color: "#7B68AE", max: 60 },
-          ].map((s) => (
-            <div key={s.label} className="flex items-center gap-[10px]">
-              <span className="text-[12px] font-semibold w-[48px] shrink-0 text-right" style={{ color: s.color, fontFamily: "Poppins, sans-serif" }}>{s.label}</span>
-              <div className="flex-1 h-[8px] rounded-full" style={{ background: "#F0F0F0" }}>
-                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${Math.min(100, (s.score / s.max) * 100)}%`, background: `linear-gradient(90deg, ${s.color}, ${s.color}dd)` }} />
+      {/* ─── Strengths & Watch-Outs ─── */}
+      <div className="result-insights" style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+        gap: "14px",
+      }}>
+        <div className="rounded-xl" style={{ padding: "10px 16px", background: "#F5FBF7", border: "1px solid #C9DFD1" }}>
+          <p className="m-0 text-[15px] font-semibold leading-[1.3] mb-[6px]" style={{ color: "#18794E", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+            Natural strengths
+          </p>
+          <div className="flex flex-col" style={{ gap: "3px" }}>
+            {strengths.map((s, i) => (
+              <div key={i} className="flex items-start gap-[9px]" style={{ minHeight: "32px" }}>
+                <span className="flex items-center justify-center shrink-0 rounded-full" style={{ width: "32px", height: "32px", border: "1.5px solid rgba(24,121,78,0.2)" }}>
+                  <s.icon size={16} strokeWidth={1.75} stroke="#18794E" />
+                </span>
+                <span className="text-[13px] leading-[1.3]" style={{ color: "#17172B", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+                  {s.text}
+                </span>
               </div>
-              <span className="text-[14px] font-bold w-[28px] text-right" style={{ color: s.color, fontFamily: "Poppins, sans-serif" }}>{s.score}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ─── Strengths & Challenges ─── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[12px] mb-[16px]">
-        <div className="p-[14px] rounded-xl" style={{ background: "rgba(46,125,50,0.06)", border: "1px solid rgba(46,125,50,0.12)" }}>
-          <p className="m-0 text-[12px] font-bold mb-[8px] flex items-center gap-[6px]" style={{ color: "#2E7D32", fontFamily: "Poppins, sans-serif" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
-            Strengths
-          </p>
-          {strengths.map((t, i) => (
-            <div key={i} className="flex items-start gap-[6px] mb-[5px] last:mb-0">
-              <span className="text-[10px] mt-[3px] text-[#2E7D32] shrink-0">●</span>
-              <span className="text-[12px] leading-[1.5]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{t}</span>
-            </div>
-          ))}
-        </div>
-        <div className="p-[14px] rounded-xl" style={{ background: "rgba(211,47,47,0.05)", border: "1px solid rgba(211,47,47,0.1)" }}>
-          <p className="m-0 text-[12px] font-bold mb-[8px] flex items-center gap-[6px]" style={{ color: "#D32F2F", fontFamily: "Poppins, sans-serif" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-            Challenges
-          </p>
-          {challenges.map((t, i) => (
-            <div key={i} className="flex items-start gap-[6px] mb-[5px] last:mb-0">
-              <span className="text-[10px] mt-[3px] text-[#D32F2F] shrink-0">●</span>
-              <span className="text-[12px] leading-[1.5]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{t}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ─── Optimization Tips ─── */}
-      <div className="p-[14px] rounded-xl mb-[16px]" style={{ background: "rgba(53,49,155,0.04)", border: "1px solid rgba(53,49,155,0.08)" }}>
-        <p className="m-0 text-[12px] font-bold mb-[8px]" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>Optimize Your Rhythm</p>
-        <div className="flex flex-col gap-[5px]">
-          {tips.map((tip, i) => (
-            <div key={i} className="flex items-start gap-[8px]">
-              <span className="flex items-center justify-center w-[20px] h-[20px] rounded-full text-[9px] font-bold shrink-0 mt-[2px]" style={{ background: "rgba(53,49,155,0.1)", color: "#35319B", fontFamily: "Poppins, sans-serif" }}>{i + 1}</span>
-              <span className="text-[12px] leading-[1.6]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{tip}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ─── Source Tag ─── */}
-      {submissionMeta?.orgName && (
-        <div className="text-center mb-[10px]">
-          <span className="inline-block text-[10px] font-medium px-[10px] py-[3px] rounded-full" style={{ background: "rgba(53,49,155,0.06)", color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
-            {submissionMeta.orgName}
-          </span>
-        </div>
-      )}
-
-      {/* ─── Referral Code ─── */}
-      <div className="mb-[16px] p-[14px] rounded-xl" style={{ background: "#FFFFFF", border: "1.5px solid #EEEEEE" }}>
-        <p className="m-0 text-[12px] font-semibold mb-[3px]" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>Refer a Friend</p>
-        <p className="m-0 text-[11px] leading-[1.4] mb-[8px]" style={{ color: "#999", fontFamily: "Poppins, sans-serif" }}>
-          Share your link and help someone discover their chronotype.
-        </p>
-        {memberReferralCode ? (
-          <div className="flex items-center gap-[8px]">
-            <code className="flex-1 px-[10px] py-[8px] text-[13px] font-mono font-semibold rounded-lg truncate" style={{ background: "#F5F5F5", color: "#35319B" }}>
-              {typeof window !== "undefined" ? window.location.origin + "/?ref=" + memberReferralCode : memberReferralCode}
-            </code>
-            <button
-              type="button"
-              onClick={() => {
-                navigator.clipboard.writeText((typeof window !== "undefined" ? window.location.origin + "/?ref=" : "") + memberReferralCode);
-                setCopiedReferral(true);
-                setTimeout(() => setCopiedReferral(false), 2000);
-              }}
-              className="flex items-center justify-center w-[36px] h-[36px] rounded-lg border-none cursor-pointer"
-              style={{ background: copiedReferral ? "rgba(46,125,50,0.1)" : "rgba(53,49,155,0.08)" }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={copiedReferral ? "#2E7D32" : "#35319B"} strokeWidth="2" strokeLinecap="round">
-                {copiedReferral
-                  ? <><polyline points="20 6 9 17 4 12" /></>
-                  : <><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></>
-                }
-              </svg>
-            </button>
+            ))}
           </div>
-        ) : (
-          <p className="m-0 text-[11px] italic" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>Generating...</p>
-        )}
+        </div>
+        <div className="rounded-xl" style={{ padding: "10px 16px", background: "#FFF8EF", border: "1px solid #F5CF9E" }}>
+          <p className="m-0 text-[15px] font-semibold leading-[1.3] mb-[6px]" style={{ color: "#EE8300", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+            Watch-outs
+          </p>
+          <div className="flex flex-col" style={{ gap: "3px" }}>
+            {watchOuts.map((w, i) => (
+              <div key={i} className="flex items-start gap-[9px]" style={{ minHeight: "32px" }}>
+                <span className="flex items-center justify-center shrink-0 rounded-full" style={{ width: "32px", height: "32px", border: "1.5px solid rgba(238,131,0,0.2)" }}>
+                  <w.icon size={16} strokeWidth={1.75} stroke="#EE8300" />
+                </span>
+                <span className="text-[13px] leading-[1.3]" style={{ color: "#17172B", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+                  {w.text}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* ─── Action Buttons ─── */}
-      <div className="flex flex-col gap-[8px] max-w-[320px] mx-auto">
-        <div className="grid grid-cols-3 gap-[8px]">
-          <button type="button" onClick={() => downloadPdf({ firstName: form.fname, lastName: form.lname, email: form.email, chronotype: chronotypeResult.chronotype, totalScore: chronotypeResult.total_score, larkScore: chronotypeResult.lark_score, eagleScore: chronotypeResult.eagle_score, owlScore: chronotypeResult.owl_score, summary: chronotypeDescs[chronotypeResult.chronotype], orgName: submissionMeta?.orgName ?? undefined })}
-            className="flex flex-col items-center gap-[3px] text-[11px] font-semibold py-[10px] px-[6px] border-none cursor-pointer rounded-xl transition-all"
-            style={{ color: "#fff", background: "linear-gradient(135deg, #35319B, #5A55C0)", fontFamily: "Poppins, sans-serif" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            PDF
+      {/* ─── Best Next Steps ─── */}
+      <div className="result-next-steps" style={{
+        background: "#F6F4FF",
+        border: "1px solid #D8D3FA",
+        borderRadius: "12px",
+        padding: "8px 16px 9px",
+      }}>
+        <p className="m-0 text-[14px] font-semibold mb-[7px]" style={{ color: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+          Your best next steps
+        </p>
+        <div className="result-next-steps-grid" style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+          alignItems: "center",
+        }}>
+          {tips.map((tip, i) => (
+            <div key={i} className="result-step-item" style={{
+              display: "grid",
+              gridTemplateColumns: "30px minmax(0, 1fr)",
+              alignItems: "center",
+              gap: "9px",
+              padding: "0 14px",
+              borderLeft: i > 0 ? "1px solid #D8D3FA" : "none",
+              minHeight: "36px",
+            }}>
+              <span className="flex items-center justify-center rounded-full text-[12px] font-semibold" style={{ width: "30px", height: "30px", background: "#30268F", color: "#FFFFFF", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+                {i + 1}
+              </span>
+              <span className="text-[13px] leading-[1.35]" style={{ color: "#17172B", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+                {tip}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ─── Action Cards ─── */}
+      <div className="result-action-cards" style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+        gap: "14px",
+      }}>
+        {/* Consult a Doctor */}
+        <div className="result-action-card" style={{
+          display: "grid",
+          gridTemplateColumns: "46px minmax(0, 1fr) auto",
+          alignItems: "center",
+          gap: "12px",
+          padding: "8px 14px",
+          borderRadius: "12px",
+          minHeight: "70px",
+          background: "#FFF8EF",
+          border: "1px solid #F5CF9E",
+        }}>
+          <div className="flex items-center justify-center rounded-full" style={{ width: "46px", height: "46px", minWidth: "46px", background: "rgba(238,131,0,0.08)" }}>
+            <Stethoscope size={24} strokeWidth={1.75} stroke="#EE8300" />
+          </div>
+          <div className="min-w-0">
+            <h4 className="m-0 text-[14px] font-semibold" style={{ color: "#17172B", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+              Consult a doctor
+            </h4>
+            <p className="m-0 text-[12px] leading-[1.35] mt-[1px]" style={{ color: "#66677A", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+              Get personalised guidance from a sleep specialist.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={openConsult}
+            className="inline-flex items-center gap-[7px] text-[13px] font-semibold px-[14px] border-none cursor-pointer rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f] shrink-0"
+            style={{ minHeight: "42px", color: "#FFFFFF", background: "#EE8300", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
+          >
+            Book consultation
+            <ArrowRight size={14} strokeWidth={1.75} />
           </button>
-          <button type="button" onClick={() => openPdfForPrint({ firstName: form.fname, lastName: form.lname, email: form.email, chronotype: chronotypeResult.chronotype, totalScore: chronotypeResult.total_score, larkScore: chronotypeResult.lark_score, eagleScore: chronotypeResult.eagle_score, owlScore: chronotypeResult.owl_score, summary: chronotypeDescs[chronotypeResult.chronotype], orgName: submissionMeta?.orgName ?? undefined })}
-            className="flex flex-col items-center gap-[3px] text-[11px] font-semibold py-[10px] px-[6px] border-none cursor-pointer rounded-xl transition-all"
-            style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            Print
+        </div>
+        {/* Refer a Friend */}
+        <div className="result-action-card" style={{
+          display: "grid",
+          gridTemplateColumns: "46px minmax(0, 1fr) auto",
+          alignItems: "center",
+          gap: "12px",
+          padding: "8px 14px",
+          borderRadius: "12px",
+          minHeight: "70px",
+          background: "#F6F4FF",
+          border: "1px solid #D8D3FA",
+        }}>
+          <div className="flex items-center justify-center rounded-full" style={{ width: "46px", height: "46px", minWidth: "46px", background: "rgba(48,38,143,0.08)" }}>
+            <UserRoundPlus size={24} strokeWidth={1.75} stroke="#30268F" />
+          </div>
+          <div className="min-w-0">
+            <h4 className="m-0 text-[14px] font-semibold" style={{ color: "#17172B", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+              Refer a friend
+            </h4>
+            <p className="m-0 text-[12px] leading-[1.35] mt-[1px]" style={{ color: "#66677A", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+              Help someone discover their natural sleep rhythm.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={async () => {
+              if (!memberReferralCode) return;
+              const link = (typeof window !== "undefined" ? window.location.origin + "/?ref=" : "") + memberReferralCode;
+              if (typeof navigator !== "undefined" && navigator.share) {
+                try { await navigator.share({ title: "Discover your sleep chronotype", url: link }); return; } catch {}
+              }
+              await navigator.clipboard.writeText(link);
+              setCopiedReferral(true);
+              setTimeout(() => setCopiedReferral(false), 2000);
+            }}
+            className="inline-flex items-center gap-[7px] text-[13px] font-semibold px-[14px] border-none cursor-pointer rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f] shrink-0"
+            style={{ minHeight: "42px", color: "#FFFFFF", background: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
+          >
+            {copiedReferral ? "Link copied" : "Send referral"}
+            <ArrowRight size={14} strokeWidth={1.75} />
           </button>
-          <button type="button" onClick={async () => {
+        </div>
+      </div>
+
+      {/* ─── Bottom Actions ─── */}
+      <div className="result-bottom-actions" style={{
+        display: "grid",
+        gridTemplateColumns: "1.2fr 1fr 0.85fr",
+        gap: "12px",
+      }}>
+        <button
+          type="button"
+          onClick={() => downloadPdf({ firstName: form.fname, lastName: form.lname, email: form.email, chronotype: chronotypeResult.chronotype, totalScore: chronotypeResult.total_score, larkScore: chronotypeResult.lark_score, eagleScore: chronotypeResult.eagle_score, owlScore: chronotypeResult.owl_score, summary: chronotypeDescs[chronotypeResult.chronotype], orgName: submissionMeta?.orgName ?? undefined })}
+          className="inline-flex items-center justify-center gap-[9px] text-[14px] font-semibold border-none cursor-pointer rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f]"
+          style={{ minHeight: "44px", color: "#FFFFFF", background: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
+        >
+          <Download size={19} strokeWidth={1.75} />
+          Download full report
+        </button>
+        <button
+          type="button"
+          onClick={async () => {
             if (!assessmentId) return;
             const shareUrl = typeof window !== "undefined" ? window.location.origin + "/r/" + assessmentId : "";
             if (typeof navigator !== "undefined" && navigator.share) {
@@ -1258,22 +1529,49 @@ function EnhancedResult({
             setCopiedReferral(true);
             setTimeout(() => setCopiedReferral(false), 2000);
           }}
-            className="flex flex-col items-center gap-[3px] text-[11px] font-semibold py-[10px] px-[6px] border-none cursor-pointer rounded-xl transition-all"
-            style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            {copiedReferral ? "Copied!" : "Share"}
-          </button>
+          className="inline-flex items-center justify-center gap-[9px] text-[14px] font-semibold border rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f]"
+          style={{ minHeight: "44px", color: "#17172B", background: "#FFFFFF", border: "1px solid #E2E2EA", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
+        >
+          <Share2 size={19} strokeWidth={1.75} />
+          Share result
+        </button>
+        <button
+          type="button"
+          onClick={() => { window.location.href = "/login"; }}
+          className="inline-flex items-center justify-center text-[14px] font-medium bg-transparent border-none cursor-pointer rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f]"
+          style={{ minHeight: "44px", color: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
+        >
+          Retake assessment
+        </button>
+      </div>
+
+      {/* ─── Footer: Logos + Disclaimer ─── */}
+      <div className="result-footer" style={{
+        display: "grid",
+        gridTemplateColumns: submissionMeta?.orgLogoUrl ? "minmax(0, 1fr) auto" : "1fr",
+        alignItems: "center",
+        gap: "20px",
+        minHeight: "36px",
+        paddingTop: "7px",
+        borderTop: "1px solid #E6E6EE",
+      }}>
+        {submissionMeta?.orgLogoUrl ? (
+          <div className="flex items-center flex-wrap gap-[8px 16px]" style={{ fontSize: "11px", color: "#77788A", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+            <span>Participating organisations:</span>
+            <img
+              src={submissionMeta.orgLogoUrl}
+              alt={submissionMeta.orgName ? `${submissionMeta.orgName} logo` : "Partner organisation logo"}
+              style={{ width: "auto", maxWidth: "90px", height: "auto", maxHeight: "19px", objectFit: "contain", opacity: 0.72, filter: "grayscale(1)" }}
+              loading="lazy"
+            />
+          </div>
+        ) : null}
+        <div className="flex items-center justify-center gap-[6px]" style={{ gridColumn: submissionMeta?.orgLogoUrl ? "auto" : "1 / -1" }}>
+          <ShieldCheck size={14} strokeWidth={1.75} stroke="#9999AA" />
+          <p className="m-0 text-[11px] whitespace-nowrap" style={{ color: "#9999AA", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+            Wellness guidance only &mdash; not a medical diagnosis.
+          </p>
         </div>
-        <button type="button" onClick={() => { window.location.href = "/login"; }}
-          className="w-full text-white text-[13px] font-semibold py-[11px] border-none cursor-pointer rounded-xl transition-all"
-          style={{ background: "#171717", fontFamily: "Poppins, sans-serif" }}>
-          Open My Dashboard
-        </button>
-        <button type="button" onClick={resetAndClose}
-          className="w-full text-[12px] font-medium py-[9px] border-none cursor-pointer rounded-xl transition-all"
-          style={{ color: "#888", background: "#F5F5F5", fontFamily: "Poppins, sans-serif" }}>
-          Close
-        </button>
       </div>
     </div>
   );
