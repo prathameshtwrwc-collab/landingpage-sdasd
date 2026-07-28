@@ -2,6 +2,14 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.5.1] — 2026-07-28 — Mobile Carousel Dots Removal, Lark Images
+
+### Fixed
+- **Mobile slider progress indicators removed** — Removed dot/pill indicators from the visual illustration carousel on `/dashboard/chronotype` for mobile viewports only; desktop pill indicators retained
+
+### Added
+- **Lark chronotype images** — 11 lark-specific images added to `public/chronotype_media/lark/` for the chronotype image gallery
+
 ## [2.5.0] — 2026-07-27 — Bug Fixes, Consult Leads, CSV Exports, Donate, Image Gallery
 
 ### Fixed

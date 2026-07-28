@@ -78,6 +78,8 @@ Phase: Feature Completion & Stabilization — Superadmin Dashboard, RLS Fixes, D
 - **Donate modal** — Premium donate modal with impact list, amount selector; buttons in SiteNavbar and DashboardShell
 - **Chronotype image gallery** — Auto-sliding carousel of 32 images on /dashboard/chronotype with lightbox
 - **Orange login/donate buttons** — Solid orange styling for all login and donate CTAs
+- **Mobile carousel indicators removed** — Dot/pill progress indicators hidden on mobile viewports for the chronotype visual illustration carousel
+- **Lark chronotype images** — 11 lark-specific images added to `public/chronotype_media/lark/`
 
 ---
 

@@ -95,32 +95,22 @@ How to make functional (replace mock imports):
 
 ---
 
-### 1.3 Member - Chronotype (app/member/chronotype/page.tsx) [NEEDS REAL DATA]
+### 1.3 Member - Chronotype (app/dashboard/chronotype/page.tsx) [IMPLEMENTED]
 
-Currently uses hardcoded Eagle data.
+Fully functional with real data from `/api/member`.
 
 What it displays:
-- PageHeader: "You are an {chronotype}" with confidence subtitle
-- Card 1: CircadianOrbit animation + chronotype name + tagline
-- Card 2: "What this means for you" description
-- 3 info cards: Peak Focus, Creative Window, Ideal Sleep times
+- Chronotype header card with gradient background (Lark: yellow, Eagle: indigo, Owl: purple), chronotype icon, label, tagline, and confidence score Ring chart
+- Visual illustration carousel: auto-advancing (5s) image gallery with prev/next buttons, counter badge, and click-to-open lightbox. Carousel images are chronotype-specific (Lark/Eagle/Owl-specific folders or fallback to ALL_IMAGES). Mobile view hides dot/pill progress indicators.
+- Lightbox modal: full-screen overlay with enlarged image, nav arrows, close button, Escape key support
+- 3 peak time cards: Peak Focus, Creative Window, Ideal Sleep
 
-Components used: PageHeader, Card, CircadianOrbit
+Components used: DashboardShell, Ring, ChevronLeft/ChevronRight icons
 
-Data needed:
-- Latest chronotype_result: chronotype, confidence_score, lark_score, eagle_score, owl_score
-- Hardcoded descriptions per chronotype (LARK/EAGLE/OWL)
-- Hardcoded peak times per chronotype
-
-How to make functional:
-1. Fetch getMemberDashboard(memberId).result
-2. Create a constant CHRONOTYPE_PEAK_TIMES map:
-   - LARK: Focus "6-9 AM", Creative "4-6 PM", Sleep "9:30 PM"
-   - EAGLE: Focus "9-11 AM", Creative "5-7 PM", Sleep "10:45 PM"
-   - OWL: Focus "2-5 PM", Creative "10 PM-1 AM", Sleep "12:30 AM"
-3. Create CHRONOTYPE_DESCRIPTIONS per type (already exists in AssessmentModal.tsx)
-4. Pass result.chronotype, result.confidence_score to template
-5. Show empty state with "Take Assessment" if no result exists
+Data from API:
+- Latest chronotype_result: chronotype, confidence_score
+- CHRONOTYPE_LABELS, CHRONOTYPE_DESCRIPTIONS, CHRONOTYPE_PEAK_TIMES from chronotype-utils
+- Image selection per chronotype from public/chronotype_media/{lark,eagle,generic}/
 
 ---
 
