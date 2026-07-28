@@ -357,13 +357,13 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
         @media (max-width: 767px) {
           .donate-overlay { padding: 0 !important; }
           .donate-modal { width: 100% !important; min-height: 100dvh !important; max-height: 100dvh !important; border-radius: 0 !important; display: block !important; overflow-y: auto !important; }
-          .donate-visual { display: grid !important; grid-template-rows: 140px 60px 80px !important; border-radius: 0 !important; }
+          .donate-visual { display: none !important; }
           .donate-content { padding: 20px 18px !important; }
           .donate-content .impact-grid { gap: 8px; padding: 12px 8px !important; }
           .donate-content .amount-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }
         @media (max-width: 399px) {
-          .donate-visual { grid-template-rows: 100px 50px 70px !important; }
+          .donate-content { padding: 16px 14px !important; gap: 12px !important; }
           .donate-content { padding: 16px 14px !important; gap: 12px !important; }
           .donate-content .impact-grid { padding: 10px 6px !important; gap: 6px !important; }
           .donate-content .impact-grid .w-\[48px\] { width: 36px !important; height: 36px !important; }
