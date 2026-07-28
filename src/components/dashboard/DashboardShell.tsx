@@ -279,24 +279,24 @@ export default function DashboardShell({
 
       {/* ── MAIN CONTENT ── */}
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-200`}
-        style={{ marginLeft: sidebarCollapsed ? "72px" : "260px" }}>
+        style={{ marginLeft: isMounted && window.innerWidth >= 768 ? (sidebarCollapsed ? "72px" : "260px") : "0px" }}>
 
         {/* Top header */}
-        <header className="sticky top-0 z-30 flex items-center justify-between px-[20px] md:px-[32px]"
-          style={{ height: "68px", background: darkMode ? "#16162A" : "#FFFFFF", borderBottom: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA" }}>
+        <header className="sticky top-0 z-30 flex items-center justify-between px-[14px] md:px-[32px] h-[56px] md:h-[68px]"
+          style={{ background: darkMode ? "#16162A" : "#FFFFFF", borderBottom: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA" }}>
           <div>
-            <h1 className="m-0 text-[20px] md:text-[22px] font-bold tracking-[-0.02em]"
+            <h1 className="m-0 text-[16px] md:text-[22px] font-bold tracking-[-0.02em]"
               style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, color: darkMode ? "#E0E0E0" : "#19164F" }}>
               {title || (activeItem?.label ?? "Dashboard")}
             </h1>
           </div>
           {user && (
-            <div className="flex items-center gap-[10px]">
-              <div className="w-[34px] h-[34px] rounded-full flex items-center justify-center text-white text-[13px] font-bold"
+            <div className="flex items-center gap-[6px] md:gap-[10px]">
+              <div className="w-[28px] h-[28px] md:w-[34px] md:h-[34px] rounded-full flex items-center justify-center text-white text-[11px] md:text-[13px] font-bold"
                 style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)" }}>
                 {user.name.charAt(0).toUpperCase()}
               </div>
-              <span className="text-[13px] font-medium hidden sm:block" style={{ color: darkMode ? "#999" : "#667085", fontFamily: "Poppins, sans-serif" }}>
+              <span className="text-[12px] md:text-[13px] font-medium hidden sm:block" style={{ color: darkMode ? "#999" : "#667085", fontFamily: "Poppins, sans-serif" }}>
                 {user.name}
               </span>
             </div>
@@ -304,7 +304,7 @@ export default function DashboardShell({
         </header>
 
         {/* Page content */}
-        <main className="flex-1 px-[16px] md:px-[32px] py-[20px] md:py-[28px] pb-[110px] md:pb-[28px]" style={{ background: darkMode ? "#0F0F23" : "transparent" }}>
+        <main className="flex-1 px-[12px] md:px-[32px] py-[16px] md:py-[28px] pb-[80px] md:pb-[28px]" style={{ background: darkMode ? "#0F0F23" : "transparent" }}>
           {children}
         </main>
       </div>

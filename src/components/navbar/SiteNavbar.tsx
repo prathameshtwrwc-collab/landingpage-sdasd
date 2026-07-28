@@ -505,6 +505,27 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
         >
           Login
         </a>
+
+        {/* Mobile donate button */}
+        <button
+          type="button"
+          onClick={() => { setIsMenuOpen(false); setDonateOpen(true); }}
+          className="flex items-center justify-center w-full max-w-[260px] cursor-pointer mt-[10px] transition-all duration-150"
+          style={{
+            width: "100%",
+            maxWidth: "260px",
+            height: "46px",
+            fontFamily: "Poppins, sans-serif",
+            fontSize: "15px",
+            fontWeight: 600,
+            border: "1.5px solid #FF6B6B",
+            background: "#FFF0F0",
+            color: "#FF6B6B",
+            borderRadius: 0,
+          }}
+        >
+          ❤ Donate
+        </button>
       </div>
 
       {/* Optional subtle page overlay when menu open — rgba(31,27,83,0.12) */}

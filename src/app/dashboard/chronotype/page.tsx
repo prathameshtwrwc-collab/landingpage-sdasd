@@ -33,6 +33,11 @@ const EAGLE_IMAGES = [
   "7.jpg", "8.jpg", "9.jpg", "10.jpg", "hompage.jpg", "hompage-2.jpg",
 ];
 
+const LARK_IMAGES = [
+  "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg",
+  "7.jpg", "8.jpg", "9.jpg", "10.jpg", "11.jpg",
+];
+
 export default function ChronotypePage() {
   const { user } = useAuth();
   const [data, setData] = useState<{ result: Record<string, unknown> | null } | null>(null);
@@ -80,9 +85,8 @@ export default function ChronotypePage() {
   const confidence = (result?.confidence_score as number) ?? 0;
 
   // Choose images based on chronotype
-  const isEagle = chronotype === "EAGLE";
-  const chronoImages = isEagle ? EAGLE_IMAGES : ALL_IMAGES;
-  const imageFolder = isEagle ? "/chronotype_media/eagle" : "/chronotype_media";
+  const chronoImages = chronotype === "EAGLE" ? EAGLE_IMAGES : chronotype === "LARK" ? LARK_IMAGES : ALL_IMAGES;
+  const imageFolder = chronotype === "EAGLE" ? "/chronotype_media/eagle" : chronotype === "LARK" ? "/chronotype_media/lark" : "/chronotype_media";
 
   return (
     <DashboardShell>
@@ -97,7 +101,7 @@ export default function ChronotypePage() {
         <div className="flex flex-col gap-[16px]">
 
           {/* ─── Beautiful Chronotype Header Card ─── */}
-          <div className="relative overflow-hidden rounded-[20px] p-[24px] md:p-[32px]" style={{
+          <div className="relative overflow-hidden rounded-[16px] md:rounded-[20px] p-[18px] md:p-[32px]" style={{
             background: chronotype === "LARK"
               ? "linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 50%, #FFEAA7 100%)"
               : chronotype === "EAGLE"
@@ -107,9 +111,9 @@ export default function ChronotypePage() {
             <div className="absolute top-[-30px] right-[-10px] opacity-[0.08]">
               <Moon size={180} stroke="#35319B" strokeWidth={1} />
             </div>
-            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-[16px]">
-              <div className="flex items-center gap-[16px]">
-                <div className="w-[60px] h-[60px] md:w-[72px] md:h-[72px] rounded-full flex items-center justify-center shrink-0" style={{
+            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-[12px] md:gap-[16px]">
+              <div className="flex items-center gap-[12px] md:gap-[16px]">
+                <div className="w-[48px] h-[48px] md:w-[72px] md:h-[72px] rounded-full flex items-center justify-center shrink-0" style={{
                   background: chronotype === "LARK"
                     ? "linear-gradient(135deg, #F59A00, #F97316)"
                     : chronotype === "EAGLE"
@@ -136,34 +140,41 @@ export default function ChronotypePage() {
           </div>
 
           {/* ─── Full-width Visual Illustration ─── */}
-          <div className="relative rounded-[20px] overflow-hidden cursor-pointer w-full" style={{ background: "#1A1A2E", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
+          <div className="relative rounded-[12px] md:rounded-[20px] overflow-hidden cursor-pointer w-full" style={{ background: "#1A1A2E", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
             onClick={() => setLightboxOpen(true)}>
-            <div className="relative w-full" style={{ height: "480px" }}>
+            <div className="relative w-full" style={{ height: "clamp(260px, 55vw, 480px)" }}>
               {chronoImages.map((src, i) => (
                 <img key={src} src={`${imageFolder}/${src}`} alt={`Chronotype illustration ${i + 1}`}
-                  className="absolute inset-0 w-full h-full transition-opacity duration-700"
-                  style={{ opacity: i === slideIdx ? 1 : 0, objectFit: "contain", padding: "12px" }}
+                  className="absolute inset-0 w-full h-full transition-opacity duration-700 p-2 md:p-3"
+                  style={{ opacity: i === slideIdx ? 1 : 0, objectFit: "contain" }}
                   loading="lazy"
                 />
               ))}
               <button type="button" onClick={(e) => { e.stopPropagation(); goTo((slideIdx - 1 + chronoImages.length) % chronoImages.length); }}
-                className="absolute left-[12px] top-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full border-none cursor-pointer flex items-center justify-center"
-                style={{ background: "rgba(255,255,255,0.2)", color: "#FFF", backdropFilter: "blur(4px)" }}>
-                <ChevronLeft size={22} />
+                className="absolute left-[8px] md:left-[12px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] md:w-[40px] md:h-[40px] rounded-full border-none cursor-pointer flex items-center justify-center z-10"
+                style={{ background: "rgba(255,255,255,0.9)", color: "#333", boxShadow: "0 2px 8px rgba(0,0,0,0.25)" }}>
+                <ChevronLeft size={20} />
               </button>
               <button type="button" onClick={(e) => { e.stopPropagation(); goTo((slideIdx + 1) % chronoImages.length); }}
-                className="absolute right-[12px] top-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full border-none cursor-pointer flex items-center justify-center"
-                style={{ background: "rgba(255,255,255,0.2)", color: "#FFF", backdropFilter: "blur(4px)" }}>
-                <ChevronRight size={22} />
+                className="absolute right-[8px] md:right-[12px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] md:w-[40px] md:h-[40px] rounded-full border-none cursor-pointer flex items-center justify-center z-10"
+                style={{ background: "rgba(255,255,255,0.9)", color: "#333", boxShadow: "0 2px 8px rgba(0,0,0,0.25)" }}>
+                <ChevronRight size={20} />
               </button>
-              <div className="absolute bottom-[14px] left-1/2 -translate-x-1/2 flex items-center gap-[6px]">
-                {chronoImages.map((_, i) => (
-                  <button key={i} type="button" onClick={(e) => { e.stopPropagation(); goTo(i); }}
-                    className="w-[8px] h-[8px] rounded-full border-none cursor-pointer transition-all duration-300"
-                    style={{ background: i === slideIdx ? "#FFF" : "rgba(255,255,255,0.35)", transform: i === slideIdx ? "scale(1.4)" : "scale(1)" }} />
-                ))}
+              {/* Desktop: pill/bar style indicators */}
+              <div className="absolute bottom-[14px] left-0 right-0 justify-center hidden md:flex">
+                <div className="flex items-center gap-[6px] overflow-x-auto px-[8px] py-[4px] rounded-full" style={{ background: "rgba(0,0,0,0.35)" }}>
+                  {chronoImages.map((_, i) => (
+                    <button key={i} type="button" onClick={(e) => { e.stopPropagation(); goTo(i); }}
+                      className="rounded-full border-none cursor-pointer shrink-0 transition-all duration-300"
+                      style={{
+                        width: i === slideIdx ? "14px" : "4px",
+                        height: "4px",
+                        background: i === slideIdx ? "#FFF" : "rgba(255,255,255,0.45)",
+                      }} />
+                  ))}
+                </div>
               </div>
-              <div className="absolute top-[12px] right-[12px] px-[10px] py-[4px] rounded-full text-[11px] font-medium" style={{ background: "rgba(0,0,0,0.45)", color: "#FFF", fontFamily: "Poppins, sans-serif", backdropFilter: "blur(4px)" }}>
+              <div className="absolute top-[8px] right-[8px] md:top-[12px] md:right-[12px] px-[8px] py-[3px] md:px-[10px] md:py-[4px] rounded-full text-[10px] md:text-[11px] font-medium" style={{ background: "rgba(0,0,0,0.45)", color: "#FFF", fontFamily: "Poppins, sans-serif", backdropFilter: "blur(4px)" }}>
                 {slideIdx + 1} / {chronoImages.length}
               </div>
             </div>
@@ -177,8 +188,8 @@ export default function ChronotypePage() {
                 { icon: <Sparkles size={20} />, label: "Creative Window", value: peaks.creative, color: "#F59A00" },
                 { icon: <Clock size={20} />, label: "Ideal Sleep", value: peaks.sleep, color: "#2E7D32" },
               ].map((p, i) => (
-                <div key={i} className="flex flex-col items-center text-center p-[20px] rounded-[16px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-                  <div className="w-[44px] h-[44px] rounded-xl flex items-center justify-center mb-[10px]" style={{ background: `${p.color}10` }}>
+                <div key={i} className="flex flex-col items-center text-center p-[14px] md:p-[20px] rounded-[16px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+                  <div className="w-[36px] h-[36px] md:w-[44px] md:h-[44px] rounded-xl flex items-center justify-center mb-[8px] md:mb-[10px]" style={{ background: `${p.color}10` }}>
                     <span style={{ color: p.color }}>{p.icon}</span>
                   </div>
                   <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>{p.label}</p>
