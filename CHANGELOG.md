@@ -2,6 +2,45 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.5.4] — 2026-07-29 — Dashboard Performance Optimization
+
+### Fixed
+- **Dark mode polling removed** — Replaced 1-second `setInterval(applyDark, 1000)` in DashboardShell with a `storage` event listener; settings page dispatches `storage` event on dark mode toggle
+- **html2canvas/jspdf lazy-loaded** — Both libraries (~550KB combined) now dynamically imported on-demand in `client-pdf.ts` instead of being bundled eagerly into every dashboard page
+
+### Added
+- **Client-side caching** — All 7 dashboard pages (`page.tsx`, `chronotype`, `energy`, `recommendations`, `progress`, `profile`, `settings`) now use `cachedFetch` with 45s TTL in-memory cache + request deduplication, reducing redundant API calls when navigating between tabs
+- **API cache headers** — `/api/member` route returns `Cache-Control: private, max-age=30, stale-while-revalidate=120`
+- **React.memo** on chart components (`Ring`, `MiniLine`, `Bars`, `StatCard`) to prevent unnecessary re-renders
+- **`useCallback`** on chronotype carousel `goTo` function to prevent closure recreation on every render
+- **Optimized image loading** — Chronotype carousel first image uses `loading="eager"` + `fetchPriority="high"`, remaining images use `loading="lazy"`
+
+## [2.5.3] — 2026-07-29 — Owl Chronotype Images
+
+### Added
+- **Owl chronotype images** — 11 owl-specific images added to `public/chronotype_media/owl/`; dashboard chronotype page now uses `OWL_IMAGES` and `/chronotype_media/owl/` folder for owl members
+
+## [2.5.2] — 2026-07-29 — Result Screen, Donate Modal, Consult Modal Integration
+
+### Changed
+- **Result modal width** — Changed from `width: 100%` + conditional max-width to `width: calc(100vw - 48px)` with `max-width: 1480px` to reliably enforce desktop width; removed conflicting `w-full` class
+- **Combined footer** — Logos section and disclaimer merged into one grid row (`minmax(0, 1fr) auto`); logos hidden when no data available
+- **Content gap** — Reduced from `14px` to `8px` across all result sections
+- **All desktop heights compacted** — Hero `min-height: 118px`, metrics `min-height: 82px`, insights panels `10px` padding with `3px` gaps, next steps `8px` padding, action cards `min-height: 70px`, bottom actions `min-height: 44px`
+- **Chronotype illustrations** — Lark uses `Sunrise` Lucide icon, Eagle uses `Bird` Lucide icon (replacing broken SVG), Owl uses existing SVG; container `max-width: 110px`, `max-height: 76px`
+
+### Added
+- **Consult modal integration** — "Book consultation" button in result screen now opens `ConsultModal` via `useConsult().open()` instead of navigating to `/consult`
+- **Donate modal redesigned** — Complete two-column layout (42% visual panel + 58% donation content panel); healthcare-focused copy (no sleep content); amount selection with `₹` currency; `Heart`/`Stethoscope`/`Pill`/`UsersRound` Lucide icons; coral gradient CTA; responsive single-column on mobile; full-screen on <768px
+
+### Fixed
+- **Schedule metrics layout** — Removed divider `<div>` elements as separate grid children; replaced with `border-left` on items 2 and 3; all three metrics now stay in one row
+- **Body scroll locking** — Saves/restores scroll position properly using `position: fixed` + `top: -${scrollY}px` pattern
+- **Eagle illustration** — Replaced broken incomplete SVG with `Bird` Lucide icon (80px, indigo, `strokeWidth: 1.4`)
+- **Chronotype heading duplication** — Heading now shows only `"Your chronotype is Lark"` (extracted before parenthesis); subtitle "Morning Type" appears only in the orange pill
+- **Next steps grid** — Fixed separator approach (`border-left` instead of grid items) so third recommendation stays on same row
+- **Modal scrollability** — Changed `overflowY` from conditional (`"auto"` only for result view) to always `"auto"`; modal now uses `maxHeight: calc(100dvh - 20px)` for both form and result views
+
 ## [2.5.1] — 2026-07-28 — Mobile Carousel Dots Removal, Lark Images
 
 ### Fixed

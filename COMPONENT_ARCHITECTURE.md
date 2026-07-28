@@ -65,6 +65,7 @@ C:\Users\prath\OneDrive - MSFT\Desktop\sleepchrono-recreated2
 │   │   ├── consult/
 │   │   │   ├── ConsultContext.tsx     # Modal state context
 │   │   │   └── ConsultModal.tsx       # Consultation scheduling form
+│   │   ├── DonateModal.tsx            # Healthcare donation modal (two-column, amount selection)
 │   │   ├── auth/
 │   │   │   ├── AuthProvider.tsx       # Auth context (login/logout/session)
 │   │   │   ├── AuthLayout.tsx         # Auth page shell (brand + card + variants)
@@ -78,6 +79,8 @@ C:\Users\prath\OneDrive - MSFT\Desktop\sleepchrono-recreated2
 │   │   └── FloatingTestButton.tsx     # Floating CTA for assessment
 │   │
 │   ├── lib/
+│   │   ├── client-cache.ts           # In-memory API cache (45s TTL) with deduplication
+│   │   ├── client-pdf.ts             # PDF generation (html2canvas/jspdf, lazy-loaded)
 │   │   ├── auth/
 │   │   │   ├── roles.ts              # Role types, constants, labels
 │   │   │   ├── session.ts            # localStorage session get/set/clear
