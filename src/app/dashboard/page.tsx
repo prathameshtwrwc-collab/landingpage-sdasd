@@ -41,6 +41,21 @@ export default function MemberDashboardPage() {
   const [refCopied, setRefCopied] = useState(false);
 const [showAllReports, setShowAllReports] = useState(false);
 const [donateOpen, setDonateOpen] = useState(false);
+const [cardGradient] = useState(() => {
+  const gradients = [
+    "linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 40%, #FEF2F2 100%)",
+    "linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 40%, #F0F0FF 100%)",
+    "linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 40%, #FFF0F0 100%)",
+    "linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 40%, #F0FDF4 100%)",
+    "linear-gradient(135deg, #ECFEFF 0%, #CFFAFE 40%, #FFF7ED 100%)",
+    "linear-gradient(135deg, #FDF2F8 0%, #FCE7F3 40%, #EFF6FF 100%)",
+    "linear-gradient(135deg, #F0FFF4 0%, #DCFCE7 40%, #FFF5F5 100%)",
+    "linear-gradient(135deg, #FEF9C3 0%, #FEF08A 30%, #EFF6FF 100%)",
+    "linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 40%, #F5F3FF 100%)",
+    "linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 40%, #FFF7ED 100%)",
+  ];
+  return gradients[Math.floor(Math.random() * gradients.length)];
+});
 
   useEffect(() => {
     if (user && user.email) {
@@ -125,9 +140,7 @@ const [donateOpen, setDonateOpen] = useState(false);
     <DashboardShell orgCode={data?.orgCode || undefined}>
       <div
         className="relative overflow-hidden rounded-[20px] p-[24px] md:p-[32px] mb-[24px] md:mb-[28px]"
-        style={{
-          background: "linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 40%, #FEF2F2 100%)",
-        }}
+        style={{ background: cardGradient }}
       >
         <div className="absolute top-[-40px] right-[-20px] opacity-[0.06]">
           <Moon size={200} stroke="#35319B" strokeWidth={1} />
@@ -139,9 +152,18 @@ const [donateOpen, setDonateOpen] = useState(false);
           <p className="m-0 text-[13px] font-medium mb-[4px]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>
             Welcome back, {user.name}
           </p>
-          <h2 className="m-0 text-[24px] md:text-[28px] font-bold leading-[1.2] tracking-[-0.02em]" style={{ color: "#19164F", fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
-            {result ? `Your Chronotype: ${chronotypeLabels[chronotype] ?? chronotype}` : "Ready to understand your sleep?"}
-          </h2>
+          <div className="flex flex-wrap items-center gap-[10px] mt-[2px]">
+            <h2 className="m-0 text-[24px] md:text-[28px] font-bold leading-[1.2] tracking-[-0.02em]" style={{ color: "#19164F", fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
+              {result ? `Your Chronotype: ${chronotypeLabels[chronotype] ?? chronotype}` : "Ready to understand your sleep?"}
+            </h2>
+            {result && (
+              <button type="button" onClick={() => router.push("/dashboard/chronotype")}
+                className="inline-flex items-center gap-[4px] text-[12px] font-semibold px-[12px] py-[6px] rounded-lg border-none cursor-pointer transition-all hover:-translate-y-[0.5px]"
+                style={{ color: "#35319B", background: "rgba(53,49,155,0.08)", fontFamily: "Poppins, sans-serif" }}>
+                Know More <ArrowRight size={14} />
+              </button>
+            )}
+          </div>
           <div className="flex flex-wrap items-center gap-[16px] mt-[8px]">
             <span className="text-[13px]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>
               Sleep Score: <strong>{totalScore > 0 ? totalScore : "\u2014"}</strong>
