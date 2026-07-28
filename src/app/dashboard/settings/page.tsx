@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { cachedFetch } from "@/lib/client-cache";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Settings, Bell, Shield, User, Moon, Copy, Check, Share2 } from "lucide-react";
 
@@ -50,9 +51,8 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`/api/member?email=${encodeURIComponent(user.email)}`)
-        .then((r) => r.json())
-        .then((d) => { setData(d); setLoading(false); })
+      cachedFetch<Record<string, unknown>>(`/api/member?email=${encodeURIComponent(user.email)}`)
+        .then((d) => { setData(d as { member: Record<string, unknown> | undefined }); setLoading(false); })
         .catch(() => setLoading(false));
     } else { setLoading(false); }
   }, [user]);
@@ -63,6 +63,9 @@ export default function SettingsPage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
+    if (key === "darkMode") {
+      window.dispatchEvent(new Event("storage"));
+    }
   };
 
   const member = data?.member as Record<string, unknown> | undefined;

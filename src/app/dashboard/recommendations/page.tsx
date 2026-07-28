@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { cachedFetch } from "@/lib/client-cache";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Lightbulb, Moon, Sun, Battery, Brain, Heart, TrendingUp } from "lucide-react";
 
@@ -22,8 +23,7 @@ export default function RecommendationsPage() {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`/api/member?email=${encodeURIComponent(user.email)}`)
-        .then((r) => r.json())
+      cachedFetch<{ recommendations: Record<string, unknown>[] }>(`/api/member?email=${encodeURIComponent(user.email)}`)
         .then((d) => { setRecs(d.recommendations ?? []); setLoading(false); })
         .catch(() => setLoading(false));
     } else { setLoading(false); }

@@ -18,8 +18,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`/api/member?email=${encodeURIComponent(user.email)}`)
-        .then((r) => r.json())
+      cachedFetch<{ member: Record<string, unknown> | null; result: Record<string, unknown> | null }>(`/api/member?email=${encodeURIComponent(user.email)}`)
         .then((d) => { setData(d); setLoading(false); })
         .catch(() => setLoading(false));
     } else { setLoading(false); }

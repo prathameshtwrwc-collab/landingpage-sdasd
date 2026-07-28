@@ -124,13 +124,18 @@ export async function GET(req: Request) {
       });
     }
 
-    return NextResponse.json({
+    const data = {
       member,
       orgCode,
       result: latestResult ?? null,
       recommendations: recData?.map((r: Record<string, unknown>) => r.recommendations) ?? [],
       assessments: assessments ?? [],
       reports: reportsEnriched,
+    };
+    return NextResponse.json(data, {
+      headers: {
+        "Cache-Control": "private, max-age=30, stale-while-revalidate=120",
+      },
     });
   } catch (error) {
     return NextResponse.json({ error: `Internal error: ${error instanceof Error ? error.message : "Unknown"}` }, { status: 500 });

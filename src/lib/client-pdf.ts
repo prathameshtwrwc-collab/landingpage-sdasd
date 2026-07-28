@@ -1,11 +1,19 @@
 "use client";
 
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { buildReportHtml, type ReportData } from "./report-template";
 
-export async function downloadPdf(data: ReportData, filename = "chronotype-report"): Promise<void> {
-  const html = buildReportHtml(data);
+async function loadPdfDeps() {
+  const [html2canvasModule, jsPDFModule] = await Promise.all([
+    import("html2canvas"),
+    import("jspdf"),
+  ]);
+  return {
+    html2canvas: html2canvasModule.default,
+    jsPDF: jsPDFModule.default,
+  };
+}
+
+function renderReportToDom(html: string) {
   const container = document.createElement("div");
   container.innerHTML = html;
   container.style.position = "fixed";
@@ -14,6 +22,13 @@ export async function downloadPdf(data: ReportData, filename = "chronotype-repor
   container.style.width = "794px";
   container.style.zIndex = "-1";
   document.body.appendChild(container);
+  return container;
+}
+
+export async function downloadPdf(data: ReportData, filename = "chronotype-report"): Promise<void> {
+  const { html2canvas, jsPDF } = await loadPdfDeps();
+  const html = buildReportHtml(data);
+  const container = renderReportToDom(html);
 
   try {
     const pages = container.querySelectorAll(".page");
@@ -24,7 +39,6 @@ export async function downloadPdf(data: ReportData, filename = "chronotype-repor
 
     for (let i = 0; i < pages.length; i++) {
       if (i > 0) pdf.addPage();
-
       const el = pages[i] as HTMLElement;
       const canvas = await html2canvas(el, {
         scale,
@@ -51,15 +65,9 @@ export async function downloadPdf(data: ReportData, filename = "chronotype-repor
 }
 
 export async function openPdfForPrint(data: ReportData): Promise<void> {
+  const { html2canvas, jsPDF } = await loadPdfDeps();
   const html = buildReportHtml(data);
-  const container = document.createElement("div");
-  container.innerHTML = html;
-  container.style.position = "fixed";
-  container.style.left = "-9999px";
-  container.style.top = "0";
-  container.style.width = "794px";
-  container.style.zIndex = "-1";
-  document.body.appendChild(container);
+  const container = renderReportToDom(html);
 
   try {
     const pages = container.querySelectorAll(".page");
@@ -97,7 +105,6 @@ export async function openPdfForPrint(data: ReportData): Promise<void> {
 }
 
 export async function shareReport(data: ReportData): Promise<void> {
-  const { downloadPdf: dp } = await import("./client-pdf");
   if (typeof navigator !== "undefined" && navigator.share) {
     try {
       const html = buildReportHtml(data);

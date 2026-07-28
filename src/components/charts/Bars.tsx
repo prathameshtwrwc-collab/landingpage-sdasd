@@ -1,4 +1,4 @@
-"use client";
+import React from "react";
 
 interface BarsProps {
   data: { label: string; value: number }[];
@@ -6,10 +6,9 @@ interface BarsProps {
   h?: number;
 }
 
-export default function Bars({ data, color = "#35319B", h = 80 }: BarsProps) {
+function BarsBase({ data, color = "#35319B", h = 80 }: BarsProps) {
   if (!data.length) return null;
   const max = Math.max(...data.map((d) => d.value), 1);
-  const barW = Math.max(20, Math.min(60, 200 / data.length - 8));
 
   return (
     <div className="flex items-end gap-[8px]" style={{ height: h }}>
@@ -32,3 +31,5 @@ export default function Bars({ data, color = "#35319B", h = 80 }: BarsProps) {
     </div>
   );
 }
+
+export default React.memo(BarsBase);

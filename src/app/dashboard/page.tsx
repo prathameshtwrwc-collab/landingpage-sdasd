@@ -59,14 +59,13 @@ const [cardGradient] = useState(() => {
 
   useEffect(() => {
     if (user && user.email) {
-      fetch(`/api/member?email=${encodeURIComponent(user.email)}`)
-        .then((res) => res.json())
+      cachedFetch<Record<string, unknown>>(`/api/member?email=${encodeURIComponent(user.email)}`)
         .then((json) => {
           if (json.error) {
-            setFetchError(json.error);
+            setFetchError(json.error as string);
             setData(null);
           } else {
-            setData(json);
+            setData(json as unknown as typeof data);
           }
           setDataLoading(false);
         })

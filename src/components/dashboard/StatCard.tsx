@@ -1,8 +1,7 @@
-"use client";
-
+import React from "react";
 import type { ReactNode } from "react";
 
-export default function StatCard({
+function StatCardBase({
   label,
   value,
   icon,
@@ -24,12 +23,6 @@ export default function StatCard({
         border: "1px solid #E6E8F0",
         padding: "20px 20px 20px 20px",
         transition: "box-shadow 0.2s ease",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = "0 8px 24px rgba(15,23,42,0.06)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = "none";
       }}
     >
       <div className="flex items-start justify-between">
@@ -62,3 +55,5 @@ export default function StatCard({
     </div>
   );
 }
+
+export default React.memo(StatCardBase);

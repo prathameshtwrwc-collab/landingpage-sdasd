@@ -147,10 +147,11 @@ export default function DashboardShell({
 
   useEffect(() => { applyDark(); }, [applyDark]);
 
-  // Poll for dark mode changes from settings (same tab)
+  // Listen for dark mode changes from settings (same tab via storage event)
   useEffect(() => {
-    const interval = setInterval(applyDark, 1000);
-    return () => clearInterval(interval);
+    const handler = () => applyDark();
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
   }, [applyDark]);
 
   const navItems = user ? (roleNavItems[user.role] ?? roleNavItems.member) : roleNavItems.member;

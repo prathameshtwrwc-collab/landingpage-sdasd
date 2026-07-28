@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { cachedFetch } from "@/lib/client-cache";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
 import MiniLine from "@/components/charts/MiniLine";
@@ -17,8 +18,7 @@ export default function ProgressPage() {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`/api/member?email=${encodeURIComponent(user.email)}`)
-        .then((r) => r.json())
+      cachedFetch<Record<string, unknown>>(`/api/member?email=${encodeURIComponent(user.email)}`)
         .then((d) => { setData(d); setLoading(false); })
         .catch(() => setLoading(false));
     } else { setLoading(false); }

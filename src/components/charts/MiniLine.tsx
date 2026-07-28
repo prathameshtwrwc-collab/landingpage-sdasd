@@ -1,4 +1,4 @@
-"use client";
+import React from "react";
 
 interface MiniLineProps {
   data: number[];
@@ -6,7 +6,7 @@ interface MiniLineProps {
   h?: number;
 }
 
-export default function MiniLine({ data, color = "#35319B", h = 60 }: MiniLineProps) {
+function MiniLineBase({ data, color = "#35319B", h = 60 }: MiniLineProps) {
   if (!data.length) return null;
   const w = 200;
   const max = Math.max(...data, 1);
@@ -29,3 +29,5 @@ export default function MiniLine({ data, color = "#35319B", h = 60 }: MiniLinePr
     </svg>
   );
 }
+
+export default React.memo(MiniLineBase);

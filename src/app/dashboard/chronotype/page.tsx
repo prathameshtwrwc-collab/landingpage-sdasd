@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { cachedFetch } from "@/lib/client-cache";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import Ring from "@/components/charts/Ring";
 import { Moon, Brain, Sparkles, Clock, ChevronLeft, ChevronRight } from "lucide-react";
@@ -53,9 +54,8 @@ export default function ChronotypePage() {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`/api/member?email=${encodeURIComponent(user.email)}`)
-        .then((r) => r.json())
-        .then((d) => { setData(d); setLoading(false); })
+      cachedFetch<Record<string, unknown>>(`/api/member?email=${encodeURIComponent(user.email)}`)
+        .then((d) => { setData(d as { result: Record<string, unknown> | null } | null); setLoading(false); })
         .catch(() => setLoading(false));
     } else { setLoading(false); }
   }, [user]);
@@ -75,14 +75,6 @@ export default function ChronotypePage() {
     return () => document.removeEventListener("keydown", handler);
   }, []);
 
-  const goTo = (idx: number) => {
-    setSlideIdx(idx);
-    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
-    intervalRef.current = setInterval(() => {
-      setSlideIdx((prev) => (prev + 1) % chronoImages.length);
-    }, 5000);
-  };
-
   const result = data?.result as Record<string, unknown> | undefined;
   const chronotype = (result?.chronotype as "LARK" | "EAGLE" | "OWL") ?? null;
   const info = chronotype ? CHRONOTYPE_DESCRIPTIONS[chronotype] : null;
@@ -92,6 +84,14 @@ export default function ChronotypePage() {
   // Choose images based on chronotype
   const chronoImages = chronotype === "EAGLE" ? EAGLE_IMAGES : chronotype === "LARK" ? LARK_IMAGES : OWL_IMAGES;
   const imageFolder = chronotype === "EAGLE" ? "/chronotype_media/eagle" : chronotype === "LARK" ? "/chronotype_media/lark" : "/chronotype_media/owl";
+
+  const goTo = useCallback((idx: number) => {
+    setSlideIdx(idx);
+    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+    intervalRef.current = setInterval(() => {
+      setSlideIdx((prev) => (prev + 1) % chronoImages.length);
+    }, 5000);
+  }, [chronoImages.length]);
 
   return (
     <DashboardShell>
@@ -152,7 +152,8 @@ export default function ChronotypePage() {
                 <img key={src} src={`${imageFolder}/${src}`} alt={`Chronotype illustration ${i + 1}`}
                   className="absolute inset-0 w-full h-full transition-opacity duration-700 p-2 md:p-3"
                   style={{ opacity: i === slideIdx ? 1 : 0, objectFit: "contain" }}
-                  loading="lazy"
+                  loading={i === 0 ? "eager" : "lazy"}
+                  fetchPriority={i === 0 ? "high" : undefined}
                 />
               ))}
               <button type="button" onClick={(e) => { e.stopPropagation(); goTo((slideIdx - 1 + chronoImages.length) % chronoImages.length); }}

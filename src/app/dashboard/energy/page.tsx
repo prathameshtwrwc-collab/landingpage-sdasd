@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { cachedFetch } from "@/lib/client-cache";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import MiniLine from "@/components/charts/MiniLine";
 import { Zap, Brain, Sun, Moon, TrendingUp } from "lucide-react";
@@ -14,8 +15,7 @@ export default function EnergyPage() {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`/api/member?email=${encodeURIComponent(user.email)}`)
-        .then((r) => r.json())
+      cachedFetch<{ result: Record<string, unknown> | null }>(`/api/member?email=${encodeURIComponent(user.email)}`)
         .then((d) => { setData(d); setLoading(false); })
         .catch(() => setLoading(false));
     } else { setLoading(false); }

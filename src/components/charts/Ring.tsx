@@ -1,4 +1,4 @@
-"use client";
+import React from "react";
 
 interface RingProps {
   value: number;
@@ -7,7 +7,7 @@ interface RingProps {
   label?: string;
 }
 
-export default function Ring({ value, size = 100, color = "#35319B", label }: RingProps) {
+function RingBase({ value, size = 100, color = "#35319B", label }: RingProps) {
   const strokeW = 6;
   const r = (size - strokeW) / 2;
   const circ = 2 * Math.PI * r;
@@ -32,3 +32,5 @@ export default function Ring({ value, size = 100, color = "#35319B", label }: Ri
     </div>
   );
 }
+
+export default React.memo(RingBase);
