@@ -23,37 +23,37 @@ interface NavItem {
 
 const roleNavItems: Record<Role, NavItem[]> = {
   member: [
-    { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={18} /> },
-    { label: "Chronotype", href: "/dashboard/chronotype", icon: <Sparkles size={18} /> },
-    { label: "Energy Timeline", href: "/dashboard/energy", icon: <TrendingUp size={18} /> },
-    { label: "Recommendations", href: "/dashboard/recommendations", icon: <Star size={18} /> },
-    { label: "Progress", href: "/dashboard/progress", icon: <TrendingUp size={18} /> },
-    { label: "Goals", href: "/dashboard/goals", icon: <Star size={18} /> },
-    { label: "Profile", href: "/dashboard/profile", icon: <User size={18} /> },
-    { label: "Settings", href: "/dashboard/settings", icon: <Settings size={18} /> },
+    { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={22} /> },
+    { label: "Chronotype", href: "/dashboard/chronotype", icon: <Sparkles size={22} /> },
+    { label: "Energy Timeline", href: "/dashboard/energy", icon: <TrendingUp size={22} /> },
+    { label: "Recommendations", href: "/dashboard/recommendations", icon: <Star size={22} /> },
+    { label: "Progress", href: "/dashboard/progress", icon: <Activity size={22} /> },
+    { label: "Goals", href: "/dashboard/goals", icon: <Calendar size={22} /> },
+    { label: "Profile", href: "/dashboard/profile", icon: <User size={22} /> },
+    { label: "Settings", href: "/dashboard/settings", icon: <Settings size={22} /> },
   ],
   organization_admin: [
-    { label: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard size={18} /> },
-    { label: "Participants", href: "/admin/dashboard/participants", icon: <Users size={18} /> },
-    { label: "Results", href: "/admin/dashboard/reports", icon: <ClipboardList size={18} /> },
-    { label: "Analytics", href: "/admin/dashboard/analytics", icon: <TrendingUp size={18} /> },
-    { label: "White Label", href: "/admin/dashboard/white-label", icon: <Palette size={18} /> },
-    { label: "Share Link", href: "/admin/dashboard/share-link", icon: <Link2 size={18} /> },
-    { label: "Notifications", href: "/admin/dashboard/notifications", icon: <Bell size={18} />, badge: "3" },
-    { label: "Team", href: "/admin/dashboard/team", icon: <Users size={18} /> },
-    { label: "Settings", href: "/admin/dashboard/settings", icon: <Settings size={18} /> },
+    { label: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard size={22} /> },
+    { label: "Participants", href: "/admin/dashboard/participants", icon: <Users size={22} /> },
+    { label: "Results", href: "/admin/dashboard/reports", icon: <ClipboardList size={22} /> },
+    { label: "Analytics", href: "/admin/dashboard/analytics", icon: <TrendingUp size={22} /> },
+    { label: "White Label", href: "/admin/dashboard/white-label", icon: <Palette size={22} /> },
+    { label: "Share Link", href: "/admin/dashboard/share-link", icon: <Link2 size={22} /> },
+    { label: "Notifications", href: "/admin/dashboard/notifications", icon: <Bell size={22} />, badge: "3" },
+    { label: "Team", href: "/admin/dashboard/team", icon: <Users size={22} /> },
+    { label: "Settings", href: "/admin/dashboard/settings", icon: <Settings size={22} /> },
   ],
   superadmin: [
-    { label: "Dashboard", href: "/superadmin/dashboard", icon: <LayoutDashboard size={18} /> },
-    { label: "Assessments", href: "/superadmin/dashboard/assessments", icon: <ClipboardList size={18} /> },
-    { label: "Organizations", href: "/superadmin/dashboard/organizations", icon: <Building2 size={18} /> },
-    { label: "Users", href: "/superadmin/dashboard/users", icon: <Users size={18} /> },
-    { label: "Reports", href: "/superadmin/dashboard/reports", icon: <BarChart3 size={18} /> },
-    { label: "Consult Leads", href: "/superadmin/dashboard/consultations", icon: <Phone size={18} /> },
-    { label: "Analytics", href: "/superadmin/dashboard/analytics", icon: <TrendingUp size={18} /> },
-    { label: "Audit Log", href: "/superadmin/dashboard/audit", icon: <FileText size={18} /> },
-    { label: "System", href: "/superadmin/dashboard/system", icon: <Shield size={18} /> },
-    { label: "Settings", href: "/superadmin/dashboard/settings", icon: <Settings size={18} /> },
+    { label: "Dashboard", href: "/superadmin/dashboard", icon: <LayoutDashboard size={22} /> },
+    { label: "Assessments", href: "/superadmin/dashboard/assessments", icon: <ClipboardList size={22} /> },
+    { label: "Organizations", href: "/superadmin/dashboard/organizations", icon: <Building2 size={22} /> },
+    { label: "Users", href: "/superadmin/dashboard/users", icon: <Users size={22} /> },
+    { label: "Reports", href: "/superadmin/dashboard/reports", icon: <BarChart3 size={22} /> },
+    { label: "Consult Leads", href: "/superadmin/dashboard/consultations", icon: <Phone size={22} /> },
+    { label: "Analytics", href: "/superadmin/dashboard/analytics", icon: <TrendingUp size={22} /> },
+    { label: "Audit Log", href: "/superadmin/dashboard/audit", icon: <FileText size={22} /> },
+    { label: "System", href: "/superadmin/dashboard/system", icon: <Shield size={22} /> },
+    { label: "Settings", href: "/superadmin/dashboard/settings", icon: <Settings size={22} /> },
   ],
 };
 
@@ -95,12 +95,12 @@ function MobileBottomSheet({
               <button onClick={() => { onHome(); onClose(); }}
                 className="flex items-center gap-[12px] w-full px-[12px] py-[12px] rounded-xl border-none bg-transparent cursor-pointer text-left transition-colors"
                 style={{ color: "#555", fontFamily: "Poppins, sans-serif", fontSize: "14px" }}>
-                <Home size={18} style={{ color: "#888" }} /> Home
+                <Home size={22} style={{ color: "#888" }} /> Home
               </button>
               <button onClick={() => { onLogout(); onClose(); }}
                 className="flex items-center gap-[12px] w-full px-[12px] py-[12px] rounded-xl border-none bg-transparent cursor-pointer text-left transition-colors"
                 style={{ color: "#D92D20", fontFamily: "Poppins, sans-serif", fontSize: "14px" }}>
-                <LogOut size={18} /> Logout
+                <LogOut size={22} /> Logout
               </button>
             </div>
           </div>
@@ -233,7 +233,7 @@ export default function DashboardShell({
               </Link>
             ) : (
               <Link key={item.href} href={item.href}
-                className="flex items-center justify-between px-[12px] py-[10px] rounded-xl text-[13px] font-medium no-underline transition-all duration-150"
+                className="flex items-center justify-between px-[12px] py-[12px] rounded-xl text-[15px] font-medium no-underline transition-all duration-150"
                 style={{
                   fontFamily: "Poppins, sans-serif",
                   fontWeight: active ? 600 : 500,
@@ -258,21 +258,21 @@ export default function DashboardShell({
         </nav>
 
         {/* Bottom */}
-        <div className="px-[8px] pb-[16px] flex items-center justify-center gap-[4px] flex-wrap"
+        <div className="px-[8px] pb-[16px] flex items-center justify-center gap-[10px] flex-wrap"
           style={{ borderTop: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA", paddingTop: "12px" }}>
-          <Link href={orgCode ? `/${orgCode}` : "/"} className="flex items-center gap-[6px] text-[12px] font-medium no-underline"
-            style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif", padding: sidebarCollapsed ? "6px" : "0" }}>
-            <Home size={14} /> {!sidebarCollapsed && "Home"}
+          <Link href={orgCode ? `/${orgCode}` : "/"} className="flex items-center gap-[8px] text-[15px] font-medium no-underline"
+            style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif", padding: sidebarCollapsed ? "8px" : "0" }}>
+            <Home size={22} /> {!sidebarCollapsed && "Home"}
           </Link>
           <button onClick={() => setDonateOpen(true)}
-            className="flex items-center gap-[6px] text-[12px] font-medium bg-none border-none cursor-pointer"
-            style={{ color: "#FF6B6B", fontFamily: "Poppins, sans-serif", padding: sidebarCollapsed ? "6px" : "0" }}>
-            <Heart size={14} /> {!sidebarCollapsed && "Donate"}
+            className="flex items-center gap-[8px] text-[15px] font-medium bg-none border-none cursor-pointer"
+            style={{ color: "#FF6B6B", fontFamily: "Poppins, sans-serif", padding: sidebarCollapsed ? "8px" : "0" }}>
+            <Heart size={22} /> {!sidebarCollapsed && "Donate"}
           </button>
           <button onClick={async () => { await logout(); window.location.href = "/login"; }}
-            className="flex items-center gap-[6px] text-[12px] font-medium bg-none border-none cursor-pointer"
-            style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif", padding: sidebarCollapsed ? "6px" : "0" }}>
-            <LogOut size={14} /> {!sidebarCollapsed && "Logout"}
+            className="flex items-center gap-[8px] text-[15px] font-medium bg-none border-none cursor-pointer"
+            style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif", padding: sidebarCollapsed ? "8px" : "0" }}>
+            <LogOut size={22} /> {!sidebarCollapsed && "Logout"}
           </button>
         </div>
       </aside>
@@ -333,7 +333,7 @@ export default function DashboardShell({
           className="flex flex-col items-center justify-center gap-[2px] no-underline min-w-0 flex-1 bg-transparent border-none cursor-pointer"
           style={{ padding: "4px 2px", height: "100%" }}>
           <span style={{ color: darkMode ? "#666" : "#98A2B3" }}>
-            <Menu size={18} />
+            <Menu size={22} />
           </span>
           <span className="text-[10px] font-semibold leading-[1] text-center truncate w-full max-w-[60px]"
             style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, color: darkMode ? "#666" : "#98A2B3" }}>

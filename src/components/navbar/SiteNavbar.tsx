@@ -187,16 +187,15 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                 e.preventDefault();
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
-              className="inline-flex items-center gap-[10px] no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-2 rounded-sm"
-              style={{ display: "inline-flex", alignItems: "center", gap: "10px", minWidth: 0, overflow: "hidden" }}
+              className="inline-flex items-center gap-[8px] md:gap-[10px] no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-2 rounded-sm"
+              style={{ display: "inline-flex", alignItems: "center", gap: "8px", minWidth: 0 }}
               aria-label={brandingCompany ? `${brandingCompany} - Home` : "Chronotype - Home"}
             >
-              {/* Logo — no circle bg, larger size */}
               {brandingLogo ? (
-                <img src={brandingLogo} alt={brandingCompany ?? "Brand"} className="shrink-0" style={{ width: "48px", height: "48px", objectFit: "contain" }} />
+                <img src={brandingLogo} alt={brandingCompany ?? "Brand"} className="shrink-0" style={{ width: "36px", height: "36px", objectFit: "contain" }} />
               ) : (
-                <span className="inline-flex items-center justify-center shrink-0" style={{ width: "48px", height: "48px" }}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="#35319B" aria-hidden="true">
+                <span className="inline-flex items-center justify-center shrink-0" style={{ width: "32px", height: "32px" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="#35319B" aria-hidden="true">
                     <path
                       d="M16.5 20.5A7.5 7.5 0 0 1 8 12 7.5 7.5 0 0 1 16.5 3.5 5.5 5.5 0 0 0 16.5 20.5Z"
                       stroke="#35319B"
@@ -207,26 +206,23 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                 </span>
               )}
               <span
-                className="font-semibold leading-[1] tracking-[-0.01em] truncate"
+                className="font-semibold leading-[1] tracking-[-0.01em]"
                 style={{
                   fontFamily: "Poppins, sans-serif",
-                  fontSize: "18px",
+                  fontSize: "clamp(14px, 2.2vw, 18px)",
                   lineHeight: "1",
                   fontWeight: 600,
                   color: "#2F2A86",
-                  maxWidth: "200px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
                 }}
               >
-                <span className="text-[16px] md:text-[18px]">{brandingCompany ?? "Chronotype"}</span>
+                {brandingCompany ?? "Chronotype"}
               </span>
             </a>
 
             {/* Center: Navigation — hidden below 1024 */}
             <nav aria-label="Primary navigation" className="hidden lg:flex items-center justify-center h-full min-w-0 overflow-x-auto"
-              style={{ gap: "clamp(10px, 2vw, 30px)" }}>
+              style={{ gap: "clamp(8px, 1.8vw, 28px)" }}>
               {navItems.map((item) => {
                 const isActive = activeId === item.id;
                 return (
@@ -241,12 +237,13 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                     className="relative inline-flex items-center justify-center no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-2 rounded-sm group"
                     style={{
                       fontFamily: "Poppins, sans-serif",
-                      fontSize: "14px",
+                      fontSize: "clamp(12px, 1.3vw, 14px)",
                       lineHeight: "1",
                       fontWeight: 500,
                       color: isActive ? "#F59A00" : isScrolled ? "#29275E" : "#2F2A86",
                       transition: "color 180ms ease",
                       textDecoration: "none",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     <span className="relative z-10 py-[4px]">{item.label}</span>
@@ -275,18 +272,18 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
             </nav>
 
             {/* Right: CTA desktop — hidden below 1024 */}
-            <div className="hidden lg:flex items-center justify-end gap-[10px]">
+            <div className="hidden lg:flex items-center justify-end gap-[8px]">
               <a
                 href="/login"
                 className="inline-flex items-center justify-center border-none transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer no-underline"
                 style={{
-                  width: "100px",
-                  height: "40px",
+                  width: "86px",
+                  height: "36px",
                   background: "#F59A00",
                   color: "#FFFFFF",
                   borderRadius: 0,
                   fontFamily: "Poppins, sans-serif",
-                  fontSize: "13px",
+                  fontSize: "12px",
                   fontWeight: 600,
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = "#E08A00"; }}
@@ -297,11 +294,11 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
               <button type="button" onClick={() => setDonateOpen(true)}
                 className="inline-flex items-center justify-center border cursor-pointer transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px]"
                 style={{
-                  width: "130px", height: "40px",
+                  width: "110px", height: "36px",
                   borderColor: "#F59A00", color: "#F59A00",
                   background: "rgba(245,154,0,0.08)",
                   borderRadius: 0, fontFamily: "Poppins, sans-serif",
-                  fontSize: "13px", fontWeight: 600,
+                  fontSize: "12px", fontWeight: 600,
                 }}>
                 ❤ Donate
               </button>
@@ -314,14 +311,14 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                 }}
                 className="inline-flex items-center justify-center bg-[#3B35A3] text-white border-none rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F59A00] focus-visible:ring-offset-2 transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer"
                 style={{
-                  width: "150px",
-                  height: "40px",
+                  width: "130px",
+                  height: "36px",
                   background: "#3B35A3",
                   color: "#FFFFFF",
                   borderRadius: 0,
                   boxShadow: "none",
                   fontFamily: "Poppins, sans-serif",
-                  fontSize: "13px",
+                  fontSize: "12px",
                   fontWeight: 600,
                 }}
                 onMouseEnter={(e) => {
