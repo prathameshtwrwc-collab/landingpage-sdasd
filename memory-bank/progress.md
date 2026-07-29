@@ -242,6 +242,18 @@ Completed
 
 # Change Log
 
+2026-07-29 — PDF Report Redesign & Donate Modal Image
+
+- PDF report completely redesigned: 2-page minimal healthcare A4 template
+- Page 1: header, metadata, chronotype hero, schedule metrics, strengths/watch-outs, next steps, daily rhythm panel
+- Page 2: compact header, 3×2 recommendation grid, important notice
+- All score sections removed (bars, circles, profile, radar)
+- Recognisable Lark/Eagle/Owl SVG illustrations without frames
+- Poppins font detection via `getPoppinsFontName()` — resolves next/font hashed name
+- Geometry validation with overlap detection and alignment checks
+- QA test suite (scripts/pdf-qa-test.mjs) generates PDFs + PNGs via Puppeteer
+- Donate modal visual panel updated with `/assets/donate modal/donatepic.png`
+
 2026-07-24 — Superadmin Dashboard, RLS Fixes, Admin Creation
 
 - Superadmin dashboard fully functional (orgs, users, settings, system pages)

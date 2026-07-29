@@ -80,6 +80,8 @@ Phase: Feature Completion & Stabilization — Superadmin Dashboard, RLS Fixes, D
 - **Orange login/donate buttons** — Solid orange styling for all login and donate CTAs
 - **Mobile carousel indicators removed** — Dot/pill progress indicators hidden on mobile viewports for the chronotype visual illustration carousel
 - **Lark chronotype images** — 11 lark-specific images added to `public/chronotype_media/lark/`
+- **PDF report redesigned** — New minimal healthcare A4 template with recognisable Lark/Eagle/Owl illustrations, Poppins font detection via `getPoppinsFontName()`, geometry validation, score sections removed
+- **Donate modal image** — Visual panel updated to use `/assets/donate modal/donatepic.png`
 
 ---
 
@@ -92,7 +94,6 @@ Phase: Feature Completion & Stabilization — Superadmin Dashboard, RLS Fixes, D
 
 # Pending
 
-- PDF Report Generation (template done, rendering needs html2canvas fixes)
 - Referral Analytics
 - Advanced Analytics Engine
 - Doctor/Counsellor Portal

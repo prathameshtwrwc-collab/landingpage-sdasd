@@ -2,6 +2,32 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.6.0] — 2026-07-29 — Chronotype PDF Report Redesign
+
+### Changed
+- **PDF report completely redesigned** — New minimal healthcare A4 template (2-page) replacing the old dashboard-style layout
+- **Page 1 layout**: Header with org name, metadata row, chronotype hero (2-column with recognisable illustration + description), schedule metrics strip (wake time / focus window / bedtime), strengths & watch-outs panels, best next steps (3-column numbered), daily rhythm timeline panel
+- **Page 2 layout**: Single compact header row (logo + name + chronotype pill + report ID), 2-column editorial recommendation grid (3×2 true grid order), important notice in normal flow
+- **Typography**: Uses `var(--font-poppins)` to match Next.js local font setup — fixes layout shift from Segoe UI fallback
+- **Font detection**: `getPoppinsFontName()` resolves the actual next/font hashed name at runtime
+
+### Removed
+- **Score sections eliminated** — No score bars, conic gradient circles, percentage values, score profile, or radar charts anywhere in the PDF
+- **Score fields ignored** — `totalScore`, `larkScore`, `eagleScore`, `owlScore` retained in `ReportData` type for backward compatibility but never rendered
+
+### Added
+- **Framework-free SVG illustrations** — Recognisable Lark (songbird), Eagle (bird of prey), and Owl SVGs without decorative frames; strong print contrast with stroke widths ≥1.3
+- **Inline SVG icons** — Lucide-compatible sun/briefcase/moon SVG icons for schedule metrics strip
+- **FormatParticipantName** — Title-cases participant names, handles hyphenated names
+- **Geometry validation** — `validatePdfGeometry()` checks overflow, section overlap, horizontal edge alignment; `assertGap()` ensures title-to-subtitle gap ≥12px
+- **QA test suite** — `scripts/pdf-qa-test.mjs` generates PDFs and PNGs for all three chronotypes using Puppeteer with font detection
+
+### Fixed
+- **Title/subtitle overlap** — `.pdf-chronotype-name` uses `line-height: 1`, subtitle uses `display: inline-flex; margin-top: 14px` — measured 14px gap
+- **Page 2 duplicate logo** — Single `.pdf-page-two-header` row only (verified: `pageTwoHeaders: 1, oldStyleHeaders: 0`)
+- **Artificial empty space** — Removed `flex:1` spacer pushing notice to footer; notice now uses `margin-top: 22px` in normal flow
+- **Background frame illustrations** — All three SVGs stripped of `rect` frame backgrounds for clean recognisable shapes
+
 ## [2.5.4] — 2026-07-29 — Dashboard Performance Optimization
 
 ### Fixed
