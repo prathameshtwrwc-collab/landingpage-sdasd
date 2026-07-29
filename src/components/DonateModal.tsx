@@ -24,57 +24,25 @@ function formatAmount(n: number) {
 function DonateVisualPanel() {
   return (
     <div className="donate-visual" style={{
-      display: "grid",
-      gridTemplateRows: "48% 27% 25%",
-      minHeight: 0,
+      position: "relative",
+      minHeight: "500px",
       background: "#27235F",
       borderRadius: "22px 0 0 22px",
       overflow: "hidden",
     }}>
-      {/* Main visual */}
-      <div style={{ position: "relative", overflow: "hidden", background: "linear-gradient(145deg, #30268F, #27235F)" }}>
-        <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{
-              width: "88px", height: "88px", borderRadius: "50%",
-              background: "rgba(255,95,93,0.18)", display: "flex", alignItems: "center", justifyContent: "center",
-              margin: "0 auto 12px",
-            }}>
-              <Heart size={44} stroke="#FF5F5D" fill="#FF5F5D" />
-            </div>
-            <p style={{ margin: 0, color: "rgba(255,255,255,0.9)", fontSize: "13px", fontWeight: 500, fontFamily: "Poppins, sans-serif" }}>
-              Compassionate Healthcare
-            </p>
-          </div>
-        </div>
-      </div>
-      {/* Supporting images row */}
-      <div style={{
-        display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-        gap: "8px", padding: "8px 12px 0",
-      }}>
-        <div style={{
-          borderRadius: "10px", background: "rgba(255,255,255,0.06)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <Stethoscope size={32} stroke="rgba(255,255,255,0.5)" />
-        </div>
-        <div style={{
-          borderRadius: "10px", background: "rgba(255,255,255,0.06)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <UsersRound size={32} stroke="rgba(255,255,255,0.5)" />
-        </div>
-      </div>
-      {/* Emotional message */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "18px 22px", textAlign: "center" }}>
-        <p className="m-0" style={{ color: "#FFFFFF", fontFamily: "Poppins, sans-serif", fontWeight: 700, fontSize: "clamp(22px, 2.2vw, 28px)", lineHeight: 1.14, letterSpacing: "-0.02em" }}>
-          Your kindness can help a family heal.
-        </p>
-        <p className="m-0 mt-[6px]" style={{ color: "rgba(255,255,255,0.7)", fontFamily: "Poppins, sans-serif", fontWeight: 400, fontSize: "13px", lineHeight: 1.5 }}>
-          Together, we can bring essential healthcare within reach.
-        </p>
-      </div>
+      <img
+        src="/assets/donate modal/donatepic.png"
+        alt=""
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition: "center",
+        }}
+      />
     </div>
   );
 }
