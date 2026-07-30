@@ -406,6 +406,22 @@ All notable changes to this project documented in this file. Format based on Kee
 ### Marking
 - Mobile refinement completed
 
+## [2.6.1] — 2026-07-30 — iOS 12 Backward Compatibility
+
+### Added
+- **Feature detection script** — Inline script in layout.tsx detects `clamp()`, `dvh`, `min()`, `scroll-margin-top`, and flexbox `gap` support; sets `data-no-*` attributes on `<html>` for CSS fallbacks
+- **CSS fallback rules** — Added `html[data-no-clamp]`, `html[data-no-dvh]`, `html[data-no-min]`, `html[data-no-scroll-margin]`, `html[data-no-flexgap]` selectors with appropriate fallback styles
+- **overflow-x fallback** — Changed `overflow-x: clip` to `overflow-x: hidden` before `clip` for iOS 12 compatibility (clip unsupported until iOS 13)
+- **scroll-margin polyfill** — Added `scroll-margin-top` detection and `::before` pseudo-element hack for browsers lacking CSS scroll-margin support
+- **backdrop-filter prefix** — Added `-webkit-backdrop-filter` alongside unprefixed version for iOS 12 Safari
+
+### Fixed
+- **DonateModal dvh/min compatibility** — Replaced `100dvh` with `100vh` fallback via `html[data-no-dvh]`, replaced `min()` width with `max-width` fallback via `html[data-no-min]`
+- **DonateModal clamp() heading** — Moved font-size from inline style to `.donate-heading` CSS class with `@supports not` fallback
+- **SiteNavbar clamp() font sizes** — Moved brand text and nav link font-sizes from inline styles to CSS classes (`.site-brand-text`, `.nav-link`) with `@supports not` fallbacks
+- **SiteNavbar flex gap** — Added `html[data-no-flexgap]` fallback that replaces flex `gap` with margin-right on child links
+- **SiteNavbar scroll navigation** — Replaced `scrollIntoView({ behavior: "smooth" })` with `window.scrollTo` + calculated offset to work around iOS 12's lack of smooth scroll and scroll-margin support
+
 ## [Unreleased] — Future Polishing
 
 
