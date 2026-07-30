@@ -138,16 +138,12 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
   if (!isOpen) return null;
 
   const renderSuccess = () => (
-    <div className="donate-content" style={{ position: "relative", padding: "32px 34px 22px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", gap: "16px" }}>
-      <button type="button" onClick={resetAndClose} aria-label="Close donation dialog"
-        className="donate-success-close flex items-center justify-center bg-transparent border-none cursor-pointer z-10 rounded-lg transition-colors duration-200 hover:bg-[#E6E6EE] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f]"
-        style={{ width: "44px", height: "44px", minWidth: "44px", minHeight: "44px" }}>
-        <X size={24} strokeWidth={1.75} stroke="#666779" />
-      </button>
-      <div className="donate-visual donate-success-visual" style={{ display: "none", width: "100%", height: "200px", position: "relative", background: "#27235F", overflow: "hidden", borderRadius: "12px" }}>
-        <img src="/assets/donate modal/donatepic.png" alt="" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }} />
-      </div>
-      <div style={{ width: "72px", height: "72px", borderRadius: "50%", background: "#F5FBF7", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div className="donate-content" style={{
+      padding: "32px 34px 22px", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center", textAlign: "center", gap: "16px",
+      overflowY: "auto",
+    }}>
+      <div style={{ width: "72px", height: "72px", borderRadius: "50%", background: "#F5FBF7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
         <CircleCheckBig size={40} strokeWidth={1.75} stroke="#18794E" />
       </div>
       <h2 className="m-0" style={{ color: "#19192B", fontFamily: "Poppins, sans-serif", fontWeight: 700, fontSize: "24px", lineHeight: 1.2 }}>
@@ -332,18 +328,24 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
         .donate-modal { width: min(1180px, calc(100vw - 48px)); max-height: calc(100dvh - 40px); }
         @media (max-width: 767px) {
           .donate-overlay { padding: 0 !important; }
-          .donate-modal { width: 100% !important; min-height: 100dvh !important; max-height: 100dvh !important; border-radius: 0 !important; display: block !important; overflow-y: auto !important; }
+          .donate-modal { width: 100% !important; min-height: 100dvh !important; max-height: 100dvh !important; border-radius: 0 !important; display: block !important; overflow: hidden !important; display: flex !important; flex-direction: column !important; }
           .donate-visual { display: none !important; }
-          .donate-content { padding: 20px 18px !important; }
+          .donate-content { padding: 32px 18px 28px !important; }
           .donate-content .impact-grid { gap: 8px; padding: 12px 8px !important; }
           .donate-content .amount-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          /* Success view on mobile: show visual panel at top */
-          .donate-success-visual { display: block !important; width: 100% !important; height: 200px !important; border-radius: 0 !important; margin: -20px -18px 0 !important; }
-          .donate-success-close { position: absolute !important; top: 12px !important; right: 12px !important; background: rgba(0,0,0,0.25) !important; border-radius: 50% !important; }
-          .donate-success-close svg { stroke: #fff !important; }
+          /* Success view on mobile: show visual panel at top, scroll content below */
+          .donate-modal-success { overflow: hidden !important; }
+          .donate-modal-success .donate-visual { display: block !important; height: 180px !important; min-height: 180px !important; border-radius: 0 !important; flex-shrink: 0 !important; }
+          .donate-modal-success .donate-content { flex: 1 !important; overflow-y: auto !important; justify-content: flex-start !important; padding-top: 28px !important; }
+          .donate-modal-success .donate-content .donate-btn-wrap { margin-top: auto !important; }
+          .donate-modal-success .donate-content > button:last-child { margin-top: auto !important; }
+          /* Close button overlaid on image */
+          .donate-modal-success .donate-visual { position: relative !important; }
+          .donate-modal-success .donate-overlay-close { display: flex !important; position: absolute !important; top: 12px !important; right: 12px !important; z-index: 20 !important; background: rgba(0,0,0,0.25) !important; border-radius: 50% !important; }
+          .donate-modal-success .donate-overlay-close svg { stroke: #fff !important; }
         }
         @media (max-width: 399px) {
-          .donate-content { padding: 16px 14px !important; gap: 12px !important; }
+          .donate-content { padding: 24px 14px 24px !important; }
           .donate-content .impact-grid { padding: 10px 6px !important; gap: 6px !important; }
           .donate-content .impact-grid .w-\[48px\] { width: 36px !important; height: 36px !important; }
           .donate-content .impact-grid svg { width: 22px !important; height: 22px !important; }
@@ -353,15 +355,12 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
           .donate-content .flex.items-start.gap-\[14px\] svg { width: 22px !important; height: 22px !important; }
           .donate-content h2 { font-size: 1.4rem !important; }
           .donate-content p.text-\[14px\] { font-size: 13px !important; }
-          .donate-success-visual { height: 160px !important; margin: -16px -14px 0 !important; }
+          .donate-modal-success .donate-visual { height: 140px !important; min-height: 140px !important; }
         }
         @media (min-width: 768px) and (max-width: 899px) {
           .donate-modal { display: block !important; width: calc(100vw - 24px) !important; overflow-y: auto !important; }
           .donate-visual { display: grid !important; grid-template-rows: 160px 64px 90px !important; border-radius: 22px 22px 0 0 !important; }
           .donate-content { padding: 24px !important; }
-        }
-        @media (min-width: 768px) {
-          .donate-success-close { position: absolute !important; top: 18px !important; right: 18px !important; }
         }
         @media (min-width: 900px) and (max-width: 1199px) {
           .donate-modal { display: grid !important; grid-template-columns: minmax(330px, 40%) minmax(0, 60%) !important; width: calc(100vw - 32px) !important; }
@@ -394,16 +393,26 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
       }}
       onClick={(e) => { if (e.target === e.currentTarget) resetAndClose(); }}
     >
-      <div className="donate-modal" style={{
+      <div className={`donate-modal ${isResultView ? "donate-modal-success" : ""}`} style={{
         display: "grid",
         gridTemplateColumns: "minmax(390px, 42%) minmax(0, 58%)",
         overflow: "hidden",
         background: "#FFFFFF",
         borderRadius: "22px",
         boxShadow: "0 24px 80px rgba(18, 20, 57, 0.3)",
+        position: "relative",
       }}>
         {/* Left visual panel */}
         <DonateVisualPanel />
+
+        {/* Close button overlaid on image (mobile success view) */}
+        {isResultView && (
+          <button type="button" onClick={resetAndClose} aria-label="Close donation dialog"
+            className="donate-overlay-close"
+            style={{ display: "none", width: "44px", height: "44px", minWidth: "44px", minHeight: "44px", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", zIndex: 20 }}>
+            <X size={24} strokeWidth={1.75} />
+          </button>
+        )}
 
         {/* Right content panel */}
         {isResultView ? renderSuccess() : renderForm()}
