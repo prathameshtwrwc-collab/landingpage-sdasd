@@ -120,14 +120,12 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
 
   const handleNavClick = (href: string) => {
     setIsMenuOpen(false);
-    // Smooth scroll handled by CSS scroll-behavior + scroll-margin-top
-    // For extra safety, close menu then scroll
     const id = href.replace("#", "");
     const el = document.getElementById(id);
     if (el) {
-      // small delay to allow menu close animation? Immediate scroll okay
-      // Using native scroll with block start, margin accounted via CSS
-      setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+      const navbarHeight = 84;
+      const y = el.getBoundingClientRect().top + window.scrollY - navbarHeight;
+      window.scrollTo({ top: y, behavior: "smooth" });
     }
   };
 
@@ -162,6 +160,24 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
               @media(min-width:1024px){
                 header#site-navbar{ height:72px !important; }
               }
+              @media(min-width:1024px) and (max-width:1199px){
+                #site-navbar .nav-links{ gap:8px !important; }
+                #site-navbar .nav-link{ font-size:11px !important; }
+                #site-navbar .cta-login{ width:64px !important; font-size:11px !important; }
+                #site-navbar .cta-donate{ width:80px !important; font-size:11px !important; }
+                #site-navbar .cta-test{ width:100px !important; font-size:11px !important; }
+                #site-navbar .nav-scroll{ overflow:hidden !important; }
+              }
+              .site-brand-text { font-size: clamp(14px, 2.2vw, 18px); }
+              #site-navbar .nav-link { font-size: clamp(12px, 1.3vw, 14px); }
+              /* Fallbacks for old browsers lacking clamp() */
+              @supports not (font-size: clamp(1px, 1px, 1px)) {
+                .site-brand-text{ font-size:15px !important; }
+                #site-navbar .nav-link{ font-size:12px !important; }
+              }
+              html[data-no-flexgap] #site-navbar .nav-links{ gap:0 !important; }
+              html[data-no-flexgap] #site-navbar .nav-links > a{ margin:0 14px 0 0 !important; }
+              html[data-no-flexgap] #site-navbar .nav-links > a:last-child{ margin-right:0 !important; }
             `,
           }}
         />
@@ -206,10 +222,9 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                 </span>
               )}
               <span
-                className="font-semibold leading-[1] tracking-[-0.01em]"
+                className="font-semibold leading-[1] tracking-[-0.01em] site-brand-text"
                 style={{
                   fontFamily: "Poppins, sans-serif",
-                  fontSize: "clamp(14px, 2.2vw, 18px)",
                   lineHeight: "1",
                   fontWeight: 600,
                   color: "#2F2A86",
@@ -221,8 +236,8 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
             </a>
 
             {/* Center: Navigation — hidden below 1024 */}
-            <nav aria-label="Primary navigation" className="hidden lg:flex items-center justify-center h-full min-w-0 overflow-x-auto"
-              style={{ gap: "clamp(8px, 1.8vw, 28px)" }}>
+            <nav aria-label="Primary navigation" className="hidden lg:flex items-center justify-center h-full min-w-0 nav-scroll nav-links"
+              style={{ gap: "clamp(8px, 1.8vw, 28px)", overflow: "hidden" }}>
               {navItems.map((item) => {
                 const isActive = activeId === item.id;
                 return (
@@ -234,10 +249,9 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                       handleNavClick(item.href);
                     }}
                     aria-current={isActive ? "location" : undefined}
-                    className="relative inline-flex items-center justify-center no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-2 rounded-sm group"
+                    className="relative inline-flex items-center justify-center no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-2 rounded-sm group nav-link"
                     style={{
                       fontFamily: "Poppins, sans-serif",
-                      fontSize: "clamp(12px, 1.3vw, 14px)",
                       lineHeight: "1",
                       fontWeight: 500,
                       color: isActive ? "#F59A00" : isScrolled ? "#29275E" : "#2F2A86",
@@ -275,7 +289,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
             <div className="hidden lg:flex items-center justify-end gap-[8px]">
               <a
                 href="/login"
-                className="inline-flex items-center justify-center border-none transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer no-underline"
+                className="cta-login inline-flex items-center justify-center border-none transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer no-underline"
                 style={{
                   width: "86px",
                   height: "36px",
@@ -292,7 +306,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                 Login
               </a>
               <button type="button" onClick={() => setDonateOpen(true)}
-                className="inline-flex items-center justify-center border cursor-pointer transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px]"
+                className="cta-donate inline-flex items-center justify-center border cursor-pointer transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px]"
                 style={{
                   width: "110px", height: "36px",
                   borderColor: "#F59A00", color: "#F59A00",
@@ -306,10 +320,13 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                 type="button"
                 onClick={() => {
                   const el = document.getElementById("chronotypes");
-                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  if (el) {
+                    const y = el.getBoundingClientRect().top + window.scrollY - 84;
+                    window.scrollTo({ top: y, behavior: "smooth" });
+                  }
                   openAssessment();
                 }}
-                className="inline-flex items-center justify-center bg-[#3B35A3] text-white border-none rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F59A00] focus-visible:ring-offset-2 transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer"
+                className="cta-test inline-flex items-center justify-center bg-[#3B35A3] text-white border-none rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F59A00] focus-visible:ring-offset-2 transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer"
                 style={{
                   width: "130px",
                   height: "36px",
@@ -456,7 +473,10 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
           onClick={() => {
             setIsMenuOpen(false);
             const el = document.getElementById("chronotypes");
-            if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+            if (el) {
+              const y = el.getBoundingClientRect().top + window.scrollY - 84;
+              window.scrollTo({ top: y, behavior: "smooth" });
+            }
             openAssessment();
           }}
           className="flex items-center justify-center w-full max-w-[260px] bg-[#3B35A3] text-white border-none rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F59A00] focus-visible:ring-offset-2 transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer mt-[16px]"

@@ -26,6 +26,7 @@
 
 /* Global responsive foundation — per task + navbar smooth scrolling */
 html {
+  overflow-x: hidden;
   overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -50,9 +51,27 @@ section[id] {
   }
 }
 
+/* Fallback for browsers without scroll-margin-top (iOS 12) */
+html[data-no-scroll-margin] section[id]::before {
+  content: '';
+  display: block;
+  position: relative;
+  height: 0;
+  margin-top: -84px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  html[data-no-scroll-margin] section[id]::before {
+    margin-top: -76px;
+  }
+}
+
 body {
   margin: 0;
   min-width: 320px;
+  overflow-x: hidden;
   overflow-x: clip;
 }
 
@@ -134,6 +153,18 @@ button {
     font-size: clamp(24px, 6.4vw, 29px);
     line-height: 1.2;
   }
+}
+
+/* --- Old-browser fallbacks (iOS 12 etc) --- */
+/* Browsers without clamp() */
+html[data-no-clamp] .section-heading {
+  font-size: 32px !important;
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  html[data-no-clamp] .section-heading { font-size: 28px !important; }
+}
+@media (max-width: 767px) {
+  html[data-no-clamp] .section-heading { font-size: 26px !important; }
 }
 
 /* Supporting headings and subtitles */

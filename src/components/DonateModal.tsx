@@ -24,25 +24,9 @@ function formatAmount(n: number) {
 function DonateVisualPanel() {
   return (
     <div className="donate-visual" style={{
-      position: "relative",
-      minHeight: "500px",
-      background: "#27235F",
-      borderRadius: "22px 0 0 22px",
-      overflow: "hidden",
+      height: "100%",
+      background: "#27235F url('/assets/donate modal/donatepic.png') no-repeat center / contain",
     }}>
-      <img
-        src="/assets/donate modal/donatepic.png"
-        alt=""
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          objectPosition: "center",
-        }}
-      />
     </div>
   );
 }
@@ -139,45 +123,24 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
 
   const renderSuccess = () => (
     <div className="donate-content" style={{
-      display: "flex", flexDirection: "column", textAlign: "center",
-      overflowY: "auto",
+      display: "flex", flexDirection: "column", alignItems: "center",
+      justifyContent: "center", textAlign: "center", gap: "16px",
+      padding: "32px 34px 22px", overflowY: "auto", flex: 1,
     }}>
-      {/* Mobile-only image section with close button */}
-      <div className="donate-success-mobile-image" style={{
-        display: "none", position: "relative", width: "100%", height: "200px",
-        overflow: "hidden", flexShrink: 0, background: "#27235F",
-      }}>
-        <img src="/assets/donate modal/donatepic.png" alt="" aria-hidden="true"
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }} />
-        <button type="button" onClick={resetAndClose} aria-label="Close donation dialog"
-          className="donate-mobile-close-btn"
-          style={{ display: "none", position: "absolute", top: "12px", right: "12px", zIndex: 10,
-            width: "44px", height: "44px", alignItems: "center", justifyContent: "center",
-            border: "none", cursor: "pointer", borderRadius: "50%",
-            background: "rgba(0,0,0,0.25)" }}>
-          <X size={24} strokeWidth={1.75} stroke="#fff" />
-        </button>
+      <div style={{ width: "72px", height: "72px", borderRadius: "50%", background: "#F5FBF7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <CircleCheckBig size={40} strokeWidth={1.75} stroke="#18794E" />
       </div>
-      {/* Content */}
-      <div className="donate-success-body" style={{
-        padding: "32px 34px 22px", display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center", gap: "16px", flex: 1,
-      }}>
-        <div style={{ width: "72px", height: "72px", borderRadius: "50%", background: "#F5FBF7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <CircleCheckBig size={40} strokeWidth={1.75} stroke="#18794E" />
-        </div>
-        <h2 className="m-0" style={{ color: "#19192B", fontFamily: "Poppins, sans-serif", fontWeight: 700, fontSize: "24px", lineHeight: 1.2 }}>
-          Thank you for your generosity
-        </h2>
-        <p className="m-0" style={{ color: "#666779", fontFamily: "Poppins, sans-serif", fontWeight: 400, fontSize: "14px", lineHeight: 1.6, maxWidth: "420px" }}>
-          Your contribution of {selectedAmount || customAmount ? formatAmount(selectedAmount || parseFloat(customAmount)) : ""} helps bring essential healthcare and compassionate medical support to families who need it most.
-        </p>
-        <button type="button" onClick={resetAndClose}
-          className="inline-flex items-center justify-center border-none cursor-pointer rounded-lg transition-all duration-200 px-[28px]"
-          style={{ minHeight: "48px", background: "#30268F", color: "#FFFFFF", fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: "15px" }}>
-          Done
-        </button>
-      </div>
+      <h2 className="m-0" style={{ color: "#19192B", fontFamily: "Poppins, sans-serif", fontWeight: 700, fontSize: "24px", lineHeight: 1.2 }}>
+        Thank you for your generosity
+      </h2>
+      <p className="m-0" style={{ color: "#666779", fontFamily: "Poppins, sans-serif", fontWeight: 400, fontSize: "14px", lineHeight: 1.6, maxWidth: "420px" }}>
+        Your contribution of {selectedAmount || customAmount ? formatAmount(selectedAmount || parseFloat(customAmount)) : ""} helps bring essential healthcare and compassionate medical support to families who need it most.
+      </p>
+      <button type="button" onClick={resetAndClose}
+        className="inline-flex items-center justify-center border-none cursor-pointer rounded-lg transition-all duration-200 px-[28px]"
+        style={{ minHeight: "48px", background: "#30268F", color: "#FFFFFF", fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: "15px" }}>
+        Done
+      </button>
     </div>
   );
 
@@ -202,9 +165,8 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
           <p className="m-0 text-[12px] font-semibold tracking-[0.02em]" style={{ color: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
             GIVE THE GIFT OF HEALTHCARE
           </p>
-          <h2 ref={headingRef} id="donation-heading" tabIndex={-1} className="m-0 font-bold tracking-[-0.025em] leading-[1.1]" style={{
-            color: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 700,
-            fontSize: "clamp(1.75rem, 2.6vw, 2.4rem)", outline: "none",
+          <h2 ref={headingRef} id="donation-heading" tabIndex={-1} className="m-0 font-bold tracking-[-0.025em] leading-[1.1] donate-heading" style={{
+            color: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 700, outline: "none",
           }}>
             Help a family receive the care they deserve.
           </h2>
@@ -343,55 +305,6 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
           You&rsquo;ll review your contribution before payment.
         </p>
       </div>
-
-      <style>{`
-        @keyframes donate-spin { to { transform: rotate(360deg); } }
-        .donate-modal { width: min(1180px, calc(100vw - 48px)); max-height: calc(100dvh - 40px); }
-        @media (max-width: 767px) {
-          .donate-overlay { padding: 0 !important; }
-          .donate-modal { width: 100% !important; min-height: 100dvh !important; max-height: 100dvh !important; border-radius: 0 !important; display: block !important; overflow: hidden !important; display: flex !important; flex-direction: column !important; }
-          .donate-visual { display: none !important; }
-          .donate-content { padding: 32px 18px 28px !important; overflow-y: auto !important; flex: 1 !important; }
-          .donate-content .impact-grid { gap: 8px; padding: 12px 8px !important; }
-          .donate-content .amount-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          /* Success view on mobile */
-          .donate-modal-success .donate-content { padding: 0 !important; gap: 0 !important; overflow-y: auto !important; flex: 1 !important; }
-          .donate-modal-success .donate-success-mobile-image { display: block !important; height: 200px !important; }
-          .donate-modal-success .donate-mobile-close-btn { display: flex !important; }
-          .donate-modal-success .donate-success-body { padding: 28px 18px 24px !important; justify-content: flex-start !important; }
-          .donate-modal-success .donate-success-body > button:last-child { margin-top: auto !important; }
-        }
-        @media (max-width: 399px) {
-          .donate-content { padding: 24px 14px 24px !important; }
-          .donate-content .impact-grid { padding: 10px 6px !important; gap: 6px !important; }
-          .donate-content .impact-grid .w-\[48px\] { width: 36px !important; height: 36px !important; }
-          .donate-content .impact-grid svg { width: 22px !important; height: 22px !important; }
-          .donate-content .amount-grid button { min-height: 46px !important; font-size: 13px !important; }
-          .donate-content .donate-btn { font-size: 14px !important; min-height: 48px !important; }
-          .donate-content .flex.items-start.gap-\[14px\] > div:first-child { width: 44px !important; height: 44px !important; min-width: 44px !important; }
-          .donate-content .flex.items-start.gap-\[14px\] svg { width: 22px !important; height: 22px !important; }
-          .donate-content h2 { font-size: 1.4rem !important; }
-          .donate-content p.text-\[14px\] { font-size: 13px !important; }
-          .donate-modal-success .donate-success-mobile-image { height: 150px !important; }
-          .donate-modal-success .donate-success-body { padding: 20px 14px 20px !important; }
-        }
-        @media (min-width: 768px) and (max-width: 899px) {
-          .donate-modal { display: block !important; width: calc(100vw - 24px) !important; overflow-y: auto !important; }
-          .donate-visual { display: grid !important; grid-template-rows: 160px 64px 90px !important; border-radius: 22px 22px 0 0 !important; }
-          .donate-content { padding: 24px !important; }
-        }
-        @media (min-width: 900px) and (max-width: 1199px) {
-          .donate-modal { display: grid !important; grid-template-columns: minmax(330px, 40%) minmax(0, 60%) !important; width: calc(100vw - 32px) !important; }
-          .donate-content { padding: 24px !important; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
-          .donate-content button:hover { transform: none !important; }
-        }
-        @media (hover: none) {
-          .donate-content button:hover { transform: none !important; }
-        }
-      `}</style>
     </div>
   );
 
@@ -408,6 +321,7 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
         overflow: "hidden",
         background: "rgba(20, 22, 60, 0.74)",
         backdropFilter: "blur(5px)",
+        WebkitBackdropFilter: "blur(5px)",
       }}
       onClick={(e) => { if (e.target === e.currentTarget) resetAndClose(); }}
     >
@@ -426,6 +340,57 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
         {/* Right content panel */}
         {isResultView ? renderSuccess() : renderForm()}
       </div>
+
+      <style>{`
+        @keyframes donate-spin { to { transform: rotate(360deg); } }
+        .donate-modal { width: min(1180px, calc(100vw - 48px)); max-height: calc(100dvh - 40px); }
+        html[data-no-min] .donate-modal { width: calc(100vw - 48px); max-width: 1180px; }
+        html[data-no-dvh] .donate-modal { max-height: calc(100vh - 40px); }
+        .donate-heading { font-size: clamp(1.75rem, 2.6vw, 2.4rem); }
+        @supports not (font-size: clamp(1px, 1px, 1px)) {
+          .donate-heading { font-size: 1.75rem; }
+        }
+        .donate-visual { border-radius: 22px 0 0 22px; min-height: 350px; }
+        @media (max-width: 767px) {
+          .donate-overlay { padding: 0 !important; }
+          .donate-modal { width: 100% !important; min-height: 100dvh !important; max-height: 100dvh !important; border-radius: 0 !important; display: block !important; overflow: hidden !important; display: flex !important; flex-direction: column !important; }
+          html[data-no-dvh] .donate-modal { min-height: 100vh !important; max-height: 100vh !important; }
+          .donate-visual { display: none !important; }
+          .donate-content { padding: 32px 18px 28px !important; overflow-y: auto !important; flex: 1 !important; }
+          .donate-content .impact-grid { gap: 8px; padding: 12px 8px !important; }
+          .donate-content .amount-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 399px) {
+          .donate-content { padding: 24px 14px 24px !important; }
+          .donate-content .impact-grid { padding: 10px 6px !important; gap: 6px !important; }
+          .donate-content .impact-grid .w-\[48px\] { width: 36px !important; height: 36px !important; }
+          .donate-content .impact-grid svg { width: 22px !important; height: 22px !important; }
+          .donate-content .amount-grid button { min-height: 46px !important; font-size: 13px !important; }
+          .donate-content .donate-btn { font-size: 14px !important; min-height: 48px !important; }
+          .donate-content .flex.items-start.gap-\[14px\] > div:first-child { width: 44px !important; height: 44px !important; min-width: 44px !important; }
+          .donate-content .flex.items-start.gap-\[14px\] svg { width: 22px !important; height: 22px !important; }
+          .donate-content h2 { font-size: 1.4rem !important; }
+          .donate-content p.text-\[14px\] { font-size: 13px !important; }
+        }
+        @media (min-width: 768px) and (max-width: 899px) {
+          .donate-modal { display: block !important; width: calc(100vw - 24px) !important; overflow-y: auto !important; max-height: calc(100dvh - 24px) !important; }
+          html[data-no-dvh] .donate-modal { max-height: calc(100vh - 24px) !important; }
+          .donate-visual { display: block !important; height: 200px !important; border-radius: 22px 22px 0 0 !important; }
+          .donate-content { padding: 24px !important; }
+        }
+        @media (min-width: 900px) and (max-width: 1199px) {
+          .donate-modal { display: grid !important; grid-template-columns: minmax(330px, 40%) minmax(0, 60%) !important; width: calc(100vw - 32px) !important; max-height: calc(100dvh - 32px) !important; overflow: hidden !important; }
+          html[data-no-dvh] .donate-modal { max-height: calc(100vh - 32px) !important; }
+          .donate-content { overflow-y: auto !important; padding: 24px !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+          .donate-content button:hover { transform: none !important; }
+        }
+        @media (hover: none) {
+          .donate-content button:hover { transform: none !important; }
+        }
+      `}</style>
     </div>
   );
 }
