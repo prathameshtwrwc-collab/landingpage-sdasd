@@ -82,6 +82,7 @@ export async function GET(req: Request) {
     const reportsEnriched = (reports ?? []).map((r) => ({
       id: r.id,
       result_id: r.result_id,
+      assessment_id: null as string | null,
       generated_at: r.generated_at,
       chronotype: null as string | null,
       totalScore: null as number | null,
@@ -94,7 +95,7 @@ export async function GET(req: Request) {
     if (resultIds.length > 0) {
       const { data: chronoResults } = await supabase
         .from("chronotype_results")
-        .select("id, chronotype, total_score, lark_score, eagle_score, owl_score")
+        .select("id, assessment_id, chronotype, total_score, lark_score, eagle_score, owl_score")
         .in("id", resultIds);
       if (chronoResults) {
         const resultMap = new Map(chronoResults.map((cr: Record<string, unknown>) => [cr.id, cr]));
@@ -106,6 +107,7 @@ export async function GET(req: Request) {
             r.larkScore = cr.lark_score as number | null;
             r.eagleScore = cr.eagle_score as number | null;
             r.owlScore = cr.owl_score as number | null;
+            r.assessment_id = cr.assessment_id as string | null;
           }
         });
       }

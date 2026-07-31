@@ -126,11 +126,7 @@ export default function LoginCard() {
     <div className="w-full max-w-[420px] mx-auto" style={{ fontFamily: "Poppins, sans-serif" }}>
       {/* Logo */}
       <div className="flex items-center gap-[10px] mb-[32px]">
-        <span className="flex items-center justify-center w-[38px] h-[38px] rounded-xl" style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)", boxShadow: "0 4px 12px rgba(53,49,155,0.25)" }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
-        </span>
+        <img src="/assets/logos/logo2.png" alt="Chronotype" style={{ height: "34px", width: "auto", objectFit: "contain" }} />
         <span className="text-[18px] font-bold" style={{ color: "#1A1668" }}>Chronotype</span>
       </div>
 

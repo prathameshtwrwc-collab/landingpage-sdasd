@@ -53,8 +53,8 @@ export default function LoginPage() {
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center text-center px-[40px] max-w-[480px]">
           {/* Logo */}
-          <span className="flex items-center justify-center w-[64px] h-[64px] rounded-2xl mb-[28px]" style={{ background: "linear-gradient(135deg, #F59A00, #FFB74D)", boxShadow: "0 8px 32px rgba(245,154,0,0.3)" }}>
-            <Moon size={32} stroke="#1A1740" strokeWidth={1.8} />
+          <span className="flex items-center justify-center rounded-2xl mb-[28px] px-[18px] py-[10px]" style={{ background: "#FFFFFF", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}>
+            <img src="/assets/logos/logo2.png" alt="Chronotype" style={{ height: "48px", width: "auto", objectFit: "contain" }} />
           </span>
 
           <h1 className="m-0 text-[32px] font-bold leading-[1.2] text-white mb-[12px]">
@@ -95,9 +95,7 @@ export default function LoginPage() {
       >
         {/* Mobile brand (hidden on desktop) */}
         <div className="lg:hidden flex items-center gap-[10px] mb-[32px]">
-          <span className="flex items-center justify-center w-[36px] h-[36px] rounded-xl" style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)", boxShadow: "0 4px 12px rgba(53,49,155,0.25)" }}>
-            <Moon size={16} stroke="white" strokeWidth={2} />
-          </span>
+          <img src="/assets/logos/logo2.png" alt="Chronotype" style={{ height: "36px", width: "auto", objectFit: "contain" }} />
           <span className="text-[16px] font-bold" style={{ color: "#1A1668" }}>Chronotype</span>
         </div>
 

@@ -208,18 +208,9 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
               aria-label={brandingCompany ? `${brandingCompany} - Home` : "Chronotype - Home"}
             >
               {brandingLogo ? (
-                <img src={brandingLogo} alt={brandingCompany ?? "Brand"} className="shrink-0" style={{ width: "36px", height: "36px", objectFit: "contain" }} />
+                <img src={brandingLogo} alt={brandingCompany ?? "Brand"} className="shrink-0" style={{ height: "44px", width: "auto", maxWidth: "140px", objectFit: "contain" }} />
               ) : (
-                <span className="inline-flex items-center justify-center shrink-0" style={{ width: "32px", height: "32px" }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="#35319B" aria-hidden="true">
-                    <path
-                      d="M16.5 20.5A7.5 7.5 0 0 1 8 12 7.5 7.5 0 0 1 16.5 3.5 5.5 5.5 0 0 0 16.5 20.5Z"
-                      stroke="#35319B"
-                      strokeWidth="1.2"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
+                <img src="/assets/logos/logo2.png" alt="Chronotype" className="shrink-0" style={{ height: "44px", width: "auto", maxWidth: "140px", objectFit: "contain" }} />
               )}
               <span
                 className="font-semibold leading-[1] tracking-[-0.01em] site-brand-text"

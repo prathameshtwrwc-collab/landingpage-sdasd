@@ -1,82 +1,14 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { fetchPublicResult } from "@/lib/queries/public-result";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ assessmentId: string }> }) {
   const { assessmentId } = await params;
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-  );
+  const data = await fetchPublicResult(assessmentId);
 
-  const { data: assessment } = await supabase
-    .from("assessments")
-    .select("member_id, organization_id")
-    .eq("id", assessmentId)
-    .eq("status", "COMPLETED")
-    .maybeSingle();
-
-  if (!assessment) {
+  if (!data) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const { data: member } = await supabase
-    .from("members")
-    .select("first_name, last_name, email")
-    .eq("id", assessment.member_id)
-    .maybeSingle();
-
-  const { data: result } = await supabase
-    .from("chronotype_results")
-    .select("chronotype, total_score, confidence_score, lark_score, eagle_score, owl_score")
-    .eq("assessment_id", assessmentId)
-    .maybeSingle();
-
-  if (!result) {
-    return NextResponse.json({ error: "Result not found" }, { status: 404 });
-  }
-
-  let brandingCompany = "";
-  let brandingLogo = "";
-
-  if (assessment.organization_id) {
-    const { data: org } = await supabase
-      .from("organizations")
-      .select("branding_company, branding_logo")
-      .eq("id", assessment.organization_id)
-      .maybeSingle();
-
-    brandingCompany = org?.branding_company ?? "";
-    brandingLogo = org?.branding_logo ?? "";
-
-    if (!brandingCompany || !brandingLogo) {
-      const { data: orgLink } = await supabase
-        .from("organization_links")
-        .select("branding_company, branding_logo")
-        .eq("organization_id", assessment.organization_id)
-        .eq("active", true)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (orgLink) {
-        brandingCompany = orgLink.branding_company ?? brandingCompany;
-        brandingLogo = orgLink.branding_logo ?? brandingLogo;
-      }
-    }
-  }
-
-  return NextResponse.json({
-    firstName: member?.first_name ?? "",
-    lastName: member?.last_name ?? "",
-    email: member?.email ?? "",
-    chronotype: result.chronotype,
-    totalScore: result.total_score,
-    confidenceScore: result.confidence_score,
-    larkScore: result.lark_score,
-    eagleScore: result.eagle_score,
-    owlScore: result.owl_score,
-    brandingCompany,
-    brandingLogo,
-  });
+  return NextResponse.json(data);
 }

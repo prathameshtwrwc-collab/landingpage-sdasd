@@ -31,6 +31,7 @@ export default function ProgressPage() {
   const scoreGrowth = confidence > 0 ? `+${Math.min(confidence, 18)}` : "—";
   const trend = assessments.map((_, i) => Math.min(95, i * 15 + 20 + Math.round(Math.random() * 10)));
   const reports = (data?.reports ?? []) as Array<Record<string, unknown>>;
+  const latestCompletedAssessmentId = (assessments.find((a) => a.status === "COMPLETED")?.id as string | undefined);
 
   const milestones = [
     { label: "First full blueprint", done: assessments.length >= 1 },
@@ -163,7 +164,11 @@ export default function ProgressPage() {
                         <button
                           type="button"
                           onClick={async () => {
-                            const url = (typeof window !== "undefined" ? window.location.origin + "/r/" + assessments[0]?.id : "");
+                            /* Share the assessment that produced THIS report row,
+                               never a random/incomplete assessment. */
+                            const assessmentId = (r.assessment_id as string | null | undefined) || latestCompletedAssessmentId || "";
+                            const url = typeof window !== "undefined" && assessmentId ? window.location.origin + "/r/" + assessmentId : "";
+                            if (!url) return;
                             if (typeof navigator !== "undefined" && navigator.share) {
                               try { await navigator.share({ title: "My Chronotype Result", url }); return; } catch {}
                             }

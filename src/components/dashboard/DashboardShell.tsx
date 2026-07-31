@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { ROLE_LABELS, type Role } from "@/lib/auth/roles";
 import {
-  Moon, LayoutDashboard, Users, Settings, Shield, Activity,
+  LayoutDashboard, Users, Settings, Shield, Activity,
   BarChart3, LogOut, Home, User, TrendingUp, Calendar,
   Bell, FileText, Sparkles, Star, ChevronRight, ChevronUp,
   ChevronDown, Building2, ClipboardList, Link2, Search,
@@ -199,10 +199,12 @@ export default function DashboardShell({
         {/* Brand + Toggle */}
         <div className="flex items-center justify-between px-[16px] h-[68px] shrink-0" style={{ borderBottom: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA" }}>
           <div className="flex items-center gap-[10px]">
-            <span className="flex items-center justify-center w-[34px] h-[34px] rounded-xl shrink-0"
-              style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)" }}>
-              <Moon size={16} stroke="white" strokeWidth={2} />
-            </span>
+            <img
+              src="/assets/logos/logo2.png"
+              alt="Chronotype"
+              className="shrink-0"
+              style={{ height: "34px", width: "auto", maxWidth: "110px", objectFit: "contain", borderRadius: "8px" }}
+            />
             {!sidebarCollapsed && (
               <div className="flex flex-col">
                 <span className="text-[15px] font-bold leading-[1.2]" style={{ color: darkMode ? "#E0E0E0" : "#19164F", fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>Chronotype</span>

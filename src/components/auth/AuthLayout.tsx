@@ -68,15 +68,16 @@ export default function AuthLayout({
         className="no-underline mb-[36px] inline-flex items-center gap-[12px] group relative z-10"
       >
         <span
-          className="flex items-center justify-center w-[44px] h-[44px] rounded-xl transition-transform duration-200 group-hover:scale-105"
+          className="flex items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105"
           style={{
-            background: isSuperAdmin
-              ? "linear-gradient(135deg, #4A45B0, #6A65D0)"
-              : "linear-gradient(135deg, #35319B, #5A55C0)",
-            boxShadow: "0 4px 12px rgba(53, 49, 155, 0.25)",
+            background: "#FFFFFF",
+            padding: "6px 10px",
+            boxShadow: isSuperAdmin
+              ? "0 4px 16px rgba(0,0,0,0.25)"
+              : "0 4px 12px rgba(53, 49, 155, 0.18)",
           }}
         >
-          <Moon size={22} stroke="white" strokeWidth={1.8} />
+          <img src="/assets/logos/logo2.png" alt="Chronotype" style={{ height: "40px", width: "auto", objectFit: "contain" }} />
         </span>
         <div className="flex flex-col">
           <span
