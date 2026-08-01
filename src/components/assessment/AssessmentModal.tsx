@@ -1169,6 +1169,7 @@ function EnhancedResult({
   resetAndClose: () => void;
   openConsult: () => void;
 }) {
+  const [downloading, setDownloading] = useState(false);
   const chrono = chronotypeResult.chronotype as "LARK" | "EAGLE" | "OWL";
   const isLark = chrono === "LARK";
   const isEagle = chrono === "EAGLE";
@@ -1525,12 +1526,13 @@ function EnhancedResult({
       }}>
         <button
           type="button"
-          onClick={() => downloadPdf({ firstName: form.fname, lastName: form.lname, email: form.email, chronotype: chronotypeResult.chronotype, totalScore: chronotypeResult.total_score, larkScore: chronotypeResult.lark_score, eagleScore: chronotypeResult.eagle_score, owlScore: chronotypeResult.owl_score, summary: chronotypeDescs[chronotypeResult.chronotype], orgName: submissionMeta?.orgName ?? undefined })}
-          className="inline-flex items-center justify-center gap-[9px] text-[14px] font-semibold border-none cursor-pointer rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f]"
+          disabled={downloading}
+          onClick={async () => { if (downloading) return; setDownloading(true); try { await downloadPdf({ firstName: form.fname, lastName: form.lname, email: form.email, chronotype: chronotypeResult.chronotype, totalScore: chronotypeResult.total_score, larkScore: chronotypeResult.lark_score, eagleScore: chronotypeResult.eagle_score, owlScore: chronotypeResult.owl_score, summary: chronotypeDescs[chronotypeResult.chronotype], orgName: submissionMeta?.orgName ?? undefined }); } finally { setDownloading(false); } }}
+          className="inline-flex items-center justify-center gap-[9px] text-[14px] font-semibold border-none cursor-pointer rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           style={{ minHeight: "44px", color: "#FFFFFF", background: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
         >
           <Download size={19} strokeWidth={1.75} />
-          Download full report
+          {downloading ? "Generating report…" : "Download full report"}
         </button>
         <button
           type="button"

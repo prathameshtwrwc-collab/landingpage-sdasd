@@ -2,6 +2,38 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.7.0] — 2026-08-02 — React-PDF Report Engine + Placement Fixes
+
+### Added
+- **`@react-pdf/renderer@4.5.1`** — New deterministic PDF engine replaces the html2canvas + jsPDF screenshot pipeline
+- **Dedicated PDF component system** under `src/components/pdf/`:
+  - `ChronotypeReportPDF.tsx` — `Document`/`Page`/`View`/`Text`/`Svg` presentation layer (Page 1 executive summary + Page 2 daily guidance)
+  - `pdfStyles.ts` — `StyleSheet.create()` design tokens, restrained indigo palette, 4/8/12/16/20/24/32 spacing scale
+  - `pdfIcons.tsx` — Lark (sunrise), Owl (night bird), Eagle (bird of prey) illustrations + brand mark via React-PDF SVG primitives
+  - `pdfReportData.ts` — Clean typed `PdfReportViewModel` built from the existing `ReportData` (business data unchanged)
+
+### Changed
+- **`src/lib/client-pdf.ts` → `src/lib/client-pdf.tsx`** — Rewritten to `pdf(<ChronotypeReportPDF/>).toBlob()` + anchor download; no canvas, no JPEG page images
+- **All three download entry points** now use the single shared generator with per-button loading states and duplicate-submission guards:
+  - `src/app/dashboard/page.tsx` (Download PDF button)
+  - `src/app/dashboard/progress/page.tsx` (Download + Print buttons)
+  - `src/components/assessment/AssessmentModal.tsx` ("Download full report")
+- **Placement fixes verified via PDF text-position extraction**:
+  - Peak focus pill no longer wraps to two lines (`heroRight` now `minWidth: 128`, pill text 7.5pt)
+  - "YOUR CHRONOTYPE" eyebrow stays on one line (letterSpacing 1.4 → 0.8)
+  - Metadata labels no longer gappy (`PREPARED FOR` / `ASSESSMENT DATE` / `REPORT ID` at 0.6 tracking)
+  - Page-2 subtitle negative margin removed (clean positive spacing)
+  - A4 MediaBox 595×842pt, exactly 2 pages for LARK/EAGLE/OWL including long participant names
+
+### Removed
+- **`html2canvas`**, **`jspdf`**, **`@types/jspdf`** dependencies
+- **`src/lib/report-template.ts`** (old HTML → canvas template)
+- **`src/app/api/reports/preview/route.ts`** (unused HTML preview route)
+
+### Fixed
+- **html2canvas alignment divergence eliminated** — the downloaded PDF is now generated natively by React-PDF's layout engine, so pills, circles, and badges are centered by `alignItems`/`justifyContent` (no browser CSS, no screenshot, no `line-height` hacks)
+- **Poppins/Helvetica determinism** — uses built-in Helvetica PDF font (no remote font dependency, no `var(--font-poppins)` resolution at runtime)
+
 ## [2.6.0] — 2026-07-29 — Chronotype PDF Report Redesign
 
 ### Changed

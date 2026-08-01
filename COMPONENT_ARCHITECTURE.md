@@ -66,6 +66,11 @@ C:\Users\prath\OneDrive - MSFT\Desktop\sleepchrono-recreated2
 │   │   │   ├── ConsultContext.tsx     # Modal state context
 │   │   │   └── ConsultModal.tsx       # Consultation scheduling form
 │   │   ├── DonateModal.tsx            # Healthcare donation modal (two-column, amount selection)
+│   │   ├── pdf/
+│   │   │   ├── ChronotypeReportPDF.tsx # React-PDF report (Page 1 + Page 2, A4)
+│   │   │   ├── pdfStyles.ts            # PDF StyleSheet design tokens
+│   │   │   ├── pdfIcons.tsx            # Lark/Owl/Eagle SVG illustrations + brand mark
+│   │   │   └── pdfReportData.ts        # ReportData → PdfReportViewModel (pure data)
 │   │   ├── auth/
 │   │   │   ├── AuthProvider.tsx       # Auth context (login/logout/session)
 │   │   │   ├── AuthLayout.tsx         # Auth page shell (brand + card + variants)
@@ -80,7 +85,7 @@ C:\Users\prath\OneDrive - MSFT\Desktop\sleepchrono-recreated2
 │   │
 │   ├── lib/
 │   │   ├── client-cache.ts           # In-memory API cache (45s TTL) with deduplication
-│   │   ├── client-pdf.ts             # PDF generation (html2canvas/jspdf, lazy-loaded)
+│   │   ├── client-pdf.tsx            # PDF generation (@react-pdf/renderer → Blob download)
 │   │   ├── auth/
 │   │   │   ├── roles.ts              # Role types, constants, labels
 │   │   │   ├── session.ts            # localStorage session get/set/clear

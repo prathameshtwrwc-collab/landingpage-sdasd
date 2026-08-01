@@ -15,6 +15,8 @@ export default function ProgressPage() {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [shareCopied, setShareCopied] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
+  const [printing, setPrinting] = useState(false);
 
   useEffect(() => {
     if (user?.email) {
@@ -127,7 +129,8 @@ export default function ProgressPage() {
                       <div className="flex items-center gap-[8px]">
                         <button
                           type="button"
-                          onClick={() => downloadPdf({
+                          disabled={downloading}
+                          onClick={async () => { if (downloading) return; setDownloading(true); try { await downloadPdf({
                             firstName: (data?.member as Record<string, unknown> | undefined)?.first_name as string || "",
                             lastName: (data?.member as Record<string, unknown> | undefined)?.last_name as string || "",
                             email: (data?.member as Record<string, unknown> | undefined)?.email as string || "",
@@ -136,8 +139,8 @@ export default function ProgressPage() {
                             larkScore: lScore || 0,
                             eagleScore: eScore || 0,
                             owlScore: oScore || 0,
-                          })}
-                          className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer transition-colors"
+                          }); } finally { setDownloading(false); } }}
+                          className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                           style={{ color: "#35319B", background: "rgba(53,49,155,0.06)" }}
                           title="Download PDF"
                         >
@@ -145,7 +148,8 @@ export default function ProgressPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => openPdfForPrint({
+                          disabled={printing}
+                          onClick={async () => { if (printing) return; setPrinting(true); try { await openPdfForPrint({
                             firstName: (data?.member as Record<string, unknown> | undefined)?.first_name as string || "",
                             lastName: (data?.member as Record<string, unknown> | undefined)?.last_name as string || "",
                             email: (data?.member as Record<string, unknown> | undefined)?.email as string || "",
@@ -154,8 +158,8 @@ export default function ProgressPage() {
                             larkScore: lScore || 0,
                             eagleScore: eScore || 0,
                             owlScore: oScore || 0,
-                          })}
-                          className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer transition-colors"
+                          }); } finally { setPrinting(false); } }}
+                          className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                           style={{ color: "#35319B", background: "rgba(53,49,155,0.06)" }}
                           title="Print"
                         >
