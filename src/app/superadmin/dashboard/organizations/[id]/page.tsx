@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import MemberDetailModal from "@/components/modals/MemberDetailModal";
 import { useCsvSelection, CsvToolbar, CheckAllCell, CheckRowCell, exportCsv } from "@/components/admin/CsvExport";
-import { Building2, Mail, Globe, Calendar, Users, ArrowLeft, Eye, Activity, Tag, Shield } from "lucide-react";
+import { Building2, Mail, Globe, Calendar, Users, ArrowLeft, Eye, Activity, Tag, Shield, Trash2 } from "lucide-react";
 
 interface MemberRow {
   id: string;
@@ -28,6 +28,8 @@ export default function OrgDetailPage() {
   const [orgAdmins, setOrgAdmins] = useState<Array<Record<string, unknown>>>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [serverError, setServerError] = useState("");
   const memberSel = useCsvSelection(members);
   const MEMBER_CSV_COLS = [
     { key: "first_name", label: "First Name" },
@@ -41,17 +43,57 @@ export default function OrgDetailPage() {
 
   useEffect(() => {
     if (!orgId) return;
-    Promise.all([
-      fetch(`/api/admin-org?orgId=${encodeURIComponent(orgId)}`).then((r) => r.json()),
-    ])
-      .then(([data]) => {
-        setOrg(data.org ?? null);
-        setMembers(data.members ?? []);
-        setOrgAdmins(data.admins ?? []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    fetchOrgData();
   }, [orgId]);
+
+  const fetchOrgData = async () => {
+    try {
+      const r = await fetch(`/api/admin-org?orgId=${encodeURIComponent(orgId)}`);
+      const data = await r.json();
+      setOrg(data.org ?? null);
+      setMembers(data.members ?? []);
+      setOrgAdmins(data.admins ?? []);
+    } catch {
+      setServerError("Failed to load organization data");
+    }
+    setLoading(false);
+  };
+
+  const confirmDeleteAdmin = async (adminId: string) => {
+    if (!confirm("Remove this admin from the organization?")) return;
+    setDeleting(adminId);
+    try {
+      const r = await fetch("/api/admin?action=delete_admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminId }),
+      });
+      const d = await r.json();
+      if (d.error) { setServerError(d.error); return; }
+      await fetchOrgData();
+    } catch {
+      setServerError("Failed to delete admin");
+    }
+    setDeleting(null);
+  };
+
+  const confirmDeleteMember = async (memberId: string) => {
+    if (!confirm("Remove this member from the organization?")) return;
+    setDeleting(memberId);
+    try {
+      const r = await fetch("/api/admin?action=delete_member", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ memberId }),
+      });
+      const d = await r.json();
+      if (d.error) { setServerError(d.error); return; }
+      await fetchOrgData();
+    } catch {
+      setServerError("Failed to delete member");
+    }
+    setDeleting(null);
+  };
 
   if (loading) {
     return (
@@ -122,6 +164,12 @@ export default function OrgDetailPage() {
         </div>
       </div>
 
+      {serverError && (
+        <div className="mb-[16px] p-[12px] rounded-xl text-[13px]" style={{ background: "rgba(211,47,47,0.08)", color: "#C62828", border: "1px solid rgba(211,47,47,0.15)" }}>
+          {serverError} <button onClick={() => setServerError("")} className="bg-transparent border-none cursor-pointer ml-[8px]" style={{ color: "#C62828" }}>✕</button>
+        </div>
+      )}
+
       {/* Org Admins */}
       <div className="p-[20px] rounded-[16px] mb-[20px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
         <h3 className="m-0 text-[15px] font-bold mb-[14px] flex items-center gap-[8px]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>
@@ -137,6 +185,7 @@ export default function OrgDetailPage() {
                   <th className="px-[12px] py-[8px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Name</th>
                   <th className="px-[12px] py-[8px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Email</th>
                   <th className="px-[12px] py-[8px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Role</th>
+                  <th className="px-[12px] py-[8px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}></th>
                 </tr>
               </thead>
               <tbody>
@@ -145,6 +194,12 @@ export default function OrgDetailPage() {
                     <td className="px-[12px] py-[8px] text-[13px] font-medium" style={{ color: "#171717" }}>{a.first_name as string} {a.last_name as string}</td>
                     <td className="px-[12px] py-[8px] text-[13px]" style={{ color: "#555" }}>{a.email as string}</td>
                     <td className="px-[12px] py-[8px]"><span className="text-[11px] font-semibold px-[6px] py-[2px] rounded-full" style={{ background: "rgba(211,47,47,0.06)", color: "#D32F2F" }}>{a.role as string}</span></td>
+                    <td className="px-[12px] py-[8px]">
+                      <button type="button" onClick={() => confirmDeleteAdmin(a.id as string)} disabled={deleting === a.id}
+                        className="bg-transparent border-none cursor-pointer p-[4px] hover:opacity-70 disabled:opacity-40" title="Delete Admin">
+                        <Trash2 size={14} stroke="#D32F2F" />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -201,11 +256,16 @@ export default function OrgDetailPage() {
                     </td>
                     <td className="px-[12px] py-[10px] text-[13px]" style={{ color: "#888" }}>{m.created_at ? new Date(m.created_at).toLocaleDateString() : "—"}</td>
                     <td className="px-[12px] py-[10px]">
-                      <button type="button" onClick={() => setSelectedMemberId(m.id)}
-                        className="inline-flex items-center gap-[4px] text-[11px] font-medium bg-transparent border-none cursor-pointer transition-colors"
-                        style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
-                        <Eye size={12} /> View
-                      </button>
+                      <div className="flex items-center gap-[6px]">
+                        <button type="button" onClick={() => setSelectedMemberId(m.id)}
+                          className="inline-flex items-center gap-[4px] text-[11px] font-medium bg-transparent border-none cursor-pointer transition-colors">
+                          <Eye size={12} /> View
+                        </button>
+                        <button type="button" onClick={() => confirmDeleteMember(m.id)} disabled={deleting === m.id}
+                          className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70 disabled:opacity-40" title="Delete Member">
+                          <Trash2 size={12} stroke="#D32F2F" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { cachedFetch } from "@/lib/client-cache";
 import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
@@ -37,6 +37,10 @@ export default function UsersPage() {
   const [creating, setCreating] = useState(false);
   const [search, setSearch] = useState("");
   const [memberSearch, setMemberSearch] = useState("");
+  const [adminOrgFilter, setAdminOrgFilter] = useState("");
+  const [adminRoleFilter, setAdminRoleFilter] = useState("");
+  const [memberOrgFilter, setMemberOrgFilter] = useState("");
+  const [memberSourceFilter, setMemberSourceFilter] = useState("");
   const [editingAdmin, setEditingAdmin] = useState<string | null>(null);
   const [editingMember, setEditingMember] = useState<string | null>(null);
   const [editData, setEditData] = useState<Record<string, string>>({});
@@ -154,18 +158,28 @@ export default function UsersPage() {
     setDeleting(null);
   };
 
-  const filteredAdmins = admins.filter((a) => {
+const filteredAdmins = admins.filter((a) => {
     const q = search.toLowerCase();
-    return (a.first_name as string ?? "").toLowerCase().includes(q) ||
-           (a.last_name as string ?? "").toLowerCase().includes(q) ||
-           (a.email as string ?? "").toLowerCase().includes(q);
+    const matchesSearch =
+      (a.first_name as string ?? "").toLowerCase().includes(q) ||
+      (a.last_name as string ?? "").toLowerCase().includes(q) ||
+      (a.email as string ?? "").toLowerCase().includes(q);
+    const org = a.organizations as Record<string, unknown> | null;
+    const orgName = org?.name as string ?? "";
+    const matchesOrg = adminOrgFilter === "" || orgName === adminOrgFilter;
+    const matchesRole = adminRoleFilter === "" || (a.role as string) === adminRoleFilter;
+    return matchesSearch && matchesOrg && matchesRole;
   });
 
   const filteredMembers = members.filter((m) => {
     const q = memberSearch.toLowerCase();
-    return (m.first_name as string ?? "").toLowerCase().includes(q) ||
-           (m.last_name as string ?? "").toLowerCase().includes(q) ||
-           (m.email as string ?? "").toLowerCase().includes(q);
+    const matchesSearch =
+      (m.first_name as string ?? "").toLowerCase().includes(q) ||
+      (m.last_name as string ?? "").toLowerCase().includes(q) ||
+      (m.email as string ?? "").toLowerCase().includes(q);
+    const matchesOrg = memberOrgFilter === "" || m.organization_id === memberOrgFilter;
+    const matchesSource = memberSourceFilter === "" || (m.source_type as string) === memberSourceFilter;
+    return matchesSearch && matchesOrg && matchesSource;
   });
 
   return (
@@ -253,6 +267,25 @@ export default function UsersPage() {
               <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search admins..."
                 className="flex-1 bg-transparent border-none ml-[10px] text-[14px] outline-none" style={{ fontFamily: "Poppins, sans-serif" }} />
             </div>
+            <select value={adminRoleFilter} onChange={(e) => setAdminRoleFilter(e.target.value)}
+              className="px-[10px] py-[7px] rounded-lg border text-[12px] cursor-pointer outline-none"
+              style={{ borderColor: "#E0E0E0", color: "#555", background: "#FFF", fontFamily: "Poppins, sans-serif" }}>
+              <option value="">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="superadmin">Superadmin</option>
+            </select>
+            <select value={adminOrgFilter} onChange={(e) => setAdminOrgFilter(e.target.value)}
+              className="px-[10px] py-[7px] rounded-lg border text-[12px] cursor-pointer outline-none"
+              style={{ borderColor: "#E0E0E0", color: "#555", background: "#FFF", fontFamily: "Poppins, sans-serif" }}>
+              <option value="">All Organizations</option>
+              {orgs.map((o) => <option key={o.id as string} value={o.name as string}>{o.name as string}</option>)}
+            </select>
+            {(adminOrgFilter || adminRoleFilter) && (
+              <button type="button" onClick={() => { setAdminOrgFilter(""); setAdminRoleFilter(""); }}
+                className="p-[4px] rounded hover:opacity-70 bg-transparent border-none cursor-pointer" title="Clear filters">
+                <X size={14} stroke="#888" />
+              </button>
+            )}
           </div>
 
           <div className="rounded-[16px] overflow-hidden mb-[32px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
@@ -357,6 +390,26 @@ export default function UsersPage() {
               <input type="text" value={memberSearch} onChange={(e) => setMemberSearch(e.target.value)} placeholder="Search members..."
                 className="flex-1 bg-transparent border-none ml-[10px] text-[14px] outline-none" style={{ fontFamily: "Poppins, sans-serif" }} />
             </div>
+            <select value={memberSourceFilter} onChange={(e) => setMemberSourceFilter(e.target.value)}
+              className="px-[10px] py-[7px] rounded-lg border text-[12px] cursor-pointer outline-none"
+              style={{ borderColor: "#E0E0E0", color: "#555", background: "#FFF", fontFamily: "Poppins, sans-serif" }}>
+              <option value="">All Sources</option>
+              <option value="ORGANIZATION">Organization</option>
+              <option value="REFERRAL">Referral</option>
+              <option value="SELF_REGISTERED">Self-Registered</option>
+            </select>
+            <select value={memberOrgFilter} onChange={(e) => setMemberOrgFilter(e.target.value)}
+              className="px-[10px] py-[7px] rounded-lg border text-[12px] cursor-pointer outline-none"
+              style={{ borderColor: "#E0E0E0", color: "#555", background: "#FFF", fontFamily: "Poppins, sans-serif" }}>
+              <option value="">All Organizations</option>
+              {orgs.map((o) => <option key={o.id as string} value={o.id as string}>{o.name as string}</option>)}
+            </select>
+            {(memberOrgFilter || memberSourceFilter) && (
+              <button type="button" onClick={() => { setMemberOrgFilter(""); setMemberSourceFilter(""); }}
+                className="p-[4px] rounded hover:opacity-70 bg-transparent border-none cursor-pointer" title="Clear filters">
+                <X size={14} stroke="#888" />
+              </button>
+            )}
           </div>
 
           <div className="rounded-[16px] overflow-hidden" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
