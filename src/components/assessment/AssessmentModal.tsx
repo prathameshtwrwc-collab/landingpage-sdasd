@@ -11,6 +11,7 @@ import { getAssessmentData, createMemberAndStartAssessment, submitAssessment, ab
 import { downloadPdf, openPdfForPrint } from "@/lib/client-pdf";
 import { CHRONOTYPE_LABELS, CHRONOTYPE_DESCRIPTIONS, CHRONOTYPE_PEAK_TIMES, CHRONOTYPE_BLUEPRINT } from "@/lib/chronotype-utils";
 import { useConsult } from "@/components/consult/ConsultContext";
+import { COUNTRY_CODES, getCountryCode } from "@/lib/country-codes";
 import TermsModal from "./TermsModal";
 
 interface Question {
@@ -43,6 +44,7 @@ interface FormData {
   occupation: string;
   email: string;
   phone: string;
+  phoneDial: string;
   orgCode: string;
   referralCode: string;
   agreed: boolean;
@@ -51,7 +53,7 @@ interface FormData {
 const initialForm: FormData = {
   fname: "", lname: "", age: "", gender: "", maritalStatus: "",
   department: "", country: "", location: "", city: "", pincode: "",
-  occupation: "", email: "", phone: "", orgCode: "", referralCode: "", agreed: false,
+  occupation: "", email: "", phone: "", phoneDial: "+91", orgCode: "", referralCode: "", agreed: false,
 };
 
 function CheckCircle() {
@@ -69,6 +71,7 @@ export default function AssessmentModal() {
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(initialForm);
+  const [phoneDial, setPhoneDial] = useState("+91");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -108,17 +111,27 @@ export default function AssessmentModal() {
 
     loadAssessmentData();
 
-    // Lock body scroll, save position
+    // Robust background scroll-lock for all browsers incl. iPad/iOS touch.
+    // `overflow: hidden` on <html>/<body> alone does NOT stop touch scrolling
+    // on mobile; `position: fixed` on body is required to truly lock the page.
+    // The modal overlay is the single scroll container, so locking the body
+    // does not prevent scrolling inside the modal.
     const scrollY = window.scrollY;
     const prevOverflow = document.body.style.overflow;
     const prevPosition = document.body.style.position;
     const prevTop = document.body.style.top;
+    const prevLeft = document.body.style.left;
+    const prevRight = document.body.style.right;
     const prevWidth = document.body.style.width;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
 
     document.body.style.overflow = "hidden";
     document.body.style.position = "fixed";
     document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
     document.body.style.width = "100%";
+    document.documentElement.style.overflow = "hidden";
 
     // Detect org code from URL path (e.g. /AB0001, /TO0001, /AAB001)
     const path = window.location.pathname.replace(/\/+$/, "");
@@ -155,7 +168,10 @@ export default function AssessmentModal() {
       document.body.style.overflow = prevOverflow;
       document.body.style.position = prevPosition;
       document.body.style.top = prevTop;
+      document.body.style.left = prevLeft;
+      document.body.style.right = prevRight;
       document.body.style.width = prevWidth;
+      document.documentElement.style.overflow = prevHtmlOverflow;
       window.scrollTo(0, scrollY);
     };
   }, [isOpen]);
@@ -234,11 +250,29 @@ export default function AssessmentModal() {
     if (!form.maritalStatus) e.maritalStatus = "Required";
     if (!form.country.trim()) e.country = "Required";
     if (!form.city.trim()) e.city = "Required";
-    if (!form.pincode.trim()) e.pincode = "Required";
+    if (!form.pincode.trim()) {
+      e.pincode = "Required";
+    } else if (!/^\d+$/.test(form.pincode)) {
+      e.pincode = "Pincode must contain numbers only";
+    }
     if (!form.location.trim()) e.location = "Required";
     if (!form.occupation.trim()) e.occupation = "Required";
-    if (!form.email.trim()) e.email = "Required";
-    if (!form.phone.trim()) e.phone = "Required";
+    if (!form.email.trim()) {
+      e.email = "Required";
+    } else if (!form.email.includes("@")) {
+      e.email = "Email must include @";
+    }
+    if (!form.phone.trim()) {
+      e.phone = "Required";
+    } else if (!/^\d+$/.test(form.phone)) {
+      e.phone = "Phone must contain numbers only";
+    } else {
+      const cc = getCountryCode(form.phoneDial);
+      const digits = form.phone.replace(/\D/g, "");
+      if (cc && (digits.length < cc.minLength || digits.length > cc.maxLength)) {
+        e.phone = `Enter ${cc.minLength === cc.maxLength ? cc.maxLength : `${cc.minLength}–${cc.maxLength}`} digit phone number`;
+      }
+    }
     if (!form.agreed) e.agreed = "Required";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -254,7 +288,7 @@ export default function AssessmentModal() {
         last_name: form.lname,
         age: form.age,
         email: form.email,
-        phone: form.phone,
+        phone: `${form.phoneDial}${form.phone}`,
         gender: form.gender,
         marital_status: form.maritalStatus,
         department: form.department,
@@ -328,6 +362,7 @@ export default function AssessmentModal() {
   const resetAndClose = () => {
     setStep(0);
     setForm(initialForm);
+    setPhoneDial("+91");
     setAnswers({});
     setSubmitted(false);
     setSubmitting(false);
@@ -352,9 +387,9 @@ export default function AssessmentModal() {
   };
 
   const chronotypeDescs: Record<string, string> = {
-    LARK: "You naturally wake early and peak in the morning. Schedule important tasks before noon.",
-    EAGLE: "You are flexible and adapt well to most schedules. Your peak productivity is midday.",
-    OWL: "You naturally peak in the evening and prefer later schedules. Your creativity shines at night.",
+    LARK: CHRONOTYPE_DESCRIPTIONS.LARK.description,
+    EAGLE: CHRONOTYPE_DESCRIPTIONS.EAGLE.description,
+    OWL: CHRONOTYPE_DESCRIPTIONS.OWL.description,
   };
 
   const isResultView = submitted && chronotypeResult;
@@ -365,12 +400,15 @@ export default function AssessmentModal() {
       role="dialog"
       aria-modal="true"
       aria-labelledby="result-heading"
-      className="fixed inset-0 z-[9999] flex items-start justify-center result-modal-overlay"
+      className="fixed inset-0 z-[9999] flex justify-center result-modal-overlay"
       style={{
         background: "rgba(19, 22, 64, 0.72)",
         backdropFilter: isResultView ? "blur(5px)" : "none",
         padding: isResultView ? "12px 24px" : "40px 16px",
-        overflow: "hidden",
+        overflowY: "auto",
+        overflowX: "hidden",
+        WebkitOverflowScrolling: "touch",
+        alignItems: "safe center",
       }}
       onClick={(e) => { if (e.target === e.currentTarget) resetAndClose(); }}
     >
@@ -380,15 +418,13 @@ export default function AssessmentModal() {
           maxWidth: isResultView ? "1480px" : "600px",
           borderRadius: isResultView ? "22px" : "16px",
           fontFamily: "Poppins, sans-serif",
-          margin: "auto",
-          overflowY: "auto",
-          overflowX: "hidden",
-          scrollbarGutter: "stable",
+          margin: "0 auto",
           boxSizing: "border-box",
+          overflow: "hidden",
           boxShadow: isResultView ? "0 24px 80px rgba(18, 20, 57, 0.28)" : undefined,
         }}
       >
-        {!isResultView && <div style={{ height: "4px", background: "linear-gradient(90deg, #35319B, #F59A00)", width: "100%" }} />}
+        {!isResultView && <div style={{ height: "4px", background: "linear-gradient(90deg, #35319B, #F59A00)", width: "100%", borderTopLeftRadius: isResultView ? "22px" : "16px", borderTopRightRadius: isResultView ? "22px" : "16px" }} />}
 
         {!isResultView && (
           <button
@@ -579,7 +615,7 @@ export default function AssessmentModal() {
               <Field label="City *" value={form.city} onChange={(v) => updateForm("city", v)} error={errors.city} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label="Pincode *" value={form.pincode} onChange={(v) => updateForm("pincode", v)} error={errors.pincode} />
+              <Field label="Pincode *" value={form.pincode} onChange={(v) => updateForm("pincode", v)} error={errors.pincode} type="text" inputMode="numeric" sanitize="numeric" maxLength={10} placeholder="Numeric only" />
               <div className="relative">
                 <SelectField label="Occupation *" value={form.occupation.startsWith("Other:") ? "Other" : form.occupation}
                   onChange={(v) => {
@@ -607,7 +643,44 @@ export default function AssessmentModal() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <Field label="Email *" value={form.email} onChange={(v) => updateForm("email", v)} error={errors.email} type="email" />
-              <Field label="Phone *" value={form.phone} onChange={(v) => updateForm("phone", v)} error={errors.phone} type="tel" />
+              <div>
+                <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+                  Phone *
+                </label>
+                <div className="flex items-stretch gap-[6px]">
+                  <select
+                    value={form.phoneDial}
+                    onChange={(e) => {
+                      const dial = e.target.value;
+                      setPhoneDial(dial);
+                      updateForm("phoneDial", dial);
+                    }}
+                    className="shrink-0 px-[8px] py-[10px] text-[13px] bg-white transition-shadow cursor-pointer"
+                    style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif", width: "110px" }}
+                    aria-label="Country code"
+                  >
+                    {COUNTRY_CODES.map((c) => (
+                      <option key={c.code} value={c.dial} title={c.name}>{c.dial} {c.code}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    value={form.phone}
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/\D/g, "");
+                      const cc = getCountryCode(form.phoneDial);
+                      const cap = cc?.maxLength ?? 15;
+                      updateForm("phone", v.slice(0, cap));
+                    }}
+                    placeholder="Phone number"
+                    maxLength={getCountryCode(form.phoneDial)?.maxLength ?? 15}
+                    className="flex-1 w-full min-w-0 px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
+                    style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
+                  />
+                </div>
+                {errors.phone && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{errors.phone}</p>}
+              </div>
             </div>
             <div className="mb-[14px]">
               <Field label="State *" value={form.location} onChange={(v) => updateForm("location", v)} error={errors.location} />
@@ -685,14 +758,15 @@ export default function AssessmentModal() {
               input[type="number"]::-webkit-outer-spin-button,
               input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
               input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
-              .result-modal-container { overflow-y: auto; overflow-x: hidden; scrollbar-gutter: stable; box-sizing: border-box; width: calc(100vw - 48px); max-height: calc(100dvh - 20px); }
+              .result-modal-container { box-sizing: border-box; width: calc(100vw - 48px); }
               .result-modal-container > :last-child { margin-bottom: 0; }
               .result-content .result-hero { min-height: 0; }
               .result-next-steps .result-step-item:first-child { border-left: none !important; }
-              .result-overlay { overflow: hidden; }
+              .result-overlay { overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
               .chronotype-illustration svg { display: block; width: 100%; height: auto; max-height: 76px; }
-              @media (max-width: 767px) {
-                .result-modal-container { border-radius: 0 !important; max-width: 100% !important; max-height: 100dvh !important; width: 100% !important; min-height: 100dvh !important; }
+              @media (max-width: 1024px) {
+                .result-modal-overlay { padding: 0 !important; }
+                .result-modal-container { border-radius: 0 !important; max-width: 100% !important; width: 100% !important; min-height: 100dvh !important; }
                 .result-hero { grid-template-columns: 1fr !important; gap: 12px !important; }
                 .result-hero .chronotype-illustration { max-width: 90px !important; }
                 .result-metrics-grid { grid-template-columns: 1fr !important; min-height: auto !important; }
@@ -725,14 +799,6 @@ export default function AssessmentModal() {
                 .result-success-banner p:first-of-type { font-size: 14px !important; }
                 .result-success-banner p:last-of-type { font-size: 11px !important; }
               }
-              @media (min-width: 768px) and (max-width: 899px) {
-                .result-modal-container { max-width: calc(100vw - 32px) !important; }
-                .result-hero { grid-template-columns: 1fr 1fr !important; }
-                .result-metric-item { padding: 0 14px !important; gap: 12px !important; }
-              }
-              @media (min-width: 900px) and (max-width: 1199px) {
-                .result-modal-container { max-width: calc(100vw - 40px) !important; }
-              }
               @media (max-width: 899px) {
                 .result-insights { grid-template-columns: 1fr !important; }
                 .result-action-cards { grid-template-columns: 1fr !important; }
@@ -764,8 +830,8 @@ export default function AssessmentModal() {
 
 /* ----- FIELD COMPONENTS ----- */
 
-function Field({ label, value, onChange, error, type = "text", inputMode, readonly, placeholder }: {
-  label: string; value: string; onChange: (v: string) => void; error?: string; type?: string; inputMode?: "text" | "numeric" | "tel" | "email" | "url"; readonly?: boolean; placeholder?: string;
+function Field({ label, value, onChange, error, type = "text", inputMode, readonly, placeholder, sanitize, maxLength }: {
+  label: string; value: string; onChange: (v: string) => void; error?: string; type?: string; inputMode?: "text" | "numeric" | "tel" | "email" | "url"; readonly?: boolean; placeholder?: string; sanitize?: "numeric"; maxLength?: number;
 }) {
   return (
     <div>
@@ -775,10 +841,17 @@ function Field({ label, value, onChange, error, type = "text", inputMode, readon
       <input
         type={type}
         value={value}
-        onChange={(e) => { if (!readonly) onChange(e.target.value); }}
+        onChange={(e) => {
+          if (readonly) return;
+          let v = e.target.value;
+          if (sanitize === "numeric") v = v.replace(/\D/g, "");
+          if (maxLength) v = v.slice(0, maxLength);
+          onChange(v);
+        }}
         inputMode={inputMode}
         readOnly={readonly}
         placeholder={placeholder}
+        maxLength={maxLength}
         className="w-full px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
         style={{
           borderRadius: "8px",
@@ -1561,6 +1634,17 @@ function EnhancedResult({
           Retake assessment
         </button>
       </div>
+
+      {/* ─── Go to Dashboard ─── */}
+      <button
+        type="button"
+        onClick={() => { window.location.href = "/dashboard"; }}
+        className="w-full inline-flex items-center justify-center gap-[9px] text-[14px] font-semibold border rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f]"
+        style={{ minHeight: "46px", color: "#30268F", background: "#F6F4FF", border: "1px solid #D8D3FA", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
+      >
+        Go to my Dashboard
+        <ArrowRight size={18} strokeWidth={1.75} />
+      </button>
 
       {/* ─── Footer: Logos + Disclaimer ─── */}
       <div className="result-footer" style={{

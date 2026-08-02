@@ -8,7 +8,7 @@ This document contains a comprehensive review of the database schema defined in 
 
 # 1. Database Entity Review
 
-## 1.1 Entities Present (16 tables + 1 future table)
+## 1.1 Entities Present (19 tables + 1 future table)
 
 | # | Table | Purpose | Status |
 |---|-------|---------|--------|
@@ -19,16 +19,19 @@ This document contains a comprehensive review of the database schema defined in 
 | 5 | assessment_versions | Enables questionnaire versioning | ✅ Defined |
 | 6 | questions | Stores assessment questions | ✅ Defined |
 | 7 | question_options | Stores answer options per question | ✅ Defined |
-| 8 | assessments | Stores assessment attempts | ✅ Defined |
-| 9 | assessment_answers | Stores individual answer selections | ✅ Defined |
-| 10 | chronotype_results | Stores final chronotype outcomes | ✅ Defined |
-| 11 | recommendations | Stores recommendation library | ✅ Defined |
-| 12 | member_recommendations | Maps recommendations to members | ✅ Defined |
-| 13 | reports | Stores generated PDF reports | ✅ Defined |
-| 14 | organization_links | Stores shareable organization links | ✅ Defined |
-| 15 | login_audit | Tracks platform login events | ✅ Defined |
-| 16 | activity_logs | Tracks important actions | ✅ Defined |
-| 17 | branches | Future enterprise branch support | 🔜 Reserved |
+| 8 | scoring_rules | Chronotype score ranges per version (live: has legacy `rule_logic jsonb`/`is_active` + added `label`/`description`) | ✅ Defined |
+| 9 | assessments | Stores assessment attempts | ✅ Defined |
+| 10 | assessment_answers | Stores individual answer selections | ✅ Defined |
+| 11 | chronotype_results | Stores final chronotype outcomes | ✅ Defined |
+| 12 | recommendations | Stores recommendation library | ✅ Defined |
+| 13 | member_recommendations | Maps recommendations to members | ✅ Defined |
+| 14 | reports | Stores generated PDF reports | ✅ Defined |
+| 15 | organization_links | Stores shareable organization links | ✅ Defined |
+| 16 | member_goals | Stores member-created goals (sleep/energy/routine) | ✅ Defined |
+| 17 | consultation_leads | Stores Consult modal booking leads | ✅ Defined |
+| 18 | login_audit | Tracks platform login events | ✅ Defined |
+| 19 | activity_logs | Tracks important actions | ✅ Defined |
+| 20 | branches | Future enterprise branch support | 🔜 Reserved |
 
 ## 1.2 Entity Coverage Assessment
 

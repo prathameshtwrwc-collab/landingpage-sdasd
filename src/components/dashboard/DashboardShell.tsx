@@ -125,7 +125,28 @@ export default function DashboardShell({
   const [moreOpen, setMoreOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [donateOpen, setDonateOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+
+  // Sidebar collapsed state persists across subpage navigations so the user's
+  // choice is not reset when the shell remounts.
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    try {
+      const stored = localStorage.getItem("chronotype_sidebar_collapsed");
+      return stored === null ? true : stored === "1";
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("chronotype_sidebar_collapsed", next ? "1" : "0");
+      } catch {}
+      return next;
+    });
+  }, []);
 
   useEffect(() => { setIsMounted(true); }, []);
 
@@ -214,7 +235,7 @@ export default function DashboardShell({
               </div>
             )}
           </div>
-          <button type="button" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          <button type="button" onClick={toggleSidebar}
             className="flex items-center justify-center w-[24px] h-[24px] rounded-lg border-none cursor-pointer bg-transparent shrink-0"
             style={{ color: darkMode ? "#666" : "#98A2B3" }}>
             <ChevronLeft size={14} style={{ transform: sidebarCollapsed ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />

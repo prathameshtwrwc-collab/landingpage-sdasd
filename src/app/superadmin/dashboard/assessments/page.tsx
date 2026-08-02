@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { ClipboardList, Plus, CheckCircle, AlertTriangle, Eye, Edit3, Copy, Archive, Send, X, ChevronDown, ChevronUp, GripVertical, RotateCcw, Shield, BookOpen } from "lucide-react";
+import { ClipboardList, Plus, CheckCircle, AlertTriangle, Eye, Edit3, Copy, Archive, Send, X, ChevronDown, ChevronUp, GripVertical, RotateCcw, Shield, BookOpen, Trash2 } from "lucide-react";
 
 type Question = { id?: string; text: string; category: string; isRequired: boolean; options: { text: string; larkScore: number; eagleScore: number; owlScore: number }[] };
 type ScoringRule = { min_score: number | null; max_score: number | null; chronotype: string; label: string | null; description: string | null };
@@ -66,13 +66,47 @@ export default function SuperAdminAssessmentsPage() {
     setTab("builder");
   };
 
+  // DRAFT versions can be edited in place. ACTIVE/ARCHIVED versions must not be
+  // mutated (published versions are preserved for historical reporting), so we
+  // duplicate them into a new DRAFT copy and edit that instead.
+  const startEdit = async (v: Version) => {
+    if (v.status === "DRAFT") { loadVersion(v); return; }
+
+    setSaving(true);
+    const res = await fetch("/api/admin-assessments", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "duplicate", versionId: v.id }),
+    });
+    const d = await res.json();
+    setSaving(false);
+
+    if (d.error || !d.versionId) {
+      showMsg("error", d.error || "Failed to create an editable copy");
+      return;
+    }
+
+    // Fetch the fresh list and open the newly created draft copy in the builder.
+    try {
+      const fresh = await fetch("/api/admin-assessments").then((r) => r.json());
+      const copy = (fresh?.versions ?? []).find((x: { id: string }) => x.id === d.versionId);
+      if (copy) {
+        loadVersion(copy);
+        showMsg("success", "Created an editable draft copy — publish it to make it live.");
+        return;
+      }
+    } catch {}
+
+    fetchVersions();
+    showMsg("success", "Draft copy created — open it from the list to edit");
+  };
+
   const saveDraft = async () => {
     if (!vName.trim()) { showMsg("error", "Assessment name is required"); return; }
     setSaving(true);
 
     // If editing existing draft, update it; otherwise create new
     const action = editVersionId ? "update_draft" : "create_draft";
-    const body: Record<string, unknown> = { action, name: vName, description: vDesc, questions };
+    const body: Record<string, unknown> = { action, name: vName, description: vDesc, questions, scoringRules };
 
     if (editVersionId) body.versionId = editVersionId;
 
@@ -92,8 +126,41 @@ export default function SuperAdminAssessmentsPage() {
   };
 
   const publishVersion = async (versionId?: string) => {
-    const id = versionId || editVersionId;
-    if (!id) return;
+    let id = versionId || editVersionId;
+
+    // If this is a brand-new (never-saved) version, create the draft first so
+    // questions AND scoring rules are persisted, then publish it.
+    if (!id) {
+      if (!vName.trim()) { showMsg("error", "Assessment name is required"); return; }
+      setSaving(true);
+      const res = await fetch("/api/admin-assessments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create_draft", name: vName, description: vDesc, questions, scoringRules }),
+      });
+      const d = await res.json();
+      if (d.error || !d.versionId) {
+        showMsg("error", d.error || "Failed to save draft before publishing");
+        setSaving(false);
+        return;
+      }
+      id = d.versionId as string;
+      setEditVersionId(id);
+    }
+
+    // Publishing from the builder (no explicit versionId): persist the current
+    // questions + scoring rules to the draft first, so old versions that lack
+    // stored rules are fixed before the publish validation runs.
+    if (!versionId && id) {
+      const saveRes = await fetch("/api/admin-assessments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "update_draft", versionId: id, name: vName, description: vDesc, questions, scoringRules }),
+      });
+      const saveD = await saveRes.json();
+      if (saveD.error) { showMsg("error", saveD.error); setSaving(false); return; }
+    }
+
     setSaving(true);
     const res = await fetch("/api/admin-assessments", {
       method: "POST",
@@ -115,6 +182,17 @@ export default function SuperAdminAssessmentsPage() {
     fetchVersions();
   };
 
+  const deleteVersion = async (versionId: string, versionName: string) => {
+    if (!window.confirm(`Delete draft "${versionName}"? This cannot be undone.`)) return;
+    const res = await fetch("/api/admin-assessments", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "delete", versionId }),
+    });
+    const d = await res.json();
+    if (d.error) showMsg("error", d.error); else showMsg("success", "Draft deleted");
+    fetchVersions();
+  };
+
   const duplicateVersion = async (versionId: string) => {
     const res = await fetch("/api/admin-assessments", {
       method: "POST", headers: { "Content-Type": "application/json" },
@@ -123,15 +201,6 @@ export default function SuperAdminAssessmentsPage() {
     const d = await res.json();
     if (d.error) showMsg("error", d.error); else showMsg("success", "Version duplicated");
     fetchVersions();
-  };
-
-  const saveScoringRules = async (versionId: string) => {
-    const res = await fetch("/api/admin-assessments", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "save_rules", versionId, rules: scoringRules }),
-    });
-    const d = await res.json();
-    if (d.error) showMsg("error", d.error); else showMsg("success", "Scoring rules saved");
   };
 
   const updateVersion = async (versionId: string) => {
@@ -159,6 +228,33 @@ export default function SuperAdminAssessmentsPage() {
     }
     if ((sorted[sorted.length - 1]?.max_score ?? 0) < totalScoreRange) return `Max score ${totalScoreRange} not covered by ranges`;
     return null;
+  })();
+
+  // Suggest scoring ranges that cover 0 → totalScoreRange, keeping the three
+  // chronotype bands in the same relative order as the current rules.
+  const applySuggestedRanges = () => {
+    const max = Math.max(totalScoreRange, 1);
+    const thirds = Math.floor(max / 3);
+    const remainder = max - thirds * 3;
+    const bands = [
+      { min: 0, max: thirds + (remainder >= 1 ? 1 : 0) - 1 },
+      { min: thirds + (remainder >= 1 ? 1 : 0), max: thirds * 2 + (remainder >= 2 ? 1 : 0) - 1 },
+      { min: thirds * 2 + (remainder >= 2 ? 1 : 0), max: max },
+    ];
+    const ordered = [...scoringRules].sort((a, b) => (a.min_score ?? 0) - (b.min_score ?? 0));
+    const updated = ordered.map((r, i) => ({
+      ...r,
+      min_score: Math.max(0, bands[i]?.min ?? 0),
+      max_score: Math.max(bands[i]?.max ?? 0, bands[i]?.min ?? 0),
+    }));
+    // Guarantee exact top coverage on the last rule.
+    if (updated.length > 0) updated[updated.length - 1].max_score = max;
+    setScoringRules(updated);
+  };
+
+  const rangesNeedCoverage = (() => {
+    const sorted = [...scoringRules].sort((a, b) => (a.min_score ?? 0) - (b.min_score ?? 0));
+    return (sorted[sorted.length - 1]?.max_score ?? 0) < totalScoreRange;
   })();
 
   const versions = data?.versions ?? [];
@@ -243,7 +339,7 @@ export default function SuperAdminAssessmentsPage() {
                         style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
                         <Eye size={13} /> View
                       </button>
-                      <button type="button" onClick={() => loadVersion(v)}
+                      <button type="button" onClick={() => startEdit(v)}
                         className="flex items-center gap-[4px] text-[11px] font-semibold px-[10px] py-[6px] rounded-lg border-none cursor-pointer transition-colors"
                         style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
                         <Edit3 size={13} /> Edit
@@ -265,6 +361,13 @@ export default function SuperAdminAssessmentsPage() {
                           className="flex items-center gap-[4px] text-[11px] font-semibold px-[10px] py-[6px] rounded-lg border-none cursor-pointer transition-colors"
                           style={{ color: "#888", background: "rgba(0,0,0,0.04)", fontFamily: "Poppins, sans-serif" }}>
                           <Archive size={13} /> Archive
+                        </button>
+                      )}
+                      {v.status === "DRAFT" && (
+                        <button type="button" onClick={() => deleteVersion(v.id, v.name)}
+                          className="flex items-center gap-[4px] text-[11px] font-semibold px-[10px] py-[6px] rounded-lg border-none cursor-pointer transition-colors"
+                          style={{ color: "#D32F2F", background: "rgba(211,47,47,0.06)", fontFamily: "Poppins, sans-serif" }}>
+                          <Trash2 size={13} /> Delete
                         </button>
                       )}
                     </div>
@@ -398,14 +501,23 @@ export default function SuperAdminAssessmentsPage() {
                 {validateMsg || "All checks passed — ready to publish"}
               </span>
             </div>
+            {rangesNeedCoverage && (
+              <div className="mt-[10px] flex items-center justify-between flex-wrap gap-[8px] p-[10px] rounded-lg" style={{ background: "rgba(53,49,155,0.05)", border: "1px solid rgba(53,49,155,0.15)" }}>
+                <span className="text-[12px]" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                  Current ranges only cover up to {Math.max(...scoringRules.map((r) => r.max_score ?? 0))} of {totalScoreRange} possible points.
+                </span>
+                <button type="button" onClick={applySuggestedRanges}
+                  className="flex items-center gap-[5px] px-[12px] py-[6px] rounded-lg border-none cursor-pointer text-[12px] font-semibold text-white transition-colors"
+                  style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)", fontFamily: "Poppins, sans-serif" }}>
+                  <CheckCircle size={13} /> Apply suggested ranges
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Actions */}
           <div className="flex items-center gap-[10px] flex-wrap">
-            <button type="button" onClick={async () => {
-              if (editVersionId) await saveScoringRules(editVersionId);
-              await saveDraft();
-            }}
+            <button type="button" onClick={saveDraft}
               className="flex items-center gap-[5px] px-[16px] py-[9px] rounded-xl border-none cursor-pointer text-[12px] font-semibold transition-colors"
               style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }} disabled={saving}>
               <RotateCcw size={14} /> {saving ? "Saving..." : editVersionId ? "Save Draft" : "Save as Draft"}
@@ -415,11 +527,8 @@ export default function SuperAdminAssessmentsPage() {
               style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
               <Eye size={14} /> Preview
             </button>
-            <button type="button" onClick={async () => {
-              if (editVersionId) await saveScoringRules(editVersionId);
-              await publishVersion();
-            }}
-              disabled={!!validateMsg || saving || !editVersionId}
+            <button type="button" onClick={() => publishVersion()}
+              disabled={!!validateMsg || saving}
               className="flex items-center gap-[5px] px-[16px] py-[9px] rounded-xl border-none cursor-pointer text-[12px] font-semibold text-white transition-colors disabled:opacity-50"
               style={{ background: "linear-gradient(135deg, #2E7D32, #43A047)", fontFamily: "Poppins, sans-serif" }}>
               <Send size={14} /> {saving ? "Publishing..." : "Publish"}

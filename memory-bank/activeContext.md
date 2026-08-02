@@ -82,6 +82,13 @@ Phase: Feature Completion & Stabilization — Superadmin Dashboard, RLS Fixes, D
 - **Lark chronotype images** — 11 lark-specific images added to `public/chronotype_media/lark/`
 - **PDF report redesigned** — New minimal healthcare A4 template with recognisable Lark/Eagle/Owl illustrations, Poppins font detection via `getPoppinsFontName()`, geometry validation, score sections removed
 - **Donate modal image** — Visual panel updated to use `/assets/donate modal/donatepic.png`
+- **PDF engine replaced** — html2canvas + jsPDF removed; `@react-pdf/renderer@4.5.1` now generates the report (new `src/components/pdf/` system), fixing the html2canvas alignment divergence. All 3 download entry points (dashboard, progress, assessment modal) wired with loading states + duplicate guards. Old `report-template.ts` and `/api/reports/preview` removed.
+- **Owl chronotype images** — 11 owl-specific images added to `public/chronotype_media/owl/`; dashboard chronotype page now uses per-type folders.
+- **Dashboard performance** — Replaced 1s dark-mode polling with storage event; lazy-loaded PDF libs; `cachedFetch` (45s TTL) across all dashboard pages; Cache-Control on /api/member; React.memo on chart components.
+- **Sidebar collapse persisted** — `sidebarCollapsed` stored in localStorage (`chronotype_sidebar_collapsed`); no longer resets when switching subpages.
+- **Energy page** — Personalized 24h energy curve (`generatePersonalizedEnergyCurve`) blending Lark/Eagle/Owl templates weighted by the member's real scores + confidence; new pixel-accurate `EnergyChart` (no SVG text distortion); extra cards removed.
+- **Superadmin assessments persistence fix** — `create_draft`/`update_draft` now persist scoring rules; publishing auto-saves draft first; old versions get rules seeded via SQL.
+- **scoring_rules schema aligned** — Production table has legacy `rule_logic jsonb` + `is_active` columns plus newly added `label VARCHAR(100)` + `description TEXT`. Health check now verifies `scoring_rules` exists.
 
 ---
 

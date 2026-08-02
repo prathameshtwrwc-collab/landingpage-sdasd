@@ -2,6 +2,26 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.8.0] — 2026-08-02 — Superadmin Assessments Persistence, Energy Page, Sidebar, Schema Alignment
+
+### Fixed — Superadmin Assessments publishing to DB
+- `create_draft` / `update_draft` API actions now persist **scoring rules** (previously only questions were saved, so publishing failed with "No scoring rules defined")
+- Publishing from the builder now saves the current questions + scoring rules to the draft first (`update_draft`) before running the publish validation — fixes versions created before rules-persistence existed
+- `supabase/schema3.sql` seed bug fixed — it inserted into non-existent `rule_logic`/`is_active` columns; now uses the real `label`/`description` columns
+- `/api/health` now verifies the `scoring_rules` table exists (was missing from the check list, hiding the failure)
+
+### Added — Energy page
+- **`generatePersonalizedEnergyCurve`** — 24h curve blends the three chronotype templates weighted by the member's real `lark_score`/`eagle_score`/`owl_score` and pulls toward the winner proportional to `confidence_score`
+- **`src/components/charts/EnergyChart.tsx`** — pixel-accurate smooth line chart (ResizeObserver-measured width, no SVG `preserveAspectRatio` distortion), gridlines, peak marker, HTML number overlays
+- Energy page renders the personalized curve + phase cards (extra Peak/Blueprint/Summary cards removed)
+
+### Fixed — Dashboard sidebar
+- `sidebarCollapsed` persisted in `localStorage` (`chronotype_sidebar_collapsed`); no longer auto-minimizes when switching between subpages
+
+### Database note (applied in Supabase SQL editor)
+- Production `scoring_rules` table has legacy `rule_logic jsonb` + `is_active` columns plus added `label VARCHAR(100)` + `description TEXT`
+- Default scoring rules seeded for every existing assessment version (LARK 27–40, EAGLE 14–26, OWL 0–13)
+
 ## [2.7.0] — 2026-08-02 — React-PDF Report Engine + Placement Fixes
 
 ### Added

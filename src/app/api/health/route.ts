@@ -24,7 +24,7 @@ export async function GET() {
   // Check 3: Database schema tables
   try {
     const supabase = await createClient();
-    const tables = ["organizations", "organization_admins", "members", "assessment_versions", "questions", "question_options", "assessments", "assessment_answers", "chronotype_results", "recommendations", "member_recommendations", "organization_links"];
+    const tables = ["organizations", "organization_admins", "members", "assessment_versions", "questions", "question_options", "scoring_rules", "assessments", "assessment_answers", "chronotype_results", "recommendations", "member_recommendations", "organization_links"];
     const results: Record<string, boolean> = {};
     for (const table of tables) {
       const { error } = await supabase.from(table).select("id").limit(1);

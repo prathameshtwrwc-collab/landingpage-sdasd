@@ -79,6 +79,11 @@ C:\Users\prath\OneDrive - MSFT\Desktop\sleepchrono-recreated2
 │   │   │   ├── DashboardShell.tsx     # Layout with sidebar + bottom nav per role
 │   │   │   ├── StatCard.tsx           # Premium metric card with icon/trend/gradient
 │   │   │   └── RoleBadge.tsx          # Color-coded role label pill
+│   │   ├── charts/
+│   │   │   ├── MiniLine.tsx           # Simple line chart (memoized)
+│   │   │   ├── EnergyChart.tsx        # Pixel-accurate 24h energy curve (ResizeObserver, no distortion)
+│   │   │   ├── Bars.tsx               # Bar chart (memoized)
+│   │   │   └── Ring.tsx               # Circular progress ring (memoized)
 │   │   ├── smooth-scroll/
 │   │   │   └── SmoothScrollProvider.tsx # Lenis smooth scroll provider + context
 │   │   └── FloatingTestButton.tsx     # Floating CTA for assessment

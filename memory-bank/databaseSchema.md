@@ -233,7 +233,9 @@ question_text
 
 question_order
 
-question_type
+question_type (DEFAULT 'single_choice')
+
+category
 
 is_active
 
@@ -245,7 +247,7 @@ created_at
 
 Purpose:
 
-Stores question answer options.
+Stores question answer options with per-chronotype scores.
 
 Fields:
 
@@ -259,7 +261,57 @@ option_value
 
 option_order
 
+lark_score INTEGER DEFAULT 0
+
+eagle_score INTEGER DEFAULT 0
+
+owl_score INTEGER DEFAULT 0
+
 created_at
+
+---
+
+# Table: scoring_rules
+
+Purpose:
+
+Stores chronotype scoring ranges for each assessment version.
+
+Defines which total score ranges map to which chronotype.
+
+IMPORTANT — Live schema (verified 2026-08-02):
+
+The production table was created with the older `rule_logic jsonb` + `is_active` columns
+and was later ALTERed to add `label VARCHAR(100)` and `description TEXT`.
+
+Fields (live):
+
+id UUID PK
+
+assessment_version_id FK → assessment_versions
+
+chronotype (chronotype_type enum)
+
+min_score INTEGER
+
+max_score INTEGER
+
+rule_logic JSONB DEFAULT '{}'  (legacy — unused by app code)
+
+is_active BOOLEAN DEFAULT true (legacy — unused by app code)
+
+label VARCHAR(100)  (used by app)
+
+description TEXT  (used by app)
+
+created_at
+
+App code reads/writes only: assessment_version_id, min_score, max_score, chronotype, label, description.
+Keep the legacy columns in place; do not drop them.
+
+Rules:
+- Ranges must be non-overlapping and cover 0 → max possible score.
+- Only one ACTIVE assessment_version at a time; publishing archives the previous.
 
 ---
 
@@ -279,11 +331,17 @@ organization_id FK NULLABLE
 
 assessment_version_id FK
 
-status
+status (assessment_status enum)
 
 started_at
 
 completed_at
+
+ip_address
+
+user_agent
+
+time_taken_seconds
 
 created_at
 
@@ -508,6 +566,80 @@ entity_type
 entity_id
 
 created_at
+
+---
+
+# Table: member_goals
+
+Purpose:
+
+Stores member-created goals (sleep / energy / routine).
+
+Fields:
+
+id UUID PK
+
+member_id FK → members
+
+title
+
+description
+
+category (DEFAULT 'sleep')
+
+target_date
+
+status (DEFAULT 'ACTIVE')
+
+created_at
+
+updated_at
+
+---
+
+# Table: consultation_leads
+
+Purpose:
+
+Stores consultation/booking leads from the Consult modal.
+
+Fields:
+
+id UUID PK
+
+fname
+
+lname
+
+age
+
+gender
+
+marital_status
+
+country
+
+state
+
+city
+
+pincode
+
+email
+
+phone
+
+schedule_date
+
+schedule_time
+
+status (DEFAULT 'PENDING')
+
+notes
+
+created_at
+
+updated_at
 
 ---
 

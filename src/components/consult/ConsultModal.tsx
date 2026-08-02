@@ -70,14 +70,39 @@ export default function ConsultModal() {
 
   useEffect(() => {
     if (isOpen) {
+      // Robust background scroll-lock for all browsers incl. iPad/iOS touch.
+      // `overflow: hidden` alone does not stop touch scrolling on mobile;
+      // `position: fixed` on body is required to truly lock the page. The
+      // modal overlay is the single scroll container.
+      const scrollY = window.scrollY;
+      const prevOverflow = document.body.style.overflow;
+      const prevPosition = document.body.style.position;
+      const prevTop = document.body.style.top;
+      const prevLeft = document.body.style.left;
+      const prevRight = document.body.style.right;
+      const prevWidth = document.body.style.width;
+      const prevHtmlOverflow = document.documentElement.style.overflow;
+
       document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+      document.documentElement.style.overflow = "hidden";
+
       if (prefill) setForm((prev) => ({ ...prev, ...prefill }));
-    } else {
-      document.body.style.overflow = "";
+      return () => {
+        document.body.style.overflow = prevOverflow;
+        document.body.style.position = prevPosition;
+        document.body.style.top = prevTop;
+        document.body.style.left = prevLeft;
+        document.body.style.right = prevRight;
+        document.body.style.width = prevWidth;
+        document.documentElement.style.overflow = prevHtmlOverflow;
+        window.scrollTo(0, scrollY);
+      };
     }
-    return () => {
-      document.body.style.overflow = "";
-    };
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -140,18 +165,17 @@ export default function ConsultModal() {
   return (
     <div
       data-lenis-prevent
-      className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto"
-      style={{ background: "rgba(15, 13, 45, 0.65)", padding: "40px 16px" }}
+      className="fixed inset-0 z-[9999] flex justify-center overflow-y-auto consult-overlay"
+      style={{ background: "rgba(15, 13, 45, 0.65)", padding: "40px 16px", WebkitOverflowScrolling: "touch", overflowX: "hidden", alignItems: "safe center" }}
       onClick={(e) => { if (e.target === e.currentTarget) resetAndClose(); }}
     >
       <div
-        className="relative w-full bg-white shadow-2xl overflow-hidden"
+        className="relative w-full bg-white shadow-2xl overflow-hidden consult-container"
         style={{
           maxWidth: "580px",
           borderRadius: "16px",
           fontFamily: "Poppins, sans-serif",
-          marginTop: "auto",
-          marginBottom: "auto",
+          margin: "0 auto",
         }}
       >
         {/* Gradient accent bar */}
@@ -271,6 +295,12 @@ export default function ConsultModal() {
             __html: `
               input, select { font-family: Poppins, sans-serif; }
               input:focus, select:focus { outline: 2px solid #3B35A3; outline-offset: -1px; border-color: transparent !important; border-radius: 6px; }
+              .consult-overlay { overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+              .consult-container { box-sizing: border-box; }
+              @media (max-width: 1024px) {
+                .consult-overlay { padding: 0 !important; }
+                .consult-container { border-radius: 0 !important; max-width: 100% !important; width: 100% !important; min-height: 100dvh !important; }
+              }
             `,
           }}
         />

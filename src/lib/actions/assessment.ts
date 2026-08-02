@@ -7,14 +7,16 @@ import { headers } from "next/headers";
 export async function getAssessmentData() {
   const supabase = await createClient();
 
+  // There is exactly one ACTIVE version at a time (publishing archives the
+  // previous one). Select it regardless of name — the version name can change
+  // (e.g. a duplicated version named "... (Copy)") and must not break loading.
   const { data: version } = await supabase
     .from("assessment_versions")
     .select("id")
-    .eq("name", "Sleep Chronotype Assessment")
     .eq("status", "ACTIVE")
     .order("version", { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   if (!version) throw new Error("No active assessment version found");
 
@@ -164,11 +166,10 @@ export async function createMemberAndStartAssessment(data: {
   const { data: version } = await supabase
     .from("assessment_versions")
     .select("id")
-    .eq("name", "Sleep Chronotype Assessment")
     .eq("status", "ACTIVE")
     .order("version", { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   if (!version) throw new Error("No active assessment version");
 
@@ -215,11 +216,10 @@ export async function abandonAndRestartAssessment(prevAssessmentId: string, memb
   const { data: version } = await supabase
     .from("assessment_versions")
     .select("id")
-    .eq("name", "Sleep Chronotype Assessment")
     .eq("status", "ACTIVE")
     .order("version", { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   if (!version) throw new Error("No active assessment version");
 

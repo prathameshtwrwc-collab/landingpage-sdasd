@@ -4,26 +4,42 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { cachedFetch } from "@/lib/client-cache";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import MiniLine from "@/components/charts/MiniLine";
+import EnergyChart from "@/components/charts/EnergyChart";
 import { Zap, Brain, Sun, Moon, TrendingUp } from "lucide-react";
-import { generateEnergyCurve, generateEnergyCards, ENERGY_LABELS, CHRONOTYPE_LABELS } from "@/lib/chronotype-utils";
+import {
+  generatePersonalizedEnergyCurve, generateEnergyCards, ENERGY_LABELS,
+  CHRONOTYPE_LABELS,
+} from "@/lib/chronotype-utils";
+
+type Chronotype = "LARK" | "EAGLE" | "OWL";
+
+interface EnergyData {
+  result: Record<string, unknown> | null;
+}
 
 export default function EnergyPage() {
   const { user } = useAuth();
-  const [data, setData] = useState<{ result: Record<string, unknown> | null } | null>(null);
+  const [data, setData] = useState<EnergyData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user?.email) {
-      cachedFetch<{ result: Record<string, unknown> | null }>(`/api/member?email=${encodeURIComponent(user.email)}`)
+      cachedFetch<EnergyData>(`/api/member?email=${encodeURIComponent(user.email)}`)
         .then((d) => { setData(d); setLoading(false); })
         .catch(() => setLoading(false));
     } else { setLoading(false); }
   }, [user]);
 
   const result = data?.result as Record<string, unknown> | undefined;
-  const chronotype = (result?.chronotype as "LARK" | "EAGLE" | "OWL") ?? null;
-  const curve = chronotype ? generateEnergyCurve(chronotype) : [];
+  const chronotype = (result?.chronotype as Chronotype) ?? null;
+  const confidence = (result?.confidence_score as number) ?? 0;
+  const larkScore = (result?.lark_score as number) ?? 0;
+  const eagleScore = (result?.eagle_score as number) ?? 0;
+  const owlScore = (result?.owl_score as number) ?? 0;
+
+  const curve = chronotype
+    ? generatePersonalizedEnergyCurve(chronotype, larkScore, eagleScore, owlScore, confidence)
+    : [];
   const cards = chronotype ? generateEnergyCards(chronotype) : [];
 
   return (
@@ -42,19 +58,16 @@ export default function EnergyPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-[16px]">
+          {/* ─── Energy Curve Card ─── */}
           <div className="p-[20px] rounded-[16px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
             <div className="flex items-center gap-[8px] mb-[12px]">
               <TrendingUp size={16} stroke="#35319B" />
               <span className="text-[13px] font-semibold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>Energy Level — {CHRONOTYPE_LABELS[chronotype]}</span>
             </div>
-            <MiniLine data={curve} color="#F59A00" h={100} />
-            <div className="flex justify-between mt-[4px]">
-              {ENERGY_LABELS.map((l, i) => (
-                <span key={i} className="text-[9px]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>{l}</span>
-              ))}
-            </div>
+            <EnergyChart data={curve} labels={ENERGY_LABELS} color="#F59A00" height={170} accentColor="#30268F" />
           </div>
 
+          {/* ─── Energy Phase Cards ─── */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[12px]">
             {cards.map((card, i) => (
               <div key={i} className="p-[20px] rounded-[16px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>

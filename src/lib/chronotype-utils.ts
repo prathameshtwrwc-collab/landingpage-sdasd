@@ -33,18 +33,70 @@ export const CHRONOTYPE_BLUEPRINT: Record<Chronotype, { window: string; need: st
   OWL: { window: "12:30 AM – 8:30 AM", need: "8h 00m", cycle: "~100 min" },
 };
 
+// Base 24h energy templates per archetype.
+// 12 points aligned to ENERGY_LABELS: 6a, 8a, 10a, 12p, 2p, 4p, 6p, 8p, 10p, 12a, 2a, 4a
+export const ENERGY_TEMPLATES: Record<Chronotype, number[]> = {
+  // Lark: peaks in the morning (6–9 AM focus), second wind 4–6 PM, asleep by ~9:30 PM
+  LARK: [70, 92, 96, 68, 48, 56, 72, 46, 18, 8, 5, 12],
+  // Eagle: peaks 9–11 AM, steady midday, dip 2–4 PM, second wind 5–7 PM
+  EAGLE: [40, 66, 88, 84, 62, 52, 74, 54, 28, 10, 6, 10],
+  // Owl: low in the morning, rising through afternoon, peak late evening 10 PM–1 AM
+  OWL: [10, 18, 30, 46, 72, 88, 82, 74, 88, 96, 72, 38],
+};
+
 export function generateEnergyCurve(chronotype: Chronotype): number[] {
-  const curves: Record<Chronotype, number[]> = {
-    LARK: [25, 45, 65, 85, 90, 80, 70, 60, 50, 35, 20, 15],
-    EAGLE: [30, 45, 65, 80, 88, 85, 78, 70, 72, 60, 42, 28],
-    OWL: [15, 20, 25, 35, 50, 65, 75, 85, 88, 80, 60, 40],
-  };
-  return curves[chronotype] ?? curves.EAGLE;
+  return ENERGY_TEMPLATES[chronotype] ?? ENERGY_TEMPLATES.EAGLE;
+}
+
+export function normalizeCurve(values: number[], targetMax = 95): number[] {
+  const max = Math.max(...values, 1);
+  if (max <= 0) return values;
+  return values.map((v) => Math.round((v / max) * targetMax));
+}
+
+/**
+ * Build a personalised 24h energy curve from the member's actual result scores.
+ *
+ * The curve is a weighted blend of the three archetype templates, weighted by the
+ * member's real lark/eagle/owl scores. Confidence then pulls the shape toward the
+ * winning archetype: low confidence produces a flatter, mixed profile; high
+ * confidence produces a shape close to the pure archetype.
+ */
+export function generatePersonalizedEnergyCurve(
+  chronotype: Chronotype,
+  larkScore: number,
+  eagleScore: number,
+  owlScore: number,
+  confidenceScore: number
+): number[] {
+  const total = larkScore + eagleScore + owlScore;
+  if (total <= 0) return generateEnergyCurve(chronotype);
+
+  const weights = { LARK: larkScore, EAGLE: eagleScore, OWL: owlScore };
+  const len = ENERGY_LABELS.length;
+
+  // 1. Weighted blend of the three archetypes using the member's actual scores.
+  const blended = Array.from({ length: len }, (_, i) =>
+    (ENERGY_TEMPLATES.LARK[i] * weights.LARK +
+      ENERGY_TEMPLATES.EAGLE[i] * weights.EAGLE +
+      ENERGY_TEMPLATES.OWL[i] * weights.OWL) /
+    total
+  );
+
+  // 2. Pull toward the winning archetype proportional to confidence.
+  const confidence = Math.max(0, Math.min(100, confidenceScore || 0));
+  const winner = ENERGY_TEMPLATES[chronotype];
+  // At 0 confidence keep the blended profile; at 100 confidence go ~80% toward the archetype.
+  const boost = 0.25 + (confidence / 100) * 0.55;
+  const shaped = blended.map((v, i) => v * (1 - boost) + winner[i] * boost);
+
+  return normalizeCurve(shaped, 95);
 }
 
 export const ENERGY_LABELS = ["6a", "8a", "10a", "12p", "2p", "4p", "6p", "8p", "10p", "12a", "2a", "4a"];
 
 export function generateEnergyCards(chronotype: Chronotype): { title: string; time: string; desc: string }[] {
+  const peak = CHRONOTYPE_PEAK_TIMES[chronotype];
   const cards: Record<Chronotype, { title: string; time: string; desc: string }[]> = {
     LARK: [
       { title: "Focus Peak", time: "6:00 – 9:00 AM", desc: "Deep work and complex problem-solving" },

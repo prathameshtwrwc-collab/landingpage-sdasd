@@ -72,7 +72,7 @@ export async function POST(req: Request) {
     const action = body.action;
 
     if (action === "create_draft") {
-      const { name, description, questions } = body;
+      const { name, description, questions, scoringRules } = body;
 
       // Use max version, not count
       const { data: maxVersionData } = await supabase
@@ -94,11 +94,14 @@ export async function POST(req: Request) {
       const err = await insertQuestions(supabase, av.id, questions ?? []);
       if (err) return NextResponse.json({ error: err }, { status: 500 });
 
+      const rulesErr = await insertScoringRules(supabase, av.id, scoringRules);
+      if (rulesErr) return NextResponse.json({ error: rulesErr }, { status: 500 });
+
       return NextResponse.json({ success: true, versionId: av.id });
     }
 
     if (action === "update_draft") {
-      const { versionId, name, description, questions } = body;
+      const { versionId, name, description, questions, scoringRules } = body;
 
       // Only allow updating DRAFT versions
       const { data: existing } = await supabase
@@ -127,6 +130,11 @@ export async function POST(req: Request) {
       // Insert new questions + options
       const err = await insertQuestions(supabase, versionId, questions ?? []);
       if (err) return NextResponse.json({ error: err }, { status: 500 });
+
+      // Replace scoring rules
+      await supabase.from("scoring_rules").delete().eq("assessment_version_id", versionId);
+      const rulesErr = await insertScoringRules(supabase, versionId, scoringRules);
+      if (rulesErr) return NextResponse.json({ error: rulesErr }, { status: 500 });
 
       return NextResponse.json({ success: true, versionId });
     }
@@ -203,13 +211,24 @@ export async function POST(req: Request) {
         }
       }
 
-      // Check score range coverage
+      // Check score range coverage.
+      // A member selects exactly ONE option per question, so the true maximum
+      // possible score is: for each question, take the highest of that question's
+      // options' max-chronotype score, then sum across questions. Summing the max
+      // of every option would over-count (e.g. 3 options × 11 questions × 3 = 99
+      // instead of the real 33), causing false validation failures.
       const allOpts = await supabase
         .from("question_options")
-        .select("lark_score, eagle_score, owl_score")
+        .select("question_id, lark_score, eagle_score, owl_score")
         .in("question_id", (questions ?? []).map((q) => q.id));
 
-      const maxPossible = (allOpts.data ?? []).reduce((sum, o) => sum + Math.max(o.lark_score ?? 0, o.eagle_score ?? 0, o.owl_score ?? 0), 0);
+      const perQuestionMax = new Map<string, number>();
+      for (const o of allOpts.data ?? []) {
+        const optionMax = Math.max(o.lark_score ?? 0, o.eagle_score ?? 0, o.owl_score ?? 0);
+        const current = perQuestionMax.get(o.question_id) ?? 0;
+        if (optionMax > current) perQuestionMax.set(o.question_id, optionMax);
+      }
+      const maxPossible = Array.from(perQuestionMax.values()).reduce((sum, v) => sum + v, 0);
       const maxRule = Math.max(...scoreRules.map((r) => r.max_score ?? 0));
       const minRule = Math.min(...scoreRules.map((r) => r.min_score ?? 0));
 
@@ -242,31 +261,47 @@ export async function POST(req: Request) {
       const { data: orig } = await supabase.from("assessment_versions").select("*").eq("id", versionId).single();
       if (!orig) return NextResponse.json({ error: "Version not found" }, { status: 404 });
 
-      const { data: newV } = await supabase
+      // Compute the next version number as max(existing) + 1 (same as create_draft),
+      // NOT orig.version + 1 — the source version number may already be taken by
+      // another row, which would violate the version uniqueness constraint.
+      const { data: maxVersionData } = await supabase
         .from("assessment_versions")
-        .insert({ name: orig.name + " (Copy)", description: orig.description, version: (orig.version ?? 0) + 1, status: "DRAFT" })
+        .select("version")
+        .order("version", { ascending: false })
+        .limit(1);
+      const nextVersion = (maxVersionData?.[0]?.version ?? 0) + 1;
+
+      const { data: newV, error: newVErr } = await supabase
+        .from("assessment_versions")
+        .insert({ name: orig.name + " (Copy)", description: orig.description, version: nextVersion, status: "DRAFT" })
         .select("id")
         .single();
-      if (!newV) return NextResponse.json({ error: "Failed to duplicate" }, { status: 500 });
+      if (!newV) return NextResponse.json({ error: newVErr?.message || "Failed to duplicate version" }, { status: 500 });
 
-      const { data: oldQs } = await supabase.from("questions").select("*").eq("assessment_version_id", versionId).order("question_order");
+      const { data: oldQs, error: oldQsErr } = await supabase.from("questions").select("*").eq("assessment_version_id", versionId).order("question_order");
+      if (oldQsErr) return NextResponse.json({ error: oldQsErr.message }, { status: 500 });
+
       for (const q of oldQs ?? []) {
-        const { data: newQ } = await supabase
+        const { data: newQ, error: newQErr } = await supabase
           .from("questions")
           .insert({ assessment_version_id: newV.id, question_text: q.question_text, question_order: q.question_order, category: q.category, is_active: q.is_active })
           .select("id")
           .single();
-        if (newQ) {
-          const { data: oldOpts } = await supabase.from("question_options").select("*").eq("question_id", q.id).order("option_order");
-          for (const o of oldOpts ?? []) {
-            await supabase.from("question_options").insert({ question_id: newQ.id, option_text: o.option_text, option_value: o.option_value, option_order: o.option_order, lark_score: o.lark_score, eagle_score: o.eagle_score, owl_score: o.owl_score });
-          }
+        if (newQErr) return NextResponse.json({ error: newQErr.message }, { status: 500 });
+
+        const { data: oldOpts, error: oldOptsErr } = await supabase.from("question_options").select("*").eq("question_id", q.id).order("option_order");
+        if (oldOptsErr) return NextResponse.json({ error: oldOptsErr.message }, { status: 500 });
+
+        for (const o of oldOpts ?? []) {
+          const { error: newOptErr } = await supabase.from("question_options").insert({ question_id: newQ.id, option_text: o.option_text, option_value: o.option_value, option_order: o.option_order, lark_score: o.lark_score, eagle_score: o.eagle_score, owl_score: o.owl_score });
+          if (newOptErr) return NextResponse.json({ error: newOptErr.message }, { status: 500 });
         }
       }
 
       const { data: oldRules } = await supabase.from("scoring_rules").select("*").eq("assessment_version_id", versionId);
       for (const r of oldRules ?? []) {
-        await supabase.from("scoring_rules").insert({ assessment_version_id: newV.id, min_score: r.min_score, max_score: r.max_score, chronotype: r.chronotype, label: r.label, description: r.description });
+        const { error: newRuleErr } = await supabase.from("scoring_rules").insert({ assessment_version_id: newV.id, min_score: r.min_score, max_score: r.max_score, chronotype: r.chronotype, label: r.label, description: r.description });
+        if (newRuleErr) return NextResponse.json({ error: newRuleErr.message }, { status: 500 });
       }
 
       return NextResponse.json({ success: true, versionId: newV.id });
@@ -288,6 +323,50 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true });
     }
 
+    if (action === "delete") {
+      const { versionId } = body;
+
+      // Only DRAFT versions can be deleted. ACTIVE/ARCHIVED versions are
+      // preserved for historical reporting and in-flight assessments.
+      const { data: existing, error: existingErr } = await supabase
+        .from("assessment_versions")
+        .select("status")
+        .eq("id", versionId)
+        .single();
+
+      if (existingErr || !existing) return NextResponse.json({ error: "Version not found" }, { status: 404 });
+      if (existing.status !== "DRAFT") return NextResponse.json({ error: "Only draft versions can be deleted" }, { status: 400 });
+
+      // Check for in-flight assessments referencing this version before deleting.
+      const { count: inflight } = await supabase
+        .from("assessments")
+        .select("id", { count: "exact", head: true })
+        .eq("assessment_version_id", versionId)
+        .eq("status", "STARTED");
+
+      if ((inflight ?? 0) > 0) {
+        return NextResponse.json({ error: "Cannot delete: an assessment is in progress on this version" }, { status: 400 });
+      }
+
+      // The production FK constraints have no ON DELETE CASCADE, so delete
+      // child rows explicitly in dependency order before the version row.
+      const { data: qs } = await supabase.from("questions").select("id").eq("assessment_version_id", versionId);
+      if (qs && qs.length > 0) {
+        const { error: optErr } = await supabase.from("question_options").delete().in("question_id", qs.map((q) => q.id));
+        if (optErr) return NextResponse.json({ error: optErr.message }, { status: 500 });
+        const { error: qErr } = await supabase.from("questions").delete().eq("assessment_version_id", versionId);
+        if (qErr) return NextResponse.json({ error: qErr.message }, { status: 500 });
+      }
+
+      const { error: ruleErr } = await supabase.from("scoring_rules").delete().eq("assessment_version_id", versionId);
+      if (ruleErr) return NextResponse.json({ error: ruleErr.message }, { status: 500 });
+
+      const { error: delErr } = await supabase.from("assessment_versions").delete().eq("id", versionId);
+      if (delErr) return NextResponse.json({ error: delErr.message }, { status: 500 });
+
+      return NextResponse.json({ success: true });
+    }
+
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown" }, { status: 500 });
@@ -306,11 +385,36 @@ async function insertQuestions(supabase: Awaited<ReturnType<typeof createClient>
 
     for (let oi = 0; oi < (q.options ?? []).length; oi++) {
       const o = q.options[oi];
+      // Production DB has option_value NOT NULL — generate a letter (A, B, C, ...)
+      // matching the seed convention. Falls back to the option text if it looks like
+      // a value (e.g. "A", "B") to avoid collisions on re-save.
+      let optionValue: string = String.fromCharCode(65 + oi);
+      if (oi === 0 && /^[A-Za-z]{1,4}$/.test((o.text ?? "").trim())) {
+        optionValue = o.text.trim();
+      }
       const { error: oErr } = await supabase
         .from("question_options")
-        .insert({ question_id: qIns.id, option_text: o.text, option_value: null, option_order: oi + 1, lark_score: o.larkScore ?? 0, eagle_score: o.eagleScore ?? 0, owl_score: o.owlScore ?? 0 });
+        .insert({ question_id: qIns.id, option_text: o.text, option_value: optionValue, option_order: oi + 1, lark_score: o.larkScore ?? 0, eagle_score: o.eagleScore ?? 0, owl_score: o.owlScore ?? 0 });
       if (oErr) return oErr.message;
     }
+  }
+  return null;
+}
+
+async function insertScoringRules(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  versionId: string,
+  rules: { min_score: number | null; max_score: number | null; chronotype: string; label: string | null; description: string | null }[] | undefined
+): Promise<string | null> {
+  const list = Array.isArray(rules) ? rules : [];
+  if (list.length === 0) return null;
+
+  for (const r of list) {
+    if (!r.chronotype) return "Scoring rule missing chronotype";
+    const { error } = await supabase
+      .from("scoring_rules")
+      .insert({ assessment_version_id: versionId, min_score: r.min_score, max_score: r.max_score, chronotype: r.chronotype, label: r.label || null, description: r.description || null });
+    if (error) return error.message;
   }
   return null;
 }

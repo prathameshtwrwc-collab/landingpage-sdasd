@@ -316,7 +316,7 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
       aria-describedby="donation-description"
       className="fixed inset-0 z-[9999] donate-overlay"
       style={{
-        display: "grid", placeItems: "center",
+        display: "grid", placeItems: "safe center",
         padding: "20px 24px",
         overflow: "hidden",
         background: "rgba(20, 22, 60, 0.74)",
@@ -372,15 +372,15 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
           .donate-content h2 { font-size: 1.4rem !important; }
           .donate-content p.text-\[14px\] { font-size: 13px !important; }
         }
-        @media (min-width: 768px) and (max-width: 899px) {
-          .donate-modal { display: block !important; width: calc(100vw - 24px) !important; overflow-y: auto !important; max-height: calc(100dvh - 24px) !important; }
-          html[data-no-dvh] .donate-modal { max-height: calc(100vh - 24px) !important; }
-          .donate-visual { display: block !important; height: 200px !important; border-radius: 22px 22px 0 0 !important; }
+        @media (min-width: 768px) and (max-width: 1024px) {
+          .donate-modal { display: block !important; width: calc(100vw - 48px) !important; overflow-y: auto !important; max-height: calc(100dvh - 40px) !important; }
+          html[data-no-dvh] .donate-modal { max-height: calc(100vh - 40px) !important; }
+          .donate-visual { display: none !important; }
           .donate-content { padding: 24px !important; }
         }
-        @media (min-width: 900px) and (max-width: 1199px) {
-          .donate-modal { display: grid !important; grid-template-columns: minmax(330px, 40%) minmax(0, 60%) !important; width: calc(100vw - 32px) !important; max-height: calc(100dvh - 32px) !important; overflow: hidden !important; }
-          html[data-no-dvh] .donate-modal { max-height: calc(100vh - 32px) !important; }
+        @media (min-width: 1025px) and (max-width: 1199px) {
+          .donate-modal { display: grid !important; grid-template-columns: minmax(330px, 40%) minmax(0, 60%) !important; width: calc(100vw - 48px) !important; max-height: calc(100dvh - 40px) !important; overflow: hidden !important; }
+          html[data-no-dvh] .donate-modal { max-height: calc(100vh - 40px) !important; }
           .donate-content { overflow-y: auto !important; padding: 24px !important; }
         }
         @media (prefers-reduced-motion: reduce) {
