@@ -110,6 +110,27 @@ function MobileBottomSheet({
   );
 }
 
+// Module-level cache so the sidebar preference survives SPA navigation remounts
+// even if React resumes useState from a server snapshot during hydration.
+let cachedSidebarCollapsed: boolean | null = null;
+
+const SIDEBAR_KEY = "chronotype_sidebar_collapsed";
+
+function readSidebarPref(): boolean {
+  try {
+    const stored = localStorage.getItem(SIDEBAR_KEY);
+    return stored === null ? true : stored === "1";
+  } catch {
+    return true;
+  }
+}
+
+function writeSidebarPref(value: boolean) {
+  try {
+    localStorage.setItem(SIDEBAR_KEY, value ? "1" : "0");
+  } catch {}
+}
+
 export default function DashboardShell({
   children,
   title,
@@ -130,20 +151,26 @@ export default function DashboardShell({
   // choice is not reset when the shell remounts.
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
-    try {
-      const stored = localStorage.getItem("chronotype_sidebar_collapsed");
-      return stored === null ? true : stored === "1";
-    } catch {
-      return true;
-    }
+    // Prefer the module cache (set during this SPA session) so navigation
+    // remounts keep the user's choice even if localStorage read is skipped.
+    return cachedSidebarCollapsed ?? readSidebarPref();
   });
+
+  // Sync after hydration: guarantees the state matches the persisted value even
+  // if React resumed the useState from the server snapshot during hydration.
+  useEffect(() => {
+    setSidebarCollapsed((prev) => {
+      const persisted = cachedSidebarCollapsed ?? readSidebarPref();
+      if (prev !== persisted) return persisted;
+      return prev;
+    });
+  }, []);
 
   const toggleSidebar = useCallback(() => {
     setSidebarCollapsed((prev) => {
       const next = !prev;
-      try {
-        localStorage.setItem("chronotype_sidebar_collapsed", next ? "1" : "0");
-      } catch {}
+      cachedSidebarCollapsed = next;
+      writeSidebarPref(next);
       return next;
     });
   }, []);
