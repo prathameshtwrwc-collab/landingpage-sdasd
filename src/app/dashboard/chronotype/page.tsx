@@ -5,7 +5,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { cachedFetch } from "@/lib/client-cache";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import Ring from "@/components/charts/Ring";
-import { Moon, Brain, Sparkles, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Moon, Brain, Sparkles, Clock, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { CHRONOTYPE_LABELS, CHRONOTYPE_DESCRIPTIONS, CHRONOTYPE_PEAK_TIMES } from "@/lib/chronotype-utils";
 
 const ALL_IMAGES = [
@@ -50,7 +50,9 @@ export default function ChronotypePage() {
   const [loading, setLoading] = useState(true);
   const [slideIdx, setSlideIdx] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [paused, setPaused] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const AUTO_SLIDE_MS = 7000;
 
   useEffect(() => {
     if (user?.email) {
@@ -59,21 +61,6 @@ export default function ChronotypePage() {
         .catch(() => setLoading(false));
     } else { setLoading(false); }
   }, [user]);
-
-  // Auto-slide carousel
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setSlideIdx((prev) => (prev + 1) % chronoImages.length);
-    }, 5000);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, []);
-
-  // Close lightbox on Escape key
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setLightboxOpen(false); };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, []);
 
   const result = data?.result as Record<string, unknown> | undefined;
   const chronotype = (result?.chronotype as "LARK" | "EAGLE" | "OWL") ?? null;
@@ -85,13 +72,32 @@ export default function ChronotypePage() {
   const chronoImages = chronotype === "EAGLE" ? EAGLE_IMAGES : chronotype === "LARK" ? LARK_IMAGES : OWL_IMAGES;
   const imageFolder = chronotype === "EAGLE" ? "/chronotype_media/eagle" : chronotype === "LARK" ? "/chronotype_media/lark" : "/chronotype_media/owl";
 
+  // Auto-slide carousel
+  useEffect(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (paused) return;
+    intervalRef.current = setInterval(() => {
+      setSlideIdx((prev) => (prev + 1) % chronoImages.length);
+    }, AUTO_SLIDE_MS);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [paused, chronoImages.length]);
+
+  // Close lightbox on Escape key
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setLightboxOpen(false); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
+
   const goTo = useCallback((idx: number) => {
     setSlideIdx(idx);
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
-    intervalRef.current = setInterval(() => {
-      setSlideIdx((prev) => (prev + 1) % chronoImages.length);
-    }, 5000);
-  }, [chronoImages.length]);
+    if (!paused) {
+      intervalRef.current = setInterval(() => {
+        setSlideIdx((prev) => (prev + 1) % chronoImages.length);
+      }, AUTO_SLIDE_MS);
+    }
+  }, [chronoImages.length, paused]);
 
   return (
     <DashboardShell>
@@ -216,6 +222,13 @@ export default function ChronotypePage() {
               className="absolute top-[16px] right-[16px] z-10 w-[36px] h-[36px] rounded-full border-none cursor-pointer flex items-center justify-center"
               style={{ background: "rgba(255,255,255,0.15)", color: "#FFF" }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <button type="button" onClick={(e) => { e.stopPropagation(); setPaused((p) => !p); }}
+              aria-label={paused ? "Play slideshow" : "Pause slideshow"}
+              title={paused ? "Play slideshow" : "Pause slideshow"}
+              className="hidden md:flex absolute bottom-[20px] left-1/2 -translate-x-1/2 translate-y-[calc(100%+8px)] z-10 w-[40px] h-[40px] rounded-full border-none cursor-pointer items-center justify-center"
+              style={{ background: "rgba(255,255,255,0.15)", color: "#FFF", backdropFilter: "blur(4px)" }}>
+              {paused ? <Play size={18} /> : <Pause size={18} />}
             </button>
             <img src={`${imageFolder}/${chronoImages[slideIdx]}`} alt="Enlarged view"
               className="max-w-full max-h-full object-contain rounded-[8px]"

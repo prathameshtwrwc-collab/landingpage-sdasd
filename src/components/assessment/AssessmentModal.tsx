@@ -1638,7 +1638,7 @@ function EnhancedResult({
       {/* ─── Go to Dashboard ─── */}
       <button
         type="button"
-        onClick={() => { window.location.href = "/dashboard"; }}
+        onClick={() => { window.location.href = "/login"; }}
         className="w-full inline-flex items-center justify-center gap-[9px] text-[14px] font-semibold border rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f]"
         style={{ minHeight: "46px", color: "#30268F", background: "#F6F4FF", border: "1px solid #D8D3FA", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
       >

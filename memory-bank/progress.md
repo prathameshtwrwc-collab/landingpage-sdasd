@@ -242,6 +242,16 @@ Completed
 
 # Change Log
 
+2026-08-03 — Energy Bar Graph, Carousel Controls, Member Panel & Result Routing
+
+- Energy page: replaced synthetic energy curve with bar graph of real lark/eagle/owl scores from latest assessment; all card wrappers removed, only visualization remains
+- New ScoreBars chart component (value labels, gridlines, winner highlight)
+- Chronotype carousel: auto-slide now 7 seconds; functional pause/play button in desktop fullscreen lightbox
+- Member info panel: phone number shown; State reads `location` column (with `state` fallback)
+- /api/member-detail: batched answer queries + parallelized independent table queries (faster load)
+- Member info panel scroll lock: pauses Lenis, robust body lock, native wheel/touch guard
+- Result screen "Go to my Dashboard" now redirects to /login
+
 2026-07-29 — PDF Report Redesign & Donate Modal Image
 
 - PDF report completely redesigned: 2-page minimal healthcare A4 template

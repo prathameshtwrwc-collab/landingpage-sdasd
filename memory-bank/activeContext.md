@@ -87,6 +87,11 @@ Phase: Feature Completion & Stabilization — Superadmin Dashboard, RLS Fixes, D
 - **Dashboard performance** — Replaced 1s dark-mode polling with storage event; lazy-loaded PDF libs; `cachedFetch` (45s TTL) across all dashboard pages; Cache-Control on /api/member; React.memo on chart components.
 - **Sidebar collapse persisted** — `sidebarCollapsed` stored in localStorage (`chronotype_sidebar_collapsed`); no longer resets when switching subpages.
 - **Energy page** — Personalized 24h energy curve (`generatePersonalizedEnergyCurve`) blending Lark/Eagle/Owl templates weighted by the member's real scores + confidence; new pixel-accurate `EnergyChart` (no SVG text distortion); extra cards removed.
+- **Energy page real-data bar graph** — Replaced the synthetic energy curve with a bar graph (`src/components/charts/ScoreBars.tsx`) of the member's real `lark_score`/`eagle_score`/`owl_score` from the latest assessment; all card wrappers removed, only the visualization remains.
+- **Chronotype carousel controls** — Auto-slide now 7 seconds; functional pause/play button added to the fullscreen lightbox carousel on desktop.
+- **Member info panel data** — Phone number now shown; State reads `location` column first (assessment form "State *" stores to `location`) with `state` fallback; `/api/member-detail` answer queries batched + all independent queries parallelized for faster loading.
+- **Member info panel scroll lock** — Pauses Lenis while open, robust body lock (`position: fixed` + `overflow: hidden`), native capture-phase wheel/touch guard so only the panel content scrolls.
+- **Result screen routing** — "Go to my Dashboard" on the assessment result screen now redirects to `/login` instead of `/dashboard`.
 - **Superadmin assessments persistence fix** — `create_draft`/`update_draft` now persist scoring rules; publishing auto-saves draft first; old versions get rules seeded via SQL.
 - **scoring_rules schema aligned** — Production table has legacy `rule_logic jsonb` + `is_active` columns plus newly added `label VARCHAR(100)` + `description TEXT`. Health check now verifies `scoring_rules` exists.
 

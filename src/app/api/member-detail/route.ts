@@ -18,46 +18,38 @@ export async function GET(req: Request) {
     if (!member) return NextResponse.json({ error: "Member not found" }, { status: 404 });
 
     // Organization
-    const { data: org } = member.organization_id
-      ? await supabase.from("organizations").select("name, unique_code, organization_type").eq("id", member.organization_id).maybeSingle()
-      : { data: null };
-
-    // Assessments with results
-    const { data: assessments } = await supabase
-      .from("assessments")
-      .select("id, status, assessment_version_id, time_taken_seconds, started_at, completed_at")
-      .eq("member_id", memberId)
-      .order("started_at", { ascending: false });
-
-    // Chronotype results
-    const { data: chronoResults } = await supabase
-      .from("chronotype_results")
-      .select("id, assessment_id, chronotype, total_score, confidence_score, lark_score, eagle_score, owl_score, generated_at")
-      .eq("member_id", memberId)
-      .order("generated_at", { ascending: false });
-
-    // Reports
-    const { data: reports } = await supabase
-      .from("reports")
-      .select("id, assessment_id, result_id, generated_at")
-      .eq("member_id", memberId)
-      .order("generated_at", { ascending: false });
-
-    // Activity logs
-    const { data: activityLogs } = await supabase
-      .from("activity_logs")
-      .select("id, activity_type, description, created_at")
-      .eq("member_id", memberId)
-      .order("created_at", { ascending: false })
-      .limit(20);
-
-    // Login audit
-    const { data: loginAudit } = await supabase
-      .from("login_audit")
-      .select("id, email, ip_address, user_agent, success, created_at")
-      .eq("member_id", memberId)
-      .order("created_at", { ascending: false })
-      .limit(20);
+    const [{ data: org }, { data: assessments }, { data: chronoResults }, { data: reports }, { data: activityLogs }, { data: loginAudit }] = await Promise.all([
+      member.organization_id
+        ? supabase.from("organizations").select("name, unique_code, organization_type").eq("id", member.organization_id).maybeSingle()
+        : Promise.resolve({ data: null }),
+      supabase
+        .from("assessments")
+        .select("id, status, assessment_version_id, time_taken_seconds, started_at, completed_at")
+        .eq("member_id", memberId)
+        .order("started_at", { ascending: false }),
+      supabase
+        .from("chronotype_results")
+        .select("id, assessment_id, chronotype, total_score, confidence_score, lark_score, eagle_score, owl_score, generated_at")
+        .eq("member_id", memberId)
+        .order("generated_at", { ascending: false }),
+      supabase
+        .from("reports")
+        .select("id, assessment_id, result_id, generated_at")
+        .eq("member_id", memberId)
+        .order("generated_at", { ascending: false }),
+      supabase
+        .from("activity_logs")
+        .select("id, activity_type, description, created_at")
+        .eq("member_id", memberId)
+        .order("created_at", { ascending: false })
+        .limit(20),
+      supabase
+        .from("login_audit")
+        .select("id, email, ip_address, user_agent, success, created_at")
+        .eq("member_id", memberId)
+        .order("created_at", { ascending: false })
+        .limit(20),
+    ]);
 
     // Assessment answers (last assessment)
     const lastAssessment = assessments?.[0];
@@ -68,12 +60,29 @@ export async function GET(req: Request) {
         .select("question_id, selected_option_id")
         .eq("assessment_id", lastAssessment.id);
 
-      if (rawAnswers) {
-        for (const a of rawAnswers) {
-          const { data: q } = await supabase.from("questions").select("question_text").eq("id", a.question_id).maybeSingle();
-          const { data: o } = await supabase.from("question_options").select("option_text, lark_score, eagle_score, owl_score").eq("id", a.selected_option_id).maybeSingle();
-          answers.push({ question_text: q?.question_text ?? "—", option_text: o?.option_text ?? "—", lark_score: o?.lark_score ?? 0, eagle_score: o?.eagle_score ?? 0, owl_score: o?.owl_score ?? 0 });
-        }
+      if (rawAnswers && rawAnswers.length > 0) {
+        const questionIds = rawAnswers.map((a) => a.question_id);
+        const optionIds = rawAnswers.map((a) => a.selected_option_id);
+
+        const [{ data: questions }, { data: options }] = await Promise.all([
+          supabase.from("questions").select("id, question_text").in("id", questionIds),
+          supabase.from("question_options").select("id, option_text, lark_score, eagle_score, owl_score").in("id", optionIds),
+        ]);
+
+        const questionMap = new Map((questions ?? []).map((q) => [q.id, q]));
+        const optionMap = new Map((options ?? []).map((o) => [o.id, o]));
+
+        answers = rawAnswers.map((a) => {
+          const q = questionMap.get(a.question_id);
+          const o = optionMap.get(a.selected_option_id);
+          return {
+            question_text: q?.question_text ?? "—",
+            option_text: o?.option_text ?? "—",
+            lark_score: o?.lark_score ?? 0,
+            eagle_score: o?.eagle_score ?? 0,
+            owl_score: o?.owl_score ?? 0,
+          };
+        });
       }
     }
 

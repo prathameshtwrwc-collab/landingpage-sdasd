@@ -2,6 +2,29 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.9.0] — 2026-08-03 — Energy Bar Graph, Carousel Controls, Member Panel & Result Routing
+
+### Changed — Energy page: real data bar graph, cards removed
+- **`src/app/dashboard/energy/page.tsx`** — Replaced the synthetic 24h energy curve (`generatePersonalizedEnergyCurve`) with a **bar graph** (`src/components/charts/ScoreBars.tsx`) plotting the member's real `lark_score` / `eagle_score` / `owl_score` from the latest assessment result
+- All card wrappers (summary card, confidence bar, peak-times cards, description box) removed — the page now shows only the visualization with the chronotype label
+- Old `src/components/charts/EnergyClockChart.tsx` removed (unused)
+
+### Changed — Chronotype page carousel
+- Auto-slide duration increased from 5s to **7 seconds** (`AUTO_SLIDE_MS = 7000`) for both the inline carousel and `goTo`
+- **Functional pause/play button** added to the fullscreen (lightbox) carousel on desktop (`hidden md:flex`) — toggles `paused`, stopping/resuming auto-slide
+
+### Fixed — Superadmin member info panel
+- **Phone number** now shown in the member info panel (was missing from the grid)
+- **State field** reads `location` column first (the assessment form's "State *" field stores to `location`), falling back to `state` — previously always empty
+- **Faster loading** — `/api/member-detail` answer lookups batched from N+1 queries into 2 `.in()` queries; all six independent table queries now run in parallel via `Promise.all`
+
+### Fixed — Member info panel background scroll
+- Panel now pauses the global **Lenis** smooth-scroll instance while open (`stopLenis()` / `startLenis()`) and applies a robust body lock (`position: fixed` + `top: -scrollY` + `overflow: hidden` on `html`/`body`)
+- Native capture-phase `wheel`/`touchmove` guard on `window` blocks scroll outside the panel content; panel is the single scroll region (`flex-1 min-h-0 overflow-y-auto`, `maxHeight: calc(100vh - 80px)`, `overscroll-behavior: contain`, `data-lenis-prevent`)
+
+### Changed — Result screen dashboard button
+- "Go to my Dashboard" on the assessment result screen now redirects to `/login` instead of `/dashboard` (`src/components/assessment/AssessmentModal.tsx`)
+
 ## [2.8.0] — 2026-08-02 — Superadmin Assessments Persistence, Energy Page, Sidebar, Schema Alignment
 
 ### Fixed — Superadmin Assessments publishing to DB

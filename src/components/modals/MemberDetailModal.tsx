@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X, Mail, Calendar, MapPin, User, Tag, Activity, Shield, FileText, Clock, CheckCircle, AlertTriangle } from "lucide-react";
+import { useLenis } from "@/components/smooth-scroll/SmoothScrollProvider";
 
 interface ModalProps {
   memberId: string;
@@ -11,6 +12,9 @@ interface ModalProps {
 export default function MemberDetailModal({ memberId, onClose }: ModalProps) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
+  const { stop: stopLenis, start: startLenis } = useLenis();
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!memberId) return;
@@ -19,6 +23,65 @@ export default function MemberDetailModal({ memberId, onClose }: ModalProps) {
       .then((d) => { if (!d.error) setData(d); setLoading(false); })
       .catch(() => setLoading(false));
   }, [memberId]);
+
+  useEffect(() => {
+    stopLenis();
+    // Robust background scroll-lock for all browsers incl. iPad/iOS touch.
+    // `overflow: hidden` alone does not stop touch scrolling on mobile;
+    // `position: fixed` on body is required to truly lock the page. The
+    // modal overlay is the single scroll container.
+    const scrollY = window.scrollY;
+    const prevOverflow = document.body.style.overflow;
+    const prevPosition = document.body.style.position;
+    const prevTop = document.body.style.top;
+    const prevLeft = document.body.style.left;
+    const prevRight = document.body.style.right;
+    const prevWidth = document.body.style.width;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+    document.documentElement.style.overflow = "hidden";
+
+    // Native wheel/touch guard: only let the panel content scroll; block the
+    // event from ever reaching the window/Lenis scroll handler.
+    const onWheel = (e: WheelEvent) => {
+      const target = e.target as Node | null;
+      const insidePanel = panelRef.current?.contains(target) ?? false;
+      if (!insidePanel) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const target = e.target as Node | null;
+      const insidePanel = panelRef.current?.contains(target) ?? false;
+      if (!insidePanel) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    window.addEventListener("wheel", onWheel, { passive: false, capture: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: false, capture: true });
+
+    return () => {
+      window.removeEventListener("wheel", onWheel, { capture: true });
+      window.removeEventListener("touchmove", onTouchMove, { capture: true });
+      document.body.style.overflow = prevOverflow;
+      document.body.style.position = prevPosition;
+      document.body.style.top = prevTop;
+      document.body.style.left = prevLeft;
+      document.body.style.right = prevRight;
+      document.body.style.width = prevWidth;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      window.scrollTo(0, scrollY);
+      startLenis();
+    };
+  }, [stopLenis, startLenis]);
 
   const m = data?.member as Record<string, unknown> | undefined;
   const org = data?.organization as Record<string, unknown> | null | undefined;
@@ -30,10 +93,10 @@ export default function MemberDetailModal({ memberId, onClose }: ModalProps) {
   const answers = (data?.lastAssessmentAnswers ?? []) as Record<string, unknown>[];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto" style={{ background: "rgba(15,23,42,0.45)", paddingTop: "40px", paddingBottom: "40px" }} onClick={onClose}>
-      <div className="w-full max-w-[720px] mx-4 rounded-[20px] overflow-hidden" style={{ background: "#FFFFFF", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }} onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-hidden" style={{ background: "rgba(15,23,42,0.45)", paddingTop: "40px", paddingBottom: "40px" }} onClick={onClose}>
+      <div className="w-full max-w-[720px] mx-4 rounded-[20px] overflow-hidden flex flex-col" style={{ background: "#FFFFFF", boxShadow: "0 20px 60px rgba(0,0,0,0.15)", maxHeight: "calc(100vh - 80px)" }} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between px-[24px] py-[18px]" style={{ borderBottom: "1px solid #F0F0F0" }}>
+        <div className="shrink-0 flex items-center justify-between px-[24px] py-[18px]" style={{ borderBottom: "1px solid #F0F0F0" }}>
           <div className="flex items-center gap-[10px]">
             <div className="w-[36px] h-[36px] rounded-full flex items-center justify-center text-white text-[13px] font-bold" style={{ background: "linear-gradient(135deg, #35319B, #7B76D4)" }}>
               {m ? ((m.first_name as string)?.[0] ?? "?").toUpperCase() + ((m.last_name as string)?.[0] ?? "").toUpperCase() : "?"}
@@ -59,7 +122,7 @@ export default function MemberDetailModal({ memberId, onClose }: ModalProps) {
             <p className="text-[14px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>Member data not found</p>
           </div>
         ) : (
-          <div className="px-[24px] py-[20px] flex flex-col gap-[20px] max-h-[65vh] overflow-y-auto">
+          <div ref={panelRef} className="flex-1 min-h-0 overflow-y-auto px-[24px] py-[20px] flex flex-col gap-[20px]" style={{ overscrollBehavior: "contain" }} data-lenis-prevent>
 
             {/* ── Personal Info ── */}
             <Section title="Personal Information">
@@ -67,6 +130,7 @@ export default function MemberDetailModal({ memberId, onClose }: ModalProps) {
                 { label: "First Name", value: m.first_name as string },
                 { label: "Last Name", value: m.last_name as string },
                 { label: "Email", value: m.email as string, icon: <Mail size={13} /> },
+                { label: "Phone", value: (m.phone as string) || "—" },
                 { label: "Age", value: m.age != null ? String(m.age) : "—" },
                 { label: "Gender", value: (m.gender as string) || "—" },
                 { label: "Source", value: (m.source_type as string) || "—" },
@@ -78,7 +142,7 @@ export default function MemberDetailModal({ memberId, onClose }: ModalProps) {
             <Section title="Location">
               <InfoGrid items={[
                 { label: "Country", value: (m.country as string) || "—", icon: <MapPin size={13} /> },
-                { label: "State", value: (m.state as string) || "—" },
+                { label: "State", value: (m.location as string) || (m.state as string) || "—" },
                 { label: "City", value: (m.city as string) || "—" },
               ]} />
             </Section>
