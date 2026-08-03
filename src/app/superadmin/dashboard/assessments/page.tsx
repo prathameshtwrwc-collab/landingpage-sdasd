@@ -442,46 +442,52 @@ export default function SuperAdminAssessmentsPage() {
             <div className="flex flex-col gap-[12px]">
               {questions.map((q, qi) => (
                 <div key={qi} className="rounded-xl p-[16px]" style={{ border: "1px solid #F0F0F0", background: "#FAFBFF" }}>
-                  <div className="flex items-center gap-[8px] mb-[10px]">
-                    <span className="flex items-center justify-center w-[24px] h-[24px] rounded-full text-[11px] font-bold" style={{ background: "rgba(53,49,155,0.1)", color: "#35319B", fontFamily: "Poppins, sans-serif" }}>{qi + 1}</span>
-                    <input type="text" value={q.text} onChange={(e) => { const qs = [...questions]; qs[qi].text = e.target.value; setQuestions(qs); }} placeholder="Enter question text"
-                      className="flex-1 px-[10px] py-[7px] rounded-lg border text-[13px] outline-none" style={{ borderColor: "#E0E0E0", color: "#333", fontFamily: "Poppins, sans-serif" }} />
-                    <select value={q.category} onChange={(e) => { const qs = [...questions]; qs[qi].category = e.target.value; setQuestions(qs); }}
-                      className="px-[8px] py-[7px] rounded-lg border text-[11px] cursor-pointer outline-none" style={{ borderColor: "#E0E0E0", color: "#555", fontFamily: "Poppins, sans-serif", background: "#FFF" }}>
-                      <option value="">Category</option>
-                      {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                    <label className="flex items-center gap-[4px] text-[11px] cursor-pointer shrink-0" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
-                      <input type="checkbox" checked={q.isRequired} onChange={(e) => { const qs = [...questions]; qs[qi].isRequired = e.target.checked; setQuestions(qs); }} />
-                      Required
-                    </label>
-                    {questions.length > 1 && (
-                      <button type="button" onClick={() => setQuestions(questions.filter((_, i) => i !== qi))}
-                        className="flex items-center justify-center w-[28px] h-[28px] rounded-lg border-none cursor-pointer shrink-0"
-                        style={{ color: "#D32F2F", background: "rgba(211,47,47,0.06)" }}>
-                        <X size={14} />
-                      </button>
-                    )}
+                  <div className="flex flex-col gap-[8px] mb-[10px] md:flex-row md:items-center">
+                    <div className="flex items-center gap-[8px] flex-1 min-w-0">
+                      <span className="flex items-center justify-center w-[24px] h-[24px] rounded-full text-[11px] font-bold shrink-0" style={{ background: "rgba(53,49,155,0.1)", color: "#35319B", fontFamily: "Poppins, sans-serif" }}>{qi + 1}</span>
+                      <input type="text" value={q.text} onChange={(e) => { const qs = [...questions]; qs[qi].text = e.target.value; setQuestions(qs); }} placeholder="Enter question text"
+                        className="flex-1 min-w-0 px-[10px] py-[7px] rounded-lg border text-[13px] outline-none" style={{ borderColor: "#E0E0E0", color: "#333", fontFamily: "Poppins, sans-serif" }} />
+                    </div>
+                    <div className="flex items-center gap-[8px] flex-wrap">
+                      <select value={q.category} onChange={(e) => { const qs = [...questions]; qs[qi].category = e.target.value; setQuestions(qs); }}
+                        className="px-[8px] py-[7px] rounded-lg border text-[11px] cursor-pointer outline-none" style={{ borderColor: "#E0E0E0", color: "#555", fontFamily: "Poppins, sans-serif", background: "#FFF" }}>
+                        <option value="">Category</option>
+                        {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                      <label className="flex items-center gap-[4px] text-[11px] cursor-pointer shrink-0" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
+                        <input type="checkbox" checked={q.isRequired} onChange={(e) => { const qs = [...questions]; qs[qi].isRequired = e.target.checked; setQuestions(qs); }} />
+                        Required
+                      </label>
+                      {questions.length > 1 && (
+                        <button type="button" onClick={() => setQuestions(questions.filter((_, i) => i !== qi))}
+                          className="flex items-center justify-center w-[28px] h-[28px] rounded-lg border-none cursor-pointer shrink-0"
+                          style={{ color: "#D32F2F", background: "rgba(211,47,47,0.06)" }}>
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
                   </div>
                   {/* Options */}
                   <div className="ml-[32px] flex flex-col gap-[6px]">
                     {q.options.map((o, oi) => (
-                      <div key={oi} className="flex items-center gap-[6px]">
+                      <div key={oi} className="flex flex-col gap-[6px] md:flex-row md:items-center">
                         <input type="text" value={o.text} onChange={(e) => { const qs = [...questions]; qs[qi].options[oi].text = e.target.value; setQuestions(qs); }} placeholder="Option text"
-                          className="flex-1 px-[8px] py-[6px] rounded-lg border text-[12px] outline-none" style={{ borderColor: "#E8E8E8", color: "#333", fontFamily: "Poppins, sans-serif" }} />
-                        <input type="number" value={o.larkScore} onChange={(e) => { const qs = [...questions]; qs[qi].options[oi].larkScore = Number(e.target.value); setQuestions(qs); }} placeholder="L"
-                          className="w-[44px] px-[6px] py-[6px] rounded-lg border text-[11px] text-center outline-none" style={{ borderColor: "#E8E8E8", color: "#f4b54d", fontFamily: "Poppins, sans-serif" }} title="Lark score" />
-                        <input type="number" value={o.eagleScore} onChange={(e) => { const qs = [...questions]; qs[qi].options[oi].eagleScore = Number(e.target.value); setQuestions(qs); }} placeholder="E"
-                          className="w-[44px] px-[6px] py-[6px] rounded-lg border text-[11px] text-center outline-none" style={{ borderColor: "#E8E8E8", color: "#354a82", fontFamily: "Poppins, sans-serif" }} title="Eagle score" />
-                        <input type="number" value={o.owlScore} onChange={(e) => { const qs = [...questions]; qs[qi].options[oi].owlScore = Number(e.target.value); setQuestions(qs); }} placeholder="O"
-                          className="w-[44px] px-[6px] py-[6px] rounded-lg border text-[11px] text-center outline-none" style={{ borderColor: "#E8E8E8", color: "#7B68AE", fontFamily: "Poppins, sans-serif" }} title="Owl score" />
-                        {q.options.length > 1 && (
-                          <button type="button" onClick={() => { const qs = [...questions]; qs[qi].options = q.options.filter((_, j) => j !== oi); setQuestions(qs); }}
-                            className="flex items-center justify-center w-[24px] h-[24px] rounded-lg border-none cursor-pointer shrink-0"
-                            style={{ color: "#D32F2F", background: "rgba(211,47,47,0.06)" }}>
-                            <X size={12} />
-                          </button>
-                        )}
+                          className="w-full md:flex-1 min-w-0 px-[8px] py-[6px] rounded-lg border text-[12px] outline-none" style={{ borderColor: "#E8E8E8", color: "#333", fontFamily: "Poppins, sans-serif" }} />
+                        <div className="flex items-center gap-[6px]">
+                          <input type="number" value={o.larkScore} onChange={(e) => { const qs = [...questions]; qs[qi].options[oi].larkScore = Number(e.target.value); setQuestions(qs); }} placeholder="L"
+                            className="w-[44px] px-[6px] py-[6px] rounded-lg border text-[11px] text-center outline-none shrink-0" style={{ borderColor: "#E8E8E8", color: "#f4b54d", fontFamily: "Poppins, sans-serif" }} title="Lark score" />
+                          <input type="number" value={o.eagleScore} onChange={(e) => { const qs = [...questions]; qs[qi].options[oi].eagleScore = Number(e.target.value); setQuestions(qs); }} placeholder="E"
+                            className="w-[44px] px-[6px] py-[6px] rounded-lg border text-[11px] text-center outline-none shrink-0" style={{ borderColor: "#E8E8E8", color: "#354a82", fontFamily: "Poppins, sans-serif" }} title="Eagle score" />
+                          <input type="number" value={o.owlScore} onChange={(e) => { const qs = [...questions]; qs[qi].options[oi].owlScore = Number(e.target.value); setQuestions(qs); }} placeholder="O"
+                            className="w-[44px] px-[6px] py-[6px] rounded-lg border text-[11px] text-center outline-none shrink-0" style={{ borderColor: "#E8E8E8", color: "#7B68AE", fontFamily: "Poppins, sans-serif" }} title="Owl score" />
+                          {q.options.length > 1 && (
+                            <button type="button" onClick={() => { const qs = [...questions]; qs[qi].options = q.options.filter((_, j) => j !== oi); setQuestions(qs); }}
+                              className="flex items-center justify-center w-[24px] h-[24px] rounded-lg border-none cursor-pointer shrink-0"
+                              style={{ color: "#D32F2F", background: "rgba(211,47,47,0.06)" }}>
+                              <X size={12} />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
                     <button type="button" onClick={() => { const qs = [...questions]; qs[qi].options.push({ text: "", larkScore: 0, eagleScore: 0, owlScore: 0 }); setQuestions(qs); }}
@@ -510,7 +516,7 @@ export default function SuperAdminAssessmentsPage() {
                   <input type="number" value={r.max_score ?? ""} onChange={(e) => { const rs = [...scoringRules]; rs[i].max_score = e.target.value ? Number(e.target.value) : null; setScoringRules(rs); }}
                     className="w-[60px] px-[8px] py-[6px] rounded-lg border text-[12px] text-center outline-none" style={{ borderColor: "#E0E0E0", fontFamily: "Poppins, sans-serif" }} placeholder="Max" />
                   <input type="text" value={r.label ?? ""} onChange={(e) => { const rs = [...scoringRules]; rs[i].label = e.target.value; setScoringRules(rs); }}
-                    className="w-[100px] px-[8px] py-[6px] rounded-lg border text-[12px] outline-none" style={{ borderColor: "#E0E0E0", fontFamily: "Poppins, sans-serif" }} placeholder="Label" />
+                    className="w-full md:w-[100px] px-[8px] py-[6px] rounded-lg border text-[12px] outline-none" style={{ borderColor: "#E0E0E0", fontFamily: "Poppins, sans-serif" }} placeholder="Label" />
                 </div>
               ))}
             </div>
@@ -590,9 +596,9 @@ export default function SuperAdminAssessmentsPage() {
               </div>
             ))}
           </div>
-          <div className="flex items-center justify-between mt-[20px] p-[14px] rounded-lg" style={{ background: "rgba(53,49,155,0.04)" }}>
-            <span className="text-[12px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>Scoring ranges: {scoringRules.map((r) => `${r.chronotype} ${r.min_score}–${r.max_score}`).join(" · ")}</span>
-            <span className="text-[12px] font-semibold" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>Max score: {totalScoreRange}</span>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-[8px] mt-[20px] p-[14px] rounded-lg" style={{ background: "rgba(53,49,155,0.04)" }}>
+            <span className="text-[12px] min-w-0" style={{ color: "#888", fontFamily: "Poppins, sans-serif", wordBreak: "break-word" }}>Scoring ranges: {scoringRules.map((r) => `${r.chronotype} ${r.min_score}–${r.max_score}`).join(" · ")}</span>
+            <span className="text-[12px] font-semibold shrink-0" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>Max score: {totalScoreRange}</span>
           </div>
         </div>
       )}
