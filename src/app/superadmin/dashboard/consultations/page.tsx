@@ -2,7 +2,11 @@
 
 import { useEffect, useState, useCallback } from "react";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Phone, Mail, Calendar, Clock, MapPin, Search, ChevronLeft, ChevronRight, ChevronDown, CheckCircle, XCircle, Clock as ClockIcon, Eye, Trash2, Download } from "lucide-react";
+import { Phone, Mail, Calendar, Clock, MapPin, Search, ChevronLeft, ChevronRight, ChevronDown, CheckCircle, XCircle, Clock as ClockIcon, Eye, Trash2, Download, Stethoscope, UserRoundCheck } from "lucide-react";
+import ConfirmDialog from "@/components/dialogs/ConfirmDialog";
+import InfoModal from "@/components/dialogs/InfoModal";
+import ConsultPatientModal from "@/components/consult/ConsultPatientModal";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 interface ConsultationLead {
   id: string;
@@ -21,6 +25,9 @@ interface ConsultationLead {
   schedule_time: string;
   status: string;
   notes: string | null;
+  consulted_by?: string | null;
+  consult_notes?: string | null;
+  consulted_at?: string | null;
   created_at: string;
 }
 
@@ -43,6 +50,7 @@ const STATUS_STYLES: Record<string, { bg: string; color: string; icon: React.Rea
 };
 
 export default function ConsultationLeadsPage() {
+  const { user } = useAuth();
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -50,12 +58,14 @@ export default function ConsultationLeadsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [selectedLead, setSelectedLead] = useState<ConsultationLead | null>(null);
+  const [consultingLead, setConsultingLead] = useState<ConsultationLead | null>(null);
+  const [viewConsultLead, setViewConsultLead] = useState<ConsultationLead | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [dropdownOpenId, setDropdownOpenId] = useState<string | null>(null);
 
   const fetchLeads = useCallback(() => {
     setLoading(true);
-    const params = new URLSearchParams({ page: String(page), limit: "50" });
+    const params = new URLSearchParams({ page: String(page), limit: "10" });
     if (statusFilter) params.set("status", statusFilter);
     if (searchQuery) params.set("search", searchQuery);
 
@@ -111,6 +121,16 @@ export default function ConsultationLeadsPage() {
       setSelectedLead(null);
       fetchLeads();
     } catch {}
+  };
+
+  const handleConsultSaved = () => {
+    fetchLeads();
+    // Refresh the open detail modal with the updated lead data.
+    if (selectedLead && consultingLead && selectedLead.id === consultingLead.id) {
+      const fresh = data?.data.find((l) => l.id === consultingLead.id);
+      if (fresh) setSelectedLead(fresh);
+    }
+    setConsultingLead(null);
   };
 
   return (
@@ -196,7 +216,7 @@ export default function ConsultationLeadsPage() {
             <div className="hidden md:grid grid-cols-[2fr_1.5fr_1.5fr_1fr_1fr_auto] gap-[12px] px-[20px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.04em]" style={{ color: "#888", fontFamily: "Poppins, sans-serif", borderBottom: "1px solid #F0F0F0" }}>
               <span>Name</span>
               <span>Contact</span>
-              <span>Location</span>
+              <span>Consult</span>
               <span>Scheduled</span>
               <span>Status</span>
               <span className="text-center">Actions</span>
@@ -217,9 +237,39 @@ export default function ConsultationLeadsPage() {
                   <span className="text-[12px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif", wordBreak: "break-all" }}>{lead.email}</span>
                   <span className="text-[12px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>{lead.phone}</span>
                 </div>
-                <span className="text-[12px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
-                  {lead.city}, {lead.state}
-                </span>
+                <div className="flex items-center flex-wrap gap-[8px]">
+                  {lead.consulted_by ? (
+                    <>
+                      <span className="inline-flex items-center gap-[5px] text-[11px] font-semibold px-[9px] py-[4px] rounded-full"
+                        style={{ background: "rgba(46,125,50,0.08)", color: "#2E7D32", fontFamily: "Poppins, sans-serif" }}>
+                        <UserRoundCheck size={12} /> {lead.consulted_by}
+                      </span>
+                      <button type="button" onClick={() => setViewConsultLead(lead)}
+                        className="flex items-center justify-center w-[28px] h-[28px] rounded-lg border-none cursor-pointer transition-colors hover:opacity-80"
+                        style={{ color: "#2E7D32", background: "rgba(46,125,50,0.08)" }}
+                        title="View Consultation Info">
+                        <Eye size={13} />
+                      </button>
+                      <button type="button" onClick={() => setConsultingLead(lead)}
+                        className="inline-flex items-center gap-[5px] text-[11px] font-semibold px-[10px] py-[5px] rounded-lg border-none cursor-pointer transition-colors hover:opacity-80"
+                        style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}
+                        title="Update Consultation">
+                        <Stethoscope size={12} /> Update
+                      </button>
+                    </>
+                  ) : (
+                    <button type="button" onClick={() => setConsultingLead(lead)}
+                      className="inline-flex items-center gap-[5px] text-[11px] font-semibold px-[10px] py-[5px] rounded-lg border-none cursor-pointer transition-colors hover:opacity-80"
+                      style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
+                      <Stethoscope size={13} /> Consult
+                    </button>
+                  )}
+                  {lead.consult_notes && (
+                    <span className="inline-flex items-center gap-[4px] text-[11px] px-[8px] py-[3px] rounded-full" style={{ background: "#F1F1F5", color: "#888", fontFamily: "Poppins, sans-serif" }}>
+                      <Mail size={11} /> Notes
+                    </span>
+                  )}
+                </div>
                 <div className="flex flex-col gap-[2px]">
                   <span className="text-[12px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{lead.schedule_date}</span>
                   <span className="text-[12px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>{lead.schedule_time}</span>
@@ -297,18 +347,36 @@ export default function ConsultationLeadsPage() {
             {data.totalPages > 1 && (
               <div className="flex items-center justify-between px-[20px] py-[14px]" style={{ borderTop: "1px solid #F0F0F0" }}>
                 <span className="text-[12px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
-                  Page {data.page} of {data.totalPages} ({data.total} total)
+                  Showing {((page - 1) * 10) + 1}–{Math.min(page * 10, data.total)} of {data.total}
                 </span>
                 <div className="flex items-center gap-[6px]">
                   <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-                    className="flex items-center gap-[4px] text-[12px] font-medium px-[10px] py-[6px] rounded-lg border-none cursor-pointer disabled:opacity-40 disabled:cursor-default transition-colors"
-                    style={{ color: "#555", background: "#F5F5F5", fontFamily: "Poppins, sans-serif" }}>
-                    <ChevronLeft size={14} /> Prev
+                    className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer disabled:opacity-30 disabled:cursor-default transition-colors"
+                    style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
+                    <ChevronLeft size={15} />
                   </button>
+                  {Array.from({ length: Math.min(data.totalPages, 7) }, (_, i) => {
+                    let p: number;
+                    if (data.totalPages <= 7) p = i + 1;
+                    else if (page <= 4) p = i + 1;
+                    else if (page >= data.totalPages - 3) p = data.totalPages - 6 + i;
+                    else p = page - 3 + i;
+                    return (
+                      <button key={p} type="button" onClick={() => setPage(p)}
+                        className="flex items-center justify-center min-w-[34px] h-[34px] rounded-lg border-none cursor-pointer text-[12px] font-semibold transition-colors"
+                        style={{
+                          color: p === page ? "#FFFFFF" : "#35319B",
+                          background: p === page ? "#35319B" : "rgba(53,49,155,0.06)",
+                          fontFamily: "Poppins, sans-serif",
+                        }}>
+                        {p}
+                      </button>
+                    );
+                  })}
                   <button type="button" onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))} disabled={page >= data.totalPages}
-                    className="flex items-center gap-[4px] text-[12px] font-medium px-[10px] py-[6px] rounded-lg border-none cursor-pointer disabled:opacity-40 disabled:cursor-default transition-colors"
-                    style={{ color: "#555", background: "#F5F5F5", fontFamily: "Poppins, sans-serif" }}>
-                    Next <ChevronRight size={14} />
+                    className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer disabled:opacity-30 disabled:cursor-default transition-colors"
+                    style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
+                    <ChevronRight size={15} />
                   </button>
                 </div>
               </div>
@@ -321,44 +389,77 @@ export default function ConsultationLeadsPage() {
       {selectedLead && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-[16px]" style={{ background: "rgba(15,13,45,0.65)" }}
           onClick={(e) => { if (e.target === e.currentTarget) setSelectedLead(null); }}>
-          <div className="w-full max-w-[480px] rounded-[16px] overflow-hidden" style={{ background: "#FFF", fontFamily: "Poppins, sans-serif", maxHeight: "90vh", overflowY: "auto" }}>
+          <div className="w-full max-w-[520px] rounded-[16px] overflow-hidden" style={{ background: "#FFF", fontFamily: "Poppins, sans-serif", maxHeight: "92vh", overflowY: "auto" }}>
             <div style={{ height: "4px", background: "linear-gradient(90deg, #35319B, #F59A00)" }} />
-            <div className="p-[24px]">
-              <div className="flex items-center justify-between mb-[20px]">
-                <h3 className="m-0 text-[18px] font-bold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>
-                  Lead Details
-                </h3>
+            <div className="p-[22px] md:p-[26px]">
+              {/* Header with avatar */}
+              <div className="flex items-center justify-between mb-[16px]">
+                <div className="flex items-center gap-[12px] min-w-0">
+                  <div className="w-[44px] h-[44px] rounded-full flex items-center justify-center text-white text-[14px] font-bold shrink-0"
+                    style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)" }}>
+                    {(selectedLead.fname?.[0] ?? "?").toUpperCase()}{(selectedLead.lname?.[0] ?? "").toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="m-0 text-[17px] font-bold leading-[1.2] truncate" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>
+                      {selectedLead.fname} {selectedLead.lname}
+                    </h3>
+                    <p className="m-0 text-[12px]" style={{ color: "#98A2B3", fontFamily: "Poppins, sans-serif" }}>
+                      {selectedLead.age} · {selectedLead.gender} · {selectedLead.marital_status}
+                    </p>
+                  </div>
+                </div>
                 <button type="button" onClick={() => setSelectedLead(null)}
-                  className="w-[30px] h-[30px] flex items-center justify-center rounded-lg border-none cursor-pointer bg-transparent hover:bg-gray-100"
+                  className="w-[30px] h-[30px] flex items-center justify-center rounded-lg border-none cursor-pointer bg-transparent hover:bg-gray-100 shrink-0"
                   style={{ color: "#888" }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                 </button>
               </div>
 
-              <div className="flex flex-col gap-[10px] mb-[20px]">
-                <DetailRow label="Name" value={`${selectedLead.fname} ${selectedLead.lname}`} />
-                <DetailRow label="Age" value={selectedLead.age} />
-                <DetailRow label="Gender" value={selectedLead.gender} />
-                <DetailRow label="Marital Status" value={selectedLead.marital_status} />
-                <DetailRow label="Email" value={selectedLead.email} />
-                <DetailRow label="Phone" value={selectedLead.phone} />
-                <DetailRow label="Location" value={`${selectedLead.city}, ${selectedLead.state}, ${selectedLead.country} - ${selectedLead.pincode}`} />
-                <DetailRow label="Schedule Date" value={selectedLead.schedule_date} />
-                <DetailRow label="Schedule Time" value={selectedLead.schedule_time} />
-                <DetailRow label="Submitted At" value={new Date(selectedLead.created_at).toLocaleString()} />
-                <div className="flex items-center gap-[8px] py-[2px]">
-                  <span className="text-[12px] font-semibold w-[120px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>Status</span>
-                  <span className="inline-flex items-center gap-[4px] text-[11px] font-semibold px-[8px] py-[3px] rounded-full"
-                    style={{ background: (STATUS_STYLES[selectedLead.status] || STATUS_STYLES.PENDING).bg, color: (STATUS_STYLES[selectedLead.status] || STATUS_STYLES.PENDING).color, fontFamily: "Poppins, sans-serif" }}>
-                    {(STATUS_STYLES[selectedLead.status] || STATUS_STYLES.PENDING).icon}
-                    {selectedLead.status.charAt(0) + selectedLead.status.slice(1).toLowerCase()}
+              {/* Status badge */}
+              <div className="flex items-center gap-[8px] mb-[18px]">
+                <span className="inline-flex items-center gap-[4px] text-[11px] font-semibold px-[9px] py-[4px] rounded-full"
+                  style={{ background: (STATUS_STYLES[selectedLead.status] || STATUS_STYLES.PENDING).bg, color: (STATUS_STYLES[selectedLead.status] || STATUS_STYLES.PENDING).color, fontFamily: "Poppins, sans-serif" }}>
+                  {(STATUS_STYLES[selectedLead.status] || STATUS_STYLES.PENDING).icon}
+                  {selectedLead.status.charAt(0) + selectedLead.status.slice(1).toLowerCase()}
+                </span>
+                {selectedLead.consulted_by && (
+                  <span className="inline-flex items-center gap-[4px] text-[11px] font-semibold px-[9px] py-[4px] rounded-full" style={{ background: "rgba(46,125,50,0.08)", color: "#2E7D32", fontFamily: "Poppins, sans-serif" }}>
+                    <UserRoundCheck size={12} /> Consulted
                   </span>
-                </div>
+                )}
               </div>
 
-              {/* Status Actions */}
+              {/* Patient details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-[16px] gap-y-[6px] mb-[18px]">
+                <DetailRow label="Email" value={selectedLead.email} />
+                <DetailRow label="Phone" value={selectedLead.phone} />
+                <DetailRow label="Location" value={`${selectedLead.city}, ${selectedLead.state}, ${selectedLead.country}${selectedLead.pincode ? ` - ${selectedLead.pincode}` : ""}`} />
+                <DetailRow label="Schedule" value={`${selectedLead.schedule_date} · ${selectedLead.schedule_time}`} />
+                <DetailRow label="Submitted At" value={new Date(selectedLead.created_at).toLocaleString()} />
+              </div>
+
+              {/* Consultation info */}
+              {selectedLead.consulted_by && (
+                <div className="rounded-[12px] p-[14px] mb-[18px]" style={{ background: "rgba(46,125,50,0.05)", border: "1px solid rgba(46,125,50,0.18)" }}>
+                  <p className="m-0 mb-[8px] text-[11px] font-semibold uppercase tracking-[0.06em] flex items-center gap-[6px]" style={{ color: "#2E7D32", fontFamily: "Poppins, sans-serif" }}>
+                    <UserRoundCheck size={13} /> Consultation Info
+                  </p>
+                  <div className="flex flex-col gap-[6px]">
+                    <DetailRow label="Consulted By" value={selectedLead.consulted_by} />
+                    <DetailRow label="Consulted At" value={selectedLead.consulted_at ? new Date(selectedLead.consulted_at).toLocaleString() : "—"} />
+                    <div>
+                      <span className="text-[12px] font-semibold block mb-[4px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>Consult Notes</span>
+                      <p className="m-0 text-[13px] leading-[1.55]" style={{ color: "#333", fontFamily: "Poppins, sans-serif", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                        {selectedLead.consult_notes || "—"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Update Status */}
               <p className="m-0 text-[12px] font-semibold mb-[8px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>Update Status</p>
-              <div className="flex flex-wrap gap-[6px] mb-[12px]">
+              <div className="flex flex-wrap gap-[6px] mb-[18px]">
                 {STATUS_OPTIONS.map((s) => (
                   <button key={s} type="button" onClick={() => updateStatus(selectedLead.id, s)}
                     className="text-[11px] font-semibold px-[10px] py-[5px] rounded-full border-none cursor-pointer transition-all"
@@ -372,8 +473,22 @@ export default function ConsultationLeadsPage() {
                 ))}
               </div>
 
+              {/* Actions */}
+              {selectedLead.consulted_by && (
+                <button type="button" onClick={() => setViewConsultLead(selectedLead)}
+                  className="w-full flex items-center justify-center gap-[6px] py-[10px] rounded-xl border-none cursor-pointer text-[14px] font-semibold transition-colors mb-[8px]"
+                  style={{ color: "#2E7D32", background: "rgba(46,125,50,0.08)", fontFamily: "Poppins, sans-serif" }}>
+                  <Eye size={14} /> View Consultation Info
+                </button>
+              )}
+              <button type="button" onClick={() => { setConsultingLead(selectedLead); }}
+                className="w-full flex items-center justify-center gap-[6px] py-[10px] rounded-xl border-none cursor-pointer text-white text-[14px] font-semibold transition-colors mb-[8px]"
+                style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)", fontFamily: "Poppins, sans-serif" }}>
+                <Stethoscope size={14} /> {selectedLead.consulted_by ? "Update Consultation" : "Consult This Patient"}
+              </button>
+
               {/* Delete */}
-              <button type="button" onClick={() => { if (confirm("Delete this lead permanently?")) { deleteLead(selectedLead.id); } }}
+              <button type="button" onClick={() => setDeleteConfirm(selectedLead.id)}
                 className="w-full flex items-center justify-center gap-[6px] py-[10px] rounded-xl border-none cursor-pointer text-white text-[14px] font-semibold transition-colors"
                 style={{ background: "#D32F2F", fontFamily: "Poppins, sans-serif" }}>
                 <Trash2 size={14} /> Delete Lead
@@ -388,15 +503,51 @@ export default function ConsultationLeadsPage() {
           </div>
         </div>
       )}
+
+      <ConsultPatientModal
+        lead={consultingLead}
+        consultedByDefault={user?.name ?? ""}
+        onClose={() => setConsultingLead(null)}
+        onSaved={handleConsultSaved}
+      />
+
+      {/* Consultation info modal */}
+      <InfoModal
+        open={!!viewConsultLead}
+        title={viewConsultLead ? `${viewConsultLead.fname} ${viewConsultLead.lname}` : ""}
+        subtitle={viewConsultLead?.email}
+        onClose={() => setViewConsultLead(null)}
+        avatar={viewConsultLead ? {
+          initials: `${(viewConsultLead.fname?.[0] ?? "?").toUpperCase()}${(viewConsultLead.lname?.[0] ?? "").toUpperCase()}`,
+          bg: "linear-gradient(135deg, #2E7D32, #43A047)",
+        } : undefined}
+        fields={[
+          { label: "Consulted By", value: viewConsultLead?.consulted_by ?? "—" },
+          { label: "Consulted At", value: viewConsultLead?.consulted_at ? new Date(viewConsultLead.consulted_at).toLocaleString() : "—" },
+          { label: "Consult Notes", value: viewConsultLead?.consult_notes ?? "—" },
+          { label: "Phone", value: viewConsultLead?.phone ?? "—" },
+          { label: "Email", value: viewConsultLead?.email ?? "—" },
+          { label: "Lead ID", value: viewConsultLead?.id ?? "" },
+        ]}
+      />
+
+      <ConfirmDialog
+        open={!!deleteConfirm}
+        title="Delete lead?"
+        message="This will permanently delete this consultation lead. This cannot be undone."
+        confirmLabel="Delete"
+        onCancel={() => setDeleteConfirm(null)}
+        onConfirm={() => { if (deleteConfirm) deleteLead(deleteConfirm); }}
+      />
     </DashboardShell>
   );
 }
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start gap-[8px] py-[2px]">
-      <span className="text-[12px] font-semibold w-[120px] shrink-0" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>{label}</span>
-      <span className="text-[13px]" style={{ color: "#333", fontFamily: "Poppins, sans-serif", wordBreak: "break-word" }}>{value}</span>
+    <div className="flex items-start justify-between gap-[8px] py-[3px]">
+      <span className="text-[12px] font-semibold shrink-0" style={{ color: "#888", fontFamily: "Poppins, sans-serif", minWidth: 92 }}>{label}</span>
+      <span className="text-[13px] text-right min-w-0" style={{ color: "#333", fontFamily: "Poppins, sans-serif", wordBreak: "break-word" }}>{value || "—"}</span>
     </div>
   );
 }

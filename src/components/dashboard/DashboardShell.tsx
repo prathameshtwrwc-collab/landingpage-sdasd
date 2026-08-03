@@ -6,11 +6,11 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { ROLE_LABELS, type Role } from "@/lib/auth/roles";
 import {
-  LayoutDashboard, Users, Settings, Shield, Activity,
-  BarChart3, LogOut, Home, User, TrendingUp, Calendar,
-  Bell, FileText, Sparkles, Star, ChevronRight, ChevronUp,
-  ChevronDown, Building2, ClipboardList, Link2, Search,
-  X, Menu, Palette, Phone, Heart, ChevronLeft
+  Home, LogOut, Heart, Menu, ChevronLeft,
+  Gauge, MoonStar, BatteryCharging, Lightbulb, ChartNoAxesCombined,
+  CircleUserRound, SlidersHorizontal,
+  IdCard, ClipboardCheck, ChartSpline, Brush, QrCode, BellRing, UserCog, Settings2,
+  LayoutGrid, NotebookPen, Landmark, UsersRound, ScrollText, PhoneCall, ChartPie, History, Cpu
 } from "lucide-react";
 import DonateModal from "@/components/DonateModal";
 
@@ -23,37 +23,36 @@ interface NavItem {
 
 const roleNavItems: Record<Role, NavItem[]> = {
   member: [
-    { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={22} /> },
-    { label: "Chronotype", href: "/dashboard/chronotype", icon: <Sparkles size={22} /> },
-    { label: "Energy Timeline", href: "/dashboard/energy", icon: <TrendingUp size={22} /> },
-    { label: "Recommendations", href: "/dashboard/recommendations", icon: <Star size={22} /> },
-    { label: "Progress", href: "/dashboard/progress", icon: <Activity size={22} /> },
-    { label: "Goals", href: "/dashboard/goals", icon: <Calendar size={22} /> },
-    { label: "Profile", href: "/dashboard/profile", icon: <User size={22} /> },
-    { label: "Settings", href: "/dashboard/settings", icon: <Settings size={22} /> },
+    { label: "Dashboard", href: "/dashboard", icon: <Gauge size={22} /> },
+    { label: "Chronotype", href: "/dashboard/chronotype", icon: <MoonStar size={22} /> },
+    { label: "Energy Timeline", href: "/dashboard/energy", icon: <BatteryCharging size={22} /> },
+    { label: "Recommendations", href: "/dashboard/recommendations", icon: <Lightbulb size={22} /> },
+    { label: "Progress", href: "/dashboard/progress", icon: <ChartNoAxesCombined size={22} /> },
+    { label: "Profile", href: "/dashboard/profile", icon: <CircleUserRound size={22} /> },
+    { label: "Settings", href: "/dashboard/settings", icon: <SlidersHorizontal size={22} /> },
   ],
   organization_admin: [
-    { label: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard size={22} /> },
-    { label: "Participants", href: "/admin/dashboard/participants", icon: <Users size={22} /> },
-    { label: "Results", href: "/admin/dashboard/reports", icon: <ClipboardList size={22} /> },
-    { label: "Analytics", href: "/admin/dashboard/analytics", icon: <TrendingUp size={22} /> },
-    { label: "White Label", href: "/admin/dashboard/white-label", icon: <Palette size={22} /> },
-    { label: "Share Link", href: "/admin/dashboard/share-link", icon: <Link2 size={22} /> },
-    { label: "Notifications", href: "/admin/dashboard/notifications", icon: <Bell size={22} />, badge: "3" },
-    { label: "Team", href: "/admin/dashboard/team", icon: <Users size={22} /> },
-    { label: "Settings", href: "/admin/dashboard/settings", icon: <Settings size={22} /> },
+    { label: "Dashboard", href: "/admin/dashboard", icon: <Gauge size={22} /> },
+    { label: "Participants", href: "/admin/dashboard/participants", icon: <IdCard size={22} /> },
+    { label: "Results", href: "/admin/dashboard/reports", icon: <ClipboardCheck size={22} /> },
+    { label: "Analytics", href: "/admin/dashboard/analytics", icon: <ChartSpline size={22} /> },
+    { label: "White Label", href: "/admin/dashboard/white-label", icon: <Brush size={22} /> },
+    { label: "Share Link", href: "/admin/dashboard/share-link", icon: <QrCode size={22} /> },
+    { label: "Notifications", href: "/admin/dashboard/notifications", icon: <BellRing size={22} />, badge: "3" },
+    { label: "Team", href: "/admin/dashboard/team", icon: <UserCog size={22} /> },
+    { label: "Settings", href: "/admin/dashboard/settings", icon: <Settings2 size={22} /> },
   ],
   superadmin: [
-    { label: "Dashboard", href: "/superadmin/dashboard", icon: <LayoutDashboard size={22} /> },
-    { label: "Assessments", href: "/superadmin/dashboard/assessments", icon: <ClipboardList size={22} /> },
-    { label: "Organizations", href: "/superadmin/dashboard/organizations", icon: <Building2 size={22} /> },
-    { label: "Users", href: "/superadmin/dashboard/users", icon: <Users size={22} /> },
-    { label: "Reports", href: "/superadmin/dashboard/reports", icon: <BarChart3 size={22} /> },
-    { label: "Consult Leads", href: "/superadmin/dashboard/consultations", icon: <Phone size={22} /> },
-    { label: "Analytics", href: "/superadmin/dashboard/analytics", icon: <TrendingUp size={22} /> },
-    { label: "Audit Log", href: "/superadmin/dashboard/audit", icon: <FileText size={22} /> },
-    { label: "System", href: "/superadmin/dashboard/system", icon: <Shield size={22} /> },
-    { label: "Settings", href: "/superadmin/dashboard/settings", icon: <Settings size={22} /> },
+    { label: "Dashboard", href: "/superadmin/dashboard", icon: <LayoutGrid size={22} /> },
+    { label: "Assessments", href: "/superadmin/dashboard/assessments", icon: <NotebookPen size={22} /> },
+    { label: "Organizations", href: "/superadmin/dashboard/organizations", icon: <Landmark size={22} /> },
+    { label: "Users", href: "/superadmin/dashboard/users", icon: <UsersRound size={22} /> },
+    { label: "Reports", href: "/superadmin/dashboard/reports", icon: <ScrollText size={22} /> },
+    { label: "Consult Leads", href: "/superadmin/dashboard/consultations", icon: <PhoneCall size={22} /> },
+    { label: "Analytics", href: "/superadmin/dashboard/analytics", icon: <ChartPie size={22} /> },
+    { label: "Audit Log", href: "/superadmin/dashboard/audit", icon: <History size={22} /> },
+    { label: "System", href: "/superadmin/dashboard/system", icon: <Cpu size={22} /> },
+    { label: "Settings", href: "/superadmin/dashboard/settings", icon: <Settings2 size={22} /> },
   ],
 };
 

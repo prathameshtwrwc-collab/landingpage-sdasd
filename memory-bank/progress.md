@@ -242,6 +242,29 @@ Completed
 
 # Change Log
 
+2026-08-04 — Consult-Patient Feature, Schema Sync, Recommendations CTA & Z-Index Fix
+
+- Consult leads page: Location column replaced with a **Consult this patient** button → `ConsultPatientModal` (Consulted by prefilled with logged-in admin + Consult Notes); saves `consulted_by`/`consult_notes`/`consulted_at`, marks lead CONTACTED
+- Consulted leads show a green badge + **view-consultation-info** Eye icon (InfoModal: consulted by/at/notes) + Update button; lead-detail modal redesigned (avatar, status/consulted badges, two-column grid, consultation-info panel, View/Update buttons)
+- **z-index fix**: `ConfirmDialog`/`InfoModal`/`BusyOverlay`/`ConsultPatientModal` raised to `z-10000` so they appear above page-level modals (`z-9999`) — consult modal was rendering behind the lead-detail modal
+- Member recommendations page: removed dummy cards; "The specialists will consult you shortly" + **Schedule Consultation** button opens the ConsultModal prefilled with the member's data (`toPrefill` maps `location`→state, age→range, etc.)
+- `supabase/schema2.sql` synced to the live production schema (members `location`/age int/phone NOT NULL/preferences_json; activity_logs `action`/`user_id`/`details_json`; login_audit `login_at`/`user_type`; consultation_leads consult columns; all tables corrected)
+- `/api/admin-audit` + `/api/member-detail` fixed to query real production `activity_logs`/`login_audit` columns and map to display shapes (were querying non-existent columns → 500)
+- `supabase/migration_consultation_leads.sql` now includes the consult columns (idempotent ALTER); `migration_consult_patient.sql` for existing DBs
+- Chronotype carousel redesigned (visible prev/next on all screens, bottom control pill with dots + play/pause, PAUSED badge); peak-time cards removed; lightbox pause button repositioned on-screen
+- Global mobile `button { min-height: 48px }` scoped to `section` (was stretching carousel dots into vertical bars)
+
+2026-08-04 — Superadmin UX, InfoModal Scroll Fix & API Performance
+
+- Reusable dialogs added: `ConfirmDialog`, `InfoModal`, `BusyOverlay` (`src/components/dialogs/`)
+- All superadmin delete/remove actions (users, organizations, org detail, consultations, assessments) now use a functional confirm popup instead of native `confirm()`
+- Users page rows gained a view-info (`Eye`) button opening an InfoModal with full member/admin data; State reads `members.location` (production has no `state` column), fallback `state`
+- Assessment builder shows a busy overlay + button spinners for publish / save-draft / edit; delete uses confirm dialog
+- Admin & superadmin sidebar icons replaced with distinctive lucide icons
+- `/api/admin-assessments` GET batched (was N+1 per version/question); `getPlatformStats` uses exact-count queries; Cache-Control on `/api/admin`, `/api/admin-portal`, `/api/admin-assessments`; users/analytics pages use `cachedFetch`
+- InfoModal scroll lock fixed: root cause was Lenis smooth-scroll hijacking wheel events — stop Lenis while open, `data-lenis-prevent` + `overscrollBehavior: contain` + `minHeight: 0` on panel, capture-phase wheel/touch guard. Pattern documented in `systemPatterns.md`
+- `useLockBodyScroll` locks `<html>` AND `<body>` (body-only was ineffective because `html { overflow-x: hidden }` makes `<html>` the scroll container)
+
 2026-08-03 — Energy Bar Graph, Carousel Controls, Member Panel & Result Routing
 
 - Energy page: replaced synthetic energy curve with bar graph of real lark/eagle/owl scores from latest assessment; all card wrappers removed, only visualization remains

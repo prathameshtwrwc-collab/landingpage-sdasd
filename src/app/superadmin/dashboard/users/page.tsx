@@ -4,9 +4,11 @@ import { useEffect, useState } from "react"
 import { cachedFetch } from "@/lib/client-cache";
 import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Users, Plus, Shield, Mail, Search, Globe, Calendar, Building2, Eye, Edit2, Trash2, X, Check, Save, Download } from "lucide-react";
+import { Users, Plus, Shield, Mail, Search, Globe, Calendar, Building2, Eye, Edit2, Trash2, X, Check, Save, Download, ChevronLeft, ChevronRight } from "lucide-react";
 import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
 import { exportCsv } from "@/components/admin/CsvExport";
+import ConfirmDialog from "@/components/dialogs/ConfirmDialog";
+import InfoModal, { type InfoField } from "@/components/dialogs/InfoModal";
 
 const ADMIN_CSV_COLS = [
   { key: "first_name", label: "First Name" },
@@ -24,6 +26,8 @@ const MEMBER_CSV_COLS = [
   { key: "created_at", label: "Joined" },
   { key: "organization_id", label: "Organization ID" },
 ];
+
+const PAGE_SIZE = 10;
 
 export default function UsersPage() {
   const router = useRouter();
@@ -45,13 +49,20 @@ export default function UsersPage() {
   const [editingMember, setEditingMember] = useState<string | null>(null);
   const [editData, setEditData] = useState<Record<string, string>>({});
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ type: "admin" | "member"; id: string; name: string } | null>(null);
+  const [viewInfo, setViewInfo] = useState<{ type: "admin" | "member"; data: Record<string, unknown> } | null>(null);
   const [serverError, setServerError] = useState("");
   const [exportMode, setExportMode] = useState<"full" | "contacts" | "emails">("full");
+  const [adminPage, setAdminPage] = useState(1);
+  const [memberPage, setMemberPage] = useState(1);
+
+  useEffect(() => { setAdminPage(1); }, [search, adminOrgFilter, adminRoleFilter]);
+  useEffect(() => { setMemberPage(1); }, [memberSearch, memberOrgFilter, memberSourceFilter]);
 
   const loadData = async () => {
     try {
-      const r = await fetch("/api/admin?org_limit=200");
-      const data = await r.json();
+      const r = await cachedFetch("/api/admin?org_limit=200&admin_limit=200&member_limit=200");
+      const data = await r as Record<string, unknown>;
       const toArr = (val: unknown): Array<Record<string, unknown>> => {
         if (!val) return [];
         const obj = val as Record<string, unknown>;
@@ -112,6 +123,7 @@ export default function UsersPage() {
       });
       const d = await r.json();
       if (d.error) { setServerError(d.error); return; }
+      setConfirmDelete(null);
       await loadData();
     } catch { setServerError("Failed to delete admin"); }
     setDeleting(null);
@@ -153,6 +165,7 @@ export default function UsersPage() {
       });
       const d = await r.json();
       if (d.error) { setServerError(d.error); return; }
+      setConfirmDelete(null);
       await loadData();
     } catch { setServerError("Failed to delete member"); }
     setDeleting(null);
@@ -182,6 +195,55 @@ const filteredAdmins = admins.filter((a) => {
     return matchesSearch && matchesOrg && matchesSource;
   });
 
+  const adminTotalPages = Math.max(1, Math.ceil(filteredAdmins.length / PAGE_SIZE));
+  const memberTotalPages = Math.max(1, Math.ceil(filteredMembers.length / PAGE_SIZE));
+  const pagedAdmins = filteredAdmins.slice((adminPage - 1) * PAGE_SIZE, adminPage * PAGE_SIZE);
+  const pagedMembers = filteredMembers.slice((memberPage - 1) * PAGE_SIZE, memberPage * PAGE_SIZE);
+
+  const goAdminPage = (p: number) => { if (p >= 1 && p <= adminTotalPages) setAdminPage(p); };
+  const goMemberPage = (p: number) => { if (p >= 1 && p <= memberTotalPages) setMemberPage(p); };
+
+  const PaginationControls = ({ page, totalPages, total, goPage }: { page: number; totalPages: number; total: number; goPage: (p: number) => void }) => {
+    if (totalPages <= 1) return null;
+    return (
+      <div className="flex items-center justify-between px-[16px] py-[12px]" style={{ borderTop: "1px solid #F0F0F0" }}>
+        <span className="text-[12px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
+          Showing {((page - 1) * PAGE_SIZE) + 1}–{Math.min(page * PAGE_SIZE, total)} of {total}
+        </span>
+        <div className="flex items-center gap-[6px]">
+          <button type="button" onClick={() => goPage(page - 1)} disabled={page <= 1}
+            className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer disabled:opacity-30 disabled:cursor-default transition-colors"
+            style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
+            <ChevronLeft size={15} />
+          </button>
+          {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+            let p: number;
+            if (totalPages <= 7) p = i + 1;
+            else if (page <= 4) p = i + 1;
+            else if (page >= totalPages - 3) p = totalPages - 6 + i;
+            else p = page - 3 + i;
+            return (
+              <button key={p} type="button" onClick={() => goPage(p)}
+                className="flex items-center justify-center min-w-[34px] h-[34px] rounded-lg border-none cursor-pointer text-[12px] font-semibold transition-colors"
+                style={{
+                  color: p === page ? "#FFFFFF" : "#35319B",
+                  background: p === page ? "#35319B" : "rgba(53,49,155,0.06)",
+                  fontFamily: "Poppins, sans-serif",
+                }}>
+                {p}
+              </button>
+            );
+          })}
+          <button type="button" onClick={() => goPage(page + 1)} disabled={page >= totalPages}
+            className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer disabled:opacity-30 disabled:cursor-default transition-colors"
+            style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
+            <ChevronRight size={15} />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <DashboardShell title="Users"><>
       <button type="button" onClick={() => router.push("/superadmin/dashboard")}
@@ -205,7 +267,7 @@ const filteredAdmins = admins.filter((a) => {
           <div className="flex items-center justify-between flex-wrap gap-[10px] mb-[16px]">
             <div className="flex items-center gap-[8px]">
               <Shield size={18} stroke="#D32F2F" />
-              <h3 className="m-0 text-[16px] font-bold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>Admins ({admins.length})</h3>
+              <h3 className="m-0 text-[16px] font-bold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>Admins ({filteredAdmins.length})</h3>
             </div>
             <div className="flex items-center gap-[8px] flex-wrap">
               <button type="button" onClick={() => setShowForm(!showForm)}
@@ -301,9 +363,9 @@ const filteredAdmins = admins.filter((a) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredAdmins.length === 0 ? (
+                  {pagedAdmins.length === 0 ? (
                     <tr><td colSpan={5} className="px-[16px] py-[24px] text-center text-[13px]" style={{ color: "#AAA" }}>No admins found</td></tr>
-                  ) : filteredAdmins.map((a, i) => {
+                  ) : pagedAdmins.map((a, i) => {
                     const org = (a.organizations as Record<string, unknown> | null);
                     const isEditing = editingAdmin === a.id;
                     return (
@@ -346,8 +408,9 @@ const filteredAdmins = admins.filter((a) => {
                             <td className="px-[16px] py-[12px] text-[13px]" style={{ color: "#555" }}>{org?.name as string ?? "—"}</td>
                             <td className="px-[16px] py-[12px]">
                               <div className="flex items-center gap-[6px]">
+                                <button onClick={() => setViewInfo({ type: "admin", data: a })} className="bg-transparent border-none cursor-pointer p-[4px] hover:opacity-70" title="View Info"><Eye size={14} stroke="#7B68AE" /></button>
                                 <button onClick={() => startEditAdmin(a)} className="bg-transparent border-none cursor-pointer p-[4px] hover:opacity-70" title="Edit"><Edit2 size={14} stroke="#35319B" /></button>
-                                <button onClick={() => { if (confirm("Delete this admin?")) confirmDeleteAdmin(a.id as string); }} disabled={deleting === a.id}
+                                <button onClick={() => setConfirmDelete({ type: "admin", id: a.id as string, name: `${a.first_name as string} ${a.last_name as string}`.trim() || (a.email as string) })} disabled={deleting === a.id}
                                   className="bg-transparent border-none cursor-pointer p-[4px] hover:opacity-70 disabled:opacity-40" title="Delete">
                                   <Trash2 size={14} stroke="#D32F2F" />
                                 </button>
@@ -362,12 +425,13 @@ const filteredAdmins = admins.filter((a) => {
               </table>
             </div>
           </div>
+          <PaginationControls page={adminPage} totalPages={adminTotalPages} total={filteredAdmins.length} goPage={goAdminPage} />
 
           {/* ====== MEMBERS SECTION ====== */}
           <div className="flex items-center justify-between flex-wrap gap-[10px] mb-[16px] mt-[8px]">
             <div className="flex items-center gap-[8px]">
               <Users size={18} stroke="#35319B" />
-              <h3 className="m-0 text-[16px] font-bold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>All Members ({members.length})</h3>
+              <h3 className="m-0 text-[16px] font-bold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>All Members ({filteredMembers.length})</h3>
             </div>
             <div className="flex items-center gap-[8px]">
               <select id="member-export-mode" className="px-[10px] py-[7px] rounded-lg border text-[11px] cursor-pointer outline-none"
@@ -428,9 +492,9 @@ const filteredAdmins = admins.filter((a) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredMembers.length === 0 ? (
+                  {pagedMembers.length === 0 ? (
                     <tr><td colSpan={8} className="px-[14px] py-[24px] text-center text-[13px]" style={{ color: "#AAA" }}>No members found</td></tr>
-                  ) : filteredMembers.map((m, i) => {
+                  ) : pagedMembers.map((m, i) => {
                     const org = (Array.isArray(orgs) ? orgs : []).find((o: Record<string, unknown>) => o.id === m.organization_id);
                     const isEditing = editingMember === m.id;
                     return (
@@ -488,8 +552,9 @@ const filteredAdmins = admins.filter((a) => {
                             <td className="px-[14px] py-[10px] text-[11px]" style={{ color: "#888" }}>{m.created_at ? new Date(m.created_at as string).toLocaleDateString() : "—"}</td>
                             <td className="px-[14px] py-[10px]">
                               <div className="flex items-center gap-[4px]">
+                                <button onClick={() => setViewInfo({ type: "member", data: m })} className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70" title="View Info"><Eye size={12} stroke="#7B68AE" /></button>
                                 <button onClick={() => startEditMember(m)} className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70" title="Edit"><Edit2 size={12} stroke="#35319B" /></button>
-                                <button onClick={() => { if (confirm("Delete this member?")) confirmDeleteMember(m.id as string); }} disabled={deleting === m.id}
+                                <button onClick={() => setConfirmDelete({ type: "member", id: m.id as string, name: `${m.first_name as string} ${m.last_name as string}`.trim() || (m.email as string) })} disabled={deleting === m.id}
                                   className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70 disabled:opacity-40" title="Delete">
                                   <Trash2 size={12} stroke="#D32F2F" />
                                 </button>
@@ -503,9 +568,83 @@ const filteredAdmins = admins.filter((a) => {
                 </tbody>
               </table>
             </div>
+            <PaginationControls page={memberPage} totalPages={memberTotalPages} total={filteredMembers.length} goPage={goMemberPage} />
           </div>
         </>
       )}
+
+      {/* Confirm delete dialog */}
+      <ConfirmDialog
+        open={!!confirmDelete}
+        title={`Delete ${confirmDelete?.type === "admin" ? "admin" : "member"}?`}
+        message={confirmDelete ? `This will permanently remove "${confirmDelete.name}" and cannot be undone.` : ""}
+        confirmLabel={deleting ? "Deleting..." : "Delete"}
+        busy={!!deleting}
+        onCancel={() => { if (!deleting) setConfirmDelete(null); }}
+        onConfirm={() => {
+          if (!confirmDelete) return;
+          if (confirmDelete.type === "admin") confirmDeleteAdmin(confirmDelete.id);
+          else confirmDeleteMember(confirmDelete.id);
+        }}
+      />
+
+      {/* View info dialog */}
+      <InfoModal
+        open={!!viewInfo}
+        title={viewInfo ? (viewInfo.type === "admin" ? `${String(viewInfo.data.first_name ?? "")} ${String(viewInfo.data.last_name ?? "")}`.trim() : `${String(viewInfo.data.first_name ?? "")} ${String(viewInfo.data.last_name ?? "")}`.trim()) || "User" : ""}
+        subtitle={viewInfo ? (viewInfo.data.email as string) ?? "" : ""}
+        onClose={() => setViewInfo(null)}
+        avatar={viewInfo ? {
+          initials: `${String((viewInfo.data.first_name as string)?.[0] ?? "?").toUpperCase()}${String((viewInfo.data.last_name as string)?.[0] ?? "").toUpperCase()}`,
+          bg: viewInfo.type === "admin" ? "linear-gradient(135deg, #D32F2F, #FF6B6B)" : "linear-gradient(135deg, #35319B, #7B76D4)",
+        } : undefined}
+        fields={viewInfo ? buildInfoFields(viewInfo, orgs) : []}
+      />
       </></DashboardShell>
   );
+}
+
+function buildInfoFields(viewInfo: { type: "admin" | "member"; data: Record<string, unknown> }, orgs: Array<Record<string, unknown>>): InfoField[] {
+  const d = viewInfo.data;
+  const fmtDate = (v: unknown) => (v ? new Date(v as string).toLocaleDateString() : "—");
+  const fmtDateTime = (v: unknown) => (v ? new Date(v as string).toLocaleString() : "—");
+  const joinedOrg = (d.organizations as Record<string, unknown> | null)?.name as string | undefined;
+  const fallbackOrg = (Array.isArray(orgs) ? orgs : []).find((o) => o.id === d.organization_id)?.name as string | undefined;
+  const orgName = joinedOrg || fallbackOrg || "";
+  const cap = (s: unknown) => (s ? String(s).charAt(0).toUpperCase() + String(s).slice(1).toLowerCase() : "—");
+
+  if (viewInfo.type === "admin") {
+    return [
+      { label: "Full Name", value: `${String(d.first_name ?? "")} ${String(d.last_name ?? "")}`.trim() },
+      { label: "Email", value: String(d.email ?? "") },
+      { label: "Role", value: String(d.role ?? ""), badge: { text: String(d.role ?? ""), bg: "rgba(211,47,47,0.08)", color: "#D32F2F" } },
+      { label: "Status", value: String(d.status ?? ""), badge: { text: String(d.status ?? ""), bg: (d.status as string) === "ACTIVE" ? "rgba(46,125,50,0.08)" : "rgba(211,47,47,0.08)", color: (d.status as string) === "ACTIVE" ? "#2E7D32" : "#D32F2F" } },
+      { label: "Organization", value: orgName || "—" },
+      { label: "Clerk ID", value: String(d.clerk_user_id ?? "") || "—" },
+      { label: "Created", value: fmtDate(d.created_at) },
+      { label: "Updated", value: fmtDate(d.updated_at) },
+      { label: "Admin ID", value: String(d.id ?? "") },
+    ];
+  }
+
+  return [
+    { label: "Full Name", value: `${String(d.first_name ?? "")} ${String(d.last_name ?? "")}`.trim() },
+    { label: "Email", value: String(d.email ?? "") },
+    { label: "Phone", value: String(d.phone ?? "") || "—" },
+    { label: "Age", value: d.age != null && d.age !== "" ? String(d.age) : "—" },
+    { label: "Gender", value: cap(d.gender) },
+    { label: "Marital Status", value: cap(d.marital_status) },
+    { label: "Department", value: String(d.department ?? "") || "—" },
+    { label: "Occupation", value: String(d.occupation ?? "") || "—" },
+    { label: "Country", value: String(d.country ?? "") || "—" },
+    { label: "State", value: String(d.location ?? d.state ?? "") || "—" },
+    { label: "City", value: String(d.city ?? "") || "—" },
+    { label: "Pincode", value: String(d.pincode ?? "") || "—" },
+    { label: "Source", value: String(d.source_type ?? ""), badge: { text: String(d.source_type ?? ""), bg: "rgba(53,49,155,0.08)", color: "#35319B" } },
+    { label: "Referral Code", value: String(d.referral_code ?? "") || "—" },
+    { label: "Organization", value: orgName || "—" },
+    { label: "Created", value: fmtDateTime(d.created_at) },
+    { label: "Updated", value: fmtDateTime(d.updated_at) },
+    { label: "Member ID", value: String(d.id ?? "") },
+  ];
 }

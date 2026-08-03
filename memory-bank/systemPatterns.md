@@ -451,3 +451,24 @@ AI Recommendations
 Mobile Applications
 
 without requiring major architectural redesign.
+
+---
+
+# Modal & Scroll-Lock Pattern (Lenis)
+
+The app uses the Lenis smooth-scroll library (`SmoothScrollProvider` wraps the app in `ClientLayout`; `<html>` gets the `lenis` class). Lenis hijacks global wheel/touch events, so a nested scrollable area (modal content) will NOT scroll natively unless the modal opts out.
+
+Modal scroll-lock recipe (see `src/components/dialogs/` and `MemberDetailModal.tsx`):
+
+1. `useLockBodyScroll(open)` from `@/lib/use-lock-body-scroll` — freezes the page: `position: fixed` on `<body>` (scroll offset preserved) + `overflow: hidden` on `<html>` and `<body>`; restores both + the scroll offset on close. Locking `body` alone is NOT enough because `globals.css` sets `html { overflow-x: hidden }`, making `<html>` the real scroll container.
+2. Stop Lenis while open, restart on close: `const { stop: stopLenis, start: startLenis } = useLenis();`.
+3. Put `data-lenis-prevent` on the modal's scrollable panel so Lenis ignores it, plus `overscrollBehavior: "contain"` and `minHeight: 0` (the flex scroll-child requirement).
+4. Capture-phase `wheel`/`touchmove` guards on `window` that `preventDefault()` + `stopPropagation()` when the event target is NOT inside the scrollable panel — this blocks the page and Lenis while letting the panel scroll.
+
+Dialog components:
+- `ConfirmDialog.tsx` / `BusyOverlay.tsx` — `useLockBodyScroll` only (no scrollable content).
+- `InfoModal.tsx` — full pattern (lock + Lenis stop/start + `data-lenis-prevent` + wheel guard).
+
+Precedent components already using `data-lenis-prevent`: `MemberDetailModal.tsx`, `ConsultModal.tsx`, `AssessmentModal.tsx`.
+
+Gotcha: production `members` has no `state` column — the assessment form's "State *" field is stored in `members.location`. Info panels must read `location` first with `state` as fallback.

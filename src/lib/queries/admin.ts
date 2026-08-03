@@ -1,33 +1,29 @@
 import { createClient } from "@/lib/supabase/server";
 
-const DEFAULT_LIMIT = 50;
+const DEFAULT_LIMIT = 10;
 
 export async function getPlatformStats() {
   const supabase = await createClient();
-  const [{ count: orgs }, { count: members }, { count: assessments }, { count: admins }] =
+  const [orgsCount, membersCount, assessmentsCount, adminsCount, larkCount, eagleCount, owlCount] =
     await Promise.all([
       supabase.from("organizations").select("*", { count: "exact", head: true }),
       supabase.from("members").select("*", { count: "exact", head: true }),
       supabase.from("assessments").select("*", { count: "exact", head: true }).eq("status", "COMPLETED"),
       supabase.from("organization_admins").select("*", { count: "exact", head: true }),
+      supabase.from("chronotype_results").select("*", { count: "exact", head: true }).eq("chronotype", "LARK"),
+      supabase.from("chronotype_results").select("*", { count: "exact", head: true }).eq("chronotype", "EAGLE"),
+      supabase.from("chronotype_results").select("*", { count: "exact", head: true }).eq("chronotype", "OWL"),
     ]);
-  const { data: chronoDist } = await supabase
-    .from("chronotype_results")
-    .select("chronotype");
-  const chronoCounts = { LARK: 0, EAGLE: 0, OWL: 0 };
-  chronoDist?.forEach((r) => {
-    if (r.chronotype in chronoCounts) chronoCounts[r.chronotype as keyof typeof chronoCounts]++;
-  });
-  const totalChrono = chronoDist?.length || 1;
+  const totalChrono = (larkCount.count ?? 0) + (eagleCount.count ?? 0) + (owlCount.count ?? 0) || 1;
   return {
-    organizations: orgs ?? 0,
-    members: members ?? 0,
-    assessments: assessments ?? 0,
-    admins: admins ?? 0,
+    organizations: orgsCount.count ?? 0,
+    members: membersCount.count ?? 0,
+    assessments: assessmentsCount.count ?? 0,
+    admins: adminsCount.count ?? 0,
     chronotypeDistribution: {
-      lark: Math.round((chronoCounts.LARK / totalChrono) * 100),
-      eagle: Math.round((chronoCounts.EAGLE / totalChrono) * 100),
-      owl: Math.round((chronoCounts.OWL / totalChrono) * 100),
+      lark: Math.round(((larkCount.count ?? 0) / totalChrono) * 100),
+      eagle: Math.round(((eagleCount.count ?? 0) / totalChrono) * 100),
+      owl: Math.round(((owlCount.count ?? 0) / totalChrono) * 100),
     },
   };
 }
@@ -91,7 +87,7 @@ export async function getAllMembers(opts?: { page?: number; limit?: number; sear
 
   let query = supabase
     .from("members")
-    .select("id, first_name, last_name, email, age, gender, source_type, organization_id, created_at", { count: "exact" });
+    .select("*", { count: "exact" });
 
   if (search) {
     query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`);
@@ -105,7 +101,7 @@ export async function getAllMembers(opts?: { page?: number; limit?: number; sear
 export async function getOrganizationMembers(orgId: string, opts?: { page?: number; limit?: number }) {
   const supabase = await createClient();
   const page = opts?.page ?? 1;
-  const limit = opts?.limit ?? 50;
+  const limit = opts?.limit ?? DEFAULT_LIMIT;
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
@@ -136,7 +132,7 @@ export async function getOrganizationAdmins(opts?: { page?: number; limit?: numb
 
   let query = supabase
     .from("organization_admins")
-    .select("id, first_name, last_name, email, role, status, organization_id, organizations(name)", { count: "exact" });
+    .select("*, organizations(name)", { count: "exact" });
 
   if (search) {
     query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`);

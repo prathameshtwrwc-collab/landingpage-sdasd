@@ -13,55 +13,91 @@ export async function GET() {
       .select("id, name, description, version, status, created_at")
       .order("created_at", { ascending: false });
 
-    if (!versions) return NextResponse.json({ versions: [] });
+    if (!versions || versions.length === 0) {
+      return NextResponse.json({ versions: [] }, { headers: CACHE_HEADERS });
+    }
 
-    const enriched = await Promise.all(versions.map(async (v) => {
-      const { count: qCount } = await supabase
+    const versionIds = versions.map((v) => v.id);
+
+    // Batch-load all child rows in a handful of queries instead of the old
+    // N+1 pattern (several queries per version + one per question).
+    const [questionsRes, rulesRes, responsesRes] = await Promise.all([
+      supabase
         .from("questions")
-        .select("id", { count: "exact", head: true })
-        .eq("assessment_version_id", v.id);
-
-      const { count: respCount } = await supabase
-        .from("assessments")
-        .select("id", { count: "exact", head: true })
-        .eq("assessment_version_id", v.id)
-        .eq("status", "COMPLETED");
-
-      const { data: rules } = await supabase
+        .select("id, assessment_version_id, question_text, question_order, category, is_active")
+        .in("assessment_version_id", versionIds)
+        .order("question_order"),
+      supabase
         .from("scoring_rules")
-        .select("min_score, max_score, chronotype, label, description")
-        .eq("assessment_version_id", v.id)
-        .order("min_score");
+        .select("assessment_version_id, min_score, max_score, chronotype, label, description")
+        .in("assessment_version_id", versionIds)
+        .order("min_score"),
+      supabase
+        .from("assessments")
+        .select("assessment_version_id")
+        .eq("status", "COMPLETED")
+        .in("assessment_version_id", versionIds),
+    ]);
 
-      const { data: questions } = await supabase
-        .from("questions")
-        .select("id, question_text, question_order, category, is_active")
-        .eq("assessment_version_id", v.id)
-        .order("question_order");
+    const questions = questionsRes.data ?? [];
+    const rules = rulesRes.data ?? [];
+    const responses = responsesRes.data ?? [];
 
-      const questionsWithOptions = await Promise.all((questions ?? []).map(async (q) => {
-        const { data: opts } = await supabase
+    const questionsByVersion = new Map<string, typeof questions>();
+    for (const q of questions) {
+      const list = questionsByVersion.get(q.assessment_version_id) ?? [];
+      list.push(q);
+      questionsByVersion.set(q.assessment_version_id, list);
+    }
+
+    const rulesByVersion = new Map<string, typeof rules>();
+    for (const r of rules) {
+      const list = rulesByVersion.get(r.assessment_version_id) ?? [];
+      list.push(r);
+      rulesByVersion.set(r.assessment_version_id, list);
+    }
+
+    const responseCounts = new Map<string, number>();
+    for (const a of responses) {
+      responseCounts.set(a.assessment_version_id, (responseCounts.get(a.assessment_version_id) ?? 0) + 1);
+    }
+
+    // Load options for every question in one batched query.
+    const questionIds = questions.map((q) => q.id);
+    const { data: options } = questionIds.length > 0
+      ? await supabase
           .from("question_options")
-          .select("id, option_text, option_value, option_order, lark_score, eagle_score, owl_score")
-          .eq("question_id", q.id)
-          .order("option_order");
-        return { ...q, options: opts ?? [] };
-      }));
+          .select("question_id, id, option_text, option_value, option_order, lark_score, eagle_score, owl_score")
+          .in("question_id", questionIds)
+          .order("option_order")
+      : { data: [] };
 
+    const optionsByQuestion = new Map<string, typeof options>();
+    for (const o of options ?? []) {
+      const list = optionsByQuestion.get(o.question_id) ?? [];
+      list.push(o);
+      optionsByQuestion.set(o.question_id, list);
+    }
+
+    const enriched = versions.map((v) => {
+      const qs = questionsByVersion.get(v.id) ?? [];
+      const qCount = qs.length;
       return {
         ...v,
-        questionCount: qCount ?? 0,
-        responseCount: respCount ?? 0,
-        scoringRules: rules ?? [],
-        questions: questionsWithOptions,
+        questionCount: qCount,
+        responseCount: responseCounts.get(v.id) ?? 0,
+        scoringRules: rulesByVersion.get(v.id) ?? [],
+        questions: qs.map((q) => ({ ...q, options: optionsByQuestion.get(q.id) ?? [] })),
       };
-    }));
+    });
 
-    return NextResponse.json({ versions: enriched });
+    return NextResponse.json({ versions: enriched }, { headers: CACHE_HEADERS });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown" }, { status: 500 });
   }
 }
+
+const CACHE_HEADERS = { "Cache-Control": "private, max-age=30, stale-while-revalidate=120" };
 
 export async function POST(req: Request) {
   try {

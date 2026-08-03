@@ -13,7 +13,7 @@ export async function GET(req: Request) {
     const search = url.searchParams.get("search") || "";
     const type = url.searchParams.get("type") || "";
     const page = Math.max(1, parseInt(url.searchParams.get("page") ?? "1", 10));
-    const limit = Math.min(200, Math.max(10, parseInt(url.searchParams.get("limit") ?? "50", 10)));
+    const limit = Math.min(200, Math.max(10, parseInt(url.searchParams.get("limit") ?? "10", 10)));
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
@@ -32,11 +32,25 @@ export async function GET(req: Request) {
     if (hasActivityLogs && (!type || type !== "login_audit")) {
       let aq = supabase
         .from("activity_logs")
-        .select("id, member_id, activity_type, description, metadata, created_at", { count: "exact" });
-      if (type && type !== "login_audit") aq = aq.eq("activity_type", type);
-      if (search) aq = aq.or(`description.ilike.%${search}%,activity_type.ilike.%${search}%`);
+        .select("id, user_type, user_id, action, entity_type, entity_id, ip_address, details_json, created_at", { count: "exact" });
+      if (type && type !== "login_audit") aq = aq.eq("action", type);
+      if (search) aq = aq.or(`action.ilike.%${search}%,entity_type.ilike.%${search}%`);
       const { data: ad, error: ae, count: ac } = await aq.order("created_at", { ascending: false }).range(from, to);
-      if (!ae) { activities = (ad ?? []).map((r) => ({ ...r, _source: "activity" })); alCount = ac ?? 0; }
+      if (!ae) {
+        activities = (ad ?? []).map((r) => {
+          const details = (r.details_json ?? {}) as Record<string, unknown>;
+          const desc = details.description ?? details.message ?? `${r.action}${r.entity_type ? ` (${r.entity_type})` : ""}`;
+          return {
+            id: r.id as string,
+            member_id: r.user_type === "member" ? (r.user_id as string) : null,
+            activity_type: r.action as string,
+            description: String(desc),
+            created_at: r.created_at as string,
+            _source: "activity",
+          };
+        });
+        alCount = ac ?? 0;
+      }
     }
 
     // ── Query login_audit ──
@@ -45,15 +59,20 @@ export async function GET(req: Request) {
     if (hasLoginAudit && (!type || type === "LOGIN" || type === "login_audit")) {
       let lq = supabase
         .from("login_audit")
-        .select("id, member_id, email, ip_address, success, created_at", { count: "exact" });
-      if (search) lq = lq.or(`email.ilike.%${search}%,ip_address.ilike.%${search}%`);
-      const { data: ld, error: le, count: lc } = await lq.order("created_at", { ascending: false }).range(0, 49);
+        .select("id, user_type, user_id, organization_id, clerk_session_id, ip_address, login_at", { count: "exact" });
+      if (search) lq = lq.or(`ip_address.ilike.%${search}%,clerk_session_id.ilike.%${search}%`);
+      const { data: ld, error: le, count: lc } = await lq.order("login_at", { ascending: false }).range(0, 49);
       if (!le) {
         logins = (ld ?? []).map((r) => ({
-          id: r.id, member_id: r.member_id, email: r.email, ip_address: r.ip_address,
-          success: r.success, created_at: r.created_at, _source: "login_audit",
-          activity_type: r.success ? "LOGIN_SUCCESS" : "LOGIN_FAILED",
-          description: r.success ? `Login by ${r.email ?? "unknown"}` : `Failed login attempt for ${r.email ?? "unknown"}`,
+          id: r.id as string,
+          member_id: r.user_type === "member" ? (r.user_id as string) : null,
+          email: null,
+          ip_address: r.ip_address as string | null,
+          success: true,
+          created_at: r.login_at as string,
+          _source: "login_audit",
+          activity_type: "LOGIN_SUCCESS",
+          description: `Login${r.clerk_session_id ? ` (session ${String(r.clerk_session_id).slice(0, 8)})` : ""}`,
         }));
         loginTotal = lc ?? 0;
       }

@@ -43,7 +43,7 @@ export default function AuditPage() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [page, setPage] = useState(1);
-  const limit = 50;
+  const limit = 10;
 
   const fetchAudit = (p: number, s: string, t: string) => {
     setLoading(true);

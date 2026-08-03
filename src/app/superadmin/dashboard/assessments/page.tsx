@@ -2,7 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { ClipboardList, Plus, CheckCircle, AlertTriangle, Eye, Edit3, Copy, Archive, Send, X, ChevronDown, ChevronUp, GripVertical, RotateCcw, Shield, BookOpen, Trash2 } from "lucide-react";
+import { ClipboardList, Plus, CheckCircle, AlertTriangle, Eye, Edit3, Copy, Archive, Send, X, ChevronDown, ChevronUp, GripVertical, RotateCcw, Shield, BookOpen, Trash2, Loader2 } from "lucide-react";
+import ConfirmDialog from "@/components/dialogs/ConfirmDialog";
+import BusyOverlay from "@/components/dialogs/BusyOverlay";
+import { cachedFetch } from "@/lib/client-cache";
 
 type Question = { id?: string; text: string; category: string; isRequired: boolean; options: { text: string; larkScore: number; eagleScore: number; owlScore: number }[] };
 type ScoringRule = { min_score: number | null; max_score: number | null; chronotype: string; label: string | null; description: string | null };
@@ -31,13 +34,18 @@ export default function SuperAdminAssessmentsPage() {
     { min_score: 27, max_score: 40, chronotype: "LARK", label: "Lark", description: "Morning preference" },
   ]);
   const [saving, setSaving] = useState(false);
+  const [busyAction, setBusyAction] = useState<"publish" | "draft" | "edit" | "other" | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ id: string; name: string } | null>(null);
   const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const fetchVersions = useCallback(() => {
     setLoading(true);
-    fetch("/api/admin-assessments")
-      .then((r) => r.json())
-      .then((d) => { if (!d.error) setData(d); setLoading(false); })
+    cachedFetch("/api/admin-assessments")
+      .then((d) => {
+        const parsed = d as ApiResponse;
+        if (!parsed.error) setData(parsed);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, []);
 
@@ -73,12 +81,14 @@ export default function SuperAdminAssessmentsPage() {
     if (v.status === "DRAFT") { loadVersion(v); return; }
 
     setSaving(true);
+    setBusyAction("edit");
     const res = await fetch("/api/admin-assessments", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "duplicate", versionId: v.id }),
     });
     const d = await res.json();
     setSaving(false);
+    setBusyAction(null);
 
     if (d.error || !d.versionId) {
       showMsg("error", d.error || "Failed to create an editable copy");
@@ -87,7 +97,7 @@ export default function SuperAdminAssessmentsPage() {
 
     // Fetch the fresh list and open the newly created draft copy in the builder.
     try {
-      const fresh = await fetch("/api/admin-assessments").then((r) => r.json());
+      const fresh = await cachedFetch("/api/admin-assessments") as ApiResponse;
       const copy = (fresh?.versions ?? []).find((x: { id: string }) => x.id === d.versionId);
       if (copy) {
         loadVersion(copy);
@@ -103,6 +113,7 @@ export default function SuperAdminAssessmentsPage() {
   const saveDraft = async () => {
     if (!vName.trim()) { showMsg("error", "Assessment name is required"); return; }
     setSaving(true);
+    setBusyAction("draft");
 
     // If editing existing draft, update it; otherwise create new
     const action = editVersionId ? "update_draft" : "create_draft";
@@ -122,6 +133,7 @@ export default function SuperAdminAssessmentsPage() {
       if (d.versionId && !editVersionId) setEditVersionId(d.versionId);
     }
     setSaving(false);
+    setBusyAction(null);
     fetchVersions();
   };
 
@@ -133,6 +145,7 @@ export default function SuperAdminAssessmentsPage() {
     if (!id) {
       if (!vName.trim()) { showMsg("error", "Assessment name is required"); return; }
       setSaving(true);
+      setBusyAction("publish");
       const res = await fetch("/api/admin-assessments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -142,6 +155,7 @@ export default function SuperAdminAssessmentsPage() {
       if (d.error || !d.versionId) {
         showMsg("error", d.error || "Failed to save draft before publishing");
         setSaving(false);
+        setBusyAction(null);
         return;
       }
       id = d.versionId as string;
@@ -151,6 +165,8 @@ export default function SuperAdminAssessmentsPage() {
     // Publishing from the builder (no explicit versionId): persist the current
     // questions + scoring rules to the draft first, so old versions that lack
     // stored rules are fixed before the publish validation runs.
+    setSaving(true);
+    setBusyAction("publish");
     if (!versionId && id) {
       const saveRes = await fetch("/api/admin-assessments", {
         method: "POST",
@@ -158,10 +174,9 @@ export default function SuperAdminAssessmentsPage() {
         body: JSON.stringify({ action: "update_draft", versionId: id, name: vName, description: vDesc, questions, scoringRules }),
       });
       const saveD = await saveRes.json();
-      if (saveD.error) { showMsg("error", saveD.error); setSaving(false); return; }
+      if (saveD.error) { showMsg("error", saveD.error); setSaving(false); setBusyAction(null); return; }
     }
 
-    setSaving(true);
     const res = await fetch("/api/admin-assessments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -169,7 +184,9 @@ export default function SuperAdminAssessmentsPage() {
     });
     const d = await res.json();
     if (d.error) showMsg("error", d.error); else showMsg("success", "Assessment published!");
-    setSaving(false); fetchVersions();
+    setSaving(false);
+    setBusyAction(null);
+    fetchVersions();
   };
 
   const archiveVersion = async (versionId: string) => {
@@ -182,13 +199,16 @@ export default function SuperAdminAssessmentsPage() {
     fetchVersions();
   };
 
-  const deleteVersion = async (versionId: string, versionName: string) => {
-    if (!window.confirm(`Delete draft "${versionName}"? This cannot be undone.`)) return;
+  const deleteVersion = async (versionId: string) => {
+    setSaving(true);
+    setBusyAction("other");
     const res = await fetch("/api/admin-assessments", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "delete", versionId }),
     });
     const d = await res.json();
+    setSaving(false);
+    setBusyAction(null);
     if (d.error) showMsg("error", d.error); else showMsg("success", "Draft deleted");
     fetchVersions();
   };
@@ -364,7 +384,7 @@ export default function SuperAdminAssessmentsPage() {
                         </button>
                       )}
                       {v.status === "DRAFT" && (
-                        <button type="button" onClick={() => deleteVersion(v.id, v.name)}
+                        <button type="button" onClick={() => setConfirmDelete({ id: v.id, name: v.name })}
                           className="flex items-center gap-[4px] text-[11px] font-semibold px-[10px] py-[6px] rounded-lg border-none cursor-pointer transition-colors"
                           style={{ color: "#D32F2F", background: "rgba(211,47,47,0.06)", fontFamily: "Poppins, sans-serif" }}>
                           <Trash2 size={13} /> Delete
@@ -520,7 +540,8 @@ export default function SuperAdminAssessmentsPage() {
             <button type="button" onClick={saveDraft}
               className="flex items-center gap-[5px] px-[16px] py-[9px] rounded-xl border-none cursor-pointer text-[12px] font-semibold transition-colors"
               style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }} disabled={saving}>
-              <RotateCcw size={14} /> {saving ? "Saving..." : editVersionId ? "Save Draft" : "Save as Draft"}
+              {saving && busyAction === "draft" ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />}
+              {saving && busyAction === "draft" ? "Saving..." : editVersionId ? "Save Draft" : "Save as Draft"}
             </button>
             <button type="button" onClick={() => setTab("preview")}
               className="flex items-center gap-[5px] px-[16px] py-[9px] rounded-xl border-none cursor-pointer text-[12px] font-semibold transition-colors"
@@ -531,7 +552,8 @@ export default function SuperAdminAssessmentsPage() {
               disabled={!!validateMsg || saving}
               className="flex items-center gap-[5px] px-[16px] py-[9px] rounded-xl border-none cursor-pointer text-[12px] font-semibold text-white transition-colors disabled:opacity-50"
               style={{ background: "linear-gradient(135deg, #2E7D32, #43A047)", fontFamily: "Poppins, sans-serif" }}>
-              <Send size={14} /> {saving ? "Publishing..." : "Publish"}
+              {saving && busyAction === "publish" ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+              {saving && busyAction === "publish" ? "Publishing..." : "Publish"}
             </button>
           </div>
         </div>
@@ -574,6 +596,21 @@ export default function SuperAdminAssessmentsPage() {
           </div>
         </div>
       )}
+
+      <BusyOverlay
+        show={saving}
+        label={busyAction === "publish" ? "Publishing assessment..." : busyAction === "draft" ? "Saving draft..." : busyAction === "edit" ? "Creating editable copy..." : "Working..."}
+      />
+
+      <ConfirmDialog
+        open={!!confirmDelete}
+        title="Delete draft?"
+        message={confirmDelete ? `This will permanently delete the draft "${confirmDelete.name}". This cannot be undone.` : ""}
+        confirmLabel={saving ? "Deleting..." : "Delete"}
+        busy={saving}
+        onCancel={() => { if (!saving) setConfirmDelete(null); }}
+        onConfirm={() => { if (confirmDelete) { setConfirmDelete(null); deleteVersion(confirmDelete.id); } }}
+      />
     </DashboardShell>
   );
 }

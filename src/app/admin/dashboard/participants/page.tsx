@@ -5,28 +5,46 @@ import { cachedFetch } from "@/lib/client-cache";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Users, Mail, Calendar, Search, Globe } from "lucide-react";
+import { Users, Mail, Calendar, Search, Globe, ChevronLeft, ChevronRight } from "lucide-react";
 import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
+
+const PAGE_SIZE = 10;
 
 export default function ParticipantsPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [members, setMembers] = useState<Array<Record<string, unknown>>>([]);
-// const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    cachedFetch("/api/admin-portal").then((d: any) => { const m = d.members as Record<string, unknown>; setMembers(Array.isArray(m?.data) ? m.data as Array<Record<string, unknown>> : Array.isArray(m) ? m as Array<Record<string, unknown>> : []); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, []);
+  const fetchMembers = (p: number, query = search) => {
+    setLoading(true);
+    const params = new URLSearchParams({ member_page: String(p), member_limit: String(PAGE_SIZE) });
+    if (query) params.set("member_search", query);
+    cachedFetch(`/api/admin-portal?${params.toString()}`).then((d: any) => {
+      const m = d.members as Record<string, unknown>;
+      setMembers(Array.isArray(m?.data) ? m.data as Array<Record<string, unknown>> : Array.isArray(m) ? m as Array<Record<string, unknown>> : []);
+      setTotal((m?.total as number) ?? (Array.isArray(m) ? (m as Array<Record<string, unknown>>).length : 0));
+      setTotalPages((m?.totalPages as number) ?? 1);
+      setPage((m?.page as number) ?? p);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  };
 
-  const filtered = members.filter((m) => {
-    const q = search.toLowerCase();
-    return (m.first_name as string ?? "").toLowerCase().includes(q) ||
-           (m.last_name as string ?? "").toLowerCase().includes(q) ||
-           (m.email as string ?? "").toLowerCase().includes(q);
-  });
+  useEffect(() => { fetchMembers(search ? 1 : page); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+
+  const goPage = (p: number) => {
+    if (p >= 1 && p <= totalPages) { setPage(p); fetchMembers(p); }
+  };
+
+  const handleSearch = (v: string) => {
+    setSearch(v);
+    setPage(1);
+    fetchMembers(1, v);
+  };
 
   const sourceLabel = (src: string | undefined | null): string => {
     if (!src || src === "DIRECT") return "Direct";
@@ -51,13 +69,13 @@ export default function ParticipantsPage() {
           <div className="flex items-center gap-[12px] mb-[20px]">
             <div className="flex-1 flex items-center px-[14px] py-[10px] rounded-xl" style={{ border: "1.5px solid #E0E0E0", background: "#FFFFFF" }}>
               <Search size={16} stroke="#AAA" />
-              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search participants..."
+              <input type="text" value={search} onChange={(e) => handleSearch(e.target.value)} placeholder="Search participants..."
                 className="flex-1 bg-transparent border-none ml-[10px] text-[14px] outline-none" style={{ fontFamily: "Poppins, sans-serif" }} />
             </div>
-            <span className="text-[13px] font-medium" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>{filtered.length} members</span>
+            <span className="text-[13px] font-medium" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>{total} members</span>
           </div>
 
-          {filtered.length === 0 ? (
+          {members.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-[40px] rounded-[16px]" style={{ border: "1.5px dashed #E0E0E0" }}>
               <Users size={40} stroke="#CCC" strokeWidth={1.5} />
               <p className="m-0 mt-[12px] text-[14px] font-medium" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>{search ? "No matching participants" : "No members yet"}</p>
@@ -75,7 +93,7 @@ export default function ParticipantsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((m, i) => (
+                    {members.map((m, i) => (
                       <tr key={i} style={{ borderTop: "1px solid #F0F0F0" }}>
                         <td className="px-[16px] py-[12px]">
                           <div className="flex items-center gap-[10px]">
@@ -102,6 +120,43 @@ export default function ParticipantsPage() {
                   </tbody>
                 </table>
               </div>
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between px-[20px] py-[14px]" style={{ borderTop: "1px solid #F0F0F0" }}>
+                  <span className="text-[12px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
+                    Showing {((page - 1) * PAGE_SIZE) + 1}–{Math.min(page * PAGE_SIZE, total)} of {total}
+                  </span>
+                  <div className="flex items-center gap-[6px]">
+                    <button type="button" onClick={() => goPage(page - 1)} disabled={page <= 1}
+                      className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer disabled:opacity-30 disabled:cursor-default transition-colors"
+                      style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
+                      <ChevronLeft size={15} />
+                    </button>
+                    {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                      let p: number;
+                      if (totalPages <= 7) p = i + 1;
+                      else if (page <= 4) p = i + 1;
+                      else if (page >= totalPages - 3) p = totalPages - 6 + i;
+                      else p = page - 3 + i;
+                      return (
+                        <button key={p} type="button" onClick={() => goPage(p)}
+                          className="flex items-center justify-center min-w-[34px] h-[34px] rounded-lg border-none cursor-pointer text-[12px] font-semibold transition-colors"
+                          style={{
+                            color: p === page ? "#FFFFFF" : "#35319B",
+                            background: p === page ? "#35319B" : "rgba(53,49,155,0.06)",
+                            fontFamily: "Poppins, sans-serif",
+                          }}>
+                          {p}
+                        </button>
+                      );
+                    })}
+                    <button type="button" onClick={() => goPage(page + 1)} disabled={page >= totalPages}
+                      className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer disabled:opacity-30 disabled:cursor-default transition-colors"
+                      style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
+                      <ChevronRight size={15} />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </>

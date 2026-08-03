@@ -6,6 +6,7 @@ import DashboardShell from "@/components/dashboard/DashboardShell";
 import MemberDetailModal from "@/components/modals/MemberDetailModal";
 import { useCsvSelection, CsvToolbar, CheckAllCell, CheckRowCell, exportCsv } from "@/components/admin/CsvExport";
 import { Building2, Mail, Globe, Calendar, Users, ArrowLeft, Eye, Activity, Tag, Shield, Trash2 } from "lucide-react";
+import ConfirmDialog from "@/components/dialogs/ConfirmDialog";
 
 interface MemberRow {
   id: string;
@@ -29,6 +30,7 @@ export default function OrgDetailPage() {
   const [loading, setLoading] = useState(true);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ type: "admin" | "member"; id: string; name: string } | null>(null);
   const [serverError, setServerError] = useState("");
   const memberSel = useCsvSelection(members);
   const MEMBER_CSV_COLS = [
@@ -60,7 +62,6 @@ export default function OrgDetailPage() {
   };
 
   const confirmDeleteAdmin = async (adminId: string) => {
-    if (!confirm("Remove this admin from the organization?")) return;
     setDeleting(adminId);
     try {
       const r = await fetch("/api/admin?action=delete_admin", {
@@ -70,6 +71,7 @@ export default function OrgDetailPage() {
       });
       const d = await r.json();
       if (d.error) { setServerError(d.error); return; }
+      setConfirmDelete(null);
       await fetchOrgData();
     } catch {
       setServerError("Failed to delete admin");
@@ -78,7 +80,6 @@ export default function OrgDetailPage() {
   };
 
   const confirmDeleteMember = async (memberId: string) => {
-    if (!confirm("Remove this member from the organization?")) return;
     setDeleting(memberId);
     try {
       const r = await fetch("/api/admin?action=delete_member", {
@@ -88,6 +89,7 @@ export default function OrgDetailPage() {
       });
       const d = await r.json();
       if (d.error) { setServerError(d.error); return; }
+      setConfirmDelete(null);
       await fetchOrgData();
     } catch {
       setServerError("Failed to delete member");
@@ -195,7 +197,7 @@ export default function OrgDetailPage() {
                     <td className="px-[12px] py-[8px] text-[13px]" style={{ color: "#555" }}>{a.email as string}</td>
                     <td className="px-[12px] py-[8px]"><span className="text-[11px] font-semibold px-[6px] py-[2px] rounded-full" style={{ background: "rgba(211,47,47,0.06)", color: "#D32F2F" }}>{a.role as string}</span></td>
                     <td className="px-[12px] py-[8px]">
-                      <button type="button" onClick={() => confirmDeleteAdmin(a.id as string)} disabled={deleting === a.id}
+                      <button type="button" onClick={() => setConfirmDelete({ type: "admin", id: a.id as string, name: `${a.first_name as string} ${a.last_name as string}`.trim() })} disabled={deleting === a.id}
                         className="bg-transparent border-none cursor-pointer p-[4px] hover:opacity-70 disabled:opacity-40" title="Delete Admin">
                         <Trash2 size={14} stroke="#D32F2F" />
                       </button>
@@ -261,7 +263,7 @@ export default function OrgDetailPage() {
                           className="inline-flex items-center gap-[4px] text-[11px] font-medium bg-transparent border-none cursor-pointer transition-colors">
                           <Eye size={12} /> View
                         </button>
-                        <button type="button" onClick={() => confirmDeleteMember(m.id)} disabled={deleting === m.id}
+                        <button type="button" onClick={() => setConfirmDelete({ type: "member", id: m.id, name: `${m.first_name} ${m.last_name}`.trim() })} disabled={deleting === m.id}
                           className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70 disabled:opacity-40" title="Delete Member">
                           <Trash2 size={12} stroke="#D32F2F" />
                         </button>
@@ -278,6 +280,20 @@ export default function OrgDetailPage() {
       {selectedMemberId && (
         <MemberDetailModal memberId={selectedMemberId} onClose={() => setSelectedMemberId(null)} />
       )}
+
+      <ConfirmDialog
+        open={!!confirmDelete}
+        title={confirmDelete?.type === "admin" ? "Remove admin?" : "Remove member?"}
+        message={confirmDelete ? `This will remove "${confirmDelete.name}" from the organization. This cannot be undone.` : ""}
+        confirmLabel={deleting ? "Removing..." : "Remove"}
+        busy={!!deleting}
+        onCancel={() => { if (!deleting) setConfirmDelete(null); }}
+        onConfirm={() => {
+          if (!confirmDelete) return;
+          if (confirmDelete.type === "admin") confirmDeleteAdmin(confirmDelete.id);
+          else confirmDeleteMember(confirmDelete.id);
+        }}
+      />
     </DashboardShell>
   );
 }

@@ -1,5 +1,5 @@
 -- ─── Consultation Leads Table ─────────────────────────────────────────
--- Run this in Supabase SQL Editor to store consult modal submissions
+-- Run this in Supabase SQL Editor to store consult modal submissions.
 
 CREATE TABLE IF NOT EXISTS consultation_leads (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -19,8 +19,18 @@ CREATE TABLE IF NOT EXISTS consultation_leads (
   status VARCHAR(20) DEFAULT 'PENDING',
   notes TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  consulted_by VARCHAR(100),
+  consult_notes TEXT,
+  consulted_at TIMESTAMPTZ
 );
+
+-- For databases that already created the table without the consult-patient
+-- columns (idempotent; safe to run even if the columns already exist):
+ALTER TABLE consultation_leads
+  ADD COLUMN IF NOT EXISTS consulted_by VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS consult_notes TEXT,
+  ADD COLUMN IF NOT EXISTS consulted_at TIMESTAMPTZ;
 
 -- Index for sorting by creation date
 CREATE INDEX IF NOT EXISTS idx_consultation_leads_created ON consultation_leads(created_at DESC);

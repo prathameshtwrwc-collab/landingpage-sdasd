@@ -7,7 +7,7 @@ export async function GET(req: Request) {
     try {
       const url = new URL(req.url);
       const memberPage = Math.max(1, parseInt(url.searchParams.get("member_page") ?? "1", 10));
-      const memberLimit = Math.min(200, Math.max(1, parseInt(url.searchParams.get("member_limit") ?? "50", 10)));
+      const memberLimit = Math.min(200, Math.max(1, parseInt(url.searchParams.get("member_limit") ?? "10", 10)));
       const memberSearch = url.searchParams.get("member_search") || undefined;
 
       [stats, members, results, team] = await Promise.all([
@@ -24,7 +24,9 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: msg }, { status: 500 });
     }
 
-    return NextResponse.json({ stats, members, results, team });
+    return NextResponse.json({ stats, members, results, team }, {
+      headers: { "Cache-Control": "private, max-age=20, stale-while-revalidate=60" },
+    });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown" }, { status: 500 });
   }

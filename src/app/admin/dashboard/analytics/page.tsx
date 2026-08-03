@@ -7,6 +7,7 @@ import MiniLine from "@/components/charts/MiniLine";
 import Bars from "@/components/charts/Bars";
 import { BarChart3, TrendingUp, Clock, Users } from "lucide-react";
 import { SkeletonChart } from "@/components/skeleton/SkeletonCard";
+import { cachedFetch } from "@/lib/client-cache";
 
 export default function AdminAnalyticsPage() {
   const router = useRouter();
@@ -15,9 +16,8 @@ export default function AdminAnalyticsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin-portal")
-      .then((r) => r.json())
-      .then((d) => { setStats(d.stats ?? null); setLoading(false); })
+    cachedFetch("/api/admin-portal")
+      .then((d) => { setStats((d as Record<string, unknown>).stats as Record<string, unknown> | null ?? null); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 

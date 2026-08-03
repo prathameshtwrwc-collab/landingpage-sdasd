@@ -1,108 +1,128 @@
 -- CHRONOTYPE Schema Part 2: Full Schema
 -- Run AFTER schema.sql
+-- Mirrors the live production schema (verified 2026-08-04).
 
 -- ─── Organizations ────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS organizations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(255) NOT NULL,
-  organization_type VARCHAR(100) DEFAULT 'Corporate',
-  unique_code VARCHAR(20) UNIQUE NOT NULL,
-  email VARCHAR(255),
-  country VARCHAR(100),
-  status VARCHAR(20) DEFAULT 'ACTIVE',
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  name TEXT NOT NULL,
+  organization_type TEXT NOT NULL DEFAULT 'Corporate',
+  unique_code TEXT NOT NULL UNIQUE,
+  status TEXT NOT NULL DEFAULT 'ACTIVE',
+  contact_person TEXT,
+  email TEXT,
+  phone TEXT,
+  address TEXT,
+  country TEXT,
+  logo_url TEXT,
+  settings_json JSONB NOT NULL DEFAULT '{}',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  branding_logo TEXT,
+  branding_company VARCHAR(255),
+  department VARCHAR(255) DEFAULT '',
+  branch VARCHAR(255) DEFAULT '',
+  pincode VARCHAR(20) DEFAULT '',
+  city VARCHAR(100) DEFAULT '',
+  state VARCHAR(100) DEFAULT ''
 );
 
 -- ─── Organization Admins ──────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS organization_admins (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  clerk_user_id VARCHAR(255),
-  first_name VARCHAR(100) NOT NULL,
-  last_name VARCHAR(100) NOT NULL,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  role VARCHAR(20) DEFAULT 'admin',
-  status VARCHAR(20) DEFAULT 'ACTIVE',
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  organization_id UUID NOT NULL REFERENCES organizations(id),
+  clerk_user_id TEXT,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  role TEXT NOT NULL DEFAULT 'admin',
+  status TEXT NOT NULL DEFAULT 'ACTIVE',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ─── Members ──────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS members (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  clerk_user_id VARCHAR(255),
-  first_name VARCHAR(100) NOT NULL,
-  last_name VARCHAR(100) NOT NULL,
-  age VARCHAR(20),
-  email VARCHAR(255) UNIQUE NOT NULL,
-  phone VARCHAR(50),
-  gender VARCHAR(20),
-  marital_status VARCHAR(20),
-  department VARCHAR(100),
-  country VARCHAR(100),
-  state VARCHAR(100),
-  city VARCHAR(100),
-  pincode VARCHAR(20),
-  occupation VARCHAR(100),
-  organization_id UUID REFERENCES organizations(id) ON DELETE SET NULL,
-  source_type member_source_type DEFAULT 'DIRECT',
-  referral_code VARCHAR(50),
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  organization_id UUID REFERENCES organizations(id),
+  clerk_user_id TEXT,
+  source_type member_source_type NOT NULL DEFAULT 'DIRECT',
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  age INTEGER NOT NULL CHECK (age >= 1 AND age <= 120),
+  gender TEXT,
+  marital_status TEXT,
+  country TEXT,
+  city TEXT,
+  pincode TEXT,
+  occupation TEXT,
+  department TEXT,
+  location TEXT,
+  email TEXT NOT NULL UNIQUE,
+  phone TEXT NOT NULL,
+  referral_code TEXT UNIQUE,
+  preferences_json JSONB NOT NULL DEFAULT '{}',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ─── Referrals ────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS referrals (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  referrer_member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
-  referred_member_id UUID REFERENCES members(id) ON DELETE SET NULL,
-  referral_code VARCHAR(50) UNIQUE NOT NULL,
-  status VARCHAR(20) DEFAULT 'PENDING',
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  referrer_member_id UUID REFERENCES members(id),
+  referred_member_id UUID REFERENCES members(id),
+  referrer_organization_id UUID REFERENCES organizations(id),
+  referral_code TEXT NOT NULL UNIQUE,
+  status TEXT NOT NULL DEFAULT 'CREATED',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ─── Assessment Versions ──────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS assessment_versions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
+  name TEXT NOT NULL,
   version INTEGER NOT NULL,
-  status VARCHAR(20) DEFAULT 'DRAFT',
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  description TEXT,
+  status TEXT NOT NULL DEFAULT 'ACTIVE',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ─── Questions ────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS questions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  assessment_version_id UUID NOT NULL REFERENCES assessment_versions(id) ON DELETE CASCADE,
+  assessment_version_id UUID NOT NULL REFERENCES assessment_versions(id),
   question_text TEXT NOT NULL,
   question_order INTEGER NOT NULL,
-  category VARCHAR(100),
-  is_active BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  question_type TEXT NOT NULL DEFAULT 'single_choice',
+  category TEXT,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ─── Question Options ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS question_options (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  question_id UUID NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+  question_id UUID NOT NULL REFERENCES questions(id),
   option_text TEXT NOT NULL,
-  option_value VARCHAR(50),
+  option_value TEXT NOT NULL,
   option_order INTEGER NOT NULL,
-  lark_score INTEGER DEFAULT 0,
-  eagle_score INTEGER DEFAULT 0,
-  owl_score INTEGER DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  lark_score INTEGER NOT NULL DEFAULT 0,
+  eagle_score INTEGER NOT NULL DEFAULT 0,
+  owl_score INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ─── Scoring Rules ────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS scoring_rules (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  assessment_version_id UUID NOT NULL REFERENCES assessment_versions(id) ON DELETE CASCADE,
+  assessment_version_id UUID NOT NULL REFERENCES assessment_versions(id),
+  chronotype chronotype_type NOT NULL,
   min_score INTEGER,
   max_score INTEGER,
-  chronotype chronotype_type NOT NULL,
+  rule_logic JSONB NOT NULL DEFAULT '{}',
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   label VARCHAR(100),
   description TEXT
 );
@@ -110,110 +130,152 @@ CREATE TABLE IF NOT EXISTS scoring_rules (
 -- ─── Assessments ──────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS assessments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
-  organization_id UUID REFERENCES organizations(id) ON DELETE SET NULL,
+  member_id UUID NOT NULL REFERENCES members(id),
+  organization_id UUID REFERENCES organizations(id),
   assessment_version_id UUID NOT NULL REFERENCES assessment_versions(id),
-  status assessment_status DEFAULT 'STARTED',
-  ip_address VARCHAR(45),
+  status assessment_status NOT NULL DEFAULT 'STARTED',
+  started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  completed_at TIMESTAMPTZ,
+  ip_address TEXT,
   user_agent TEXT,
   time_taken_seconds INTEGER,
-  started_at TIMESTAMPTZ DEFAULT NOW(),
-  completed_at TIMESTAMPTZ
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ─── Assessment Answers ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS assessment_answers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  assessment_id UUID NOT NULL REFERENCES assessments(id) ON DELETE CASCADE,
-  question_id UUID NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
-  selected_option_id UUID NOT NULL REFERENCES question_options(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  assessment_id UUID NOT NULL REFERENCES assessments(id),
+  question_id UUID NOT NULL REFERENCES questions(id),
+  selected_option_id UUID REFERENCES question_options(id),
+  answer_value TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ─── Chronotype Results ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS chronotype_results (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  assessment_id UUID NOT NULL REFERENCES assessments(id) ON DELETE CASCADE,
-  member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
-  organization_id UUID REFERENCES organizations(id) ON DELETE SET NULL,
+  assessment_id UUID NOT NULL UNIQUE REFERENCES assessments(id),
+  member_id UUID NOT NULL REFERENCES members(id),
+  organization_id UUID REFERENCES organizations(id),
   chronotype chronotype_type NOT NULL,
-  total_score INTEGER,
-  confidence_score INTEGER,
-  lark_score INTEGER DEFAULT 0,
-  eagle_score INTEGER DEFAULT 0,
-  owl_score INTEGER DEFAULT 0,
-  generated_at TIMESTAMPTZ DEFAULT NOW()
+  total_score INTEGER NOT NULL,
+  confidence_score INTEGER NOT NULL,
+  lark_score INTEGER NOT NULL,
+  eagle_score INTEGER NOT NULL,
+  owl_score INTEGER NOT NULL,
+  generated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ─── Recommendations ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS recommendations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   chronotype chronotype_type NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  category VARCHAR(100),
-  priority_order INTEGER DEFAULT 0,
-  is_active BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  category TEXT NOT NULL,
+  icon TEXT,
+  priority_order INTEGER NOT NULL DEFAULT 0,
+  action_items JSONB NOT NULL DEFAULT '[]',
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ─── Member Recommendations ───────────────────────────────────────
 CREATE TABLE IF NOT EXISTS member_recommendations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
-  recommendation_id UUID NOT NULL REFERENCES recommendations(id) ON DELETE CASCADE,
-  is_read BOOLEAN DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  member_id UUID NOT NULL REFERENCES members(id),
+  recommendation_id UUID NOT NULL REFERENCES recommendations(id),
+  assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ─── Reports ──────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS reports (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
-  assessment_id UUID NOT NULL REFERENCES assessments(id) ON DELETE CASCADE,
-  result_id UUID REFERENCES chronotype_results(id) ON DELETE SET NULL,
-  generated_at TIMESTAMPTZ DEFAULT NOW()
+  member_id UUID NOT NULL REFERENCES members(id),
+  assessment_id UUID REFERENCES assessments(id),
+  report_type TEXT NOT NULL DEFAULT 'CHRONOTYPE',
+  title TEXT,
+  report_url TEXT,
+  file_size BIGINT,
+  is_shared BOOLEAN NOT NULL DEFAULT false,
+  shared_at TIMESTAMPTZ,
+  generated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  report_snapshot JSONB DEFAULT '{}',
+  result_id UUID REFERENCES chronotype_results(id)
 );
 
 -- ─── Organization Links ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS organization_links (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  unique_code VARCHAR(20) UNIQUE NOT NULL,
-  active BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  organization_id UUID NOT NULL REFERENCES organizations(id),
+  unique_code TEXT NOT NULL UNIQUE,
+  active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  branding_logo TEXT,
+  branding_company VARCHAR(255)
 );
 
 -- ─── Member Goals ─────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS member_goals (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
-  goal_text TEXT NOT NULL,
-  goal_type VARCHAR(50),
+  member_id UUID NOT NULL REFERENCES members(id),
+  title TEXT NOT NULL,
+  description TEXT,
+  category TEXT NOT NULL DEFAULT 'sleep',
   target_date DATE,
-  is_completed BOOLEAN DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  status TEXT NOT NULL DEFAULT 'ACTIVE',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ─── Activity Logs ────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS activity_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  member_id UUID REFERENCES members(id) ON DELETE CASCADE,
-  activity_type VARCHAR(50) NOT NULL,
-  description TEXT,
-  metadata JSONB,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  user_type TEXT,
+  user_id UUID,
+  action TEXT NOT NULL,
+  entity_type TEXT,
+  entity_id UUID,
+  ip_address TEXT,
+  details_json JSONB NOT NULL DEFAULT '{}',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ─── Login Audit ──────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS login_audit (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  member_id UUID REFERENCES members(id) ON DELETE CASCADE,
-  email VARCHAR(255),
-  ip_address VARCHAR(45),
-  user_agent TEXT,
-  success BOOLEAN DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  user_type TEXT NOT NULL,
+  user_id UUID,
+  organization_id UUID REFERENCES organizations(id),
+  clerk_session_id TEXT,
+  ip_address TEXT,
+  login_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ─── Consultation Leads ───────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS consultation_leads (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  fname VARCHAR(100) NOT NULL,
+  lname VARCHAR(100) NOT NULL,
+  age VARCHAR(20) NOT NULL,
+  gender VARCHAR(20) NOT NULL,
+  marital_status VARCHAR(20) NOT NULL,
+  country VARCHAR(100) NOT NULL,
+  state VARCHAR(100) NOT NULL,
+  city VARCHAR(100) NOT NULL,
+  pincode VARCHAR(20) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50) NOT NULL,
+  schedule_date DATE NOT NULL,
+  schedule_time TIME NOT NULL,
+  status VARCHAR(20) DEFAULT 'PENDING',
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  consulted_by VARCHAR(100),
+  consult_notes TEXT,
+  consulted_at TIMESTAMPTZ
 );
 
 -- ─── Indexes ──────────────────────────────────────────────────────
@@ -229,6 +291,8 @@ CREATE INDEX IF NOT EXISTS idx_questions_version ON questions(assessment_version
 CREATE INDEX IF NOT EXISTS idx_options_question ON question_options(question_id);
 CREATE INDEX IF NOT EXISTS idx_org_links_code ON organization_links(unique_code);
 CREATE INDEX IF NOT EXISTS idx_org_admins_clerk ON organization_admins(clerk_user_id);
+CREATE INDEX IF NOT EXISTS idx_consultation_leads_created ON consultation_leads(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_consultation_leads_status ON consultation_leads(status);
 
 -- ─── RLS Policies (Permissive for Development) ────────────────────
 ALTER TABLE members ENABLE ROW LEVEL SECURITY;
@@ -237,6 +301,7 @@ ALTER TABLE assessment_answers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chronotype_results ENABLE ROW LEVEL SECURITY;
 ALTER TABLE member_recommendations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE consultation_leads ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "anon_insert_members" ON members FOR INSERT TO anon WITH CHECK (true);
 CREATE POLICY "anon_select_members" ON members FOR SELECT TO anon USING (true);
@@ -256,6 +321,9 @@ CREATE POLICY "anon_insert_recommendations" ON member_recommendations FOR INSERT
 CREATE POLICY "anon_select_recommendations" ON member_recommendations FOR SELECT TO anon USING (true);
 
 CREATE POLICY "anon_insert_reports" ON reports FOR INSERT TO anon WITH CHECK (true);
+
+CREATE POLICY "anon_all_consultation_leads" ON consultation_leads FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "authenticated_all_consultation_leads" ON consultation_leads FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- Public read access for reference tables
 CREATE POLICY "anon_select_questions" ON questions FOR SELECT TO anon USING (true);

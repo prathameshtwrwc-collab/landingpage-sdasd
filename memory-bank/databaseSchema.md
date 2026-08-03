@@ -539,6 +539,10 @@ user_type
 
 user_id
 
+organization_id FK
+
+clerk_session_id
+
 ip_address
 
 login_at
@@ -564,6 +568,10 @@ action
 entity_type
 
 entity_id
+
+ip_address
+
+details_json (DEFAULT '{}')
 
 created_at
 
@@ -640,6 +648,12 @@ notes
 created_at
 
 updated_at
+
+consulted_by
+
+consult_notes
+
+consulted_at
 
 ---
 

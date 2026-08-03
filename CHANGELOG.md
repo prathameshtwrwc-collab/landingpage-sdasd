@@ -2,6 +2,42 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.10.0] — 2026-08-04 — Superadmin UX, Consult-Patient Feature, Schema Sync & Performance
+
+### Added
+- **Reusable dialogs** — `ConfirmDialog`, `InfoModal`, `BusyOverlay` (`src/components/dialogs/`), plus `useLockBodyScroll` (`src/lib/use-lock-body-scroll.ts`) and `useThemeDark` (`src/lib/use-theme-dark.ts`)
+- **Confirm-delete popups** — every superadmin delete/remove action (users, organizations, org detail, consultations, assessments) now uses a functional `ConfirmDialog` with busy state instead of native `confirm()`
+- **View-info icon on users page** — each admin/member row has an `Eye` button opening an `InfoModal` with the full member/admin record (State reads `members.location`, fallback `state`)
+- **Consult this patient** — consult leads page Location column replaced with a Consult button opening `ConsultPatientModal` (`src/components/consult/ConsultPatientModal.tsx`) with **Consulted by** (prefilled with the logged-in admin) + **Consult Notes**; saves `consulted_by` / `consult_notes` / `consulted_at` via PATCH and marks the lead CONTACTED
+- **View consultation info** — consulted leads show a green badge + Eye icon opening an `InfoModal` (consulted by / at / notes) + an Update button; lead-detail modal gained a consultation-info panel and View/Update buttons
+- **Assessment builder loaders** — full-screen `BusyOverlay` + button spinners for publish / save-draft / edit; delete uses confirm dialog
+- **Recommendations page** — removed dummy cards; now shows "The specialists will consult you shortly" with a **Schedule Consultation** button that opens the member ConsultModal prefilled with the member's data
+- **`ChronotypeDonutChart`** (`src/components/charts/`) — large animated donut of the member's real lark/eagle/owl scores (exploded dominant segment, glow, in-arc percentages)
+
+### Changed
+- **Sidebar icons** — member, admin, and superadmin dashboards use distinctive lucide icons (`Gauge`, `MoonStar`, `BatteryCharging`, `Lightbulb`, `ChartNoAxesCombined`, `CircleUserRound`, `SlidersHorizontal`, `IdCard`, `ClipboardCheck`, `ChartSpline`, `Brush`, `QrCode`, `BellRing`, `UserCog`, `LayoutGrid`, `NotebookPen`, `Landmark`, `UsersRound`, `ScrollText`, `PhoneCall`, `ChartPie`, `History`, `Cpu`)
+- **Energy page** — line chart replaced with the donut chart derived from the latest assessment's actual `lark_score` / `eagle_score` / `owl_score`
+- **Chronotype page carousel** — visible high-contrast prev/next buttons on all screens, play/pause control + dots in a floating bottom pill, "PAUSED" badge, counter badge; peak-time cards removed; lightbox pause button repositioned inside the viewport
+- **Dialogs z-index raised to 10000** — `ConfirmDialog` / `InfoModal` / `BusyOverlay` / `ConsultPatientModal` now render above page-level modals (z-9999), fixing the consult modal appearing behind the lead-detail modal
+- **Global mobile `button { min-height: 48px }` scoped to `section`** — landing-page CTA touch targets preserved while dashboard/modal/carousel buttons keep their own sizes (was stretching carousel dots into vertical bars)
+- **`supabase/schema2.sql` synced to the live production schema** — members uses `location` (no `state`), `age integer NOT NULL`, `phone NOT NULL`, `preferences_json`; activity_logs (`action`/`user_id`/`details_json`), login_audit (`login_at`/`user_type`), consultation_leads consult columns, plus all other table corrections
+- **`/api/admin-audit` + `/api/member-detail`** now query the real production `activity_logs` / `login_audit` columns and map them into the display shapes the pages expect
+
+### Fixed
+- **InfoModal background scroll** — root cause was **Lenis smooth-scroll** hijacking wheel events; modal now stops Lenis while open, uses `data-lenis-prevent` + `overscrollBehavior: contain` + `minHeight: 0` on the scroll area, a capture-phase wheel/touch guard, and a body lock on `<html>` AND `<body>` (documented in `memory-bank/systemPatterns.md`)
+- **`column members.state does not exist`** — members queries use `select("*")`; the info panel reads `location` first
+- **Slow users/assessments pages** — `/api/admin-assessments` GET batched (was N+1 per version/question), `getPlatformStats` uses exact-count queries, Cache-Control on `/api/admin`, `/api/admin-portal`, `/api/admin-assessments`; users/analytics pages use `cachedFetch`
+- **Chronotype lightbox pause button off-screen** — repositioned to `bottom-right` and shown on all screens
+
+### Removed
+- **Goals subpage** — nav item + `src/app/dashboard/goals/` page (Goals icon no longer used)
+- **Energy line chart** — `EnergyCurveChart.tsx` and the `d3-shape` / `@types/d3-shape` dependencies
+- **Chronotype peak-times cards** (Peak Focus / Creative Window / Ideal Sleep)
+
+### Database note (SQL in `supabase/migration_consult_patient.sql` — applied in the SQL editor)
+- `consultation_leads` gains `consulted_by VARCHAR(100)`, `consult_notes TEXT`, `consulted_at TIMESTAMPTZ`
+- Production `members` has **no `state` column** — the assessment form's "State *" is stored in `members.location`
+
 ## [2.9.0] — 2026-08-03 — Energy Bar Graph, Carousel Controls, Member Panel & Result Routing
 
 ### Changed — Energy page: real data bar graph, cards removed

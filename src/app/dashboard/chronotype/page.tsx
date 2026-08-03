@@ -5,8 +5,8 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { cachedFetch } from "@/lib/client-cache";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import Ring from "@/components/charts/Ring";
-import { Moon, Brain, Sparkles, Clock, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
-import { CHRONOTYPE_LABELS, CHRONOTYPE_DESCRIPTIONS, CHRONOTYPE_PEAK_TIMES } from "@/lib/chronotype-utils";
+import { Moon, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { CHRONOTYPE_LABELS, CHRONOTYPE_DESCRIPTIONS } from "@/lib/chronotype-utils";
 
 const ALL_IMAGES = [
   "About-Us (002).jpg", "Clinic-detials.jpg",
@@ -65,7 +65,6 @@ export default function ChronotypePage() {
   const result = data?.result as Record<string, unknown> | undefined;
   const chronotype = (result?.chronotype as "LARK" | "EAGLE" | "OWL") ?? null;
   const info = chronotype ? CHRONOTYPE_DESCRIPTIONS[chronotype] : null;
-  const peaks = chronotype ? CHRONOTYPE_PEAK_TIMES[chronotype] : null;
   const confidence = (result?.confidence_score as number) ?? 0;
 
   // Choose images based on chronotype
@@ -150,10 +149,11 @@ export default function ChronotypePage() {
             </div>
           </div>
 
-          {/* ─── Full-width Visual Illustration ─── */}
-          <div className="relative rounded-[12px] md:rounded-[20px] overflow-hidden cursor-pointer w-full" style={{ background: "#1A1A2E", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
+          {/* ─── Full-width Visual Carousel ─── */}
+          <div className="relative rounded-[12px] md:rounded-[20px] overflow-hidden cursor-pointer w-full select-none"
+            style={{ background: "#1A1A2E", boxShadow: "0 6px 24px rgba(0,0,0,0.14)" }}
             onClick={() => setLightboxOpen(true)}>
-            <div className="relative w-full" style={{ height: "clamp(260px, 55vw, 480px)" }}>
+            <div className="relative w-full" style={{ height: "clamp(250px, 54vw, 480px)" }}>
               {chronoImages.map((src, i) => (
                 <img key={src} src={`${imageFolder}/${src}`} alt={`Chronotype illustration ${i + 1}`}
                   className="absolute inset-0 w-full h-full transition-opacity duration-700 p-2 md:p-3"
@@ -162,54 +162,71 @@ export default function ChronotypePage() {
                   fetchPriority={i === 0 ? "high" : undefined}
                 />
               ))}
-              <button type="button" onClick={(e) => { e.stopPropagation(); goTo((slideIdx - 1 + chronoImages.length) % chronoImages.length); }}
-                className="absolute left-[8px] md:left-[12px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] md:w-[40px] md:h-[40px] rounded-full border-none cursor-pointer flex items-center justify-center z-10"
-                style={{ background: "rgba(255,255,255,0.9)", color: "#333", boxShadow: "0 2px 8px rgba(0,0,0,0.25)" }}>
+
+              {/* Counter badge */}
+              <div className="absolute top-[10px] right-[10px] md:top-[14px] md:right-[14px] px-[10px] py-[4px] rounded-full text-[11px] font-semibold z-10"
+                style={{ background: "rgba(0,0,0,0.55)", color: "#FFF", fontFamily: "Poppins, sans-serif", backdropFilter: "blur(4px)" }}>
+                {slideIdx + 1} / {chronoImages.length}
+              </div>
+
+              {/* Paused hint */}
+              {paused && (
+                <div className="absolute top-[10px] left-[10px] md:top-[14px] md:left-[14px] z-10 flex items-center gap-[6px] rounded-full px-[10px] py-[4px]"
+                  style={{ background: "rgba(0,0,0,0.55)", color: "#FFF", fontFamily: "Poppins, sans-serif", backdropFilter: "blur(4px)" }}>
+                  <span className="inline-block rounded-full" style={{ width: 6, height: 6, background: "#F59A00" }} />
+                  <span className="text-[10px] font-semibold tracking-[0.08em]">PAUSED</span>
+                </div>
+              )}
+
+              {/* Prev / Next */}
+              <button type="button"
+                onClick={(e) => { e.stopPropagation(); goTo((slideIdx - 1 + chronoImages.length) % chronoImages.length); }}
+                aria-label="Previous image"
+                className="absolute left-[8px] md:left-[14px] top-1/2 -translate-y-1/2 z-10 w-[38px] h-[38px] md:w-[46px] md:h-[46px] rounded-full border-none cursor-pointer flex items-center justify-center transition-transform duration-150 hover:scale-110 active:scale-95"
+                style={{ background: "rgba(255,255,255,0.94)", color: "#1F2937", boxShadow: "0 4px 16px rgba(0,0,0,0.35)" }}>
                 <ChevronLeft size={20} />
               </button>
-              <button type="button" onClick={(e) => { e.stopPropagation(); goTo((slideIdx + 1) % chronoImages.length); }}
-                className="absolute right-[8px] md:right-[12px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] md:w-[40px] md:h-[40px] rounded-full border-none cursor-pointer flex items-center justify-center z-10"
-                style={{ background: "rgba(255,255,255,0.9)", color: "#333", boxShadow: "0 2px 8px rgba(0,0,0,0.25)" }}>
+              <button type="button"
+                onClick={(e) => { e.stopPropagation(); goTo((slideIdx + 1) % chronoImages.length); }}
+                aria-label="Next image"
+                className="absolute right-[8px] md:right-[14px] top-1/2 -translate-y-1/2 z-10 w-[38px] h-[38px] md:w-[46px] md:h-[46px] rounded-full border-none cursor-pointer flex items-center justify-center transition-transform duration-150 hover:scale-110 active:scale-95"
+                style={{ background: "rgba(255,255,255,0.94)", color: "#1F2937", boxShadow: "0 4px 16px rgba(0,0,0,0.35)" }}>
                 <ChevronRight size={20} />
               </button>
-              {/* Desktop: pill/bar style indicators */}
-              <div className="absolute bottom-[14px] left-0 right-0 justify-center hidden md:flex">
-                <div className="flex items-center gap-[6px] overflow-x-auto px-[8px] py-[4px] rounded-full" style={{ background: "rgba(0,0,0,0.35)" }}>
+
+              {/* Bottom control bar: dots + play/pause */}
+              <div className="absolute bottom-[12px] left-1/2 -translate-x-1/2 z-10 flex items-center gap-[10px] rounded-full px-[12px] py-[7px]"
+                style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }}
+                onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center gap-[5px] overflow-x-auto max-w-[44vw] md:max-w-[56vw]">
                   {chronoImages.map((_, i) => (
                     <button key={i} type="button" onClick={(e) => { e.stopPropagation(); goTo(i); }}
+                      aria-label={`Go to image ${i + 1}`}
                       className="rounded-full border-none cursor-pointer shrink-0 transition-all duration-300"
                       style={{
-                        width: i === slideIdx ? "14px" : "4px",
-                        height: "4px",
-                        background: i === slideIdx ? "#FFF" : "rgba(255,255,255,0.45)",
+                        width: i === slideIdx ? "18px" : "5px",
+                        height: "5px",
+                        background: i === slideIdx ? "#FFF" : "rgba(255,255,255,0.4)",
                       }} />
                   ))}
                 </div>
-              </div>
-              <div className="absolute top-[8px] right-[8px] md:top-[12px] md:right-[12px] px-[8px] py-[3px] md:px-[10px] md:py-[4px] rounded-full text-[10px] md:text-[11px] font-medium" style={{ background: "rgba(0,0,0,0.45)", color: "#FFF", fontFamily: "Poppins, sans-serif", backdropFilter: "blur(4px)" }}>
-                {slideIdx + 1} / {chronoImages.length}
+                <div className="w-[1px] h-[16px] shrink-0" style={{ background: "rgba(255,255,255,0.25)" }} />
+                <button type="button"
+                  onClick={(e) => { e.stopPropagation(); setPaused((p) => !p); }}
+                  aria-label={paused ? "Play slideshow" : "Pause slideshow"}
+                  title={paused ? "Play slideshow" : "Pause slideshow"}
+                  className="rounded-full border-none cursor-pointer flex items-center justify-center shrink-0 transition-all duration-200"
+                  style={{
+                    width: 28,
+                    height: 28,
+                    background: paused ? "#FFF" : "transparent",
+                    color: paused ? "#1F2937" : "#FFF",
+                  }}>
+                  {paused ? <Play size={15} /> : <Pause size={15} />}
+                </button>
               </div>
             </div>
           </div>
-
-          {/* ─── Peak Times Cards ─── */}
-          {peaks && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-[12px]">
-              {[
-                { icon: <Brain size={20} />, label: "Peak Focus", value: peaks.focus, color: "#35319B" },
-                { icon: <Sparkles size={20} />, label: "Creative Window", value: peaks.creative, color: "#F59A00" },
-                { icon: <Clock size={20} />, label: "Ideal Sleep", value: peaks.sleep, color: "#2E7D32" },
-              ].map((p, i) => (
-                <div key={i} className="flex flex-col items-center text-center p-[14px] md:p-[20px] rounded-[16px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-                  <div className="w-[36px] h-[36px] md:w-[44px] md:h-[44px] rounded-xl flex items-center justify-center mb-[8px] md:mb-[10px]" style={{ background: `${p.color}10` }}>
-                    <span style={{ color: p.color }}>{p.icon}</span>
-                  </div>
-                  <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>{p.label}</p>
-                  <p className="m-0 mt-[4px] text-[16px] font-bold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>{p.value}</p>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       )}
 
@@ -226,7 +243,7 @@ export default function ChronotypePage() {
             <button type="button" onClick={(e) => { e.stopPropagation(); setPaused((p) => !p); }}
               aria-label={paused ? "Play slideshow" : "Pause slideshow"}
               title={paused ? "Play slideshow" : "Pause slideshow"}
-              className="hidden md:flex absolute bottom-[20px] left-1/2 -translate-x-1/2 translate-y-[calc(100%+8px)] z-10 w-[40px] h-[40px] rounded-full border-none cursor-pointer items-center justify-center"
+              className="flex absolute bottom-[16px] right-[16px] z-10 w-[40px] h-[40px] rounded-full border-none cursor-pointer items-center justify-center"
               style={{ background: "rgba(255,255,255,0.15)", color: "#FFF", backdropFilter: "blur(4px)" }}>
               {paused ? <Play size={18} /> : <Pause size={18} />}
             </button>

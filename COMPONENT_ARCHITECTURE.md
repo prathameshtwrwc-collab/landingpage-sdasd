@@ -63,8 +63,13 @@ C:\Users\prath\OneDrive - MSFT\Desktop\sleepchrono-recreated2
 │   │   │   ├── AssessmentContext.tsx  # Modal state context
 │   │   │   └── AssessmentModal.tsx    # Sleep assessment wizard (registration + 11 questions)
 │   │   ├── consult/
-│   │   │   ├── ConsultContext.tsx     # Modal state context
-│   │   │   └── ConsultModal.tsx       # Consultation scheduling form
+│   │   │   ├── ConsultContext.tsx       # Modal state context
+│   │   │   ├── ConsultModal.tsx         # Consultation scheduling form (member-facing)
+│   │   │   └── ConsultPatientModal.tsx  # Superadmin "consult this patient" (consulted by + notes)
+│   │   ├── dialogs/
+│   │   │   ├── ConfirmDialog.tsx        # Reusable confirm/delete popup (busy state)
+│   │   │   ├── InfoModal.tsx            # Reusable view-info modal (label/value fields)
+│   │   │   └── BusyOverlay.tsx          # Full-screen action loader overlay
 │   │   ├── DonateModal.tsx            # Healthcare donation modal (two-column, amount selection)
 │   │   ├── pdf/
 │   │   │   ├── ChronotypeReportPDF.tsx # React-PDF report (Page 1 + Page 2, A4)
@@ -83,6 +88,8 @@ C:\Users\prath\OneDrive - MSFT\Desktop\sleepchrono-recreated2
 │   │   │   ├── MiniLine.tsx           # Simple line chart (memoized)
 │   │   │   ├── EnergyChart.tsx        # Pixel-accurate 24h energy curve (ResizeObserver, no distortion)
 │   │   │   ├── Bars.tsx               # Bar chart (memoized)
+│   │   │   ├── ScoreBars.tsx          # Real lark/eagle/owl score bars
+│   │   │   ├── ChronotypeDonutChart.tsx # Animated donut of lark/eagle/owl distribution
 │   │   │   └── Ring.tsx               # Circular progress ring (memoized)
 │   │   ├── smooth-scroll/
 │   │   │   └── SmoothScrollProvider.tsx # Lenis smooth scroll provider + context
@@ -91,6 +98,8 @@ C:\Users\prath\OneDrive - MSFT\Desktop\sleepchrono-recreated2
 │   ├── lib/
 │   │   ├── client-cache.ts           # In-memory API cache (45s TTL) with deduplication
 │   │   ├── client-pdf.tsx            # PDF generation (@react-pdf/renderer → Blob download)
+│   │   ├── use-lock-body-scroll.ts   # Modal page scroll-lock hook (html+body fixed/overflow)
+│   │   ├── use-theme-dark.ts         # data-theme dark-mode detection hook
 │   │   ├── auth/
 │   │   │   ├── roles.ts              # Role types, constants, labels
 │   │   │   ├── session.ts            # localStorage session get/set/clear

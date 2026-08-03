@@ -39,15 +39,15 @@ export async function GET(req: Request) {
         .order("generated_at", { ascending: false }),
       supabase
         .from("activity_logs")
-        .select("id, activity_type, description, created_at")
-        .eq("member_id", memberId)
+        .select("id, user_type, user_id, action, entity_type, details_json, created_at")
+        .eq("user_id", memberId)
         .order("created_at", { ascending: false })
         .limit(20),
       supabase
         .from("login_audit")
-        .select("id, email, ip_address, user_agent, success, created_at")
-        .eq("member_id", memberId)
-        .order("created_at", { ascending: false })
+        .select("id, user_type, user_id, ip_address, login_at")
+        .eq("user_id", memberId)
+        .order("login_at", { ascending: false })
         .limit(20),
     ]);
 
@@ -92,8 +92,22 @@ export async function GET(req: Request) {
       assessments: assessments ?? [],
       chronotypeResults: chronoResults ?? [],
       reports: reports ?? [],
-      activityLogs: activityLogs ?? [],
-      loginAudit: loginAudit ?? [],
+      activityLogs: (activityLogs ?? []).map((a) => {
+        const details = (a.details_json ?? {}) as Record<string, unknown>;
+        return {
+          id: a.id,
+          activity_type: a.action,
+          description: String(details.description ?? details.message ?? a.action),
+          created_at: a.created_at,
+        };
+      }),
+      loginAudit: (loginAudit ?? []).map((a) => ({
+        id: a.id,
+        success: true,
+        email: null,
+        ip_address: a.ip_address,
+        created_at: a.login_at,
+      })),
       lastAssessmentAnswers: answers,
     });
   } catch (error) {

@@ -95,6 +95,13 @@ export function generatePersonalizedEnergyCurve(
 
 export const ENERGY_LABELS = ["6a", "8a", "10a", "12p", "2p", "4p", "6p", "8p", "10p", "12a", "2a", "4a"];
 
+export function formatClock(hour: number): string {
+  const h24 = ((hour % 24) + 24) % 24;
+  const am = h24 < 12;
+  const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+  return `${h12}:00 ${am ? "AM" : "PM"}`;
+}
+
 export function generateEnergyCards(chronotype: Chronotype): { title: string; time: string; desc: string }[] {
   const peak = CHRONOTYPE_PEAK_TIMES[chronotype];
   const cards: Record<Chronotype, { title: string; time: string; desc: string }[]> = {

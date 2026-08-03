@@ -144,7 +144,7 @@ export async function getAdminMembers(opts?: { page?: number; limit?: number; se
   const { organizationId } = await getAdminOrg();
   const supabase = await createClient();
   const page = opts?.page ?? 1;
-  const limit = opts?.limit ?? 50;
+  const limit = opts?.limit ?? 10;
   const search = opts?.search?.trim() ?? "";
   const from = (page - 1) * limit;
   const to = from + limit - 1;

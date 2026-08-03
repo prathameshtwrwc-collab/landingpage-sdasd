@@ -8,6 +8,7 @@ import { Users, Plus, Copy, Check, Globe, Building2, Mail, Calendar, Power, Exte
 import PaginationBar from "@/components/pagination/PaginationBar";
 import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
 import { exportCsv } from "@/components/admin/CsvExport";
+import ConfirmDialog from "@/components/dialogs/ConfirmDialog";
 
 export default function OrganizationsPage() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function OrganizationsPage() {
   const [editingOrg, setEditingOrg] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ name: "", organization_type: "", country: "", email: "", department: "", branch: "", pincode: "", city: "", state: "" });
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ id: string; name: string } | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -143,6 +145,7 @@ export default function OrganizationsPage() {
       });
       const d = await r.json();
       if (d.error) { setServerError(d.error); return; }
+      setConfirmDelete(null);
       await loadOrgs();
     } catch { setServerError("Failed to delete org"); }
     setDeleting(null);
@@ -346,7 +349,7 @@ export default function OrganizationsPage() {
                             <td className="px-[16px] py-[12px]">
                               <div className="flex items-center gap-[4px]">
                                 <button type="button" onClick={() => startEditOrg(o)} className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70" title="Edit"><Edit2 size={13} stroke="#35319B" /></button>
-                                <button type="button" onClick={() => { if (confirm("Delete this organization?")) confirmDeleteOrg(o.id as string); }} disabled={deleting === o.id}
+                                <button type="button" onClick={() => setConfirmDelete({ id: o.id as string, name: (o.name as string) ?? "" })} disabled={deleting === o.id}
                                   className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70 disabled:opacity-40" title="Delete">
                                   <Trash2 size={13} stroke="#D32F2F" />
                                 </button>
@@ -360,10 +363,20 @@ export default function OrganizationsPage() {
                 </tbody>
               </table>
             </div>
-            <PaginationBar page={page} totalPages={totalPages} total={totalCount} limit={20} onPageChange={(p) => { setLoading(true); loadOrgs(p); }} />
+            <PaginationBar page={page} totalPages={totalPages} total={totalCount} limit={10} onPageChange={(p) => { setLoading(true); loadOrgs(p); }} />
           </div>
         </>
       )}
+
+      <ConfirmDialog
+        open={!!confirmDelete}
+        title="Delete organization?"
+        message={confirmDelete ? `This will permanently delete "${confirmDelete.name}" and its data. This cannot be undone.` : ""}
+        confirmLabel={deleting ? "Deleting..." : "Delete"}
+        busy={!!deleting}
+        onCancel={() => { if (!deleting) setConfirmDelete(null); }}
+        onConfirm={() => { if (confirmDelete) confirmDeleteOrg(confirmDelete.id); }}
+      />
       </></DashboardShell>
   );
 }

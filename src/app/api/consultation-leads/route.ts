@@ -45,7 +45,7 @@ export async function GET(req: Request) {
 
     const url = new URL(req.url);
     const page = Math.max(1, parseInt(url.searchParams.get("page") ?? "1", 10));
-    const limit = Math.min(200, Math.max(1, parseInt(url.searchParams.get("limit") ?? "50", 10)));
+    const limit = Math.min(200, Math.max(1, parseInt(url.searchParams.get("limit") ?? "10", 10)));
     const status = url.searchParams.get("status") || undefined;
     const search = url.searchParams.get("search") || undefined;
     const from = (page - 1) * limit;
@@ -88,7 +88,7 @@ export async function PATCH(req: Request) {
     const session = await auth();
     if (!session?.userId) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-    const { id, status, notes } = await req.json();
+    const { id, status, notes, consultedBy, consultNotes } = await req.json();
     if (!id) return NextResponse.json({ error: "ID is required" }, { status: 400 });
 
     const supabase = createAdminClient();
@@ -96,6 +96,15 @@ export async function PATCH(req: Request) {
     const updateData: Record<string, unknown> = {};
     if (status) updateData.status = status;
     if (notes !== undefined) updateData.notes = notes;
+
+    // "Consult this patient" — record who consulted + the consult notes,
+    // timestamp it, and move a pending lead to CONTACTED.
+    if (consultedBy !== undefined || consultNotes !== undefined) {
+      if (consultedBy !== undefined) updateData.consulted_by = consultedBy;
+      if (consultNotes !== undefined) updateData.consult_notes = consultNotes;
+      updateData.consulted_at = new Date().toISOString();
+      if (!status) updateData.status = "CONTACTED";
+    }
 
     const { error } = await supabase.from("consultation_leads").update(updateData).eq("id", id);
     if (error) throw new Error(error.message);

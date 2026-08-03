@@ -71,7 +71,9 @@ export async function GET(req: Request) {
       getAllMembers({ page: memberPage, limit: memberLimit, search: memberSearch }),
     ]);
 
-    return NextResponse.json({ stats, organizations, admins, members });
+    return NextResponse.json({ stats, organizations, admins, members }, {
+      headers: { "Cache-Control": "private, max-age=20, stale-while-revalidate=60" },
+    });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Internal server error" }, { status: 500 });
   }
