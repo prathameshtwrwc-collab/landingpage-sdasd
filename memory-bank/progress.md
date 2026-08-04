@@ -242,6 +242,16 @@ Completed
 
 # Change Log
 
+2026-08-04 — Real Assessment Data End-to-End, PDF & Result Screen Fixes, Member Info Panel
+
+- Result screens (assessment modal, shared /r page, energy timeline) now use the member's **real** assessment answers for wake/bedtime/peak focus instead of static chronotype templates; `submitAssessment`, `/api/member`, and `fetchPublicResult` all return a `schedule`
+- Fixed Supabase embed shape bug — to-one joins (`questions`/`question_options`) come back as objects, not arrays; schedule readers now handle both (was silently falling back to dummy data)
+- Energy timeline "Peak energy" shows the member's real Q3 range (e.g. "10:00 AM – 5:00 PM")
+- PDF report: removed daily-rhythm timeline; schedule values cleaned into concise ranges; assessment date now the real `generated_at` (was always the download date); dashboard/progress PDF buttons pass the schedule
+- Result screen schedule cards: cleaned values + smaller wrapping font (was truncating to "10AM.....")
+- Superadmin Users → All Members → View Info: added latest-assessment summary (chronotype, total/confidence, L/E/O, date) via batched `getAllMembers` query, plus the full last-assessment Q&A (question + selected option + scores) via `/api/member-detail`; `InfoModal` gained an `answers` section
+- GitHub pushes: 2.11.1 → 2.11.8 (real schedule, embed-shape fix, peak energy range, PDF schedule/date/daily-rhythm, card sizing, member info panel summary + Q&A)
+
 2026-08-04 — Consult-Patient Feature, Schema Sync, Recommendations CTA & Z-Index Fix
 
 - Consult leads page: Location column replaced with a **Consult this patient** button → `ConsultPatientModal` (Consulted by prefilled with logged-in admin + Consult Notes); saves `consulted_by`/`consult_notes`/`consulted_at`, marks lead CONTACTED

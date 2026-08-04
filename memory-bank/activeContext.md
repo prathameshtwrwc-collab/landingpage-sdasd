@@ -104,6 +104,12 @@ Phase: Feature Completion & Stabilization — Superadmin Dashboard, RLS Fixes, D
 - **Mobile brand duplication fixed** — Removed page-level mobile brand blocks on `/login` and `/superadmin/login` so the brand shows only once (from the login card component).
 - **Superadmin assessments persistence fix** — `create_draft`/`update_draft` now persist scoring rules; publishing auto-saves draft first; old versions get rules seeded via SQL.
 - **scoring_rules schema aligned** — Production table has legacy `rule_logic jsonb` + `is_active` columns plus newly added `label VARCHAR(100)` + `description TEXT`. Health check now verifies `scoring_rules` exists.
+- **Real assessment schedule everywhere** — Wake time / bedtime / peak focus now come from the member's actual stored `assessment_answers` (Q1 wake, Q2 bed, Q3 peak productivity, Q10 natural sleepiness fallback) instead of static chronotype templates. Threaded through `submitAssessment` (returns `schedule`), `/api/member` (returns `schedule`), `/api/member-detail` (`lastAssessmentAnswers`), shared `/r/[assessmentId]` page (`fetchPublicResult`), and the PDF (`ReportData.wakeTime/bedtime/peakFocus/assessmentDate`).
+- **Supabase embed shape bug fixed** — PostgREST returns to-one joins (`questions`, `question_options`) as objects, not arrays; all schedule/answer readers now access shape-safely (object or array). Without this the schedule silently fell back to dummy data.
+- **Energy timeline peak energy** — `/dashboard/energy` "Peak energy" now shows the member's real Q3 range (e.g. "10:00 AM � 5:00 PM") instead of a single hour from the synthetic curve.
+- **PDF fixes** — daily-rhythm timeline section removed; schedule cards use cleaned real ranges; assessment date uses the real `generated_at` instead of download date.
+- **Result screen card sizing** — Ideal wake / Best focus / Ideal bedtime values cleaned to concise ranges and font reduced (was truncating to "10AM.....").
+- **Superadmin member info panel** — Users ? All Members ? View Info now shows the member's latest assessment summary (chronotype, total/confidence, L/E/O, date) and the full last-assessment Q&A (question + selected option + per-answer scores) via `/api/member-detail`; `InfoModal` gained an `answers` section.
 
 ---
 
