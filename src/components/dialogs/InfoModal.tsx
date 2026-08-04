@@ -11,16 +11,25 @@ export interface InfoField {
   badge?: { text: string; bg: string; color: string };
 }
 
+export interface InfoAnswer {
+  question_text: string;
+  option_text: string;
+  lark_score?: number;
+  eagle_score?: number;
+  owl_score?: number;
+}
+
 interface InfoModalProps {
   open: boolean;
   title: string;
   subtitle?: string;
   fields: InfoField[];
+  answers?: InfoAnswer[];
   avatar?: { initials: string; bg: string };
   onClose: () => void;
 }
 
-export default function InfoModal({ open, title, subtitle, fields, avatar, onClose }: InfoModalProps) {
+export default function InfoModal({ open, title, subtitle, fields, answers, avatar, onClose }: InfoModalProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const { stop: stopLenis, start: startLenis } = useLenis();
   useLockBodyScroll(open);
@@ -106,6 +115,29 @@ export default function InfoModal({ open, title, subtitle, fields, avatar, onClo
               </span>
             </div>
           ))}
+
+          {answers && answers.length > 0 && (
+            <div className="pt-[6px] pb-[8px]">
+              <p className="m-0 mb-[8px] text-[12px] font-bold" style={{ color: "#30268F", fontFamily: "Poppins, sans-serif" }}>
+                Last Assessment Answers ({answers.length})
+              </p>
+              {answers.map((a, i) => (
+                <div key={i} className="py-[8px]" style={{ borderBottom: i < answers.length - 1 ? "1px solid #F5F5F5" : "none" }}>
+                  <p className="m-0 text-[12px] font-medium leading-[1.45]" style={{ color: "#444", fontFamily: "Poppins, sans-serif" }}>
+                    {a.question_text}
+                  </p>
+                  <p className="m-0 mt-[3px] text-[12px] leading-[1.45]" style={{ color: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+                    → {a.option_text}
+                    {typeof a.lark_score === "number" && typeof a.eagle_score === "number" && typeof a.owl_score === "number" && (
+                      <span className="text-[10px] font-medium" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>
+                        {" "}(L:{a.lark_score} E:{a.eagle_score} O:{a.owl_score})
+                      </span>
+                    )}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className="px-[20px] py-[14px]" style={{ borderTop: "1px solid #F1F4FA" }}>
           <button

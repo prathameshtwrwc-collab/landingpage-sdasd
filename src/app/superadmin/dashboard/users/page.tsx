@@ -51,6 +51,7 @@ export default function UsersPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<{ type: "admin" | "member"; id: string; name: string } | null>(null);
   const [viewInfo, setViewInfo] = useState<{ type: "admin" | "member"; data: Record<string, unknown> } | null>(null);
+  const [viewInfoAnswers, setViewInfoAnswers] = useState<Array<{ question_text: string; option_text: string; lark_score?: number; eagle_score?: number; owl_score?: number }>>([]);
   const [serverError, setServerError] = useState("");
   const [exportMode, setExportMode] = useState<"full" | "contacts" | "emails">("full");
   const [adminPage, setAdminPage] = useState(1);
@@ -78,6 +79,20 @@ export default function UsersPage() {
   };
 
   useEffect(() => { loadData(); }, []);
+
+  const openMemberInfo = async (m: Record<string, unknown>) => {
+    setViewInfo({ type: "member", data: m });
+    setViewInfoAnswers([]);
+    const memberId = m.id as string | undefined;
+    if (!memberId) return;
+    try {
+      const r = await fetch(`/api/member-detail?member_id=${encodeURIComponent(memberId)}`);
+      const d = await r.json();
+      if (!d.error) {
+        setViewInfoAnswers((d.lastAssessmentAnswers ?? []) as Array<{ question_text: string; option_text: string; lark_score?: number; eagle_score?: number; owl_score?: number }>);
+      }
+    } catch {}
+  };
 
   const createAdmin = async () => {
     if (!form.first_name || !form.last_name || !form.email || !form.password || !form.organization_id) return;
@@ -552,7 +567,7 @@ const filteredAdmins = admins.filter((a) => {
                             <td className="px-[14px] py-[10px] text-[11px]" style={{ color: "#888" }}>{m.created_at ? new Date(m.created_at as string).toLocaleDateString() : "—"}</td>
                             <td className="px-[14px] py-[10px]">
                               <div className="flex items-center gap-[4px]">
-                                <button onClick={() => setViewInfo({ type: "member", data: m })} className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70" title="View Info"><Eye size={12} stroke="#7B68AE" /></button>
+                                <button onClick={() => openMemberInfo(m)} className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70" title="View Info"><Eye size={12} stroke="#7B68AE" /></button>
                                 <button onClick={() => startEditMember(m)} className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70" title="Edit"><Edit2 size={12} stroke="#35319B" /></button>
                                 <button onClick={() => setConfirmDelete({ type: "member", id: m.id as string, name: `${m.first_name as string} ${m.last_name as string}`.trim() || (m.email as string) })} disabled={deleting === m.id}
                                   className="bg-transparent border-none cursor-pointer p-[3px] hover:opacity-70 disabled:opacity-40" title="Delete">
@@ -593,12 +608,13 @@ const filteredAdmins = admins.filter((a) => {
         open={!!viewInfo}
         title={viewInfo ? (viewInfo.type === "admin" ? `${String(viewInfo.data.first_name ?? "")} ${String(viewInfo.data.last_name ?? "")}`.trim() : `${String(viewInfo.data.first_name ?? "")} ${String(viewInfo.data.last_name ?? "")}`.trim()) || "User" : ""}
         subtitle={viewInfo ? (viewInfo.data.email as string) ?? "" : ""}
-        onClose={() => setViewInfo(null)}
+        onClose={() => { setViewInfo(null); setViewInfoAnswers([]); }}
         avatar={viewInfo ? {
           initials: `${String((viewInfo.data.first_name as string)?.[0] ?? "?").toUpperCase()}${String((viewInfo.data.last_name as string)?.[0] ?? "").toUpperCase()}`,
           bg: viewInfo.type === "admin" ? "linear-gradient(135deg, #D32F2F, #FF6B6B)" : "linear-gradient(135deg, #35319B, #7B76D4)",
         } : undefined}
         fields={viewInfo ? buildInfoFields(viewInfo, orgs) : []}
+        answers={viewInfo?.type === "member" ? viewInfoAnswers : undefined}
       />
       </></DashboardShell>
   );

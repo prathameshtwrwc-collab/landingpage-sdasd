@@ -2,6 +2,13 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.11.8] — 2026-08-04 — Superadmin member info panel: show last assessment Q&A
+
+### Added — Last assessment questions & answers in member info panel
+- Superadmin **Users → All Members → View Info** panel now fetches the member's last assessment **answers** (`/api/member-detail`) and shows the full list of questions with the option the member selected (plus lark/eagle/owl points per answer).
+- `InfoModal` supports an optional `answers` section rendered below the info fields.
+- The earlier `latest_assessment` summary rows (chronotype, scores, confidence, date) remain above it.
+
 ## [2.11.7] — 2026-08-04 — Remove PDF daily rhythm, add latest assessment to member info panel
 
 ### Removed — PDF daily rhythm section
