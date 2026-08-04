@@ -2,6 +2,24 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.11.0] — 2026-08-04 — Login Logo Size, Back-to-Home, Mobile Duplication Fix
+
+### Changed — Logo size across navbar & login
+- Logo (`/assets/logos/logo2.png`) enlarged at all locations and made responsive:
+  - SiteNavbar: `clamp(48px, 5.5vw, 68px)` (was 44px)
+  - Login page left panel: `clamp(56px, 6.5vh, 84px)` (was 48px)
+  - Login page mobile brand: 52px (was 36px)
+  - LoginCard: 52px (was 34px)
+  - AuthLayout: `clamp(48px, 6vh, 64px)` (was 40px)
+  - DashboardShell sidebar: 48px expanded / 40px collapsed (was 34px)
+
+### Added — Back to Home on login pages
+- Functional "Back to Home" icon button added to the right (form) panel of `/login` and `/superadmin/login`, with "Back to Home" label beneath it — navigates to `/`
+
+### Fixed — Duplicate brand on mobile
+- `/login`: removed the page-level mobile brand block so the logo + "Chronotype" text shows only once (from `LoginCard`) on mobile
+- `/superadmin/login`: removed the duplicate mobile brand block; brand shows only once (from `SuperAdminLoginCard`)
+
 ## [2.10.0] — 2026-08-04 — Superadmin UX, Consult-Patient Feature, Schema Sync & Performance
 
 ### Added

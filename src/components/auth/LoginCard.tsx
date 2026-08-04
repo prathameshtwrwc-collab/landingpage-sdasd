@@ -125,9 +125,9 @@ export default function LoginCard() {
   return (
     <div className="w-full max-w-[420px] mx-auto" style={{ fontFamily: "Poppins, sans-serif" }}>
       {/* Logo */}
-      <div className="flex items-center gap-[10px] mb-[32px]">
-        <img src="/assets/logos/logo2.png" alt="Chronotype" style={{ height: "34px", width: "auto", objectFit: "contain" }} />
-        <span className="text-[18px] font-bold" style={{ color: "#1A1668" }}>Chronotype</span>
+      <div className="flex items-center gap-[12px] mb-[32px]">
+        <img src="/assets/logos/logo2.png" alt="Chronotype" style={{ height: "52px", width: "auto", objectFit: "contain" }} />
+        <span className="text-[20px] font-bold" style={{ color: "#1A1668" }}>Chronotype</span>
       </div>
 
       {/* Error */}

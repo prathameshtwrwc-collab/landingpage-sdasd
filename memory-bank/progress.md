@@ -265,6 +265,12 @@ Completed
 - InfoModal scroll lock fixed: root cause was Lenis smooth-scroll hijacking wheel events — stop Lenis while open, `data-lenis-prevent` + `overscrollBehavior: contain` + `minHeight: 0` on panel, capture-phase wheel/touch guard. Pattern documented in `systemPatterns.md`
 - `useLockBodyScroll` locks `<html>` AND `<body>` (body-only was ineffective because `html { overflow-x: hidden }` makes `<html>` the scroll container)
 
+2026-08-04 — Login Logo Size, Back-to-Home, Mobile Duplication Fix
+
+- Logo enlarged + responsive across navbar and login pages (clamp-based sizing)
+- Back-to-Home icon button with label added to right panel of /login and /superadmin/login
+- Removed duplicate mobile brand blocks (logo shown once, from the login card)
+
 2026-08-03 — Energy Bar Graph, Carousel Controls, Member Panel & Result Routing
 
 - Energy page: replaced synthetic energy curve with bar graph of real lark/eagle/owl scores from latest assessment; all card wrappers removed, only visualization remains

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useAuth } from "@/components/auth/AuthProvider";
 import LoginCard from "@/components/auth/LoginCard";
-import { Moon, Sparkles } from "lucide-react";
+import { Moon, Sparkles, Home } from "lucide-react";
 
 export default function LoginPage() {
   const { isSignedIn, isLoaded } = useUser();
@@ -54,7 +54,7 @@ export default function LoginPage() {
         <div className="relative z-10 flex flex-col items-center text-center px-[40px] max-w-[480px]">
           {/* Logo */}
           <span className="flex items-center justify-center rounded-2xl mb-[28px] px-[18px] py-[10px]" style={{ background: "#FFFFFF", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}>
-            <img src="/assets/logos/logo2.png" alt="Chronotype" style={{ height: "48px", width: "auto", objectFit: "contain" }} />
+            <img src="/assets/logos/logo2.png" alt="Chronotype" style={{ height: "clamp(56px, 6.5vh, 84px)", width: "auto", objectFit: "contain" }} />
           </span>
 
           <h1 className="m-0 text-[32px] font-bold leading-[1.2] text-white mb-[12px]">
@@ -90,13 +90,22 @@ export default function LoginPage() {
       </div>
 
       {/* ─── Right: Login Form ─── */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-[24px] py-[40px] md:px-[48px]"
+      <div className="w-full lg:w-1/2 relative flex flex-col items-center justify-center px-[24px] py-[40px] md:px-[48px]"
         style={{ background: "#FFFFFF" }}
       >
-        {/* Mobile brand (hidden on desktop) */}
-        <div className="lg:hidden flex items-center gap-[10px] mb-[32px]">
-          <img src="/assets/logos/logo2.png" alt="Chronotype" style={{ height: "36px", width: "auto", objectFit: "contain" }} />
-          <span className="text-[16px] font-bold" style={{ color: "#1A1668" }}>Chronotype</span>
+        {/* Back to Home */}
+        <div className="absolute top-[20px] left-[24px] md:left-[48px] z-[50] flex flex-col items-center gap-[4px]">
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            aria-label="Back to home"
+            title="Back to home"
+            className="flex items-center justify-center w-[44px] h-[44px] rounded-full border-none cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
+            style={{ background: "#FFFFFF", color: "#35319B", boxShadow: "0 4px 16px rgba(53,49,155,0.18)" }}
+          >
+            <Home size={20} strokeWidth={2.2} />
+          </button>
+          <span className="text-[10px] font-medium" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>Back to Home</span>
         </div>
 
         <LoginCard />

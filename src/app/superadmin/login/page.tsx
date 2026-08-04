@@ -1,9 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import SuperAdminLoginCard from "@/components/auth/SuperAdminLoginCard";
-import { Shield, Lock } from "lucide-react";
+import { Shield, Lock, Home } from "lucide-react";
 
 export default function SuperAdminLoginPage() {
+  const router = useRouter();
+
   return (
     <div className="min-h-screen flex" style={{ fontFamily: "Poppins, sans-serif" }}>
       {/* ─── Left: Decorative Panel ─── */}
@@ -50,13 +53,20 @@ export default function SuperAdminLoginPage() {
       </div>
 
       {/* ─── Right: Login Form ─── */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-[24px] py-[40px] md:px-[48px]" style={{ background: "#FAFAFC" }}>
-        {/* Mobile brand */}
-        <div className="lg:hidden flex items-center gap-[10px] mb-[32px]">
-          <span className="flex items-center justify-center w-[36px] h-[36px] rounded-xl" style={{ background: "linear-gradient(135deg, #D32F2F, #FF6B6B)" }}>
-            <Shield size={16} stroke="white" strokeWidth={2} />
-          </span>
-          <span className="text-[16px] font-bold" style={{ color: "#D32F2F" }}>Chronotype Admin</span>
+      <div className="w-full lg:w-1/2 relative flex flex-col items-center justify-center px-[24px] py-[40px] md:px-[48px]" style={{ background: "#FAFAFC" }}>
+        {/* Back to Home */}
+        <div className="absolute top-[20px] left-[24px] md:left-[48px] z-[50] flex flex-col items-center gap-[4px]">
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            aria-label="Back to home"
+            title="Back to home"
+            className="flex items-center justify-center w-[44px] h-[44px] rounded-full border-none cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
+            style={{ background: "#FFFFFF", color: "#35319B", boxShadow: "0 4px 16px rgba(53,49,155,0.18)" }}
+          >
+            <Home size={20} strokeWidth={2.2} />
+          </button>
+          <span className="text-[10px] font-medium" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>Back to Home</span>
         </div>
 
         <div className="w-full max-w-[420px] mx-auto">

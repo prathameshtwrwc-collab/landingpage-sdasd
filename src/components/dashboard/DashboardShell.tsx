@@ -250,7 +250,7 @@ export default function DashboardShell({
               src="/assets/logos/logo2.png"
               alt="Chronotype"
               className="shrink-0"
-              style={{ height: "34px", width: "auto", maxWidth: "110px", objectFit: "contain", borderRadius: "8px" }}
+              style={{ height: sidebarCollapsed ? "40px" : "48px", width: "auto", maxWidth: "150px", objectFit: "contain", borderRadius: "8px" }}
             />
             {!sidebarCollapsed && (
               <div className="flex flex-col">

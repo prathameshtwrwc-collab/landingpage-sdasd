@@ -99,6 +99,9 @@ Phase: Feature Completion & Stabilization — Superadmin Dashboard, RLS Fixes, D
 - **Recommendations CTA** — Member recommendations page removed dummy cards; now shows the specialist-consult message with a Schedule Consultation button that opens the ConsultModal prefilled with member data.
 - **Chronotype carousel redesign** — visible prev/next on all screens, bottom control pill (dots + play/pause), PAUSED badge; peak-time cards removed; lightbox pause button on-screen. Global mobile `button { min-height: 48px }` scoped to `section` (fixed 48px-stretched carousel dots).
 - **Result screen routing** — "Go to my Dashboard" on the assessment result screen now redirects to `/login` instead of `/dashboard`.
+- **Login logo enlarged + responsive** — Logo enlarged across navbar and all login pages with viewport-based `clamp()` sizing (SiteNavbar, login panels, LoginCard, AuthLayout, DashboardShell sidebar).
+- **Back-to-Home on login pages** — Functional home icon button with "Back to Home" label added to the right (form) panel of `/login` and `/superadmin/login`.
+- **Mobile brand duplication fixed** — Removed page-level mobile brand blocks on `/login` and `/superadmin/login` so the brand shows only once (from the login card component).
 - **Superadmin assessments persistence fix** — `create_draft`/`update_draft` now persist scoring rules; publishing auto-saves draft first; old versions get rules seeded via SQL.
 - **scoring_rules schema aligned** — Production table has legacy `rule_logic jsonb` + `is_active` columns plus newly added `label VARCHAR(100)` + `description TEXT`. Health check now verifies `scoring_rules` exists.
 
