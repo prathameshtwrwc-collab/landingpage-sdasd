@@ -2,6 +2,12 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.11.6] — 2026-08-04 — Result screen schedule card sizing fix
+
+### Fixed — Result screen schedule cards
+- The Ideal wake time / Best focus window / Ideal bedtime cards on the assessment result screen showed the raw long answer strings (e.g. "Midday to late afternoon (10:00 AM – 5:00 PM)") at `clamp(18px, 1.8vw, 22px)` with `truncate`, so values were cut off like "10AM.....".
+- Values are now cleaned into concise time ranges (e.g. "10:00 AM – 5:00 PM") and the card font reduced to `clamp(13px, 1.35vw, 16px)` with `word-break: break-word` so longer ranges wrap instead of truncating.
+
 ## [2.11.5] — 2026-08-04 — PDF assessment date fix
 
 ### Fixed — PDF shows real assessment date

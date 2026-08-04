@@ -1267,9 +1267,26 @@ function EnhancedResult({
 
   // Prefer the member's actual selected inputs from the assessment; fall back
   // to the chronotype template only when the answer is unavailable.
-  const wakeTime = schedule?.wakeTime ?? blueprint.window.split(" – ")[1] ?? "";
-  const bedtime = schedule?.bedtime ?? blueprint.window.split(" – ")[0] ?? "";
-  const focusWindow = schedule?.peakFocus ?? peaks.focus;
+  const rawWake = schedule?.wakeTime ?? null;
+  const rawBed = schedule?.bedtime ?? null;
+  const rawFocus = schedule?.peakFocus ?? null;
+
+  // Extract a clean, concise time range from an assessment option text.
+  // e.g. "Between 6:30 AM – 8:00 AM" → "6:30 AM – 8:00 AM"
+  //      "Midday to late afternoon (10:00 AM – 5:00 PM)" → "10:00 AM – 5:00 PM"
+  const cleanRange = (raw: string | null): string => {
+    if (!raw) return "";
+    const inParens = raw.match(/\(([^)]+)\)/);
+    const candidate = inParens ? inParens[1].trim() : raw;
+    return candidate
+      .replace(/^(between|before|after)\s+/i, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
+  const wakeTime = cleanRange(rawWake) || (blueprint.window.split(" – ")[1] ?? "");
+  const bedtime = cleanRange(rawBed) || (blueprint.window.split(" – ")[0] ?? "");
+  const focusWindow = cleanRange(rawFocus) || peaks.focus;
 
   const wakeHour = wakeTime.replace(/^0/, "");
   const bedHour = bedtime;
@@ -1433,10 +1450,10 @@ function EnhancedResult({
               <item.icon size={23} strokeWidth={1.75} stroke={item.color} />
             </div>
             <div className="min-w-0">
-              <p className="m-0 font-semibold leading-[1.3] truncate" style={{ fontSize: "clamp(18px, 1.8vw, 22px)", color: "#17172B", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+              <p className="m-0 font-semibold leading-[1.25]" style={{ fontSize: "clamp(13px, 1.35vw, 16px)", color: "#17172B", fontFamily: "Poppins, sans-serif", fontWeight: 600, wordBreak: "break-word" }}>
                 {item.value}
               </p>
-              <p className="m-0 mt-[1px] text-[12px]" style={{ color: "#66677A", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+              <p className="m-0 mt-[3px] text-[11px]" style={{ color: "#66677A", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
                 {item.label}
               </p>
             </div>
