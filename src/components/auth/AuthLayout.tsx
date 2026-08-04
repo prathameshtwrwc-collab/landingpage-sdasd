@@ -77,7 +77,7 @@ export default function AuthLayout({
               : "0 4px 12px rgba(53, 49, 155, 0.18)",
           }}
         >
-          <img src="/assets/logos/logo2.png" alt="Chronotype" style={{ height: "clamp(48px, 6vh, 64px)", width: "auto", objectFit: "contain" }} />
+          <img src="/assets/logos/logo3.png" alt="Chronotype" style={{ height: "clamp(48px, 6vh, 64px)", width: "auto", objectFit: "contain" }} />
         </span>
         <div className="flex flex-col">
           <span

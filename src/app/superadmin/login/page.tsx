@@ -55,7 +55,7 @@ export default function SuperAdminLoginPage() {
       {/* ─── Right: Login Form ─── */}
       <div className="w-full lg:w-1/2 relative flex flex-col items-center justify-center px-[24px] py-[40px] md:px-[48px]" style={{ background: "#FAFAFC" }}>
         {/* Back to Home */}
-        <div className="absolute top-[20px] left-[24px] md:left-[48px] z-[50] flex flex-col items-center gap-[4px]">
+        <div className="absolute top-[20px] right-[24px] md:right-[48px] z-[50] flex flex-col items-center gap-[4px]">
           <button
             type="button"
             onClick={() => router.push("/")}

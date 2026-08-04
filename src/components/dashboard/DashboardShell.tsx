@@ -247,7 +247,7 @@ export default function DashboardShell({
         <div className="flex items-center justify-between px-[16px] h-[68px] shrink-0" style={{ borderBottom: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA" }}>
           <div className="flex items-center gap-[10px]">
             <img
-              src="/assets/logos/logo2.png"
+              src="/assets/logos/logo3.png"
               alt="Chronotype"
               className="shrink-0"
               style={{ height: sidebarCollapsed ? "40px" : "48px", width: "auto", maxWidth: "150px", objectFit: "contain", borderRadius: "8px" }}

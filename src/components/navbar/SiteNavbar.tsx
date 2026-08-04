@@ -210,7 +210,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
               {brandingLogo ? (
                 <img src={brandingLogo} alt={brandingCompany ?? "Brand"} className="shrink-0" style={{ height: "clamp(48px, 5.5vw, 68px)", width: "auto", maxWidth: "180px", objectFit: "contain" }} />
               ) : (
-                <img src="/assets/logos/logo2.png" alt="Chronotype" className="shrink-0" style={{ height: "clamp(48px, 5.5vw, 68px)", width: "auto", maxWidth: "180px", objectFit: "contain" }} />
+                <img src="/assets/logos/logo3.png" alt="Chronotype" className="shrink-0" style={{ height: "clamp(48px, 5.5vw, 68px)", width: "auto", maxWidth: "180px", objectFit: "contain" }} />
               )}
               <span
                 className="font-semibold leading-[1] tracking-[-0.01em] site-brand-text"
