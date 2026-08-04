@@ -2,6 +2,15 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.11.7] — 2026-08-04 — Remove PDF daily rhythm, add latest assessment to member info panel
+
+### Removed — PDF daily rhythm section
+- The "Your daily rhythm" timeline section is removed from the downloaded PDF (`ChronotypeReportPDF` no longer renders `DailyRhythm`).
+
+### Added — Latest assessment details in superadmin member info panel
+- `getAllMembers` now attaches each member's **latest assessment result** (chronotype, total score, confidence, lark/eagle/owl scores, assessment date) via a single batched `chronotype_results` query (no N+1).
+- Superadmin **Users → All Members → View Info** panel now shows the latest assessment section: status badge, chronotype, total score, confidence %, score breakdown, and assessment date — or "No assessment completed yet" when absent.
+
 ## [2.11.6] — 2026-08-04 — Result screen schedule card sizing fix
 
 ### Fixed — Result screen schedule cards

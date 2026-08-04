@@ -130,24 +130,6 @@ function NextSteps({ vm }: { vm: ReturnType<typeof buildPdfReportViewModel> }) {
   );
 }
 
-function DailyRhythm({ vm }: { vm: ReturnType<typeof buildPdfReportViewModel> }) {
-  return (
-    <View style={pdfStyles.rhythmSection}>
-      <Text style={pdfStyles.rhythmTitle}>Your daily rhythm</Text>
-      <View style={pdfStyles.rhythmRow}>
-        {vm.timeline.map((t, i) => (
-          <View key={i} style={pdfStyles.rhythmCol}>
-            <View style={[pdfStyles.rhythmDot, { backgroundColor: i === 0 || i === 3 ? "#ED8300" : "#30268F" }]} />
-            <Text style={pdfStyles.rhythmTime}>{t.time}</Text>
-            <Text style={pdfStyles.rhythmLabel}>{t.label}</Text>
-            <Text style={pdfStyles.rhythmDesc}>{t.desc}</Text>
-          </View>
-        ))}
-      </View>
-    </View>
-  );
-}
-
 function Footer({ vm, page }: { vm: ReturnType<typeof buildPdfReportViewModel>; page: number }) {
   return (
     <View style={pdfStyles.footer}>
@@ -217,7 +199,6 @@ export default function ChronotypeReportPDF({ data }: { data: ReportData }) {
         <ScheduleRow vm={vm} />
         <StrengthsWatchOuts vm={vm} />
         <NextSteps vm={vm} />
-        <DailyRhythm vm={vm} />
         <Footer vm={vm} page={1} />
       </Page>
       <Page size="A4" style={pdfStyles.page}>

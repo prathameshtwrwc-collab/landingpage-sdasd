@@ -646,5 +646,21 @@ function buildInfoFields(viewInfo: { type: "admin" | "member"; data: Record<stri
     { label: "Created", value: fmtDateTime(d.created_at) },
     { label: "Updated", value: fmtDateTime(d.updated_at) },
     { label: "Member ID", value: String(d.id ?? "") },
+    ...buildLatestAssessmentFields(d, fmtDateTime),
+  ];
+}
+
+function buildLatestAssessmentFields(d: Record<string, unknown>, fmtDateTime: (v: unknown) => string): InfoField[] {
+  const la = d.latest_assessment as Record<string, unknown> | null | undefined;
+  if (!la) return [{ label: "Latest Assessment", value: "No assessment completed yet", badge: { text: "NONE", bg: "rgba(136,136,136,0.08)", color: "#888" } }];
+  const chrono = String(la.chronotype ?? "");
+  const cap = (s: unknown) => (s ? String(s).charAt(0).toUpperCase() + String(s).slice(1).toLowerCase() : "—");
+  return [
+    { label: "Latest Assessment", value: "Completed", badge: { text: cap(chrono), bg: "rgba(53,49,155,0.08)", color: "#35319B" } },
+    { label: "Chronotype", value: cap(chrono) },
+    { label: "Total Score", value: la.total_score != null ? String(la.total_score) : "—" },
+    { label: "Confidence", value: la.confidence_score != null ? `${la.confidence_score}%` : "—" },
+    { label: "Lark / Eagle / Owl", value: `${la.lark_score ?? "—"} / ${la.eagle_score ?? "—"} / ${la.owl_score ?? "—"}` },
+    { label: "Assessment Date", value: fmtDateTime(la.generated_at) },
   ];
 }

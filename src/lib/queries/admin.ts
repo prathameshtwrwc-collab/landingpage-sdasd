@@ -95,7 +95,28 @@ export async function getAllMembers(opts?: { page?: number; limit?: number; sear
 
   const { data, error, count } = await query.order("created_at", { ascending: false }).range(from, to);
   if (error) throw new Error(error.message);
-  return { data: data ?? [], total: count ?? 0, page, limit, totalPages: Math.ceil((count ?? 0) / limit) };
+
+  // Attach each member's latest assessment result (batched, no N+1).
+  const membersWithAssessment = (data ?? []).map((m) => ({ ...m, latest_assessment: null as Record<string, unknown> | null }));
+  const memberIds = membersWithAssessment.map((m) => m.id as string);
+  if (memberIds.length > 0) {
+    const { data: results } = await supabase
+      .from("chronotype_results")
+      .select("member_id, assessment_id, chronotype, total_score, confidence_score, lark_score, eagle_score, owl_score, generated_at")
+      .in("member_id", memberIds)
+      .order("generated_at", { ascending: false });
+    const latestByMember = new Map<string, Record<string, unknown>>();
+    for (const r of results ?? []) {
+      const mid = r.member_id as string;
+      if (!latestByMember.has(mid)) latestByMember.set(mid, r);
+    }
+    for (const m of membersWithAssessment) {
+      const latest = latestByMember.get(m.id as string);
+      if (latest) m.latest_assessment = { ...latest, member_id: undefined };
+    }
+  }
+
+  return { data: membersWithAssessment, total: count ?? 0, page, limit, totalPages: Math.ceil((count ?? 0) / limit) };
 }
 
 export async function getOrganizationMembers(orgId: string, opts?: { page?: number; limit?: number }) {
