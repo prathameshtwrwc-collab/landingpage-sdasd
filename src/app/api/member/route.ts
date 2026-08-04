@@ -73,13 +73,39 @@ export async function GET(req: Request) {
       .eq("member_id", member.id)
       .order("started_at", { ascending: false });
 
+    // Member's actual selected inputs → accurate peak energy / wake / bedtime
+    // ranges for the dashboard. Q3 = peak productivity (peak energy range),
+    // Q1 = wake time, Q2 = bedtime, Q10 = natural sleepiness (bedtime fallback).
+    let peakFocus: string | null = null;
+    let wakeTime: string | null = null;
+    let bedtime: string | null = null;
+
+    const completed = (assessments ?? []).find((a) => a.status === "COMPLETED") as { id: string } | undefined;
+    if (completed) {
+      const { data: scheduleRows } = await supabase
+        .from("assessment_answers")
+        .select(`
+          questions!inner(question_order),
+          question_options!inner(option_text)
+        `)
+        .eq("assessment_id", completed.id);
+
+      (scheduleRows ?? []).forEach((row) => {
+        const order = (row as { questions: { question_order: number }[] }).questions?.[0]?.question_order;
+        const text = (row as { question_options: { option_text: string }[] }).question_options?.[0]?.option_text;
+        if (!order || !text) return;
+        if (order === 1) wakeTime = text;
+        else if (order === 2) bedtime = text;
+        else if (order === 3) peakFocus = text;
+        else if (order === 10 && !bedtime) bedtime = text;
+      });
+    }
+
     const { data: reports } = await supabase
       .from("reports")
       .select("id, result_id, generated_at")
       .eq("member_id", member.id)
-      .order("generated_at", { ascending: false });
-
-    const reportsEnriched = (reports ?? []).map((r) => ({
+      .order("generated_at", { ascending: false });    const reportsEnriched = (reports ?? []).map((r) => ({
       id: r.id,
       result_id: r.result_id,
       assessment_id: null as string | null,
@@ -133,6 +159,7 @@ export async function GET(req: Request) {
       recommendations: recData?.map((r: Record<string, unknown>) => r.recommendations) ?? [],
       assessments: assessments ?? [],
       reports: reportsEnriched,
+      schedule: { wakeTime, bedtime, peakFocus },
     };
     return NextResponse.json(data, {
       headers: {

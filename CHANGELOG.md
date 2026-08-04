@@ -2,6 +2,12 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.11.2] — 2026-08-04 — Accurate Peak Energy Range on Energy Timeline
+
+### Fixed — Energy timeline peak energy
+- **`/api/member`** now returns `schedule { wakeTime, bedtime, peakFocus }` by reading the member's latest completed assessment answers (Q1 wake, Q2 bedtime, Q3 peak productivity, Q10 natural sleepiness as bedtime fallback).
+- **Energy timeline page** (`/dashboard/energy`): the "Peak energy" field previously showed a single hour derived from the synthetic energy curve. It now shows the member's actual peak energy **range** from their selected Q3 answer (e.g. "6:00 AM – 9:00 AM" / "10:00 AM – 5:00 PM" / "6:00 PM – 12:00 AM"), falling back to the curve hour only when no answer exists.
+
 ## [2.11.1] — 2026-08-04 — Real Assessment Schedule on Result Screens
 
 ### Fixed — Result screens now use the member's actual answers

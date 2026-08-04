@@ -16,6 +16,7 @@ import {
 
 interface EnergyData {
   result: Record<string, unknown> | null;
+  schedule?: { wakeTime: string | null; bedtime: string | null; peakFocus: string | null } | null;
 }
 
 const SHORT_LABELS: Record<Chronotype, string> = {
@@ -82,6 +83,14 @@ export default function EnergyPage() {
     });
     peakHour = 6 + peakIdx * 2;
   }
+
+  // Accurate peak energy range from the member's actual assessment answer
+  // (Q3 "When do you feel most alert and productive?").
+  // e.g. "Early morning (6:00 AM – 9:00 AM)" → "6:00 AM – 9:00 AM"
+  const rawPeak = data?.schedule?.peakFocus ?? null;
+  const peakEnergyRange = rawPeak
+    ? (rawPeak.match(/\(([^)]+)\)/) ?? [null, rawPeak])[1].trim()
+    : null;
 
   const panelBg = dark ? "#1A1A2E" : "#FFFFFF";
   const panelBorder = dark ? "#2A2A4A" : "#E6E8F0";
@@ -186,8 +195,8 @@ export default function EnergyPage() {
                     Peak energy
                   </span>
                 </div>
-                <span className="text-[13px] font-bold" style={{ color: headingColor, fontFamily: "Poppins, sans-serif" }}>
-                  {formatClock(peakHour)}
+                <span className="text-[13px] font-bold text-right" style={{ color: headingColor, fontFamily: "Poppins, sans-serif" }}>
+                  {peakEnergyRange ?? formatClock(peakHour)}
                 </span>
               </div>
               <div className="flex items-center justify-between" style={{ padding: "7px 0" }}>
