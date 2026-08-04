@@ -18,6 +18,7 @@ interface DashboardData {
   result: Record<string, unknown> | null;
   recommendations: Record<string, unknown>[];
   assessments: Record<string, unknown>[];
+  schedule?: { wakeTime: string | null; bedtime: string | null; peakFocus: string | null } | null;
   reports: Array<{
     id: string;
     result_id: string | null;
@@ -234,7 +235,7 @@ const [cardGradient] = useState(() => {
                     </div>
                   </div>
                   <div className="flex items-center gap-[6px]">
-                    <button type="button" disabled={downloading} onClick={async () => { if (downloading) return; setDownloading(true); try { await downloadPdf({ firstName: data.member?.first_name as string || "", lastName: data.member?.last_name as string || "", email: data.member?.email as string || "", chronotype: r.chronotype as string || "EAGLE", totalScore: r.totalScore as number || 0, larkScore: r.larkScore as number || 0, eagleScore: r.eagleScore as number || 0, owlScore: r.owlScore as number || 0 }); } finally { setDownloading(false); } }}
+                    <button type="button" disabled={downloading} onClick={async () => { if (downloading) return; setDownloading(true); try { await downloadPdf({ firstName: data.member?.first_name as string || "", lastName: data.member?.last_name as string || "", email: data.member?.email as string || "", chronotype: r.chronotype as string || "EAGLE", totalScore: r.totalScore as number || 0, larkScore: r.larkScore as number || 0, eagleScore: r.eagleScore as number || 0, owlScore: r.owlScore as number || 0, wakeTime: data.schedule?.wakeTime ?? undefined, bedtime: data.schedule?.bedtime ?? undefined, peakFocus: data.schedule?.peakFocus ?? undefined }); } finally { setDownloading(false); } }}
                       className="flex items-center gap-[5px] text-[11px] font-medium no-underline px-[10px] py-[5px] rounded-lg border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                       style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> {downloading ? "Generating…" : "PDF"}

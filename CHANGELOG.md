@@ -2,6 +2,13 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.11.4] — 2026-08-04 — PDF report uses real assessment schedule
+
+### Fixed — Downloaded PDF schedule values
+- The assessment result screen already passed the real schedule, but the **member dashboard** ("My Reports" PDF) and **progress page** (PDF/Print) buttons did not — the downloaded PDF fell back to static chronotype-template times.
+- `src/app/dashboard/page.tsx` and `src/app/dashboard/progress/page.tsx` now pass `wakeTime`/`bedtime`/`peakFocus` from `/api/member`'s `schedule` into `downloadPdf`/`openPdfForPrint`.
+- `src/components/pdf/pdfReportData.ts` now **normalizes** the raw answer text into a clean time range (e.g. "Between 6:30 AM – 8:00 AM" → "6:30 AM – 8:00 AM", "Midday to late afternoon (10:00 AM – 5:00 PM)" → "10:00 AM – 5:00 PM") before rendering, falling back to the template only when no answer exists.
+
 ## [2.11.3] — 2026-08-04 — Fix peak energy range extraction (embed shape)
 
 ### Fixed — Energy timeline peak energy (real fix)

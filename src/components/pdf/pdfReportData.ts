@@ -138,15 +138,30 @@ function formatDate(date: Date): string {
   return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 }
 
+/** Extract a clean time range from an assessment option text.
+ *  e.g. "Between 6:30 AM – 8:00 AM" → "6:30 AM – 8:00 AM"
+ *       "Midday to late afternoon (10:00 AM – 5:00 PM)" → "10:00 AM – 5:00 PM"
+ */
+function cleanTimeRange(raw: string | null | undefined): string {
+  if (!raw) return "";
+  const inParens = raw.match(/\(([^)]+)\)/);
+  const candidate = inParens ? inParens[1].trim() : raw;
+  // Strip a leading descriptor word (e.g. "Between ", "After ", "Before ")
+  return candidate
+    .replace(/^(between|before|after)\s+/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export function buildPdfReportViewModel(data: ReportData): PdfReportViewModel {
   const key = isChronoKey(data.chronotype) ? data.chronotype : "EAGLE";
   const blueprint = CHRONOTYPE_BLUEPRINT[key];
   const peaks = CHRONOTYPE_PEAK_TIMES[key];
   // Prefer the member's actual selected inputs; fall back to the chronotype
   // template only when the answer is unavailable.
-  const wakeTime = data.wakeTime ?? blueprint.window.split(" – ")[1] ?? "";
-  const bedtime = data.bedtime ?? blueprint.window.split(" – ")[0] ?? "";
-  const focusWindow = data.peakFocus ?? peaks.focus;
+  const wakeTime = cleanTimeRange(data.wakeTime) || (blueprint.window.split(" – ")[1] ?? "");
+  const bedtime = cleanTimeRange(data.bedtime) || (blueprint.window.split(" – ")[0] ?? "");
+  const focusWindow = cleanTimeRange(data.peakFocus) || peaks.focus;
 
   const recCategories = [
     { category: "Sleep Consistency", title: "Anchor Your Sleep Window", description: `Go to bed and wake up at consistent times within your ideal window (${blueprint.window}). Even on weekends, staying within 30 minutes of your target preserves your circadian rhythm.` },

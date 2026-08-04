@@ -26,6 +26,7 @@ export default function ProgressPage() {
   const assessments = ((data?.assessments ?? []) as Record<string, unknown>[]);
   const reports = (data?.reports ?? []) as Array<Record<string, unknown>>;
   const latestCompletedAssessmentId = (assessments.find((a) => a.status === "COMPLETED")?.id as string | undefined);
+  const schedule = (data?.schedule as { wakeTime: string | null; bedtime: string | null; peakFocus: string | null } | null | undefined) ?? null;
 
   return (
     <DashboardShell>
@@ -88,6 +89,9 @@ export default function ProgressPage() {
                           larkScore: lScore || 0,
                           eagleScore: eScore || 0,
                           owlScore: oScore || 0,
+                          wakeTime: schedule?.wakeTime ?? undefined,
+                          bedtime: schedule?.bedtime ?? undefined,
+                          peakFocus: schedule?.peakFocus ?? undefined,
                         }); } finally { setDownloading(false); } }}
                         className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         style={{ color: "#35319B", background: "rgba(53,49,155,0.06)" }}
@@ -107,6 +111,9 @@ export default function ProgressPage() {
                           larkScore: lScore || 0,
                           eagleScore: eScore || 0,
                           owlScore: oScore || 0,
+                          wakeTime: schedule?.wakeTime ?? undefined,
+                          bedtime: schedule?.bedtime ?? undefined,
+                          peakFocus: schedule?.peakFocus ?? undefined,
                         }); } finally { setPrinting(false); } }}
                         className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         style={{ color: "#35319B", background: "rgba(53,49,155,0.06)" }}
