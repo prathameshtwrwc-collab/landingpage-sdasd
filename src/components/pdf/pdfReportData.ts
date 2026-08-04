@@ -14,6 +14,7 @@ export type ReportData = {
   wakeTime?: string;
   bedtime?: string;
   peakFocus?: string;
+  assessmentDate?: string;
 };
 
 export type PdfReportViewModel = {
@@ -177,7 +178,7 @@ export function buildPdfReportViewModel(data: ReportData): PdfReportViewModel {
     participantEmail: data.email ?? "",
     orgName: data.orgName ?? null,
     reportId: "CHR-" + Date.now().toString(36).toUpperCase().slice(-6),
-    assessmentDate: formatDate(new Date()),
+    assessmentDate: data.assessmentDate ? formatDate(new Date(data.assessmentDate)) : formatDate(new Date()),
     chronotypeKey: key,
     chronotypeName: CHRONOTYPE_LABELS[key],
     subtitle: CHRONOTYPE_SUBTITLES[key],

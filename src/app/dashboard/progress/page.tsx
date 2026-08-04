@@ -92,6 +92,7 @@ export default function ProgressPage() {
                           wakeTime: schedule?.wakeTime ?? undefined,
                           bedtime: schedule?.bedtime ?? undefined,
                           peakFocus: schedule?.peakFocus ?? undefined,
+                          assessmentDate: (r.generated_at as string | null | undefined) || undefined,
                         }); } finally { setDownloading(false); } }}
                         className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         style={{ color: "#35319B", background: "rgba(53,49,155,0.06)" }}
@@ -114,6 +115,7 @@ export default function ProgressPage() {
                           wakeTime: schedule?.wakeTime ?? undefined,
                           bedtime: schedule?.bedtime ?? undefined,
                           peakFocus: schedule?.peakFocus ?? undefined,
+                          assessmentDate: (r.generated_at as string | null | undefined) || undefined,
                         }); } finally { setPrinting(false); } }}
                         className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         style={{ color: "#35319B", background: "rgba(53,49,155,0.06)" }}

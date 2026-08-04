@@ -2,6 +2,14 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.11.5] — 2026-08-04 — PDF assessment date fix
+
+### Fixed — PDF shows real assessment date
+- The PDF previously printed `assessmentDate: formatDate(new Date())` — always the download date, even when downloading an older report from the dashboard.
+- `ReportData` now accepts `assessmentDate`; the view model renders it (falling back to now only when missing).
+- **Dashboard "My Reports" PDF** and **progress page PDF/Print** pass the report's real `generated_at` (the assessment completion time).
+- **Assessment result screen** PDF passes the real `generated_at` from the just-inserted `chronotype_results` row (`submitAssessment` now returns `generatedAt`).
+
 ## [2.11.4] — 2026-08-04 — PDF report uses real assessment schedule
 
 ### Fixed — Downloaded PDF schedule values

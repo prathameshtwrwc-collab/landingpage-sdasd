@@ -333,7 +333,7 @@ export async function submitAssessment(
     orgLogoUrl = (org?.branding_logo as string) ?? null;
   }
 
-  const { error: resErr } = await supabase.from("chronotype_results").insert({
+  const { data: insertedResult, error: resErr } = await supabase.from("chronotype_results").insert({
     assessment_id: assessmentId,
     member_id: assessment.member_id,
     organization_id: assessment.organization_id,
@@ -343,7 +343,7 @@ export async function submitAssessment(
     lark_score: result.lark_score,
     eagle_score: result.eagle_score,
     owl_score: result.owl_score,
-  });
+  }).select("generated_at").single();
   if (resErr) throw new Error(resErr.message);
 
   const { data: recommendations } = await supabase
@@ -444,6 +444,7 @@ export async function submitAssessment(
     orgName,
     orgLogoUrl,
     schedule: { wakeTime, bedtime, peakFocus },
+    generatedAt: (insertedResult as { generated_at?: string } | null)?.generated_at ?? new Date().toISOString(),
   };
 }
 
