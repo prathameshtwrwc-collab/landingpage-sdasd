@@ -76,8 +76,16 @@ export async function fetchPublicResult(
   let bedtime: string | null = null;
   let peakFocus: string | null = null;
   (scheduleRows ?? []).forEach((row) => {
-    const order = (row as { questions: { question_order: number }[] }).questions?.[0]?.question_order;
-    const text = (row as { question_options: { option_text: string }[] }).question_options?.[0]?.option_text;
+    const q = (row as { questions?: unknown }).questions as
+      | { question_order?: number }
+      | { question_order?: number }[]
+      | undefined;
+    const opt = (row as { question_options?: unknown }).question_options as
+      | { option_text?: string }
+      | { option_text?: string }[]
+      | undefined;
+    const order = Array.isArray(q) ? q[0]?.question_order : q?.question_order;
+    const text = Array.isArray(opt) ? opt[0]?.option_text : opt?.option_text;
     if (!order || !text) return;
     if (order === 1) wakeTime = text;
     else if (order === 2) bedtime = text;

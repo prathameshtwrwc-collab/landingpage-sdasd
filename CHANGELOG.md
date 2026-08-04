@@ -2,6 +2,12 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.11.3] — 2026-08-04 — Fix peak energy range extraction (embed shape)
+
+### Fixed — Energy timeline peak energy (real fix)
+- The previous `[2.11.2]` read the Supabase embed result as an array (`questions[0]`), but PostgREST returns to-one relations as **objects** — so `question_order` was always `undefined` and the schedule silently fell back to the dummy curve.
+- **`/api/member`**, **`submitAssessment`**, and **`fetchPublicResult`** now read the embed result shape-safely (object or array), so the member's real peak energy range (Q3 answer, e.g. "10:00 AM – 5:00 PM") shows on the energy timeline, result screens, and shared result page.
+
 ## [2.11.2] — 2026-08-04 — Accurate Peak Energy Range on Energy Timeline
 
 ### Fixed — Energy timeline peak energy
