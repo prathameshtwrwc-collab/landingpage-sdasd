@@ -79,8 +79,11 @@ export default function SharedResultCard({ data }: { data: PublicResultData }) {
   const desc = CHRONOTYPE_DESCRIPTIONS[chrono].description;
   const peaks = CHRONOTYPE_PEAK_TIMES[chrono];
   const blueprint = CHRONOTYPE_BLUEPRINT[chrono];
-  const wakeTime = blueprint.window.split(" – ")[1] ?? "";
-  const bedtime = blueprint.window.split(" – ")[0] ?? "";
+  // Prefer the member's actual selected inputs; fall back to the chronotype
+  // template only when the answer is unavailable.
+  const wakeTime = data.wakeTime ?? blueprint.window.split(" – ")[1] ?? "";
+  const bedtime = data.bedtime ?? blueprint.window.split(" – ")[0] ?? "";
+  const focusWindow = data.peakFocus ?? peaks.focus;
   const name = [data.firstName, data.lastName].filter(Boolean).join(" ") || "Someone";
   const brandingCompany = data.brandingCompany || "";
   const brandingLogo = data.brandingLogo || "";
@@ -158,7 +161,7 @@ export default function SharedResultCard({ data }: { data: PublicResultData }) {
               background: "#F6F4FF",
               border: "1px solid #D8D3FA",
             }}>
-              Peak focus &middot; {peaks.focus}
+              Peak focus &middot; {focusWindow}
             </span>
           </div>
         </div>
@@ -173,7 +176,7 @@ export default function SharedResultCard({ data }: { data: PublicResultData }) {
         }}>
           {[
             { icon: SunMedium, label: "Ideal wake time", value: wakeTime, c: "#EE8300" },
-            { icon: BriefcaseBusiness, label: "Best focus window", value: peaks.focus, c: "#30268F" },
+            { icon: BriefcaseBusiness, label: "Best focus window", value: focusWindow, c: "#30268F" },
             { icon: MoonStar, label: "Ideal bedtime", value: bedtime, c: "#30268F" },
           ].map((item, i) => (
             <div key={item.label} style={{

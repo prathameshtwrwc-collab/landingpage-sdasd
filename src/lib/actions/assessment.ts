@@ -403,6 +403,30 @@ export async function submitAssessment(
     })
     .eq("id", assessmentId);
 
+  // Member's actual selected inputs → personal wake / focus / bedtime shown
+  // on the result screen. Q1 = wake time, Q2 = bedtime, Q3 = peak productivity,
+  // Q10 = natural sleepiness (fallback for bedtime when Q2 is unavailable).
+  const { data: scheduleRows } = await supabase
+    .from("assessment_answers")
+    .select(`
+      questions!inner(question_order),
+      question_options!inner(option_text)
+    `)
+    .eq("assessment_id", assessmentId);
+
+  let wakeTime: string | null = null;
+  let bedtime: string | null = null;
+  let peakFocus: string | null = null;
+  (scheduleRows ?? []).forEach((row) => {
+    const order = (row as { questions: { question_order: number }[] }).questions?.[0]?.question_order;
+    const text = (row as { question_options: { option_text: string }[] }).question_options?.[0]?.option_text;
+    if (!order || !text) return;
+    if (order === 1) wakeTime = text;
+    else if (order === 2) bedtime = text;
+    else if (order === 3) peakFocus = text;
+    else if (order === 10 && !bedtime) bedtime = text;
+  });
+
   return {
     result,
     memberId: assessment.member_id,
@@ -411,6 +435,7 @@ export async function submitAssessment(
     sourceType: member?.source_type ?? null,
     orgName,
     orgLogoUrl,
+    schedule: { wakeTime, bedtime, peakFocus },
   };
 }
 

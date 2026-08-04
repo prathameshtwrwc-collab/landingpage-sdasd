@@ -105,6 +105,7 @@ export default function AssessmentModal() {
   const [memberName, setMemberName] = useState<string | null>(null);
   const [memberReferralCode, setMemberReferralCode] = useState<string | null>(null);
   const [copiedReferral, setCopiedReferral] = useState(false);
+  const [schedule, setSchedule] = useState<{ wakeTime: string | null; bedtime: string | null; peakFocus: string | null } | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -352,6 +353,7 @@ export default function AssessmentModal() {
       setSubmissionMeta({ sourceType: result.sourceType ?? null, orgName: result.orgName ?? null, orgLogoUrl: result.orgLogoUrl ?? null });
       setMemberName(result.memberName ?? null);
       setMemberReferralCode(result.referralCode ?? null);
+      setSchedule(result.schedule ?? null);
       setSubmitted(true);
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Failed to submit assessment");
@@ -372,6 +374,7 @@ export default function AssessmentModal() {
     setSubmissionMeta(null);
     setMemberName(null);
     setMemberReferralCode(null);
+    setSchedule(null);
     setCopiedReferral(false);
     setExistingAssessment(null);
     setMemberId("");
@@ -462,6 +465,7 @@ export default function AssessmentModal() {
             setCopiedReferral={setCopiedReferral}
             resetAndClose={resetAndClose}
             openConsult={openConsult}
+            schedule={schedule}
           />
         ) : submitting ? (
           <div className="flex flex-col items-center justify-center px-[24px] py-[60px] text-center">
@@ -1229,6 +1233,7 @@ function OwlIllustration() {
 function EnhancedResult({
   chronotypeResult, submissionMeta, memberName, memberReferralCode,
   assessmentId, form, chronotypeDescs, copiedReferral, setCopiedReferral, resetAndClose, openConsult,
+  schedule,
 }: {
   chronotypeResult: { chronotype: string; total_score: number; confidence_score: number; lark_score: number; eagle_score: number; owl_score: number };
   submissionMeta: { sourceType: string | null; orgName: string | null; orgLogoUrl?: string | null } | null;
@@ -1241,6 +1246,7 @@ function EnhancedResult({
   setCopiedReferral: (v: boolean) => void;
   resetAndClose: () => void;
   openConsult: () => void;
+  schedule: { wakeTime: string | null; bedtime: string | null; peakFocus: string | null } | null;
 }) {
   const [downloading, setDownloading] = useState(false);
   const chrono = chronotypeResult.chronotype as "LARK" | "EAGLE" | "OWL";
@@ -1254,8 +1260,11 @@ function EnhancedResult({
 
   const subtitle = isLark ? "Morning Type" : isEagle ? "Intermediate Type" : "Evening Type";
 
-  const wakeTime = blueprint.window.split(" – ")[1] ?? "";
-  const bedtime = blueprint.window.split(" – ")[0] ?? "";
+  // Prefer the member's actual selected inputs from the assessment; fall back
+  // to the chronotype template only when the answer is unavailable.
+  const wakeTime = schedule?.wakeTime ?? blueprint.window.split(" – ")[1] ?? "";
+  const bedtime = schedule?.bedtime ?? blueprint.window.split(" – ")[0] ?? "";
+  const focusWindow = schedule?.peakFocus ?? peaks.focus;
 
   const wakeHour = wakeTime.replace(/^0/, "");
   const bedHour = bedtime;
@@ -1387,7 +1396,7 @@ function EnhancedResult({
             fontFamily: "Poppins, sans-serif",
             fontWeight: 500,
           }}>
-            Peak focus &middot; {peaks.focus}
+            Peak focus &middot; {focusWindow}
           </span>
         </div>
       </div>
@@ -1404,7 +1413,7 @@ function EnhancedResult({
       }}>
         {[
           { icon: SunMedium, label: "Ideal wake time", value: wakeHour, color: "#EE8300" },
-          { icon: BriefcaseBusiness, label: "Best focus window", value: peaks.focus, color: "#30268F" },
+          { icon: BriefcaseBusiness, label: "Best focus window", value: focusWindow, color: "#30268F" },
           { icon: MoonStar, label: "Ideal bedtime", value: bedHour, color: "#30268F" },
         ].map((item, i) => (
           <div key={item.label} className="result-metric-item" style={{
@@ -1600,7 +1609,7 @@ function EnhancedResult({
         <button
           type="button"
           disabled={downloading}
-          onClick={async () => { if (downloading) return; setDownloading(true); try { await downloadPdf({ firstName: form.fname, lastName: form.lname, email: form.email, chronotype: chronotypeResult.chronotype, totalScore: chronotypeResult.total_score, larkScore: chronotypeResult.lark_score, eagleScore: chronotypeResult.eagle_score, owlScore: chronotypeResult.owl_score, summary: chronotypeDescs[chronotypeResult.chronotype], orgName: submissionMeta?.orgName ?? undefined }); } finally { setDownloading(false); } }}
+          onClick={async () => { if (downloading) return; setDownloading(true); try { await downloadPdf({ firstName: form.fname, lastName: form.lname, email: form.email, chronotype: chronotypeResult.chronotype, totalScore: chronotypeResult.total_score, larkScore: chronotypeResult.lark_score, eagleScore: chronotypeResult.eagle_score, owlScore: chronotypeResult.owl_score, summary: chronotypeDescs[chronotypeResult.chronotype], orgName: submissionMeta?.orgName ?? undefined, wakeTime: schedule?.wakeTime ?? undefined, bedtime: schedule?.bedtime ?? undefined, peakFocus: schedule?.peakFocus ?? undefined }); } finally { setDownloading(false); } }}
           className="inline-flex items-center justify-center gap-[9px] text-[14px] font-semibold border-none cursor-pointer rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           style={{ minHeight: "44px", color: "#FFFFFF", background: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
         >

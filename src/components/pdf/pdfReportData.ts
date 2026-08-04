@@ -11,6 +11,9 @@ export type ReportData = {
   owlScore: number;
   summary?: string;
   orgName?: string;
+  wakeTime?: string;
+  bedtime?: string;
+  peakFocus?: string;
 };
 
 export type PdfReportViewModel = {
@@ -139,8 +142,11 @@ export function buildPdfReportViewModel(data: ReportData): PdfReportViewModel {
   const key = isChronoKey(data.chronotype) ? data.chronotype : "EAGLE";
   const blueprint = CHRONOTYPE_BLUEPRINT[key];
   const peaks = CHRONOTYPE_PEAK_TIMES[key];
-  const wakeTime = blueprint.window.split(" – ")[1] ?? "";
-  const bedtime = blueprint.window.split(" – ")[0] ?? "";
+  // Prefer the member's actual selected inputs; fall back to the chronotype
+  // template only when the answer is unavailable.
+  const wakeTime = data.wakeTime ?? blueprint.window.split(" – ")[1] ?? "";
+  const bedtime = data.bedtime ?? blueprint.window.split(" – ")[0] ?? "";
+  const focusWindow = data.peakFocus ?? peaks.focus;
 
   const recCategories = [
     { category: "Sleep Consistency", title: "Anchor Your Sleep Window", description: `Go to bed and wake up at consistent times within your ideal window (${blueprint.window}). Even on weekends, staying within 30 minutes of your target preserves your circadian rhythm.` },
@@ -162,9 +168,9 @@ export function buildPdfReportViewModel(data: ReportData): PdfReportViewModel {
     subtitle: CHRONOTYPE_SUBTITLES[key],
     description: CHRONOTYPE_DESCRIPTIONS[key],
     wakeTime,
-    focusWindow: peaks.focus,
+    focusWindow,
     bedtime,
-    peakFocus: peaks.focus,
+    peakFocus: focusWindow,
     strengths: STRENGTHS[key],
     watchOuts: WATCH_OUTS[key],
     nextSteps: NEXT_STEPS[key],

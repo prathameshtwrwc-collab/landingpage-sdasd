@@ -14,6 +14,9 @@ export type PublicResultData = {
   completedAt: string | null;
   brandingCompany: string;
   brandingLogo: string;
+  wakeTime: string | null;
+  bedtime: string | null;
+  peakFocus: string | null;
 };
 
 export async function fetchPublicResult(
@@ -57,6 +60,30 @@ export async function fetchPublicResult(
   if (!result) {
     return null;
   }
+
+  // Member's actual selected inputs → personal wake / focus / bedtime shown
+  // on the shared result page. Q1 = wake time, Q2 = bedtime, Q3 = peak
+  // productivity, Q10 = natural sleepiness (fallback for bedtime).
+  const { data: scheduleRows } = await supabase
+    .from("assessment_answers")
+    .select(`
+      questions!inner(question_order),
+      question_options!inner(option_text)
+    `)
+    .eq("assessment_id", assessmentId);
+
+  let wakeTime: string | null = null;
+  let bedtime: string | null = null;
+  let peakFocus: string | null = null;
+  (scheduleRows ?? []).forEach((row) => {
+    const order = (row as { questions: { question_order: number }[] }).questions?.[0]?.question_order;
+    const text = (row as { question_options: { option_text: string }[] }).question_options?.[0]?.option_text;
+    if (!order || !text) return;
+    if (order === 1) wakeTime = text;
+    else if (order === 2) bedtime = text;
+    else if (order === 3) peakFocus = text;
+    else if (order === 10 && !bedtime) bedtime = text;
+  });
 
   let brandingCompany = "";
   let brandingLogo = "";
@@ -102,5 +129,8 @@ export async function fetchPublicResult(
     completedAt: assessment.completed_at ?? null,
     brandingCompany,
     brandingLogo,
+    wakeTime,
+    bedtime,
+    peakFocus,
   };
 }

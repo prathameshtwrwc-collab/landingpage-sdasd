@@ -2,6 +2,14 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.11.1] — 2026-08-04 — Real Assessment Schedule on Result Screens
+
+### Fixed — Result screens now use the member's actual answers
+- **Assessment result screen** (`AssessmentModal` `EnhancedResult`): "Ideal wake time", "Best focus window", and "Ideal bedtime" cards, plus the "Peak focus" pill under the chronotype illustration, previously showed static chronotype-template values. They now show the member's real selected inputs (Q1 wake time, Q2 bedtime, Q3 peak productivity, with Q10 natural sleepiness as bedtime fallback), falling back to the template only when an answer is missing.
+- **`submitAssessment`** now returns `schedule { wakeTime, bedtime, peakFocus }` by reading the member's stored `assessment_answers`.
+- **Shared result page** (`/r/[assessmentId]` `ResultCard` + `fetchPublicResult`): same real schedule values, fetched from `assessment_answers`.
+- **PDF report** (`buildPdfReportViewModel`): accepts optional `wakeTime`/`bedtime`/`peakFocus` from `ReportData`; the assessment-modal PDF download passes the real schedule.
+
 ## [2.11.0] — 2026-08-04 — Login Logo Size, Back-to-Home, Mobile Duplication Fix
 
 ### Changed — Logo size across navbar & login
