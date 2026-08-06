@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
 import {
   CheckCircle2, X, SunMedium, BriefcaseBusiness, MoonStar, Zap,
   UsersRound, Target, Coffee, Moon, CalendarDays, Stethoscope,
@@ -472,35 +473,7 @@ export default function AssessmentModal() {
             generatedAt={generatedAt}
           />
         ) : submitting ? (
-          <div className="flex flex-col items-center justify-center px-[24px] py-[60px] text-center">
-            <div className="relative mb-[28px]">
-              <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #35319B, #7B76D4)" }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              </div>
-              <div className="absolute inset-0 w-[72px] h-[72px] rounded-full" style={{
-                border: "3px solid rgba(53,49,155,0.15)",
-                borderTopColor: "#35319B",
-                animation: "spin 0.8s linear infinite",
-              }} />
-            </div>
-            <h3 className="m-0 text-[20px] font-bold mb-[6px]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>
-              Analyzing Your Responses
-            </h3>
-            <p className="m-0 text-[14px] leading-[1.6] max-w-[340px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
-              We're scoring your answers and generating your personalized chronotype profile. Just a moment...
-            </p>
-            <div className="flex gap-[6px] mt-[24px]">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="w-[8px] h-[8px] rounded-full" style={{
-                  background: "#35319B",
-                  animation: "bounceLoader 1.2s ease-in-out infinite",
-                  animationDelay: `${i * 0.2}s`,
-                }} />
-              ))}
-            </div>
-          </div>
+          <AnalyzingLoader />
         ) : existingAssessment ? (
           <div className="flex flex-col items-center px-[24px] py-[36px] md:px-[40px] md:py-[44px] text-center">
             <div
@@ -1198,10 +1171,6 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-        @keyframes bounceLoader {
-          0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
-          40% { opacity: 1; transform: scale(1.2); }
-        }
       `}</style>
     </div>
   );
@@ -1233,6 +1202,154 @@ function OwlIllustration() {
 }
 
 /* ─── REDESIGNED RESULT SCREEN ─── */
+
+function AnalyzingLoader() {
+  const [msgIdx, setMsgIdx] = useState(0);
+  const steps = [
+    { icon: "scale", label: "Scoring your answers" },
+    { icon: "radar", label: "Mapping your chronotype" },
+    { icon: "sparkle", label: "Refining your sleep blueprint" },
+  ];
+
+  useEffect(() => {
+    const t = setInterval(() => setMsgIdx((i) => (i + 1) % steps.length), 2000);
+    return () => clearInterval(t);
+  }, [steps.length]);
+
+  const stepIcon = (icon: string) =>
+    icon === "scale"
+      ? <ScaleIcon />
+      : icon === "radar"
+      ? <RadarIcon />
+      : <SparkleIcon />;
+
+  return (
+    <div className="flex flex-col items-center justify-center px-[24px] py-[56px] text-center overflow-hidden">
+      {/* ─── Orbital core ─── */}
+      <div className="relative w-[168px] h-[168px] mb-[34px]">
+        {/* outer dashed orbit ring */}
+        <motion.div
+          className="absolute inset-0 rounded-full"
+          style={{ border: "1px dashed rgba(53,49,155,0.28)", borderRadius: "50%" }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
+        />
+        {/* orbit ring with satellite */}
+        <motion.div
+          className="absolute inset-0 rounded-full"
+          style={{ border: "1.5px solid rgba(53,49,155,0.16)", borderRadius: "50%" }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 9, repeat: Infinity, ease: "linear" }}
+        >
+          <motion.div
+            className="absolute top-[-5px] left-1/2 w-[11px] h-[11px] rounded-full"
+            style={{ background: "#F59A00", boxShadow: "0 0 14px rgba(245,154,0,0.85)", transform: "translateX(-50%)" }}
+            animate={{ boxShadow: ["0 0 10px rgba(245,154,0,0.5)", "0 0 20px rgba(245,154,0,0.95)", "0 0 10px rgba(245,154,0,0.5)"] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </motion.div>
+        {/* inner counter-rotating orbit */}
+        <motion.div
+          className="absolute inset-[18px] rounded-full"
+          style={{ border: "1.5px solid rgba(53,49,155,0.18)", borderRadius: "50%" }}
+          animate={{ rotate: -360 }}
+          transition={{ duration: 13, repeat: Infinity, ease: "linear" }}
+        >
+          <motion.div
+            className="absolute top-[-4px] left-1/2 w-[9px] h-[9px] rounded-full"
+            style={{ background: "#7B76D4", boxShadow: "0 0 12px rgba(123,118,212,0.9)", transform: "translateX(-50%)" }}
+          />
+        </motion.div>
+        {/* pulsing core */}
+        <motion.div
+          className="absolute inset-0 m-auto w-[76px] h-[76px] rounded-full"
+          style={{ background: "conic-gradient(from 180deg, #35319B, #7B76D4, #B3A8F5, #35319B)", borderRadius: "50%" }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: "linear" }}
+        >
+          <div className="absolute inset-[3px] rounded-full" style={{ background: "#FFFFFF", borderRadius: "50%" }} />
+          <motion.div
+            className="absolute inset-[10px] rounded-full"
+            style={{ background: "radial-gradient(circle at 35% 30%, #7B76D4 0%, #35319B 72%, #241F7A 100%)", borderRadius: "50%" }}
+            animate={{ scale: [1, 1.06, 1] }}
+            transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </motion.div>
+        {/* soft glow behind core */}
+        <motion.div
+          className="absolute inset-0 m-auto w-[96px] h-[96px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(53,49,155,0.22) 0%, rgba(53,49,155,0) 70%)", borderRadius: "50%", filter: "blur(2px)" }}
+          animate={{ opacity: [0.55, 1, 0.55], scale: [1, 1.12, 1] }}
+          transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </div>
+
+      {/* ─── Animated headline ─── */}
+      <div className="relative h-[34px] mb-[8px] w-full flex items-center justify-center">
+        <motion.div
+          key={msgIdx}
+          className="flex items-center gap-[10px]"
+          initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          <span style={{ color: "#35319B" }}>{stepIcon(steps[msgIdx].icon)}</span>
+          <h3 className="m-0 text-[19px] font-bold tracking-[-0.01em]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
+            {steps[msgIdx].label}
+          </h3>
+        </motion.div>
+      </div>
+
+      <p className="m-0 text-[13px] leading-[1.7] max-w-[360px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
+        Your personalized chronotype profile is being prepared — it takes just a few seconds.
+      </p>
+
+      {/* ─── Shimmer progress bar ─── */}
+      <div className="relative w-full max-w-[320px] mt-[26px]">
+        <div className="w-full h-[7px] rounded-full overflow-hidden" style={{ background: "#EFF0F8" }}>
+          <motion.div
+            className="relative h-full rounded-full"
+            style={{ background: "linear-gradient(90deg, #35319B, #7B76D4, #B3A8F5, #35319B)", backgroundSize: "200% 100%" }}
+            initial={{ width: "8%" }}
+            animate={{ width: ["12%", "88%", "12%"] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes analyzeOrb {
+          0%, 100% { opacity: 0.35; }
+          50% { opacity: 0.7; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function ScaleIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3v18" /><path d="M5 7h14" /><path d="M7 7L3 13a4 4 0 0 0 8 0L7 7z" /><path d="M17 7l-4 6a4 4 0 0 0 8 0l-4-6z" /><circle cx="12" cy="19" r="1" />
+    </svg>
+  );
+}
+
+function RadarIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="4.5" /><path d="M12 12l6-6" />
+    </svg>
+  );
+}
+
+function SparkleIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6L12 3z" /><path d="M19 15l.9 2.6L22.5 18l-2.6.9L19 21.5l-.9-2.6L15.5 18l2.6-.9L19 15z" />
+    </svg>
+  );
+}
 
 function EnhancedResult({
   chronotypeResult, submissionMeta, memberName, memberReferralCode,

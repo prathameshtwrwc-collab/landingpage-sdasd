@@ -2,6 +2,16 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.11.10] — 2026-08-06 — Premium analyzing loader
+
+### Changed — Assessment analyzing animation
+- Replaced the generic spinner + bouncing dots with a premium **circadian-orbit loader** (`AnalyzingLoader`):
+  - Rotating dashed/solid orbit rings with glowing satellite dots (gold + periwinkle)
+  - Pulsing conic-gradient core with soft radial glow
+  - Cycling status messages ("Scoring your answers" → "Mapping your chronotype" → "Refining your sleep blueprint") with blur-in transitions
+  - Shimmering gradient progress bar
+- Built with framer-motion; removed the old `bounceLoader` keyframe.
+
 ## [2.11.9] — 2026-08-06 — Fix floating Take Test button on org-code (white-label) pages
 
 ### Fixed — Floating Take Test button not visible on org-code URLs
