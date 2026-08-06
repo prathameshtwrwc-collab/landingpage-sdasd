@@ -8,18 +8,36 @@ export default function FloatingTestButton() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const hero = document.getElementById("hero-section");
-    if (!hero) return;
+    let observer: IntersectionObserver | null = null;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setVisible(!entry.isIntersecting);
-      },
-      { threshold: 0 }
-    );
+    const setup = () => {
+      const hero = document.getElementById("hero-section");
+      if (!hero || observer) return;
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          setVisible(!entry.isIntersecting);
+        },
+        { threshold: 0 }
+      );
+      observer.observe(hero);
+    };
 
-    observer.observe(hero);
-    return () => observer.disconnect();
+    // The hero may mount after this component on some pages (e.g. the
+    // white-labeled org-code landing page renders a loading state first).
+    setup();
+    if (!document.getElementById("hero-section")) {
+      const retry = window.setInterval(setup, 300);
+      const mo = new MutationObserver(setup);
+      mo.observe(document.body, { childList: true, subtree: true });
+      window.setTimeout(() => window.clearInterval(retry), 10000);
+      return () => {
+        window.clearInterval(retry);
+        mo.disconnect();
+        observer?.disconnect();
+      };
+    }
+
+    return () => observer?.disconnect();
   }, []);
 
   return (

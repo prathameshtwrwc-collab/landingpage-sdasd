@@ -2,6 +2,13 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.11.9] — 2026-08-06 — Fix floating Take Test button on org-code (white-label) pages
+
+### Fixed — Floating Take Test button not visible on org-code URLs
+- The floating "Take Test" button hides until the hero is scrolled past, set up via an `IntersectionObserver` on `#hero-section`.
+- On the white-labeled **org-code landing page** (`/[orgCode]`) the page renders a loading state first, so `#hero-section` did not exist when the button's effect ran — it bailed out and the button never appeared (and never became visible after scrolling).
+- `FloatingTestButton` now retries (interval + `MutationObserver`) until the hero element exists before attaching the observer.
+
 ## [2.11.8] — 2026-08-04 — Superadmin member info panel: show last assessment Q&A
 
 ### Added — Last assessment questions & answers in member info panel
