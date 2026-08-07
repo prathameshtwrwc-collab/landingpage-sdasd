@@ -2,6 +2,12 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.11.13] — 2026-08-07 — View Result icon for member reports
+
+### Added — "View Result" on member reports
+- **Member dashboard** ("My Reports" list) and **progress page** now show a **View Result** (eye) icon per report that opens the shared result page `/r/[assessmentId]` for that report.
+- `/api/member` report enrichment now reads `assessment_id` directly from the `reports` table (new rows already store it), falling back to the `chronotype_results` mapping via `result_id`, then to the latest result — so older reports whose `result_id` is null still get a working view link.
+
 ## [2.11.12] — 2026-08-07 — Assessment form fields + first-time auto-login to dashboard
 
 ### Changed — Assessment details form

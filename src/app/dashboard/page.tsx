@@ -235,6 +235,13 @@ const [cardGradient] = useState(() => {
                     </div>
                   </div>
                   <div className="flex items-center gap-[6px]">
+                    <button type="button" onClick={() => { const aid = r.assessment_id as string | null | undefined; if (aid) window.location.href = `/r/${aid}`; }}
+                      disabled={!r.assessment_id}
+                      title="View Result"
+                      className="flex items-center justify-center w-[32px] h-[30px] rounded-lg border-none cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      style={{ color: "#7B68AE", background: "rgba(123,104,174,0.08)", fontFamily: "Poppins, sans-serif" }}>
+                      <Eye size={14} />
+                    </button>
                     <button type="button" disabled={downloading} onClick={async () => { if (downloading) return; setDownloading(true); try { await downloadPdf({ firstName: data.member?.first_name as string || "", lastName: data.member?.last_name as string || "", email: data.member?.email as string || "", chronotype: r.chronotype as string || "EAGLE", totalScore: r.totalScore as number || 0, larkScore: r.larkScore as number || 0, eagleScore: r.eagleScore as number || 0, owlScore: r.owlScore as number || 0, wakeTime: data.schedule?.wakeTime ?? undefined, bedtime: data.schedule?.bedtime ?? undefined, peakFocus: data.schedule?.peakFocus ?? undefined, assessmentDate: (r.generated_at as string) || undefined }); } finally { setDownloading(false); } }}
                       className="flex items-center gap-[5px] text-[11px] font-medium no-underline px-[10px] py-[5px] rounded-lg border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                       style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>

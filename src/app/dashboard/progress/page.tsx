@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { cachedFetch } from "@/lib/client-cache";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Check, FileText, Download, Printer, Share2 } from "lucide-react";
+import { Check, FileText, Download, Printer, Share2, Eye } from "lucide-react";
 import { downloadPdf, openPdfForPrint } from "@/lib/client-pdf";
 
 export default function ProgressPage() {
@@ -77,6 +77,16 @@ export default function ProgressPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-[8px]">
+                      <button
+                        type="button"
+                        onClick={() => { const aid = r.assessment_id as string | null | undefined; if (aid) window.location.href = `/r/${aid}`; }}
+                        disabled={!r.assessment_id}
+                        className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        style={{ color: "#7B68AE", background: "rgba(123,104,174,0.08)" }}
+                        title="View Result"
+                      >
+                        <Eye size={15} />
+                      </button>
                       <button
                         type="button"
                         disabled={downloading}

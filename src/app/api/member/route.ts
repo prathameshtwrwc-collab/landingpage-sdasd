@@ -111,12 +111,12 @@ export async function GET(req: Request) {
 
     const { data: reports } = await supabase
       .from("reports")
-      .select("id, result_id, generated_at")
+      .select("id, result_id, assessment_id, generated_at")
       .eq("member_id", member.id)
       .order("generated_at", { ascending: false });    const reportsEnriched = (reports ?? []).map((r) => ({
       id: r.id,
       result_id: r.result_id,
-      assessment_id: null as string | null,
+      assessment_id: (r.assessment_id as string | null) ?? null,
       generated_at: r.generated_at,
       chronotype: null as string | null,
       totalScore: null as number | null,
@@ -141,7 +141,7 @@ export async function GET(req: Request) {
             r.larkScore = cr.lark_score as number | null;
             r.eagleScore = cr.eagle_score as number | null;
             r.owlScore = cr.owl_score as number | null;
-            r.assessment_id = cr.assessment_id as string | null;
+            r.assessment_id = (cr.assessment_id as string | null) ?? r.assessment_id;
           }
         });
       }
@@ -156,6 +156,7 @@ export async function GET(req: Request) {
           r.larkScore = (latestResult as Record<string, unknown>).lark_score as number | null;
           r.eagleScore = (latestResult as Record<string, unknown>).eagle_score as number | null;
           r.owlScore = (latestResult as Record<string, unknown>).owl_score as number | null;
+          r.assessment_id = r.assessment_id ?? (latestResult as Record<string, unknown>).assessment_id as string | null;
         }
       });
     }
