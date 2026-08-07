@@ -270,31 +270,6 @@ const [cardGradient] = useState(() => {
         </div>
       </div>
 
-      {/* ─── Donate for a Good Cause Card ─── */}
-      <div className="mt-[16px] md:mt-[20px] rounded-[16px] p-[22px] md:p-[28px]" style={{ background: "linear-gradient(135deg, #FFF5F5, #FFF0E6)", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-[16px]">
-          <div className="flex items-start gap-[14px]">
-            <div className="w-[48px] h-[48px] rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #FF6B6B, #FF8E53)" }}>
-              <Heart size={22} stroke="white" fill="white" />
-            </div>
-            <div>
-              <h3 className="m-0 text-[16px] font-bold text-[#171717]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>Support Better Sleep for All</h3>
-              <p className="m-0 mt-[4px] text-[13px] leading-[1.5] max-w-[520px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
-                Your generous contribution helps provide free sleep consultations, wellness programs, and educational resources to underserved communities worldwide. Every donation brings us closer to a world where quality sleep health is accessible to everyone, regardless of circumstance.
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setDonateOpen(true)}
-            className="shrink-0 flex items-center gap-[8px] text-[14px] font-semibold px-[20px] py-[11px] rounded-xl border-none cursor-pointer transition-all whitespace-nowrap"
-            style={{ color: "#FFF", background: "linear-gradient(135deg, #FF6B6B, #FF8E53)", fontFamily: "Poppins, sans-serif", boxShadow: "0 4px 14px rgba(255,107,107,0.35)" }}
-          >
-            <Heart size={16} fill="white" /> Donate Now
-          </button>
-        </div>
-      </div>
-
       <DonateModal isOpen={donateOpen} onClose={() => setDonateOpen(false)} />
 
       {/* ─── Consult a Sleep Specialist Card ─── */}
@@ -333,6 +308,31 @@ const [cardGradient] = useState(() => {
             style={{ color: "#FFF", background: "linear-gradient(135deg, #35319B, #5A55C0)", fontFamily: "Poppins, sans-serif" }}
           >
             <Stethoscope size={16} /> Book Consultation
+          </button>
+        </div>
+      </div>
+
+      {/* ─── Donate for a Good Cause Card ─── */}
+      <div className="mt-[16px] md:mt-[20px] rounded-[16px] p-[22px] md:p-[28px]" style={{ background: "linear-gradient(135deg, #FFF5F5, #FFF0E6)", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-[16px]">
+          <div className="flex items-start gap-[14px]">
+            <div className="w-[48px] h-[48px] rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #FF6B6B, #FF8E53)" }}>
+              <Heart size={22} stroke="white" fill="white" />
+            </div>
+            <div>
+              <h3 className="m-0 text-[16px] font-bold text-[#171717]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>Support Better Sleep for All</h3>
+              <p className="m-0 mt-[4px] text-[13px] leading-[1.5] max-w-[520px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
+                Your generous contribution helps provide free sleep consultations, wellness programs, and educational resources to underserved communities worldwide. Every donation brings us closer to a world where quality sleep health is accessible to everyone, regardless of circumstance.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setDonateOpen(true)}
+            className="shrink-0 flex items-center gap-[8px] text-[14px] font-semibold px-[20px] py-[11px] rounded-xl border-none cursor-pointer transition-all whitespace-nowrap"
+            style={{ color: "#FFF", background: "linear-gradient(135deg, #FF6B6B, #FF8E53)", fontFamily: "Poppins, sans-serif", boxShadow: "0 4px 14px rgba(255,107,107,0.35)" }}
+          >
+            <Heart size={16} fill="white" /> Donate Now
           </button>
         </div>
       </div>

@@ -2,6 +2,17 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.11.11] — 2026-08-07 — Retake assessment flow + dashboard card order
+
+### Fixed — "Take Test Again" no longer flashes the details form
+- For logged-in members the assessment details form no longer appears when retaking the test. The modal now shows a "Preparing your assessment…" loading state while it checks the member's previous attempt (`retestLoading`), then:
+  - If the last attempt was left mid-way (**STARTED/incomplete**) → shows **Resume Assessment** / **Start Over** options with the saved answers restored.
+  - Otherwise → jumps straight into a **fresh questionnaire** (new STARTED assessment), skipping the details form entirely.
+- Completed retests create a new `chronotype_results` row (existing logic in `submitAssessment`), so new results are stored alongside the old ones.
+
+### Changed — Dashboard card order
+- Member dashboard now shows **Consult a Sleep Specialist** first, then **Support Better Sleep for All (Donate)** — previously Donate appeared before Consult.
+
 ## [2.11.10] — 2026-08-06 — Premium analyzing loader
 
 ### Changed — Assessment analyzing animation

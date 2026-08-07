@@ -77,6 +77,7 @@ export default function AssessmentModal() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [retestLoading, setRetestLoading] = useState(false);
   const [serverError, setServerError] = useState("");
   const [showTerms, setShowTerms] = useState(false);
 
@@ -179,46 +180,54 @@ export default function AssessmentModal() {
     };
   }, [isOpen]);
 
-  // Handle retest: check for in-progress assessment or start fresh
+  // Handle retest for a logged-in member: never show the details form.
+  // If the last attempt was left mid-way (STARTED), offer resume / start-over.
+  // Otherwise jump straight into a fresh questionnaire.
   useEffect(() => {
-    if (isOpen && retestMemberId && step === 0) {
-      loadAssessmentData();
-      (async () => {
-        try {
-          const result = await createMemberAndStartAssessment({
-            first_name: "",
-            last_name: "",
-            age: "",
-            email: "",
-            phone: "",
-            gender: "",
-            marital_status: "",
-            department: "",
-            country: "",
-            location: "",
-            city: "",
-            pincode: "",
-            occupation: "",
-            member_id: retestMemberId,
-          });
-          setMemberId(result.memberId);
-          setAssessmentId(result.assessmentId);
+    if (!isOpen || !retestMemberId) return;
 
-          if ("hasExistingAssessment" in result && result.hasExistingAssessment) {
-            setExistingAssessment({
-              resumeIndex: (result as Record<string, unknown>).resumeIndex as number,
-              existingAnswers: (result as Record<string, unknown>).existingAnswers as Record<number, string>,
-              prevAssessmentId: result.assessmentId,
-            });
-          } else {
-            setStep(1);
-            setAnswers({});
-          }
-        } catch {
-          setServerError("Failed to start retest. Please try again.");
+    setRetestLoading(true);
+    setStep(0);
+    setExistingAssessment(null);
+    loadAssessmentData();
+    (async () => {
+      try {
+        const result = await createMemberAndStartAssessment({
+          first_name: "",
+          last_name: "",
+          age: "",
+          email: "",
+          phone: "",
+          gender: "",
+          marital_status: "",
+          department: "",
+          country: "",
+          location: "",
+          city: "",
+          pincode: "",
+          occupation: "",
+          member_id: retestMemberId,
+        });
+        setMemberId(result.memberId);
+        setAssessmentId(result.assessmentId);
+
+        if ("hasExistingAssessment" in result && result.hasExistingAssessment) {
+          setExistingAssessment({
+            resumeIndex: (result as Record<string, unknown>).resumeIndex as number,
+            existingAnswers: (result as Record<string, unknown>).existingAnswers as Record<number, string>,
+            prevAssessmentId: result.assessmentId,
+          });
+        } else {
+          // No in-progress assessment → start the fresh questionnaire directly.
+          setStep(1);
+          setAnswers({});
         }
-      })();
-    }
+      } catch {
+        setServerError("Failed to start retest. Please try again.");
+      } finally {
+        setRetestLoading(false);
+      }
+    })();
   }, [isOpen, retestMemberId]);
 
   const loadAssessmentData = useCallback(async () => {
@@ -371,6 +380,7 @@ export default function AssessmentModal() {
     setAnswers({});
     setSubmitted(false);
     setSubmitting(false);
+    setRetestLoading(false);
     setErrors({});
     setServerError("");
     setChronotypeResult(null);
@@ -474,6 +484,21 @@ export default function AssessmentModal() {
           />
         ) : submitting ? (
           <AnalyzingLoader />
+        ) : retestLoading ? (
+          <div className="flex flex-col items-center justify-center px-[24px] py-[60px] text-center">
+            <div className="relative w-[64px] h-[64px] mb-[24px]">
+              <div className="absolute inset-0 rounded-full" style={{ border: "3px solid rgba(53,49,155,0.15)", borderTopColor: "#35319B", animation: "spin 0.9s linear infinite" }} />
+              <div className="absolute inset-[12px] rounded-full flex items-center justify-center" style={{ background: "rgba(53,49,155,0.08)" }}>
+                <CalendarDays size={22} stroke="#35319B" />
+              </div>
+            </div>
+            <h3 className="m-0 text-[19px] font-bold mb-[6px]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>
+              Preparing your assessment
+            </h3>
+            <p className="m-0 text-[13px] leading-[1.6]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
+              Checking your previous attempt…
+            </p>
+          </div>
         ) : existingAssessment ? (
           <div className="flex flex-col items-center px-[24px] py-[36px] md:px-[40px] md:py-[44px] text-center">
             <div
