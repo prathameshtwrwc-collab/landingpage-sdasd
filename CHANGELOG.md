@@ -2,6 +2,16 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.11.12] — 2026-08-07 — Assessment form fields + first-time auto-login to dashboard
+
+### Changed — Assessment details form
+- **Occupation dropdown** now includes **"Salaried"** (Student, Homemaker, Salaried, Working Professional, Business Owner, Healthcare Professional, Retired, Other).
+- **Pincode** now accepts **alphabets too** — numeric-only validation/sanitization removed, placeholder updated, max length 12.
+
+### Added — First-time completion opens dashboard without login
+- On the result screen after completing a **fresh assessment for the first time**, clicking **"Go to my Dashboard"** now logs the member in automatically (localStorage session via `AuthProvider.login`) and opens `/dashboard` directly — no email entry on the login page needed this once.
+- Later access goes through the login page as usual (existing member login flow).
+
 ## [2.11.11] — 2026-08-07 — Retake assessment flow + dashboard card order
 
 ### Fixed — "Take Test Again" no longer flashes the details form

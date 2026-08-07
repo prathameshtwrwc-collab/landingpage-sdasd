@@ -8,6 +8,7 @@ import {
   UserRoundPlus, ArrowRight, Download, Share2, ShieldCheck, Bird, Sunrise,
 } from "lucide-react";
 import { useAssessment } from "./AssessmentContext";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { getAssessmentData, createMemberAndStartAssessment, submitAssessment, abandonAndRestartAssessment, saveAnswer } from "@/lib/actions/assessment";
 import { downloadPdf, openPdfForPrint } from "@/lib/client-pdf";
 import { CHRONOTYPE_LABELS, CHRONOTYPE_DESCRIPTIONS, CHRONOTYPE_PEAK_TIMES, CHRONOTYPE_BLUEPRINT } from "@/lib/chronotype-utils";
@@ -264,8 +265,6 @@ export default function AssessmentModal() {
     if (!form.city.trim()) e.city = "Required";
     if (!form.pincode.trim()) {
       e.pincode = "Required";
-    } else if (!/^\d+$/.test(form.pincode)) {
-      e.pincode = "Pincode must contain numbers only";
     }
     if (!form.location.trim()) e.location = "Required";
     if (!form.occupation.trim()) e.occupation = "Required";
@@ -621,7 +620,7 @@ export default function AssessmentModal() {
               <Field label="City *" value={form.city} onChange={(v) => updateForm("city", v)} error={errors.city} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label="Pincode *" value={form.pincode} onChange={(v) => updateForm("pincode", v)} error={errors.pincode} type="text" inputMode="numeric" sanitize="numeric" maxLength={10} placeholder="Numeric only" />
+              <Field label="Pincode *" value={form.pincode} onChange={(v) => updateForm("pincode", v)} error={errors.pincode} type="text" maxLength={12} placeholder="Pincode / Postal code" />
               <div className="relative">
                 <SelectField label="Occupation *" value={form.occupation.startsWith("Other:") ? "Other" : form.occupation}
                   onChange={(v) => {
@@ -632,7 +631,7 @@ export default function AssessmentModal() {
                     }
                   }}
                   error={errors.occupation}
-                  options={["Student", "Homemaker", "Working Professional", "Business Owner", "Healthcare Professional", "Retired", "Other"]}
+                  options={["Student", "Homemaker", "Salaried", "Working Professional", "Business Owner", "Healthcare Professional", "Retired", "Other"]}
                 />
                 {form.occupation.startsWith("Other:") && (
                   <input
@@ -1395,6 +1394,7 @@ function EnhancedResult({
   schedule: { wakeTime: string | null; bedtime: string | null; peakFocus: string | null } | null;
   generatedAt: string | null;
 }) {
+  const { login } = useAuth();
   const [downloading, setDownloading] = useState(false);
   const chrono = chronotypeResult.chronotype as "LARK" | "EAGLE" | "OWL";
   const isLark = chrono === "LARK";
@@ -1811,7 +1811,14 @@ function EnhancedResult({
       {/* ─── Go to Dashboard ─── */}
       <button
         type="button"
-        onClick={() => { window.location.href = "/login"; }}
+        onClick={() => {
+          // First-time completion: log the member in (localStorage session) and
+          // open their dashboard directly — no login page required this once.
+          const email = form.email.trim();
+          const name = memberName || email.split("@")[0] || "Member";
+          const dest = login(email, name, "member");
+          window.location.href = dest;
+        }}
         className="w-full inline-flex items-center justify-center gap-[9px] text-[14px] font-semibold border rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f]"
         style={{ minHeight: "46px", color: "#30268F", background: "#F6F4FF", border: "1px solid #D8D3FA", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
       >
