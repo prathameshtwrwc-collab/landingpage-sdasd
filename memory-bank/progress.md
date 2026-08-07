@@ -242,6 +242,17 @@ Completed
 
 # Change Log
 
+2026-08-07 — Retake Flow, Premium Loader, Auto-Login, Form Fields, View Result Icon
+
+- Member retake flow: "Take Test Again" skips the details form (new `retestLoading` state); incomplete STARTED tests offer Resume / Start Over with saved answers, otherwise jumps straight into a fresh questionnaire
+- Premium analyzing loader: circadian-orbit animation (framer-motion) with orbiting satellites, conic core, cycling status messages, shimmer progress bar
+- Dashboard card order: Consult a Sleep Specialist now appears before the Donate card
+- Assessment form: "Salaried" added to occupation dropdown; Pincode accepts alphabets (numeric-only validation removed)
+- First-time auto-login: result screen "Go to my Dashboard" logs the member in and opens /dashboard directly; later access via login page
+- View Result icon on member reports (dashboard + progress) linking to /r/[assessmentId]; /api/member enrichment reads assessment_id from reports table with fallbacks
+- Floating Take Test button fixed on org-code (white-label) pages (hero mounts after loading state)
+- GitHub pushes: 2.11.9 → 2.11.13
+
 2026-08-04 — Real Assessment Data End-to-End, PDF & Result Screen Fixes, Member Info Panel
 
 - Result screens (assessment modal, shared /r page, energy timeline) now use the member's **real** assessment answers for wake/bedtime/peak focus instead of static chronotype templates; `submitAssessment`, `/api/member`, and `fetchPublicResult` all return a `schedule`

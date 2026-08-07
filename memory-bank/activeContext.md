@@ -110,6 +110,13 @@ Phase: Feature Completion & Stabilization — Superadmin Dashboard, RLS Fixes, D
 - **PDF fixes** — daily-rhythm timeline section removed; schedule cards use cleaned real ranges; assessment date uses the real `generated_at` instead of download date.
 - **Result screen card sizing** — Ideal wake / Best focus / Ideal bedtime values cleaned to concise ranges and font reduced (was truncating to "10AM.....").
 - **Superadmin member info panel** — Users ? All Members ? View Info now shows the member's latest assessment summary (chronotype, total/confidence, L/E/O, date) and the full last-assessment Q&A (question + selected option + per-answer scores) via `/api/member-detail`; `InfoModal` gained an `answers` section.
+- **Floating Take Test button fixed (org-code pages)** — The button was invisible on the white-labeled `/[orgCode]` landing because its effect bailed out when `#hero-section` didn't exist at mount (the org page renders a loading state first). Now it retries via interval + MutationObserver until the hero mounts.
+- **Premium analyzing loader** — Assessment submit replaced the generic spinner with a circadian-orbit loader (framer-motion): rotating dashed/solid orbit rings with glowing satellites, pulsing conic-gradient core, cycling status messages ("Scoring your answers" / "Mapping your chronotype" / "Refining your sleep blueprint"), shimmer progress bar.
+- **Member retake flow fixed** — "Take Test Again" no longer flashes the details form. New `retestLoading` state shows "Preparing your assessment…" while checking the previous attempt: incomplete (STARTED) tests offer Resume / Start Over with saved answers restored; otherwise it jumps straight into a fresh questionnaire. Completed retests create a new `chronotype_results` row.
+- **Dashboard card order** — Member dashboard shows "Consult a Sleep Specialist" before "Support Better Sleep for All (Donate)".
+- **Assessment form fields** — Occupation dropdown now includes "Salaried"; Pincode accepts alphabets (numeric-only validation/sanitize removed, maxLength 12).
+- **First-time auto-login** — After a fresh first-time assessment, "Go to my Dashboard" logs the member in (localStorage session via `AuthProvider.login`) and opens `/dashboard` directly; later access uses the login page as usual.
+- **View Result icon on reports** — Member dashboard "My Reports" and progress page each report row gained a View Result (eye) icon linking to `/r/[assessmentId]`; `/api/member` report enrichment now reads `assessment_id` directly from the reports table (fallback via `result_id` ? latest result) so older reports get a working link.
 
 ---
 
