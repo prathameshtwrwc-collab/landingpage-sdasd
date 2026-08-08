@@ -15,7 +15,7 @@ export async function GET(req: Request) {
       .limit(1)
       .maybeSingle();
 
-    if (!data) return NextResponse.json({ exists: false });
+    if (!data) return NextResponse.json({ exists: false }, { headers: CACHE });
 
     // Fallback: get org name if branding_company is empty
     let companyName = data.branding_company ?? "";
@@ -25,8 +25,10 @@ export async function GET(req: Request) {
       companyName = org?.name ?? "";
     }
 
-    return NextResponse.json({ exists: true, active: data.active, organizationId: data.organization_id, brandingCompany: companyName, brandingLogo: logoUrl });
+    return NextResponse.json({ exists: true, active: data.active, organizationId: data.organization_id, brandingCompany: companyName, brandingLogo: logoUrl }, { headers: CACHE });
   } catch {
     return NextResponse.json({ exists: false, error: "Failed to check link" }, { status: 500 });
   }
 }
+
+const CACHE = { "Cache-Control": "public, max-age=60, stale-while-revalidate=300" };

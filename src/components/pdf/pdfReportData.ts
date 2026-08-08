@@ -15,6 +15,10 @@ export type ReportData = {
   bedtime?: string;
   peakFocus?: string;
   assessmentDate?: string;
+  /** Base64 data URI of the member's chronotype hero image (embedded in the PDF). */
+  heroImage?: string;
+  /** Base64 data URIs of all chronotype photos, for the gallery pages. */
+  galleryImages?: string[];
 };
 
 export type PdfReportViewModel = {
@@ -37,6 +41,8 @@ export type PdfReportViewModel = {
   timeline: { time: string; label: string; desc: string }[];
   recommendations: { title: string; description: string }[];
   accent: string;
+  heroImage: string | null;
+  galleryImages: string[];
 };
 
 function isChronoKey(v: string): v is ChronoKey {
@@ -192,7 +198,9 @@ export function buildPdfReportViewModel(data: ReportData): PdfReportViewModel {
     nextSteps: NEXT_STEPS[key],
     timeline: TIMELINES[key],
     recommendations: recCategories,
-    accent: key === "LARK" ? "#ED8300" : "#30268F",
+    accent: key === "LARK" ? "#ED8300" : key === "OWL" ? "#7B68AE" : "#30268F",
+    heroImage: data.heroImage ?? null,
+    galleryImages: data.galleryImages ?? [],
   };
 }
 

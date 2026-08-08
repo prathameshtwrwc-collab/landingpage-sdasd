@@ -61,11 +61,13 @@ C:\Users\prath\OneDrive - MSFT\Desktop\sleepchrono-recreated2
 │   │   │   └── DisclaimerFooter.tsx
 │   │   ├── assessment/
 │   │   │   ├── AssessmentContext.tsx  # Modal state context
-│   │   │   └── AssessmentModal.tsx    # Sleep assessment wizard (registration + 11 questions)
+│   │   │   ├── AssessmentModal.tsx    # Sleep assessment wizard (registration + 11 questions)
+│   │   │   └── LazyAssessmentModal.tsx # next/dynamic wrapper — loads modal only when opened
 │   │   ├── consult/
 │   │   │   ├── ConsultContext.tsx       # Modal state context
 │   │   │   ├── ConsultModal.tsx         # Consultation scheduling form (member-facing)
-│   │   │   └── ConsultPatientModal.tsx  # Superadmin "consult this patient" (consulted by + notes)
+│   │   │   ├── ConsultPatientModal.tsx  # Superadmin "consult this patient" (consulted by + notes)
+│   │   │   └── LazyConsultModal.tsx     # next/dynamic wrapper — loads modal only when opened
 │   │   ├── dialogs/
 │   │   │   ├── ConfirmDialog.tsx        # Reusable confirm/delete popup (busy state)
 │   │   │   ├── InfoModal.tsx            # Reusable view-info modal (label/value fields)
@@ -96,8 +98,9 @@ C:\Users\prath\OneDrive - MSFT\Desktop\sleepchrono-recreated2
 │   │   └── FloatingTestButton.tsx     # Floating CTA for assessment
 │   │
 │   ├── lib/
-│   │   ├── client-cache.ts           # In-memory API cache (45s TTL) with deduplication
-│   │   ├── client-pdf.tsx            # PDF generation (@react-pdf/renderer → Blob download)
+│   │   ├── client-cache.ts           # In-memory API cache (TTL + dedup + revalidate/ttlMs opts + preload)
+│   │   ├── client-pdf.tsx            # PDF generation (@react-pdf/renderer → Blob download; embeds chronotype photos)
+│   │   ├── chronotype-image.ts       # Chronotype media helper (per-type file list + base64 data-URI loader)
 │   │   ├── use-lock-body-scroll.ts   # Modal page scroll-lock hook (html+body fixed/overflow)
 │   │   ├── use-theme-dark.ts         # data-theme dark-mode detection hook
 │   │   ├── auth/

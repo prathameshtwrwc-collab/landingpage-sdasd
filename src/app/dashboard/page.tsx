@@ -9,8 +9,8 @@ import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
 import { useRouter } from "next/navigation";
 import { Moon, Sparkles, Activity, TrendingUp, Calendar, Star, FileText, Download, Printer, Share2, ClipboardCopy, ExternalLink, ArrowRight, Stethoscope, Eye, Phone, Heart } from "lucide-react";
-import { downloadPdf, openPdfForPrint, shareReport } from "@/lib/client-pdf";
 import DonateModal from "@/components/DonateModal";
+import { chronotypeImageSrcs } from "@/lib/chronotype-image";
 
 interface DashboardData {
   member: Record<string, unknown> | null;
@@ -181,6 +181,41 @@ const [cardGradient] = useState(() => {
         </div>
       </div>
 
+      {/* ─── Chronotype Gallery (one-by-one) ─── */}
+      {result && (() => {
+        const key = chronotype === "LARK" ? "LARK" : chronotype === "OWL" ? "OWL" : "EAGLE";
+        const galleryLabel = chronotypeLabels[key] ?? key;
+        const galleryImgs = chronotypeImageSrcs(key);
+        return (
+          <div className="rounded-[16px] p-[22px] md:p-[28px] mt-[16px] md:mt-[20px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.08em]" style={{ color: key === "LARK" ? "#EE8300" : key === "OWL" ? "#7B68AE" : "#30268F", fontFamily: "Poppins, sans-serif" }}>
+              Visual journey
+            </span>
+            <h3 className="m-0 mt-[4px] text-[16px] font-bold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
+              Your {galleryLabel} gallery
+            </h3>
+            <p className="m-0 mt-[2px] mb-[12px] text-[12px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
+              A visual journey through your {galleryLabel} rhythm.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {galleryImgs.map((src, i) => (
+                <a key={i} href={src} target="_blank" rel="noreferrer" aria-label={`${galleryLabel} image ${i + 1}`}
+                  className="flex items-center gap-[12px]"
+                  style={{ padding: "6px", borderRadius: "12px", border: "1px solid #EFEFF5", background: "#F7F7FA", textDecoration: "none" }}>
+                  <span className="flex items-center justify-center rounded-full text-[13px] font-semibold shrink-0"
+                    style={{ width: "30px", height: "30px", background: "#35319B", color: "#FFFFFF", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+                    {i + 1}
+                  </span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt={`${galleryLabel} image ${i + 1}`} loading={i === 0 ? "eager" : "lazy"}
+                    style={{ flex: 1, minWidth: 0, width: "100%", height: "auto", borderRadius: "8px", display: "block" }} />
+                </a>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-[16px] md:gap-[20px]">
         <div className="rounded-[16px] p-[22px] md:p-[28px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
           <div className="flex items-center gap-[10px] mb-[12px]">
@@ -242,7 +277,7 @@ const [cardGradient] = useState(() => {
                       style={{ color: "#7B68AE", background: "rgba(123,104,174,0.08)", fontFamily: "Poppins, sans-serif" }}>
                       <Eye size={14} />
                     </button>
-                    <button type="button" disabled={downloading} onClick={async () => { if (downloading) return; setDownloading(true); try { await downloadPdf({ firstName: data.member?.first_name as string || "", lastName: data.member?.last_name as string || "", email: data.member?.email as string || "", chronotype: r.chronotype as string || "EAGLE", totalScore: r.totalScore as number || 0, larkScore: r.larkScore as number || 0, eagleScore: r.eagleScore as number || 0, owlScore: r.owlScore as number || 0, wakeTime: data.schedule?.wakeTime ?? undefined, bedtime: data.schedule?.bedtime ?? undefined, peakFocus: data.schedule?.peakFocus ?? undefined, assessmentDate: (r.generated_at as string) || undefined }); } finally { setDownloading(false); } }}
+                    <button type="button" disabled={downloading} onClick={async () => { if (downloading) return; setDownloading(true); try { const { downloadPdf } = await import("@/lib/client-pdf"); await downloadPdf({ firstName: data.member?.first_name as string || "", lastName: data.member?.last_name as string || "", email: data.member?.email as string || "", chronotype: r.chronotype as string || "EAGLE", totalScore: r.totalScore as number || 0, larkScore: r.larkScore as number || 0, eagleScore: r.eagleScore as number || 0, owlScore: r.owlScore as number || 0, wakeTime: data.schedule?.wakeTime ?? undefined, bedtime: data.schedule?.bedtime ?? undefined, peakFocus: data.schedule?.peakFocus ?? undefined, assessmentDate: (r.generated_at as string) || undefined }); } finally { setDownloading(false); } }}
                       className="flex items-center gap-[5px] text-[11px] font-medium no-underline px-[10px] py-[5px] rounded-lg border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                       style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> {downloading ? "Generating…" : "PDF"}

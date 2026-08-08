@@ -6,6 +6,7 @@ import {
   CHRONOTYPE_LABELS, CHRONOTYPE_DESCRIPTIONS, CHRONOTYPE_PEAK_TIMES,
   CHRONOTYPE_BLUEPRINT, type Chronotype,
 } from "@/lib/chronotype-utils";
+import { chronotypeImageSrcs } from "@/lib/chronotype-image";
 import type { PublicResultData } from "@/lib/queries/public-result";
 
 const CHRONO_COLOR: Record<Chronotype, string> = { LARK: "#EE8300", EAGLE: "#30268F", OWL: "#7B68AE" };
@@ -56,18 +57,18 @@ function isChronotype(v: string): v is Chronotype {
   return v === "LARK" || v === "EAGLE" || v === "OWL";
 }
 
-function formatDate(value: string | null): string {
-  if (!value) return "";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-}
-
 function ChronotypeIllustration({ chrono }: { chrono: Chronotype }) {
   const color = CHRONO_COLOR[chrono];
   if (chrono === "LARK") return <Sunrise size={76} strokeWidth={1.4} stroke={color} aria-hidden="true" />;
   if (chrono === "OWL") return <MoonStar size={76} strokeWidth={1.4} stroke={color} aria-hidden="true" />;
   return <Bird size={76} strokeWidth={1.4} stroke={color} aria-hidden="true" />;
+}
+
+function formatDate(value: string | null): string {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 }
 
 export default function SharedResultCard({ data }: { data: PublicResultData }) {
@@ -196,6 +197,28 @@ export default function SharedResultCard({ data }: { data: PublicResultData }) {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Chronotype gallery */}
+        <div style={{ marginTop: "18px", marginBottom: "18px" }}>
+          <span style={{ fontSize: "10px", fontWeight: 600, color, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: "4px" }}>
+            Visual journey
+          </span>
+          <h3 style={{ fontSize: "16px", fontWeight: 700, color: "#17172B", margin: "0 0 2px" }}>Your {chronotypeName} gallery</h3>
+          <p style={{ fontSize: "12px", color: "#66677A", margin: "0 0 12px" }}>A visual journey through your {chronotypeName} rhythm.</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {chronotypeImageSrcs(chrono).map((src, i) => (
+              <a key={i} href={src} target="_blank" rel="noreferrer" aria-label={`${chronotypeName} image ${i + 1}`}
+                style={{ display: "flex", alignItems: "center", gap: "12px", padding: "6px", borderRadius: "12px", border: "1px solid #EFEFF5", background: "#F7F7FA", textDecoration: "none" }}>
+                <span style={{ width: "30px", height: "30px", borderRadius: "50%", background: "#30268F", color: "#fff", fontSize: "13px", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  {i + 1}
+                </span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt={`${chronotypeName} image ${i + 1}`} loading={i === 0 ? "eager" : "lazy"}
+                  style={{ flex: 1, minWidth: 0, width: "100%", height: "auto", borderRadius: "8px", display: "block" }} />
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* Strengths & watch-outs */}

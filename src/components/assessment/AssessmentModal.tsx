@@ -10,7 +10,8 @@ import {
 import { useAssessment } from "./AssessmentContext";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { getAssessmentData, createMemberAndStartAssessment, submitAssessment, abandonAndRestartAssessment, saveAnswer } from "@/lib/actions/assessment";
-import { downloadPdf, openPdfForPrint } from "@/lib/client-pdf";
+import { clearCache } from "@/lib/client-cache";
+import { chronotypeImageSrcs } from "@/lib/chronotype-image";
 import { CHRONOTYPE_LABELS, CHRONOTYPE_DESCRIPTIONS, CHRONOTYPE_PEAK_TIMES, CHRONOTYPE_BLUEPRINT } from "@/lib/chronotype-utils";
 import { useConsult } from "@/components/consult/ConsultContext";
 import { COUNTRY_CODES, getCountryCode } from "@/lib/country-codes";
@@ -366,6 +367,8 @@ export default function AssessmentModal() {
       setSchedule(result.schedule ?? null);
       setGeneratedAt(result.generatedAt ?? null);
       setSubmitted(true);
+      // Invalidate the in-memory API cache so the dashboard reflects the new result.
+      clearCache();
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Failed to submit assessment");
       setSubmitting(false);
@@ -1200,31 +1203,6 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
   );
 }
 
-/* ─── CHRONOTYPE ILLUSTRATIONS ─── */
-
-function LarkIllustration() {
-  return <Sunrise size={80} strokeWidth={1.4} stroke="#EE8300" aria-hidden="true" />;
-}
-
-function EagleIllustration() {
-  return <Bird size={80} strokeWidth={1.4} stroke="#30268F" aria-hidden="true" />;
-}
-
-function OwlIllustration() {
-  return (
-    <svg viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="w-full h-auto">
-      <path d="M60 60 Q100 100 140 60" stroke="#30268F" strokeWidth="1.6" fill="#F6F4FF" opacity="0.7" strokeLinecap="round" />
-      <circle cx="72" cy="75" r="4" fill="#30268F" opacity="0.3" />
-      <circle cx="128" cy="75" r="4" fill="#30268F" opacity="0.3" />
-      <circle cx="100" cy="85" r="12" stroke="#30268F" strokeWidth="1.3" fill="#F6F4FF" opacity="0.5" strokeLinecap="round" />
-      <path d="M60 42 L60 120" stroke="#30268F" strokeWidth="1.2" opacity="0.2" />
-      <path d="M140 42 L140 120" stroke="#30268F" strokeWidth="1.2" opacity="0.2" />
-      <circle cx="30" cy="40" r="6" stroke="#30268F" strokeWidth="1" fill="#F6F4FF" opacity="0.4" />
-      <circle cx="170" cy="50" r="4" stroke="#30268F" strokeWidth="0.8" fill="#F6F4FF" opacity="0.3" />
-    </svg>
-  );
-}
-
 /* ─── REDESIGNED RESULT SCREEN ─── */
 
 function AnalyzingLoader() {
@@ -1374,6 +1352,12 @@ function SparkleIcon() {
     </svg>
   );
 }
+
+/* ─── CHRONOTYPE ILLUSTRATIONS (hero) ─── */
+
+const LarkIllustration = () => <Sunrise size={80} strokeWidth={1.4} stroke="#EE8300" aria-hidden="true" />;
+const EagleIllustration = () => <Bird size={80} strokeWidth={1.4} stroke="#30268F" aria-hidden="true" />;
+const OwlIllustration = () => <MoonStar size={80} strokeWidth={1.4} stroke="#7B68AE" aria-hidden="true" />;
 
 function EnhancedResult({
   chronotypeResult, submissionMeta, memberName, memberReferralCode,
@@ -1550,7 +1534,7 @@ function EnhancedResult({
           </p>
         </div>
         <div className="flex flex-col items-center justify-center chronotype-visual-group" style={{ gap: "7px", height: "120px", overflow: "visible" }}>
-          <div className="chronotype-illustration" style={{ width: "100%", maxWidth: "110px", maxHeight: "76px", overflow: "visible" }}>
+          <div className="chronotype-illustration" style={{ width: "100%", maxWidth: "120px", maxHeight: "84px", overflow: "visible", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <IllustrationComponent />
           </div>
           <span className="inline-flex items-center text-[13px] font-medium px-[12px] py-[4px] rounded-[999px]" style={{
@@ -1601,6 +1585,34 @@ function EnhancedResult({
             </div>
           </div>
         ))}
+      </div>
+
+      {/* ─── Chronotype Gallery ─── */}
+      <div className="result-gallery" style={{ marginTop: "16px", marginBottom: "20px" }}>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.08em]" style={{ color: isLark ? "#EE8300" : isOwl ? "#7B68AE" : "#30268F", fontFamily: "Poppins, sans-serif" }}>
+          Visual journey
+        </span>
+        <h3 className="m-0 mt-[4px] text-[16px] font-bold" style={{ color: "#17172B", fontFamily: "Poppins, sans-serif" }}>
+          Your {chronotypeName} gallery
+        </h3>
+        <p className="m-0 mt-[2px] mb-[12px] text-[12px]" style={{ color: "#66677A", fontFamily: "Poppins, sans-serif" }}>
+          A visual journey through your {chronotypeName} rhythm.
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          {chronotypeImageSrcs(chrono).map((src, i) => (
+            <a key={i} href={src} target="_blank" rel="noreferrer" aria-label={`${chronotypeName} image ${i + 1}`}
+              className="flex items-center gap-[12px]"
+              style={{ padding: "6px", borderRadius: "12px", border: "1px solid #EFEFF5", background: "#F7F7FA", textDecoration: "none" }}>
+              <span className="flex items-center justify-center rounded-full text-[13px] font-semibold shrink-0"
+                style={{ width: "30px", height: "30px", background: "#30268F", color: "#FFFFFF", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+                {i + 1}
+              </span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={src} alt={`${chronotypeName} image ${i + 1}`} loading={i === 0 ? "eager" : "lazy"}
+                style={{ flex: 1, minWidth: 0, width: "100%", height: "auto", borderRadius: "8px", display: "block" }} />
+            </a>
+          ))}
+        </div>
       </div>
 
       {/* ─── Strengths & Watch-Outs ─── */}
@@ -1773,7 +1785,7 @@ function EnhancedResult({
         <button
           type="button"
           disabled={downloading}
-          onClick={async () => { if (downloading) return; setDownloading(true); try { await downloadPdf({ firstName: form.fname, lastName: form.lname, email: form.email, chronotype: chronotypeResult.chronotype, totalScore: chronotypeResult.total_score, larkScore: chronotypeResult.lark_score, eagleScore: chronotypeResult.eagle_score, owlScore: chronotypeResult.owl_score, summary: chronotypeDescs[chronotypeResult.chronotype], orgName: submissionMeta?.orgName ?? undefined, wakeTime: schedule?.wakeTime ?? undefined, bedtime: schedule?.bedtime ?? undefined, peakFocus: schedule?.peakFocus ?? undefined, assessmentDate: generatedAt ?? undefined }); } finally { setDownloading(false); } }}
+          onClick={async () => { if (downloading) return; setDownloading(true); try { const { downloadPdf } = await import("@/lib/client-pdf"); await downloadPdf({ firstName: form.fname, lastName: form.lname, email: form.email, chronotype: chronotypeResult.chronotype, totalScore: chronotypeResult.total_score, larkScore: chronotypeResult.lark_score, eagleScore: chronotypeResult.eagle_score, owlScore: chronotypeResult.owl_score, summary: chronotypeDescs[chronotypeResult.chronotype], orgName: submissionMeta?.orgName ?? undefined, wakeTime: schedule?.wakeTime ?? undefined, bedtime: schedule?.bedtime ?? undefined, peakFocus: schedule?.peakFocus ?? undefined, assessmentDate: generatedAt ?? undefined }); } finally { setDownloading(false); } }}
           className="inline-flex items-center justify-center gap-[9px] text-[14px] font-semibold border-none cursor-pointer rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           style={{ minHeight: "44px", color: "#FFFFFF", background: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
         >

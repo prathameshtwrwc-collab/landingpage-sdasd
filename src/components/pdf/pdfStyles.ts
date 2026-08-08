@@ -2,14 +2,16 @@ import { StyleSheet } from "@react-pdf/renderer";
 
 export const COLORS = {
   indigo: "#30268F",
-  ink: "#20212D",
-  muted: "#666775",
-  border: "#E3E3EA",
-  softBg: "#F7F7FA",
-  softPurple: "#F4F2FF",
+  ink: "#1B1C27",
+  muted: "#5C5D6E",
+  faint: "#90919F",
+  border: "#E6E6EE",
+  softBg: "#F6F6FB",
+  softPurple: "#F1EEFC",
   warm: "#ED8300",
-  warmBg: "#FFF8EF",
+  warmBg: "#FFF6EA",
   green: "#2F7D5B",
+  greenBg: "#EFF7F2",
   white: "#FFFFFF",
 };
 
@@ -26,11 +28,13 @@ export const pdfStyles = StyleSheet.create({
     fontSize: 10,
     lineHeight: 1.5,
   },
+
+  // ── Header ──
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingBottom: 10,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
@@ -40,16 +44,16 @@ export const pdfStyles = StyleSheet.create({
     gap: 8,
   },
   brandBox: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
+    width: 24,
+    height: 24,
+    borderRadius: 7,
     backgroundColor: COLORS.indigo,
     alignItems: "center",
     justifyContent: "center",
   },
   brandLetter: {
     color: COLORS.white,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "bold",
   },
   brandText: {
@@ -63,41 +67,49 @@ export const pdfStyles = StyleSheet.create({
     color: COLORS.muted,
     fontWeight: "medium",
   },
+
+  // ── Shared ──
+  eyebrow: {
+    fontSize: 7.5,
+    letterSpacing: 1,
+    color: COLORS.indigo,
+    marginBottom: 6,
+    textTransform: "uppercase" as const,
+  },
+
+  // ── Metadata ──
   metadataRow: {
     flexDirection: "row",
-    paddingTop: 14,
-    paddingBottom: 2,
+    paddingTop: 16,
+    paddingBottom: 4,
   },
   metadataCol: {
     flex: 1,
   },
   metadataLabel: {
     fontSize: 7.5,
-    letterSpacing: 0.6,
-    color: COLORS.muted,
+    letterSpacing: 0.8,
+    color: COLORS.faint,
     marginBottom: 3,
     textTransform: "uppercase" as const,
   },
   metadataValue: {
-    fontSize: 10.5,
+    fontSize: 11,
     fontWeight: "bold",
     color: COLORS.ink,
   },
-  section: {
-    marginTop: 18,
-  },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: COLORS.ink,
-    marginBottom: 10,
-  },
+
+  // ── Hero ──
   hero: {
-    marginTop: 16,
+    marginTop: 14,
     flexDirection: "row",
     backgroundColor: COLORS.softBg,
-    borderRadius: 10,
-    padding: 20,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.indigo,
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
+    padding: 22,
     alignItems: "center",
   },
   heroLeft: {
@@ -106,44 +118,52 @@ export const pdfStyles = StyleSheet.create({
   },
   heroEyebrow: {
     fontSize: 8,
-    letterSpacing: 0.8,
+    letterSpacing: 1.2,
     color: COLORS.indigo,
     marginBottom: 6,
     textTransform: "uppercase" as const,
   },
   heroName: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: "bold",
     color: COLORS.ink,
-    lineHeight: 1.1,
+    lineHeight: 1.05,
   },
   heroPill: {
-    marginTop: 8,
+    marginTop: 10,
     alignSelf: "flex-start",
     borderRadius: 999,
     borderWidth: 1,
-    paddingTop: 3,
-    paddingBottom: 3,
-    paddingLeft: 11,
-    paddingRight: 11,
-    backgroundColor: COLORS.warmBg,
-    borderColor: "#F0C79A",
+    paddingTop: 4,
+    paddingBottom: 4,
+    paddingLeft: 12,
+    paddingRight: 12,
   },
   heroPillText: {
     fontSize: 9,
     fontWeight: "bold",
-    color: COLORS.warm,
   },
   heroDescription: {
     marginTop: 10,
     fontSize: 9,
-    lineHeight: 1.5,
+    lineHeight: 1.55,
     color: COLORS.muted,
     maxWidth: 420,
   },
   heroRight: {
     minWidth: 128,
     alignItems: "center",
+  },
+  heroImageFrame: {
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.white,
+    padding: 4,
+  },
+  heroImage: {
+    width: 112,
+    borderRadius: 5,
   },
   peakPill: {
     marginTop: 8,
@@ -162,18 +182,20 @@ export const pdfStyles = StyleSheet.create({
     fontWeight: "bold",
     color: COLORS.indigo,
   },
+
+  // ── Schedule ──
   scheduleRow: {
     flexDirection: "row",
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: 8,
+    borderRadius: 10,
     marginTop: 12,
     overflow: "hidden",
   },
   scheduleCol: {
     flex: 1,
-    paddingTop: 11,
-    paddingBottom: 11,
+    paddingTop: 12,
+    paddingBottom: 12,
     paddingLeft: 16,
     paddingRight: 16,
   },
@@ -182,15 +204,19 @@ export const pdfStyles = StyleSheet.create({
     backgroundColor: COLORS.border,
   },
   scheduleLabel: {
-    fontSize: 8,
-    color: COLORS.muted,
-    marginBottom: 3,
+    fontSize: 7.5,
+    letterSpacing: 0.5,
+    color: COLORS.faint,
+    marginBottom: 4,
+    textTransform: "uppercase" as const,
   },
   scheduleValue: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "bold",
     color: COLORS.ink,
   },
+
+  // ── Strengths / Watch-outs ──
   twoCol: {
     flexDirection: "row",
     gap: 12,
@@ -198,43 +224,45 @@ export const pdfStyles = StyleSheet.create({
   },
   panel: {
     flex: 1,
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1,
     padding: 14,
   },
   panelTitle: {
-    fontSize: 10.5,
+    fontSize: 10,
     fontWeight: "bold",
-    marginBottom: 8,
+    marginBottom: 9,
   },
   bulletRow: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: 5,
+    marginBottom: 6,
   },
   bulletDot: {
-    width: 5,
-    height: 5,
+    width: 6,
+    height: 6,
     borderRadius: 999,
     marginTop: 5,
     marginRight: 8,
   },
   bulletText: {
-    fontSize: 9,
-    lineHeight: 1.4,
+    fontSize: 8.5,
+    lineHeight: 1.45,
     color: COLORS.ink,
     flex: 1,
   },
+
+  // ── Next steps ──
   stepsSection: {
     marginTop: 12,
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: "#D9D4F5",
     backgroundColor: COLORS.softPurple,
     padding: 14,
   },
   stepsTitle: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "bold",
     color: COLORS.indigo,
     marginBottom: 10,
@@ -252,81 +280,26 @@ export const pdfStyles = StyleSheet.create({
     backgroundColor: "#D9D4F5",
   },
   stepNumberCircle: {
-    width: 20,
-    height: 20,
+    width: 22,
+    height: 22,
     borderRadius: 999,
     backgroundColor: COLORS.indigo,
     alignItems: "center",
     justifyContent: "center",
   },
   stepNumber: {
-    fontSize: 8.5,
+    fontSize: 9,
     fontWeight: "bold",
     color: COLORS.white,
   },
   stepText: {
     fontSize: 8,
-    lineHeight: 1.4,
+    lineHeight: 1.45,
     color: COLORS.ink,
-    marginTop: 5,
+    marginTop: 6,
   },
-  rhythmSection: {
-    marginTop: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
-    padding: 14,
-  },
-  rhythmTitle: {
-    fontSize: 11,
-    fontWeight: "bold",
-    color: COLORS.ink,
-    marginBottom: 14,
-  },
-  rhythmRow: {
-    flexDirection: "row",
-  },
-  rhythmCol: {
-    flex: 1,
-    alignItems: "center",
-  },
-  rhythmDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 999,
-  },
-  rhythmTime: {
-    fontSize: 8.5,
-    fontWeight: "bold",
-    color: COLORS.ink,
-    marginTop: 5,
-  },
-  rhythmLabel: {
-    fontSize: 7.5,
-    fontWeight: "bold",
-    color: COLORS.indigo,
-    marginTop: 2,
-  },
-  rhythmDesc: {
-    fontSize: 6.5,
-    color: COLORS.muted,
-    marginTop: 2,
-    textAlign: "center" as const,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 20,
-    paddingTop: 9,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-  },
-  footerText: {
-    fontSize: 7.5,
-    color: COLORS.muted,
-  },
+
+  // ── Page 2+ header ──
   pageTwoHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -360,10 +333,50 @@ export const pdfStyles = StyleSheet.create({
     fontWeight: "bold",
     color: COLORS.warm,
   },
+
+  // ── Gallery ──
+  galleryTitle: {
+    marginTop: 18,
+    fontSize: 17,
+    fontWeight: "bold",
+    color: COLORS.ink,
+  },
+  gallerySub: {
+    marginTop: 4,
+    fontSize: 9,
+    color: COLORS.muted,
+    marginBottom: 14,
+  },
+  galleryItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  galleryBadge: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: COLORS.indigo,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+    flexShrink: 0,
+  },
+  galleryBadgeText: {
+    color: COLORS.white,
+    fontSize: 11,
+    fontWeight: "bold",
+  },
+  galleryImage: {
+    width: 300,
+    borderRadius: 6,
+  },
+
+  // ── Recommendations ──
   heading2: {
     marginTop: 20,
     marginBottom: 4,
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "bold",
     color: COLORS.ink,
   },
@@ -391,9 +404,9 @@ export const pdfStyles = StyleSheet.create({
     alignItems: "flex-start",
   },
   recNumberBadge: {
-    width: 18,
-    height: 18,
-    borderRadius: 5,
+    width: 20,
+    height: 20,
+    borderRadius: 6,
     backgroundColor: COLORS.softPurple,
     alignItems: "center",
     justifyContent: "center",
@@ -417,11 +430,11 @@ export const pdfStyles = StyleSheet.create({
   },
   notice: {
     marginTop: 18,
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: "#F0C79A",
     backgroundColor: COLORS.warmBg,
-    padding: 12,
+    padding: 13,
   },
   noticeTitle: {
     fontSize: 9,
@@ -431,8 +444,40 @@ export const pdfStyles = StyleSheet.create({
   },
   noticeBody: {
     fontSize: 8,
-    lineHeight: 1.45,
+    lineHeight: 1.5,
     color: COLORS.muted,
+  },
+  signoff: {
+    marginTop: 26,
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    paddingTop: 14,
+  },
+  signoffLine: {
+    fontSize: 9.5,
+    fontWeight: "bold",
+    color: COLORS.indigo,
+  },
+  signoffSub: {
+    fontSize: 7.5,
+    color: COLORS.faint,
+    marginTop: 3,
+  },
+
+  // ── Footer ──
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 16,
+    paddingTop: 9,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+  },
+  footerText: {
+    fontSize: 7.5,
+    color: COLORS.faint,
   },
 });
 

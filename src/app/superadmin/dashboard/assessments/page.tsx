@@ -5,7 +5,10 @@ import DashboardShell from "@/components/dashboard/DashboardShell";
 import { ClipboardList, Plus, CheckCircle, AlertTriangle, Eye, Edit3, Copy, Archive, Send, X, ChevronDown, ChevronUp, GripVertical, RotateCcw, Shield, BookOpen, Trash2, Loader2 } from "lucide-react";
 import ConfirmDialog from "@/components/dialogs/ConfirmDialog";
 import BusyOverlay from "@/components/dialogs/BusyOverlay";
-import { cachedFetch } from "@/lib/client-cache";
+import { cachedFetch, preload } from "@/lib/client-cache";
+
+// Kick off the initial fetch as soon as this route's JS loads.
+preload("/api/admin-assessments");
 
 type Question = { id?: string; text: string; category: string; isRequired: boolean; options: { text: string; larkScore: number; eagleScore: number; owlScore: number }[] };
 type ScoringRule = { min_score: number | null; max_score: number | null; chronotype: string; label: string | null; description: string | null };
@@ -40,7 +43,7 @@ export default function SuperAdminAssessmentsPage() {
 
   const fetchVersions = useCallback(() => {
     setLoading(true);
-    cachedFetch("/api/admin-assessments")
+    cachedFetch("/api/admin-assessments", undefined, { revalidate: true })
       .then((d) => {
         const parsed = d as ApiResponse;
         if (!parsed.error) setData(parsed);
@@ -97,7 +100,7 @@ export default function SuperAdminAssessmentsPage() {
 
     // Fetch the fresh list and open the newly created draft copy in the builder.
     try {
-      const fresh = await cachedFetch("/api/admin-assessments") as ApiResponse;
+      const fresh = await cachedFetch("/api/admin-assessments", undefined, { revalidate: true }) as ApiResponse;
       const copy = (fresh?.versions ?? []).find((x: { id: string }) => x.id === d.versionId);
       if (copy) {
         loadVersion(copy);

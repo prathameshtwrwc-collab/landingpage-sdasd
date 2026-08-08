@@ -242,6 +242,16 @@ Completed
 
 # Change Log
 
+2026-08-08 — Chronotype Gallery Everywhere, PDF Report Polish, Phase-1 Performance
+
+- Chronotype photos now appear as a one-by-one numbered gallery on: shared result page (`/r/[assessmentId]`), post-assessment result screen, and the member dashboard home — placed right after the wake/focus/bedtime strip, full-width images, lazy-loaded
+- SVG chronotype illustrations (Lark/Eagle/Owl) restored in result heroes (were replaced by the first photo)
+- PDF report embeds the chronotype hero photo + all photos on numbered gallery pages (3 per page); "Your personalised daily guidance" moved to the last page; premium redesign (accent bars, eyebrows, tinted panels, framed hero image, sign-off, dynamic footer page count)
+- New `src/lib/chronotype-image.ts` helper (per-chronotype file list + base64 data-URI loader with canvas downscale for PDF embedding)
+- Performance (Phase 1): `AssessmentModal`/`ConsultModal` lazy-loaded via `next/dynamic` (`LazyAssessmentModal`, `LazyConsultModal`); `@react-pdf/renderer` deferred to click-time; `client-cache` gained `revalidate`/`ttlMs` + `clearCache()` after assessment + revalidate on post-mutation reloads; Cache-Control on all GET API routes; ISR on shared result page (`revalidate=300`); module-scope `preload()` on superadmin pages
+- Fixed `/api/admin-audit` + `/api/member-detail` to query real production `activity_logs`/`login_audit` columns and map to display shapes
+- Docs added: `docs/PRODUCTION_GO_LIVE.md` (go-live gate) and `docs/FRESH_SETUP_SUPABASE_CLERK.md` (new Supabase + Clerk setup)
+
 2026-08-07 — Retake Flow, Premium Loader, Auto-Login, Form Fields, View Result Icon
 
 - Member retake flow: "Take Test Again" skips the details form (new `retestLoading` state); incomplete STARTED tests offer Resume / Start Over with saved answers, otherwise jumps straight into a fresh questionnaire

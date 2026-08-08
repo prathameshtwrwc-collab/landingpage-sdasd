@@ -139,7 +139,7 @@ export async function GET(req: Request) {
       activityTypes: activities
         ? [...new Set(activities.map((r) => r.activity_type).filter(Boolean))].sort()
         : [],
-    });
+    }, { headers: { "Cache-Control": "private, max-age=20, stale-while-revalidate=60" } });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown" }, { status: 500 });
   }

@@ -3,8 +3,19 @@
 import { pdf } from "@react-pdf/renderer";
 import ChronotypeReportPDF from "@/components/pdf/ChronotypeReportPDF";
 import { buildReportFilename, type ReportData } from "@/components/pdf/pdfReportData";
+import { loadChronotypeImageDataUri, loadChronotypeGallery } from "@/lib/chronotype-image";
 
 let isGenerating = false;
+
+/** Embed the chronotype hero photo + full gallery into the report data (falls back gracefully). */
+async function withMedia(data: ReportData): Promise<ReportData> {
+  const heroImage = data.heroImage ?? (await loadChronotypeImageDataUri(data.chronotype)) ?? undefined;
+  const galleryImages =
+    data.galleryImages && data.galleryImages.length > 0
+      ? data.galleryImages
+      : await loadChronotypeGallery(data.chronotype);
+  return { ...data, heroImage, galleryImages };
+}
 
 function triggerDownload(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
@@ -22,7 +33,8 @@ export async function downloadPdf(data: ReportData, filename?: string): Promise<
   isGenerating = true;
 
   try {
-    const blob = await pdf(<ChronotypeReportPDF data={data} />).toBlob();
+    const enriched = await withMedia(data);
+    const blob = await pdf(<ChronotypeReportPDF data={enriched} />).toBlob();
     const pdfFilename = filename || buildReportFilename(data);
     triggerDownload(blob, pdfFilename);
   } catch (error) {
@@ -38,7 +50,8 @@ export async function openPdfForPrint(data: ReportData): Promise<void> {
   isGenerating = true;
 
   try {
-    const blob = await pdf(<ChronotypeReportPDF data={data} />).toBlob();
+    const enriched = await withMedia(data);
+    const blob = await pdf(<ChronotypeReportPDF data={enriched} />).toBlob();
     const url = URL.createObjectURL(blob);
     window.open(url, "_blank");
     setTimeout(() => URL.revokeObjectURL(url), 30000);

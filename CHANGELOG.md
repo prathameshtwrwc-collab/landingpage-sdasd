@@ -2,6 +2,33 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.0] — 2026-08-08 — Chronotype gallery everywhere + PDF report polish + performance
+
+### Added — Chronotype images on result screens
+- **Shared result page** (`/r/[assessmentId]`) and the **post-assessment result screen** (assessment modal) now show the member's chronotype photos as a **one-by-one numbered gallery** ("Visual journey → Your {Chronotype} gallery"), placed right after the wake/focus/bedtime strip. Full-width images at natural ratio, clickable to open in a new tab, lazy-loaded.
+- The **member dashboard home** shows the same numbered gallery card when a result exists.
+- The **SVG chronotype illustrations** (Lark/Eagle/Owl) were restored in the result heroes (they had been replaced by the first photo).
+
+### Added — PDF report: embedded chronotype photos + gallery pages
+- The PDF report now embeds the member's **chronotype hero photo** on the cover and **all chronotype photos** on gallery pages after page 1, in a numbered one-by-one layout (3 per page) — like the web result screens. Images are downscaled/compressed to base64 data URIs client-side so the PDF stays small.
+- The **"Your personalised daily guidance"** (recommendations) page moved to the **last** position.
+- Premium redesign: per-chronotype accent bars, section eyebrows, soft tinted panels, framed hero image, numbered gallery badges, and a closing sign-off line. Footer page count is now dynamic.
+
+### Added — Performance (Phase 1)
+- **Lazy-loaded modals** — `AssessmentModal` and `ConsultModal` now load via `next/dynamic` only when opened (`LazyAssessmentModal`, `LazyConsultModal`), shrinking the initial JS bundle.
+- **Deferred `@react-pdf/renderer`** — PDF download/print imports the library on demand (dashboard, progress, assessment modal).
+- **`client-cache` upgrade** — added `revalidate` (bypass cache for post-mutation reloads) and `ttlMs` options; `clearCache()` now runs after an assessment completes; post-mutation list reloads (assessments, users) use `revalidate: true`.
+- **Cache-Control headers** added to all GET API routes (public result, org link status, org branding, admin org/reports/settings/audit, member detail) — private/public with `stale-while-revalidate`.
+- **ISR on the shared result page** (`revalidate = 300`), module-scope `preload()` on heavy superadmin pages.
+
+### Fixed
+- `/api/admin-audit` and `/api/member-detail` now query the real production `activity_logs`/`login_audit` columns (`action`, `user_id`, `details_json`, `login_at`, …) and map them into the display shapes the pages expect (were querying non-existent columns).
+
+### Docs
+- Added `docs/PRODUCTION_GO_LIVE.md` — the go-live gate checklist (RLS hardening, staging deploy, observability, Core Web Vitals, SEO, tests).
+- Added `docs/FRESH_SETUP_SUPABASE_CLERK.md` — how to connect a new Supabase database + Clerk account (manual steps + AI-coder notes + gotchas).
+- Memory-bank context/progress updated.
+
 ## [2.11.13] — 2026-08-07 — View Result icon for member reports
 
 ### Added — "View Result" on member reports

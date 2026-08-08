@@ -20,7 +20,9 @@ export async function GET(req: Request) {
     const members = (allMembers.data ?? []).filter((m: Record<string, unknown>) => m.organization_id === orgId);
     const admins = (allAdmins.data ?? []).filter((a: Record<string, unknown>) => a.organization_id === orgId);
 
-    return NextResponse.json({ org, members, admins });
+    return NextResponse.json({ org, members, admins }, {
+      headers: { "Cache-Control": "private, max-age=20, stale-while-revalidate=60" },
+    });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown" }, { status: 500 });
   }

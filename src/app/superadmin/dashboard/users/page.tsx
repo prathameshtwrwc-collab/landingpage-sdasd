@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { cachedFetch } from "@/lib/client-cache";
+import { cachedFetch, preload } from "@/lib/client-cache";
 import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Users, Plus, Shield, Mail, Search, Globe, Calendar, Building2, Eye, Edit2, Trash2, X, Check, Save, Download, ChevronLeft, ChevronRight } from "lucide-react";
@@ -9,6 +9,9 @@ import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/
 import { exportCsv } from "@/components/admin/CsvExport";
 import ConfirmDialog from "@/components/dialogs/ConfirmDialog";
 import InfoModal, { type InfoField } from "@/components/dialogs/InfoModal";
+
+// Kick off the initial data fetch as soon as this route's JS loads.
+preload("/api/admin?org_limit=200&admin_limit=200&member_limit=200");
 
 const ADMIN_CSV_COLS = [
   { key: "first_name", label: "First Name" },
@@ -62,7 +65,7 @@ export default function UsersPage() {
 
   const loadData = async () => {
     try {
-      const r = await cachedFetch("/api/admin?org_limit=200&admin_limit=200&member_limit=200");
+      const r = await cachedFetch("/api/admin?org_limit=200&admin_limit=200&member_limit=200", undefined, { revalidate: true });
       const data = await r as Record<string, unknown>;
       const toArr = (val: unknown): Array<Record<string, unknown>> => {
         if (!val) return [];

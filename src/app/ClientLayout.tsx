@@ -2,9 +2,9 @@
 
 import { ClerkProvider } from "@clerk/nextjs";
 import { AssessmentProvider } from "@/components/assessment/AssessmentContext";
-import AssessmentModal from "@/components/assessment/AssessmentModal";
+import LazyAssessmentModal from "@/components/assessment/LazyAssessmentModal";
 import { ConsultProvider } from "@/components/consult/ConsultContext";
-import ConsultModal from "@/components/consult/ConsultModal";
+import LazyConsultModal from "@/components/consult/LazyConsultModal";
 import FloatingTestButton from "@/components/FloatingTestButton";
 import SmoothScrollProvider from "@/components/smooth-scroll/SmoothScrollProvider";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -18,8 +18,8 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
           <ConsultProvider>
             <SmoothScrollProvider>
               {children}
-              <AssessmentModal />
-              <ConsultModal />
+              <LazyAssessmentModal />
+              <LazyConsultModal />
               <FloatingTestButton />
             </SmoothScrollProvider>
           </ConsultProvider>

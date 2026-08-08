@@ -5,7 +5,6 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { cachedFetch } from "@/lib/client-cache";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Check, FileText, Download, Printer, Share2, Eye } from "lucide-react";
-import { downloadPdf, openPdfForPrint } from "@/lib/client-pdf";
 
 export default function ProgressPage() {
   const { user } = useAuth();
@@ -90,7 +89,7 @@ export default function ProgressPage() {
                       <button
                         type="button"
                         disabled={downloading}
-                        onClick={async () => { if (downloading) return; setDownloading(true); try { await downloadPdf({
+                        onClick={async () => { if (downloading) return; setDownloading(true); try { const { downloadPdf } = await import("@/lib/client-pdf"); await downloadPdf({
                           firstName: (data?.member as Record<string, unknown> | undefined)?.first_name as string || "",
                           lastName: (data?.member as Record<string, unknown> | undefined)?.last_name as string || "",
                           email: (data?.member as Record<string, unknown> | undefined)?.email as string || "",
@@ -113,7 +112,7 @@ export default function ProgressPage() {
                       <button
                         type="button"
                         disabled={printing}
-                        onClick={async () => { if (printing) return; setPrinting(true); try { await openPdfForPrint({
+                        onClick={async () => { if (printing) return; setPrinting(true); try { const { openPdfForPrint } = await import("@/lib/client-pdf"); await openPdfForPrint({
                           firstName: (data?.member as Record<string, unknown> | undefined)?.first_name as string || "",
                           lastName: (data?.member as Record<string, unknown> | undefined)?.last_name as string || "",
                           email: (data?.member as Record<string, unknown> | undefined)?.email as string || "",

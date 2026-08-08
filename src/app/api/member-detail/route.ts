@@ -109,6 +109,8 @@ export async function GET(req: Request) {
         created_at: a.login_at,
       })),
       lastAssessmentAnswers: answers,
+    }, {
+      headers: { "Cache-Control": "private, max-age=20, stale-while-revalidate=60" },
     });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown" }, { status: 500 });

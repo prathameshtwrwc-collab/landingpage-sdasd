@@ -25,7 +25,9 @@ export async function GET() {
     const settings = { ...DEFAULTS };
     (data ?? []).forEach((r) => { if (r.key in settings) (settings as Record<string, unknown>)[r.key] = r.value; });
 
-    return NextResponse.json({ settings, dbMissing: false });
+    return NextResponse.json({ settings, dbMissing: false }, {
+      headers: { "Cache-Control": "private, max-age=20, stale-while-revalidate=60" },
+    });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown" }, { status: 500 });
   }

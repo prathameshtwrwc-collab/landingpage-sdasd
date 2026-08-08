@@ -312,12 +312,14 @@ export async function GET(req: Request) {
         orgTypes: filterOpts.orgTypes,
         orgNames: filterOpts.orgNames,
       },
-    });
+    }, { headers: CACHE_HEADERS });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown" }, { status: 500 });
   }
 }
 
+const CACHE_HEADERS = { "Cache-Control": "private, max-age=20, stale-while-revalidate=60" };
+
 function emptyResponse() {
-  return NextResponse.json({ rows: 0, locationBreakdown: [], genderBreakdown: [], orgTypeBreakdown: [], orgBreakdown: [], heatmap: [], orgTypeLocation: [], ageBreakdown: [], trend: [], insights: { mostOwlLocation: null, mostLarkOrg: null, mostBalancedOrg: null, highestEaglePct: null, owlTrend: "stable" }, filters: { countries: [], states: [], cities: [], orgTypes: [], orgNames: [] } });
+  return NextResponse.json({ rows: 0, locationBreakdown: [], genderBreakdown: [], orgTypeBreakdown: [], orgBreakdown: [], heatmap: [], orgTypeLocation: [], ageBreakdown: [], trend: [], insights: { mostOwlLocation: null, mostLarkOrg: null, mostBalancedOrg: null, highestEaglePct: null, owlTrend: "stable" }, filters: { countries: [], states: [], cities: [], orgTypes: [], orgNames: [] } }, { headers: CACHE_HEADERS });
 }

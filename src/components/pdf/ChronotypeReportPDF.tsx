@@ -1,5 +1,5 @@
 import React from "react";
-import { Document, Page, View, Text } from "@react-pdf/renderer";
+import { Document, Page, View, Text, Image } from "@react-pdf/renderer";
 import { pdfStyles } from "./pdfStyles";
 import { buildPdfReportViewModel, type ReportData } from "./pdfReportData";
 import { ChronotypeIllustration, BrandMark } from "./pdfIcons";
@@ -8,11 +8,29 @@ const DISCLAIMER = "Wellness guidance only — not a medical diagnosis.";
 const NOTICE_BODY =
   "This report reflects your sleep-wake preferences based on your assessment responses. It is not a medical diagnosis. Always consult your physician before making changes to your sleep or health routine. If you experience chronic fatigue, insomnia, or excessive daytime sleepiness, seek professional medical advice.";
 
+function accentSoft(vm: ReturnType<typeof buildPdfReportViewModel>): string {
+  if (vm.chronotypeKey === "LARK") return "#FFF6EA";
+  if (vm.chronotypeKey === "OWL") return "#F4F0FC";
+  return "#F1EEFC";
+}
+
+function accentBorder(vm: ReturnType<typeof buildPdfReportViewModel>): string {
+  if (vm.chronotypeKey === "LARK") return "#F0C79A";
+  if (vm.chronotypeKey === "OWL") return "#D9CFF5";
+  return "#D9D4F5";
+}
+
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return <Text style={pdfStyles.eyebrow}>{children}</Text>;
+}
+
 function Header({ vm }: { vm: ReturnType<typeof buildPdfReportViewModel> }) {
   return (
     <View style={pdfStyles.header}>
       <View style={pdfStyles.brandMark}>
-        <BrandMark />
+        <View style={pdfStyles.brandBox}>
+          <BrandMark size={24} />
+        </View>
         <Text style={pdfStyles.brandText}>Chronotype</Text>
       </View>
       {vm.orgName ? <Text style={pdfStyles.orgText}>{vm.orgName}</Text> : null}
@@ -40,18 +58,27 @@ function MetadataRow({ vm }: { vm: ReturnType<typeof buildPdfReportViewModel> })
 }
 
 function Hero({ vm }: { vm: ReturnType<typeof buildPdfReportViewModel> }) {
+  const accent = vm.accent;
+  const soft = accentSoft(vm);
+  const softBorder = accentBorder(vm);
   return (
-    <View style={pdfStyles.hero}>
+    <View style={[pdfStyles.hero, { borderLeftColor: accent }]}>
       <View style={pdfStyles.heroLeft}>
-        <Text style={pdfStyles.heroEyebrow}>Your Chronotype</Text>
+        <Text style={[pdfStyles.heroEyebrow, { color: accent }]}>Your Chronotype</Text>
         <Text style={pdfStyles.heroName}>{vm.chronotypeName}</Text>
-        <View style={pdfStyles.heroPill}>
-          <Text style={pdfStyles.heroPillText}>{vm.subtitle}</Text>
+        <View style={[pdfStyles.heroPill, { backgroundColor: soft, borderColor: softBorder }]}>
+          <Text style={[pdfStyles.heroPillText, { color: accent }]}>{vm.subtitle}</Text>
         </View>
         <Text style={pdfStyles.heroDescription}>{vm.description}</Text>
       </View>
       <View style={pdfStyles.heroRight}>
-        <ChronotypeIllustration type={vm.chronotypeKey} />
+        {vm.heroImage ? (
+          <View style={pdfStyles.heroImageFrame}>
+            <Image src={vm.heroImage} style={pdfStyles.heroImage} />
+          </View>
+        ) : (
+          <ChronotypeIllustration type={vm.chronotypeKey} />
+        )}
         <View style={pdfStyles.peakPill}>
           <Text style={pdfStyles.peakPillText}>Peak focus · {vm.peakFocus}</Text>
         </View>
@@ -67,43 +94,47 @@ function ScheduleRow({ vm }: { vm: ReturnType<typeof buildPdfReportViewModel> })
     { label: "Ideal bedtime", value: vm.bedtime },
   ];
   return (
-    <View style={pdfStyles.scheduleRow}>
-      {items.map((item, i) => (
-        <View
-          key={item.label}
-          style={[
-            pdfStyles.scheduleCol,
-            i > 0 ? { borderLeftWidth: 1, borderLeftColor: "#E3E3EA" } : {},
-          ]}
-        >
-          <Text style={pdfStyles.scheduleLabel}>{item.label}</Text>
-          <Text style={pdfStyles.scheduleValue}>{item.value}</Text>
-        </View>
-      ))}
+    <View>
+      <View style={{ marginTop: 18 }}>
+        <Eyebrow>Your rhythm at a glance</Eyebrow>
+      </View>
+      <View style={pdfStyles.scheduleRow}>
+        {items.map((item, i) => (
+          <View key={item.label} style={pdfStyles.scheduleCol}>
+            <Text style={pdfStyles.scheduleLabel}>{item.label}</Text>
+            <Text style={pdfStyles.scheduleValue}>{item.value}</Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }
 
 function StrengthsWatchOuts({ vm }: { vm: ReturnType<typeof buildPdfReportViewModel> }) {
   return (
-    <View style={pdfStyles.twoCol}>
-      <View style={[pdfStyles.panel, { backgroundColor: "#F5FBF7", borderColor: "#C9DFD1" }]}>
-        <Text style={[pdfStyles.panelTitle, { color: "#2F7D5B" }]}>Natural strengths</Text>
-        {vm.strengths.map((s, i) => (
-          <View key={i} style={pdfStyles.bulletRow}>
-            <View style={[pdfStyles.bulletDot, { backgroundColor: "#2F7D5B" }]} />
-            <Text style={pdfStyles.bulletText}>{s}</Text>
-          </View>
-        ))}
+    <View>
+      <View style={{ marginTop: 16 }}>
+        <Eyebrow>Your natural profile</Eyebrow>
       </View>
-      <View style={[pdfStyles.panel, { backgroundColor: "#FFF8EF", borderColor: "#F0C79A" }]}>
-        <Text style={[pdfStyles.panelTitle, { color: "#ED8300" }]}>Watch-outs</Text>
-        {vm.watchOuts.map((w, i) => (
-          <View key={i} style={pdfStyles.bulletRow}>
-            <View style={[pdfStyles.bulletDot, { backgroundColor: "#ED8300" }]} />
-            <Text style={pdfStyles.bulletText}>{w}</Text>
-          </View>
-        ))}
+      <View style={pdfStyles.twoCol}>
+        <View style={[pdfStyles.panel, { backgroundColor: "#EFF7F2", borderColor: "#C9DFD1" }]}>
+          <Text style={[pdfStyles.panelTitle, { color: "#2F7D5B" }]}>Natural strengths</Text>
+          {vm.strengths.map((s, i) => (
+            <View key={i} style={pdfStyles.bulletRow}>
+              <View style={[pdfStyles.bulletDot, { backgroundColor: "#2F7D5B" }]} />
+              <Text style={pdfStyles.bulletText}>{s}</Text>
+            </View>
+          ))}
+        </View>
+        <View style={[pdfStyles.panel, { backgroundColor: "#FFF6EA", borderColor: "#F0C79A" }]}>
+          <Text style={[pdfStyles.panelTitle, { color: "#ED8300" }]}>Watch-outs</Text>
+          {vm.watchOuts.map((w, i) => (
+            <View key={i} style={pdfStyles.bulletRow}>
+              <View style={[pdfStyles.bulletDot, { backgroundColor: "#ED8300" }]} />
+              <Text style={pdfStyles.bulletText}>{w}</Text>
+            </View>
+          ))}
+        </View>
       </View>
     </View>
   );
@@ -115,10 +146,7 @@ function NextSteps({ vm }: { vm: ReturnType<typeof buildPdfReportViewModel> }) {
       <Text style={pdfStyles.stepsTitle}>Best next steps</Text>
       <View style={pdfStyles.stepsRow}>
         {vm.nextSteps.slice(0, 3).map((step, i) => (
-          <View
-            key={i}
-            style={[pdfStyles.stepCol, i > 0 ? { borderLeftWidth: 1, borderLeftColor: "#D9D4F5" } : {}]}
-          >
+          <View key={i} style={pdfStyles.stepCol}>
             <View style={pdfStyles.stepNumberCircle}>
               <Text style={pdfStyles.stepNumber}>{i + 1}</Text>
             </View>
@@ -130,11 +158,11 @@ function NextSteps({ vm }: { vm: ReturnType<typeof buildPdfReportViewModel> }) {
   );
 }
 
-function Footer({ vm, page }: { vm: ReturnType<typeof buildPdfReportViewModel>; page: number }) {
+function Footer({ vm, page, totalPages }: { vm: ReturnType<typeof buildPdfReportViewModel>; page: number; totalPages: number }) {
   return (
     <View style={pdfStyles.footer}>
       <Text style={pdfStyles.footerText}>{DISCLAIMER}</Text>
-      <Text style={pdfStyles.footerText}>{vm.reportId} · Page {page} of 2</Text>
+      <Text style={pdfStyles.footerText}>{vm.reportId} · Page {page} of {totalPages}</Text>
     </View>
   );
 }
@@ -154,7 +182,32 @@ function PageTwoHeader({ vm }: { vm: ReturnType<typeof buildPdfReportViewModel> 
   );
 }
 
-function Recommendations({ vm }: { vm: ReturnType<typeof buildPdfReportViewModel> }) {
+function GalleryPage({ vm, images, startIndex, page, totalPages }: { vm: ReturnType<typeof buildPdfReportViewModel>; images: string[]; startIndex: number; page: number; totalPages: number }) {
+  const accent = vm.accent;
+  return (
+    <Page size="A4" style={pdfStyles.page}>
+      <View style={{ flex: 1 }}>
+        <PageTwoHeader vm={vm} />
+        <Text style={[pdfStyles.heroEyebrow, { color: accent, marginTop: 18 }]}>Visual journey</Text>
+        <Text style={pdfStyles.galleryTitle}>Your {vm.chronotypeName} gallery</Text>
+        <Text style={pdfStyles.gallerySub}>A visual journey through your {vm.chronotypeName} rhythm.</Text>
+        <View>
+          {images.map((src, i) => (
+            <View key={i} style={pdfStyles.galleryItem}>
+              <View style={pdfStyles.galleryBadge}>
+                <Text style={pdfStyles.galleryBadgeText}>{startIndex + i + 1}</Text>
+              </View>
+              <Image src={src} style={pdfStyles.galleryImage} />
+            </View>
+          ))}
+        </View>
+      </View>
+      <Footer vm={vm} page={page} totalPages={totalPages} />
+    </Page>
+  );
+}
+
+function RecommendationsPage({ vm, page, totalPages }: { vm: ReturnType<typeof buildPdfReportViewModel>; page: number; totalPages: number }) {
   const left = vm.recommendations.slice(0, 3);
   const right = vm.recommendations.slice(3, 6);
   const renderCol = (recs: { title: string; description: string }[], offset: number) => (
@@ -175,15 +228,40 @@ function Recommendations({ vm }: { vm: ReturnType<typeof buildPdfReportViewModel
     </View>
   );
   return (
-    <View style={pdfStyles.recGrid}>
-      {renderCol(left, 0)}
-      {renderCol(right, 3)}
-    </View>
+    <Page size="A4" style={pdfStyles.page}>
+      <View style={{ flex: 1 }}>
+        <PageTwoHeader vm={vm} />
+        <Eyebrow>Your daily guidance</Eyebrow>
+        <Text style={pdfStyles.heading2}>Your personalised daily guidance</Text>
+        <Text style={pdfStyles.heading2Sub}>Practical recommendations aligned to your {vm.chronotypeName} rhythm.</Text>
+        <View style={pdfStyles.recGrid}>
+          {renderCol(left, 0)}
+          {renderCol(right, 3)}
+        </View>
+        <View style={pdfStyles.notice}>
+          <Text style={pdfStyles.noticeTitle}>Important notice</Text>
+          <Text style={pdfStyles.noticeBody}>{NOTICE_BODY}</Text>
+        </View>
+        <View style={pdfStyles.signoff}>
+          <Text style={pdfStyles.signoffLine}>Sleep is the Foundation. Chronotype is the Blueprint.</Text>
+          <Text style={pdfStyles.signoffSub}>Personalised report · Chronotype Assessment Platform</Text>
+        </View>
+      </View>
+      <Footer vm={vm} page={page} totalPages={totalPages} />
+    </Page>
   );
+}
+
+function chunk<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
 }
 
 export default function ChronotypeReportPDF({ data }: { data: ReportData }) {
   const vm = buildPdfReportViewModel(data);
+  const galleryChunks = chunk(vm.galleryImages, 3);
+  const totalPages = 2 + galleryChunks.length;
   return (
     <Document
       title={`${vm.participantName} — Chronotype Report`}
@@ -193,25 +271,20 @@ export default function ChronotypeReportPDF({ data }: { data: ReportData }) {
       producer="Chronotype"
     >
       <Page size="A4" style={pdfStyles.page}>
-        <Header vm={vm} />
-        <MetadataRow vm={vm} />
-        <Hero vm={vm} />
-        <ScheduleRow vm={vm} />
-        <StrengthsWatchOuts vm={vm} />
-        <NextSteps vm={vm} />
-        <Footer vm={vm} page={1} />
-      </Page>
-      <Page size="A4" style={pdfStyles.page}>
-        <PageTwoHeader vm={vm} />
-        <Text style={pdfStyles.heading2}>Your personalised daily guidance</Text>
-        <Text style={pdfStyles.heading2Sub}>Practical recommendations aligned to your {vm.chronotypeName} rhythm.</Text>
-        <Recommendations vm={vm} />
-        <View style={pdfStyles.notice}>
-          <Text style={pdfStyles.noticeTitle}>Important notice</Text>
-          <Text style={pdfStyles.noticeBody}>{NOTICE_BODY}</Text>
+        <View style={{ flex: 1 }}>
+          <Header vm={vm} />
+          <MetadataRow vm={vm} />
+          <Hero vm={vm} />
+          <ScheduleRow vm={vm} />
+          <StrengthsWatchOuts vm={vm} />
+          <NextSteps vm={vm} />
         </View>
-        <Footer vm={vm} page={2} />
+        <Footer vm={vm} page={1} totalPages={totalPages} />
       </Page>
+      {galleryChunks.map((images, i) => (
+        <GalleryPage key={i} vm={vm} images={images} startIndex={i * 3} page={2 + i} totalPages={totalPages} />
+      ))}
+      <RecommendationsPage vm={vm} page={2 + galleryChunks.length} totalPages={totalPages} />
     </Document>
   );
 }

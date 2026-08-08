@@ -4,6 +4,10 @@ import { cache } from "react";
 import SharedResultCard from "./ResultCard";
 import { fetchPublicResult } from "@/lib/queries/public-result";
 
+// ISR: shared result pages are immutable after generation — render once and
+// serve from the cache for 5 minutes for fast social/repeat sharing.
+export const revalidate = 300;
+
 const getResult = cache(async (assessmentId: string) => {
   return fetchPublicResult(assessmentId);
 });
