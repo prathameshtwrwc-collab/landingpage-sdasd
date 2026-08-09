@@ -8,7 +8,7 @@ import { useAssessment } from "@/components/assessment/AssessmentContext";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
 import { useRouter } from "next/navigation";
-import { Moon, Sparkles, Activity, TrendingUp, Calendar, Star, FileText, Download, Printer, Share2, ClipboardCopy, ExternalLink, ArrowRight, Stethoscope, Eye, Phone, Heart } from "lucide-react";
+import { Moon, Sparkles, Activity, TrendingUp, Calendar, Star, FileText, Download, Printer, Share2, ClipboardCopy, ExternalLink, ArrowRight, Stethoscope, Eye, Phone, Heart, Check } from "lucide-react";
 import DonateModal from "@/components/DonateModal";
 import { chronotypeImageSrcs } from "@/lib/chronotype-image";
 
@@ -22,6 +22,7 @@ interface DashboardData {
   reports: Array<{
     id: string;
     result_id: string | null;
+    assessment_id: string | null;
     generated_at: string;
     chronotype: string | null;
     totalScore: number | null;
@@ -40,6 +41,8 @@ export default function MemberDashboardPage() {
   const [dataLoading, setDataLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
   const [refCopied, setRefCopied] = useState(false);
+  const [refShareResult, setRefShareResult] = useState<"idle" | "shared" | "copied">("idle");
+  const [resultShared, setResultShared] = useState(false);
 const [showAllReports, setShowAllReports] = useState(false);
 const [donateOpen, setDonateOpen] = useState(false);
 const [downloading, setDownloading] = useState(false);
@@ -137,6 +140,125 @@ const [cardGradient] = useState(() => {
     LARK: "Lark", EAGLE: "Eagle", OWL: "Owl",
   };
 
+  const latestReport = data?.reports?.length ? data.reports[0] : null;
+  const memberRecord = data?.member as Record<string, unknown> | undefined;
+
+  const referralLink = memberRecord?.referral_code
+    ? (typeof window !== "undefined" ? window.location.origin + "/?ref=" : "") + memberRecord.referral_code
+    : "";
+
+  const handleShareReferral = async () => {
+    if (!referralLink) return;
+
+    const sharerName = ((memberRecord?.first_name as string) || user?.name?.split(" ")[0] || "").trim();
+    const intro = sharerName ? `Hi! I'm ${sharerName} \u2014 I just took the Sleep Chronotype Assessment and honestly, it was eye-opening.` : "Hi! I just took the Sleep Chronotype Assessment and honestly, it was eye-opening.";
+
+    const message = `${intro}
+
+It takes only about 2 minutes, and in that time it gives you a beautifully detailed breakdown of your natural sleep type (Lark, Eagle, or Owl) \u2014 your ideal sleep and wake times, when your focus peaks during the day, and simple, practical tips to feel more energized.
+
+I genuinely thought of you when I got my result, so here's a personal invite to try it for free:
+
+${referralLink}
+
+I'd love to hear what your result is!`;
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: "Discover Your Sleep Chronotype", text: message });
+        setRefShareResult("shared");
+        setTimeout(() => setRefShareResult("idle"), 2500);
+        return;
+      } catch {
+        // User dismissed the share sheet — fall through to clipboard
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(message);
+      setRefShareResult("copied");
+      setTimeout(() => setRefShareResult("idle"), 2500);
+    } catch {}
+  };
+
+  const handleShareResult = async () => {
+    if (!latestReport || !latestReport.assessment_id) return;
+    const resultLink = (typeof window !== "undefined" ? window.location.origin : "") + "/r/" + latestReport.assessment_id;
+    const chronoLabel = chronotypeLabels[(latestReport.chronotype as string) ?? ""] ?? latestReport.chronotype ?? "Eagle";
+    const article = /^[aeiou]/i.test(chronoLabel) ? "an" : "a";
+    const sharerName = ((memberRecord?.first_name as string) || user?.name?.split(" ")[0] || "").trim();
+    const intro = sharerName
+      ? `Hi! I'm ${sharerName} \u2014 I just discovered my sleep chronotype, and it turns out I'm ${article} ${chronoLabel}!`
+      : `Hi! I just discovered my sleep chronotype \u2014 it turns out I'm ${article} ${chronoLabel}!`;
+
+    const message = `${intro}
+
+The assessment took just 2 minutes and gave me a beautifully detailed breakdown of my natural sleep rhythm \u2014 my ideal sleep and wake times, when my focus peaks through the day, and practical tips I can actually use to feel more energized.
+
+You can see my full result right here:
+
+${resultLink}
+
+Give it a try and let me know your result too!`;
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: "My Sleep Chronotype Result", text: message });
+        setResultShared(true);
+        setTimeout(() => setResultShared(false), 2500);
+        return;
+      } catch {
+        // User dismissed the share sheet — fall through to clipboard
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(message);
+      setResultShared(true);
+      setTimeout(() => setResultShared(false), 2500);
+    } catch {}
+  };
+
+  const handleDownloadReport = async () => {
+    if (downloading || !latestReport) return;
+    setDownloading(true);
+    try {
+      const { downloadPdf } = await import("@/lib/client-pdf");
+      await downloadPdf({
+        firstName: (memberRecord?.first_name as string) || "",
+        lastName: (memberRecord?.last_name as string) || "",
+        email: (memberRecord?.email as string) || "",
+        chronotype: (latestReport.chronotype as string) || "EAGLE",
+        totalScore: latestReport.totalScore || 0,
+        larkScore: latestReport.larkScore || 0,
+        eagleScore: latestReport.eagleScore || 0,
+        owlScore: latestReport.owlScore || 0,
+        wakeTime: data?.schedule?.wakeTime ?? undefined,
+        bedtime: data?.schedule?.bedtime ?? undefined,
+        peakFocus: data?.schedule?.peakFocus ?? undefined,
+        assessmentDate: latestReport.generated_at || undefined,
+      });
+    } catch {
+      // Non-blocking; the download button will just re-enable
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleConsultPrefilled = () => {
+    openPrefilled({
+      fname: (memberRecord?.first_name as string) || undefined,
+      lname: (memberRecord?.last_name as string) || undefined,
+      age: memberRecord?.age ? String(memberRecord.age) : undefined,
+      gender: (memberRecord?.gender as string) || undefined,
+      maritalStatus: (memberRecord?.marital_status as string) || undefined,
+      country: (memberRecord?.country as string) || undefined,
+      state: (memberRecord?.location as string) || undefined,
+      city: (memberRecord?.city as string) || undefined,
+      pincode: (memberRecord?.pincode as string) || undefined,
+      email: (memberRecord?.email as string) || undefined,
+      phone: (memberRecord?.phone as string) || undefined,
+    });
+  };
+
   return (
     <DashboardShell orgCode={data?.orgCode || undefined}>
       <div
@@ -177,6 +299,50 @@ const [cardGradient] = useState(() => {
                 Confidence: <strong>{confidenceScore}%</strong>
               </span>
             )}
+          </div>
+
+          {/* Quick actions: referral · report · consult · donate */}
+          <div className="flex flex-wrap items-center gap-[10px] mt-[16px] pt-[14px]" style={{ borderTop: "1px solid rgba(25,22,79,0.10)" }}>
+            {referralLink && (
+              <button type="button" onClick={handleShareReferral}
+                title="Share your referral link with a personal message"
+                className="inline-flex items-center gap-[8px] text-[12px] font-semibold px-[12px] py-[7px] rounded-lg border-none cursor-pointer transition-all hover:-translate-y-[0.5px]"
+                style={{ color: "#19164F", background: "rgba(255,255,255,0.85)", border: "1px solid rgba(25,22,79,0.12)", fontFamily: "Poppins, sans-serif" }}>
+                <span style={{ opacity: 0.7 }}>Referral</span>
+                <code className="text-[12px] font-semibold">{String(memberRecord?.referral_code ?? "")}</code>
+                {refShareResult === "shared" || refShareResult === "copied" ? <Check size={13} stroke="#2E7D32" /> : <Share2 size={13} />}
+                {refShareResult === "shared" && <span style={{ color: "#2E7D32" }}>Shared!</span>}
+                {refShareResult === "copied" && <span style={{ color: "#2E7D32" }}>Copied!</span>}
+              </button>
+            )}
+            <button type="button" onClick={handleDownloadReport}
+              disabled={!latestReport || downloading}
+              title={latestReport ? "Download your latest report (PDF)" : "No report available yet — complete an assessment first"}
+              className="inline-flex items-center gap-[8px] text-[12px] font-semibold px-[12px] py-[7px] rounded-lg border-none cursor-pointer transition-all hover:-translate-y-[0.5px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              style={{ color: "#19164F", background: "rgba(255,255,255,0.85)", border: "1px solid rgba(25,22,79,0.12)", fontFamily: "Poppins, sans-serif" }}>
+              <Download size={13} />
+              {downloading ? "Generating…" : "Download Report"}
+            </button>
+            <button type="button" onClick={handleShareResult}
+              disabled={!latestReport || !latestReport.assessment_id}
+              title={latestReport ? "Share your latest result with a personal message" : "No result available yet — complete an assessment first"}
+              className="inline-flex items-center gap-[8px] text-[12px] font-semibold px-[12px] py-[7px] rounded-lg border-none cursor-pointer transition-all hover:-translate-y-[0.5px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              style={{ color: "#19164F", background: "rgba(255,255,255,0.85)", border: "1px solid rgba(25,22,79,0.12)", fontFamily: "Poppins, sans-serif" }}>
+              {resultShared ? <Check size={13} stroke="#2E7D32" /> : <Share2 size={13} />}
+              {resultShared ? "Shared!" : "Share Result"}
+            </button>
+            <button type="button" onClick={handleConsultPrefilled}
+              title="Book a consultation with your details pre-filled"
+              className="inline-flex items-center gap-[8px] text-[12px] font-semibold px-[12px] py-[7px] rounded-lg border-none cursor-pointer transition-all hover:-translate-y-[0.5px]"
+              style={{ color: "#19164F", background: "rgba(255,255,255,0.85)", border: "1px solid rgba(25,22,79,0.12)", fontFamily: "Poppins, sans-serif" }}>
+              <Stethoscope size={13} /> Consult
+            </button>
+            <button type="button" onClick={() => setDonateOpen(true)}
+              title="Donate"
+              className="inline-flex items-center gap-[8px] text-[12px] font-semibold px-[12px] py-[7px] rounded-lg border-none cursor-pointer transition-all hover:-translate-y-[0.5px]"
+              style={{ color: "#19164F", background: "rgba(255,255,255,0.85)", border: "1px solid rgba(25,22,79,0.12)", fontFamily: "Poppins, sans-serif" }}>
+              <Heart size={13} fill="#FF6B6B" stroke="#FF6B6B" /> Donate
+            </button>
           </div>
         </div>
       </div>
