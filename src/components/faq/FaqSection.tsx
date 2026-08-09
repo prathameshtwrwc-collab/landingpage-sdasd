@@ -2,33 +2,9 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
-const faqs = [
-  {
-    q: "What is a chronotype?",
-    a: "A chronotype is your natural biological preference for sleeping, waking, and performing activities throughout the day.",
-  },
-  {
-    q: "What are the main chronotypes?",
-    a: "The main chronotypes are commonly described as Lark, Eagle, and Owl, representing morning, intermediate, and evening-oriented sleep patterns.",
-  },
-  {
-    q: "How many hours of sleep do adults need?",
-    a: "Most adults generally need between 7 and 9 hours of sleep each night, although individual requirements may vary.",
-  },
-  {
-    q: "What is REM sleep?",
-    a: "REM sleep is a stage of sleep associated with dreaming, memory processing, learning, creativity, and emotional regulation.",
-  },
-  {
-    q: "What is the difference between REM and NREM sleep?",
-    a: "NREM sleep primarily supports physical recovery and restoration, while REM sleep supports learning, memory, creativity, and emotional processing.",
-  },
-  {
-    q: "When should I seek help for a sleep problem?",
-    a: "Seek professional guidance when sleep problems are persistent, affect daytime functioning, involve loud snoring or breathing pauses, or significantly affect health and quality of life.",
-  },
-];
+const faqKeys = ["q1", "q2", "q3", "q4", "q5", "q6"];
 
 function Chevron({ open }: { open: boolean }) {
   return (
@@ -52,6 +28,7 @@ function Chevron({ open }: { open: boolean }) {
 
 export default function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const t = useTranslations("faq");
 
   const toggle = (idx: number) => {
     setOpenIndex((prev) => (prev === idx ? null : idx));
@@ -79,21 +56,19 @@ export default function FaqSection() {
             marginBottom: "28px",
           }}
         >
-          FAQ
-        </h2>
-
-        {/* FAQ container - no outer card */}
+          {t("heading")}
+        </h2>        {/* FAQ container - no outer card */}
         <div
           className="w-full mx-auto bg-transparent border-none shadow-none rounded-none"
           style={{ maxWidth: "900px" }}
         >
-          {faqs.map((faq, idx) => {
+          {faqKeys.map((key, idx) => {
             const isOpen = openIndex === idx;
             const triggerId = `faq-trigger-${idx}`;
             const panelId = `faq-panel-${idx}`;
             return (
               <motion.div
-                key={faq.q}
+                key={key}
                 className="faq-item w-full bg-transparent"
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -129,7 +104,7 @@ export default function FaqSection() {
                     className="text-[clamp(13px,3.8vw,15px)] leading>[1.4] md:text>[18px] lg:text>[19px] font-semibold text-[#171717] group-hover:text-[#3B35A3] transition-colors duration-[160ms]"
                     style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
                   >
-                    {faq.q}
+                    {t(`${key}.q`)}
                   </span>
 
                   {/* Chevron */}
@@ -189,10 +164,10 @@ export default function FaqSection() {
                           maxWidth: "820px",
                         }}
                       >
-                        {faq.a}
+                        {t(`${key}.a`)}
                       </span>
                     </span>
-                    <span className="block md:hidden">{faq.a}</span>
+                    <span className="block md:hidden">{t(`${key}.a`)}</span>
                   </div>
                 </div>
 

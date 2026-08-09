@@ -2,8 +2,10 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 export default function HeroStatementStrip() {
+  const t = useTranslations("statement");
   return (
     <section
       aria-label="Sleep education statement"
@@ -62,10 +64,9 @@ export default function HeroStatementStrip() {
             visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
           }}
         >
-          Sleep powers your{" "}
-          <span style={{ fontWeight: 600, color: "#FFD21A" }}>
-            Health, Mind, Performance, Recovery, and Longevity.
-          </span>
+          {t.rich("line1", {
+            highlight: (chunks) => <span style={{ fontWeight: 600, color: "#FFD21A" }}>{chunks}</span>,
+          })}
         </motion.p>
 
         <motion.p
@@ -76,14 +77,12 @@ export default function HeroStatementStrip() {
             visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
           }}
         >
-          Every night, your brain and body perform essential processes that
-          <br className="hidden md:block" />
-          influence how you{" "}
-          <span style={{ fontWeight: 600, color: "#FFD21A" }}>
-            Think, Feel, Learn, Work, Communicate,
-          </span>
-          <br className="hidden lg:block" />
-          <span style={{ fontWeight: 600 }}>and perform throughout the day.</span>
+          {t.rich("line2", {
+            br1: () => <br className="hidden md:block" />,
+            br2: () => <br className="hidden lg:block" />,
+            h1: (chunks) => <span style={{ fontWeight: 600, color: "#FFD21A" }}>{chunks}</span>,
+            h2: (chunks) => <span style={{ fontWeight: 600 }}>{chunks}</span>,
+          })}
         </motion.p>
 
         <motion.p
@@ -98,7 +97,7 @@ export default function HeroStatementStrip() {
             visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
           }}
         >
-          YOUR DAYS ARE ONLY AS POWERFUL AS YOUR NIGHTS.
+          {t("line3")}
         </motion.p>
       </motion.div>
     </section>

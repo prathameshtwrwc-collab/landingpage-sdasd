@@ -2,18 +2,20 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
-const benefitItems = [
-  "Better Physical Health",
-  "Better Mental Health",
-  "Better Emotional Stability",
-  "Better Relationships",
-  "Better Recovery",
-  "Better Productivity",
-  "Better Quality of Life",
+const benefitKeys = [
+  "b1",
+  "b2",
+  "b3",
+  "b4",
+  "b5",
+  "b6",
+  "b7",
 ];
 
 export default function BetterSleepBetterDaysSection() {
+  const t = useTranslations("betterDays");
   return (
     <section
       id="better-sleep-better-days"
@@ -59,10 +61,8 @@ export default function BetterSleepBetterDaysSection() {
             marginBottom: "12px",
           }}
         >
-          Better Sleep Creates Better Days
-        </h2>
-
-        <p
+          {t("heading")}
+        </h2>        <p
           className="
             m-0 mx-auto
             text-[clamp(15px,4.5vw,18px)] leading-[1.45]
@@ -78,10 +78,8 @@ export default function BetterSleepBetterDaysSection() {
             marginBottom: "30px",
           }}
         >
-          Quality sleep influences every area of life.
-        </p>
-
-        <div
+          {t("sub")}
+        </p>        <div
           className="
             grid
             grid-cols-1
@@ -93,13 +91,13 @@ export default function BetterSleepBetterDaysSection() {
           "
         >
           <motion.div variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }} className="w-full max-w-[430px] md:max-w-[380px] lg:max-w-[430px] min-w-0 order-1">
-            {benefitItems.map((item) => (
+            {benefitKeys.map((key) => (
               <motion.div
                 variants={{
                   hidden: { opacity: 0, x: -15 },
                   visible: { opacity: 1, x: 0, transition: { duration: 0.35, ease: "easeOut" } },
                 }}
-                key={item}
+                key={key}
                 className="
                   grid
                   grid-cols-[42px_minmax(0,1fr)] gap-[7px]
@@ -148,7 +146,7 @@ export default function BetterSleepBetterDaysSection() {
                       fontWeight: 500,
                     }}
                   >
-                    {item}
+                    {t(key)}
                   </span>
                 </div>
               </motion.div>

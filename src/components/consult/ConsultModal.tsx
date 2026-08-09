@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
+import { useTranslations } from "next-intl";
 import { useConsult } from "./ConsultContext";
 
 interface ConsultForm {
@@ -60,6 +61,7 @@ function CheckCircle() {
 
 export default function ConsultModal() {
   const { isOpen, close, prefill } = useConsult();
+  const t = useTranslations("consult");
   const [form, setForm] = useState<ConsultForm>(initialForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -114,21 +116,22 @@ export default function ConsultModal() {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.fname.trim()) e.fname = "Required";
-    if (!form.lname.trim()) e.lname = "Required";
-    if (!form.age) e.age = "Required";
-    if (!form.gender) e.gender = "Required";
-    if (!form.maritalStatus) e.maritalStatus = "Required";
-    if (!form.country.trim()) e.country = "Required";
-    if (!form.city.trim()) e.city = "Required";
-    if (!form.state.trim()) e.state = "Required";
-    if (!form.pincode.trim()) e.pincode = "Required";
-    if (!form.email.trim()) e.email = "Required";
-    if (!form.phone.trim()) e.phone = "Required";
-    if (!form.scheduleDate) e.scheduleDate = "Required";
-    if (!form.scheduleTime) e.scheduleTime = "Required";
+    const req = t("required");
+    if (!form.fname.trim()) e.fname = req;
+    if (!form.lname.trim()) e.lname = req;
+    if (!form.age) e.age = req;
+    if (!form.gender) e.gender = req;
+    if (!form.maritalStatus) e.maritalStatus = req;
+    if (!form.country.trim()) e.country = req;
+    if (!form.city.trim()) e.city = req;
+    if (!form.state.trim()) e.state = req;
+    if (!form.pincode.trim()) e.pincode = req;
+    if (!form.email.trim()) e.email = req;
+    if (!form.phone.trim()) e.phone = req;
+    if (!form.scheduleDate) e.scheduleDate = req;
+    if (!form.scheduleTime) e.scheduleTime = req;
     setErrors(e);
-    if (!captchaToken) setCaptchaError("Please complete the reCAPTCHA verification.");
+    if (!captchaToken) setCaptchaError(t("captchaError"));
     else setCaptchaError("");
     return Object.keys(e).length === 0 && !!captchaToken;
   };
@@ -146,7 +149,7 @@ export default function ConsultModal() {
       if (!res.ok) throw new Error("Failed to submit");
       setSubmitted(true);
     } catch {
-      setErrors({ submit: "Submission failed. Please try again." });
+      setErrors({ submit: t("submitError") });
     } finally {
       setSubmitting(false);
     }
@@ -185,7 +188,7 @@ export default function ConsultModal() {
         <button
           type="button"
           onClick={resetAndClose}
-          aria-label="Close"
+          aria-label={t("closeAria")}
           className="absolute top-[14px] right-[16px] w-[34px] h-[34px] flex items-center justify-center bg-transparent border-none cursor-pointer z-10 hover:bg-gray-100"
           style={{ borderRadius: "50%" }}
         >
@@ -202,10 +205,10 @@ export default function ConsultModal() {
               <CheckCircle />
             </div>
             <h3 className="m-0 text-[22px] font-semibold text-[#35319B] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginBottom: "8px" }}>
-              Consultation Scheduled
+              {t("successTitle")}
             </h3>
             <p className="m-0 text-[15px] leading-[1.6] text-[#555] text-center max-w-[400px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginBottom: "28px" }}>
-              Your consultation request has been submitted successfully. We will contact you shortly.
+              {t("successBody")}
             </p>
             <button
               type="button"
@@ -213,7 +216,7 @@ export default function ConsultModal() {
               className="bg-[#3B35A3] hover:bg-[#2D2890] text-white text-[15px] font-semibold px-[44px] py-[12px] border-none cursor-pointer transition-colors"
               style={{ borderRadius: "8px", fontFamily: "Poppins, sans-serif" }}
             >
-              Done
+              {t("done")}
             </button>
           </div>
         ) : (
@@ -231,41 +234,41 @@ export default function ConsultModal() {
                 </svg>
               </div>
               <h3 className="m-0 text-[21px] font-semibold text-[#35319B]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginBottom: "4px" }}>
-                Consult a Sleep Specialist
+                {t("title")}
               </h3>
               <p className="m-0 text-[13px] leading-[1.4] text-[#888]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
-                Fill in your details to schedule a consultation
+                {t("subtitle")}
               </p>
             </div>
 
             {/* Form fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <FormField label="First Name *" value={form.fname} onChange={(v) => update("fname", v)} error={errors.fname} />
-              <FormField label="Last Name *" value={form.lname} onChange={(v) => update("lname", v)} error={errors.lname} />
+              <FormField label={t("fname")} value={form.fname} onChange={(v) => update("fname", v)} error={errors.fname} />
+              <FormField label={t("lname")} value={form.lname} onChange={(v) => update("lname", v)} error={errors.lname} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <AgeSelect label="Age *" value={form.age} onChange={(v) => update("age", v)} error={errors.age} />
-              <SelectField label="Gender *" value={form.gender} onChange={(v) => update("gender", v)} error={errors.gender} options={["Male", "Female", "Other"]} />
+              <AgeSelect label={t("age")} value={form.age} onChange={(v) => update("age", v)} error={errors.age} />
+              <SelectField label={t("gender")} value={form.gender} onChange={(v) => update("gender", v)} error={errors.gender} options={[t("genderMale"), t("genderFemale"), t("genderOther")]} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <SelectField label="Marital Status *" value={form.maritalStatus} onChange={(v) => update("maritalStatus", v)} error={errors.maritalStatus} options={["Single", "Married", "Divorced", "Widowed"]} />
-              <FormField label="Country *" value={form.country} onChange={(v) => update("country", v)} error={errors.country} />
+              <SelectField label={t("maritalStatus")} value={form.maritalStatus} onChange={(v) => update("maritalStatus", v)} error={errors.maritalStatus} options={[t("msSingle"), t("msMarried"), t("msDivorced"), t("msWidowed")]} />
+              <FormField label={t("country")} value={form.country} onChange={(v) => update("country", v)} error={errors.country} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <FormField label="State *" value={form.state} onChange={(v) => update("state", v)} error={errors.state} />
-              <FormField label="City *" value={form.city} onChange={(v) => update("city", v)} error={errors.city} />
+              <FormField label={t("state")} value={form.state} onChange={(v) => update("state", v)} error={errors.state} />
+              <FormField label={t("city")} value={form.city} onChange={(v) => update("city", v)} error={errors.city} />
             </div>
             <div className="mb-[14px]">
-              <FormField label="Pincode *" value={form.pincode} onChange={(v) => update("pincode", v)} error={errors.pincode} />
+              <FormField label={t("pincode")} value={form.pincode} onChange={(v) => update("pincode", v)} error={errors.pincode} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <FormField label="Email *" value={form.email} onChange={(v) => update("email", v)} error={errors.email} type="email" />
-              <FormField label="Phone *" value={form.phone} onChange={(v) => update("phone", v)} error={errors.phone} type="tel" />
+              <FormField label={t("email")} value={form.email} onChange={(v) => update("email", v)} error={errors.email} type="email" />
+              <FormField label={t("phone")} value={form.phone} onChange={(v) => update("phone", v)} error={errors.phone} type="tel" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <DateField label="Schedule Date *" value={form.scheduleDate} onChange={(v) => update("scheduleDate", v)} error={errors.scheduleDate} />
-              <TimeField label="Schedule Time *" value={form.scheduleTime} onChange={(v) => update("scheduleTime", v)} error={errors.scheduleTime} />
+              <DateField label={t("scheduleDate")} value={form.scheduleDate} onChange={(v) => update("scheduleDate", v)} error={errors.scheduleDate} />
+              <TimeField label={t("scheduleTime")} value={form.scheduleTime} onChange={(v) => update("scheduleTime", v)} error={errors.scheduleTime} />
             </div>
 
             {/* reCAPTCHA */}
@@ -274,7 +277,7 @@ export default function ConsultModal() {
                 ref={captchaRef}
                 sitekey="6LcO6FQtAAAAALeLgzM120ljuL3Mc5uefKWWxfET"
                 onChange={(token) => { setCaptchaToken(token); setCaptchaError(""); }}
-                onExpired={() => { setCaptchaToken(null); setCaptchaError("reCAPTCHA expired. Please verify again."); }}
+                onExpired={() => { setCaptchaToken(null); setCaptchaError(t("captchaExpired")); }}
               />
             </div>
             {captchaError && <p className="m-0 text-[12px] text-red-500 mb-[16px] text-center" style={{ fontFamily: "Poppins, sans-serif" }}>{captchaError}</p>}
@@ -285,7 +288,7 @@ export default function ConsultModal() {
               className="w-full bg-[#3B35A3] hover:bg-[#2D2890] text-white text-[15px] font-semibold py-[14px] border-none cursor-pointer transition-colors"
               style={{ borderRadius: "10px", fontFamily: "Poppins, sans-serif", letterSpacing: "0.01em" }}
             >
-              Submit
+              {t("submit")}
             </button>
           </form>
         )}
@@ -316,6 +319,7 @@ function FormField({
 }: {
   label: string; value: string; onChange: (v: string) => void; error?: string; type?: string;
 }) {
+  const t = useTranslations("consult");
   return (
     <div>
       <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
@@ -354,6 +358,7 @@ function AgeSelect({
 }: {
   label: string; value: string; onChange: (v: string) => void; error?: string;
 }) {
+  const t = useTranslations("consult");
   return (
     <div>
       <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
@@ -365,7 +370,7 @@ function AgeSelect({
         className="w-full px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
         style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
       >
-        <option value="">Select Age Range</option>
+        <option value="">{t("selectAgeRange")}</option>
         {ageRanges.map((range) => (
           <option key={range} value={range}>{range}</option>
         ))}
@@ -380,6 +385,7 @@ function SelectField({
 }: {
   label: string; value: string; onChange: (v: string) => void; error?: string; options: string[];
 }) {
+  const t = useTranslations("consult");
   return (
     <div>
       <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
@@ -391,7 +397,7 @@ function SelectField({
         className="w-full px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
         style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
       >
-        <option value="">Select</option>
+        <option value="">{t("selectPlaceholder")}</option>
         {options.map((opt) => (
           <option key={opt} value={opt}>{opt}</option>
         ))}
@@ -406,6 +412,7 @@ function DateField({
 }: {
   label: string; value: string; onChange: (v: string) => void; error?: string;
 }) {
+  const t = useTranslations("consult");
   return (
     <div>
       <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
@@ -432,6 +439,7 @@ function TimeField({
 }: {
   label: string; value: string; onChange: (v: string) => void; error?: string;
 }) {
+  const t = useTranslations("consult");
   return (
     <div>
       <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>

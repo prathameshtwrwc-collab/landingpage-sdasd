@@ -11,9 +11,6 @@ import {
 } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import {
-  DEFAULT_LOCALE,
-  LOCALE_COOKIE,
-  LOCALE_STORAGE,
   dirForLocale,
   isValidLocale,
   type LocaleCode,
@@ -36,44 +33,22 @@ function getInitialLocale(): LocaleCode {
   } catch {
     // ignore storage access errors
   }
-  return DEFAULT_LOCALE;
-}
-
-function readStoredLocale(): LocaleCode | null {
-  try {
-    const cookie = document.cookie
-      .split(";")
-      .map((c) => c.trim())
-      .find((c) => c.startsWith(`${LOCALE_COOKIE}=`));
-    if (cookie) {
-      const value = cookie.slice(LOCALE_COOKIE.length + 1);
-      if (isValidLocale(value)) return value;
-    }
-    const stored = localStorage.getItem(LOCALE_STORAGE);
-    if (stored && isValidLocale(stored)) return stored;
-  } catch {
-    // ignore storage access errors
-  }
-  return null;
+  return "en" as LocaleCode;
 }
 
 function persistLocale(locale: LocaleCode) {
   try {
-    document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000; samesite=lax`;
-    localStorage.setItem(LOCALE_STORAGE, locale);
+    document.cookie = `app_locale=${locale}; path=/; max-age=31536000; samesite=lax`;
+    localStorage.setItem("app_locale", locale);
   } catch {
     // ignore storage access errors
   }
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
+  // Initial locale is read from server-rendered <html data-locale> or lang attribute
+  // This eliminates hydration mismatch - both server and client start with the same value
   const [locale, setLocaleState] = useState<LocaleCode>(() => getInitialLocale());
-
-  // Sync stored locale after mount (e.g., when locale changes via LanguageSwitcher and page reloads)
-  useEffect(() => {
-    const stored = readStoredLocale();
-    if (stored && stored !== locale) setLocaleState(stored);
-  }, [locale]);
 
   // Keep <html lang dir data-locale> in sync with the active locale.
   useEffect(() => {

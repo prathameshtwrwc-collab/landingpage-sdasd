@@ -2,35 +2,17 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
-const pillars = [
-  {
-    title: "Sleep",
-    image: "/assets/section4/sleep.jpg",
-    alt: "Woman sleeping peacefully in bed",
-    description: "The foundation of recovery and performance.",
-  },
-  {
-    title: "Movement",
-    image: "/assets/section4/movement.jpg",
-    alt: "Woman exercising as part of a healthy daily routine",
-    description: "Supports physical and mental well-being.",
-  },
-  {
-    title: "Nutrition",
-    image: "/assets/section4/nutrition.jpg",
-    alt: "Woman with fresh food representing healthy nutrition",
-    description: "Provides fuel for energy and recovery.",
-  },
-  {
-    title: "Light Exposure",
-    image: "/assets/section4/light-exposure.jpg",
-    alt: "Man using a clock to represent body-clock regulation",
-    description: "Helps regulate your body clock and alertness.",
-  },
+const pillarKeys = [
+  { key: "pillar1", image: "/assets/section4/sleep.jpg", altKey: "pillar1Alt" },
+  { key: "pillar2", image: "/assets/section4/movement.jpg", altKey: "pillar2Alt" },
+  { key: "pillar3", image: "/assets/section4/nutrition.jpg", altKey: "pillar3Alt" },
+  { key: "pillar4", image: "/assets/section4/light-exposure.jpg", altKey: "pillar4Alt" },
 ];
 
 export default function DailyEnergyPillarsSection() {
+  const t = useTranslations("pillars");
   return (
     <section
       id="energy-pillars"
@@ -74,10 +56,8 @@ export default function DailyEnergyPillarsSection() {
             marginBottom: "28px",
           }}
         >
-          The Four Pillars of Daily Energy Management
-        </h2>
-
-        <motion.div
+          {t("heading")}
+        </h2>        <motion.div
           variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
           className="
             grid
@@ -88,10 +68,10 @@ export default function DailyEnergyPillarsSection() {
             items-start
           "
         >
-          {pillars.map((pillar) => (
+          {pillarKeys.map((pillar) => (
             <motion.div
               variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } } }}
-              key={pillar.title}
+              key={pillar.key}
               className="flex flex-col items-stretch min-w-0"
             >
               <h3
@@ -107,13 +87,13 @@ export default function DailyEnergyPillarsSection() {
                   marginBottom: "10px",
                 }}
               >
-                {pillar.title}
+                {t(`${pillar.key}.title`)}
               </h3>
 
               <div className="w-full overflow-hidden min-w-0 pillar-image-wrap" style={{ aspectRatio: "4 / 5", height: "auto" }}>
                 <img
                   src={pillar.image}
-                  alt={pillar.alt}
+                  alt={t(pillar.altKey)}
                   className="w-full h-full"
                   draggable={false}
                   style={{
@@ -145,7 +125,7 @@ export default function DailyEnergyPillarsSection() {
                   minHeight: "40px",
                 }}
               >
-                {pillar.description}
+                {t(`${pillar.key}.desc`)}
               </p>
             </motion.div>
           ))}
@@ -166,10 +146,8 @@ export default function DailyEnergyPillarsSection() {
             marginRight: "auto",
           }}
         >
-          Small daily habits create lasting improvements in well-being and
-          performance.
+          {t("closing")}
         </p>
-
         <div className="flex justify-center mt-[14px] w-full px-0">
           <motion.button
             type="button"
@@ -198,7 +176,7 @@ export default function DailyEnergyPillarsSection() {
               boxShadow: "none",
             }}
           >
-            Explore Sleep Improvement Strategies
+            {t("cta")}
           </motion.button>
         </div>
       </div>

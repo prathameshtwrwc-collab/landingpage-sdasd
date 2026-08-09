@@ -2,10 +2,12 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { useConsult } from "@/components/consult/ConsultContext";
 
 export default function AdditionalGuidanceSection() {
   const { open: openConsult } = useConsult();
+  const t = useTranslations("guidance");
   return (
     <section
       id="additional-guidance"
@@ -28,7 +30,7 @@ export default function AdditionalGuidanceSection() {
                 marginBottom: "16px",
               }}
             >
-              Need Additional Guidance?
+              {t("heading")}
             </h2>
 
             <p
@@ -40,7 +42,7 @@ export default function AdditionalGuidanceSection() {
                 marginBottom: "20px",
               }}
             >
-              The right support at the right time can make all the difference
+              {t("sub1")}
             </p>
 
             <p
@@ -51,9 +53,7 @@ export default function AdditionalGuidanceSection() {
                 maxWidth: "500px",
               }}
             >
-              Sleep concerns can influence health, performance, relationships,
-              and quality of life. Professional support can help identify
-              underlying causes and provide appropriate guidance.
+              {t("sub2")}
             </p>
           </motion.div>
 
@@ -98,7 +98,7 @@ export default function AdditionalGuidanceSection() {
               e.currentTarget.style.outlineOffset = "";
             }}
           >
-            Talk to a Sleep Specialist
+                        {t("cta")}
           </motion.button>
         </div>
       </motion.div>

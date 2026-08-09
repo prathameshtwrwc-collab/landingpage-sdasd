@@ -1,42 +1,16 @@
 "use client";
 
 import React from "react"; import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
-async function shareFact(text: string) {
-  const title = "Sleep Fact";
-  const url = window.location.href;
-  if (navigator.share) {
-    try {
-      await navigator.share({ title, text, url });
-    } catch {}
-  } else {
-    await navigator.clipboard.writeText(text);
-    alert("Fact copied to clipboard!");
-  }
-}
+const factKeys = ["fact1", "fact2", "fact3", "fact4"];
 
-const facts = [
-  {
-    image: "/assets/section10/Your-body-clock-influences.png",
-    text: "Your body clock influences when you naturally feel alert, productive, and sleepy.",
-    shareLabel: "Share fact about the body clock",
-  },
-  {
-    image: "/assets/section10/A-typical-night's-sleep.png",
-    text: "A typical night's sleep consists of 4 to 6 sleep cycles lasting approximately 90 to 120 minutes each.",
-    shareLabel: "Share fact about sleep cycles",
-  },
-  {
-    image: "/assets/section10/Sleep-plays-a-critical.png",
-    text: "Sleep plays a critical role in memory, learning, emotional regulation, immunity, recovery, and long-term health.",
-    shareLabel: "Share fact about sleep and health",
-  },
-  {
-    image: "/assets/section10/Small-improvements.png",
-    text: "Small improvements in sleep habits can create meaningful improvements in energy, mood, and performance.",
-    shareLabel: "Share fact about improving sleep habits",
-  },
-];
+const factImages: Record<string, string> = {
+  fact1: "/assets/section10/Your-body-clock-influences.png",
+  fact2: "/assets/section10/A-typical-night's-sleep.png",
+  fact3: "/assets/section10/Sleep-plays-a-critical.png",
+  fact4: "/assets/section10/Small-improvements.png",
+};
 
 function ShareIcon() {
   return (
@@ -53,6 +27,21 @@ function ShareIcon() {
 }
 
 export default function SleepFactsSharingSection() {
+  const t = useTranslations("sleepFacts");
+
+  async function shareFact(text: string) {
+    const title = t("shareTitle");
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text, url });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(text);
+      alert(t("copied"));
+    }
+  }
+
   return (
     <section
       id="sleep-facts-sharing"
@@ -70,7 +59,7 @@ export default function SleepFactsSharingSection() {
           className="m-0 mx-auto text-[clamp(24px,6.5vw,30px)] leading>[1.2] font-semibold text-center text-[#F59A00]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, letterSpacing: "-0.025em", marginBottom: "28px" }}
         >
-          Sleep Facts Worth Sharing
+          {t("heading")}
         </h2>
 
         {/* Facts Grid */}
@@ -78,7 +67,7 @@ export default function SleepFactsSharingSection() {
           variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-[18px] md:gap-[24px] lg:gap-[28px_36px] items-stretch"
         >
-          {facts.map((fact, idx) => {
+          {factKeys.map((key, idx) => {
             return (
               <motion.article
                 key={idx}
@@ -103,7 +92,7 @@ export default function SleepFactsSharingSection() {
                 >
                   <div className="flex items-center justify-center w-[74px] h-[74px] md:w-[78px] md:h-[78px] lg:w-[86px] lg:h-[86px] p-[10px]">
                     <img
-                      src={fact.image}
+                      src={factImages[key]}
                       alt=""
                       className="w-full h-full object-contain"
                       draggable={false}
@@ -117,7 +106,7 @@ export default function SleepFactsSharingSection() {
                   className="m-0 text-[clamp(14px,4vw,16px)] leading>[1.35] max-w-[210px] text-center"
                   style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, maxWidth: "210px" }}
                 >
-                  {fact.text}
+                  {t(`${key}.text`)}
                 </p>
 
                 {/* Share Fact Button */}
@@ -126,8 +115,8 @@ export default function SleepFactsSharingSection() {
                   whileTap={{ scale: 0.97 }}
                   transition={{ duration: 0.15 }}
                   type="button"
-                  aria-label={fact.shareLabel}
-                  onClick={() => shareFact(fact.text)}
+                  aria-label={t(`${key}.shareLabel`)}
+                  onClick={() => shareFact(t(`${key}.text`))}
                   className="inline-flex items-center justify-center gap-[8px] bg-white text-[#171717] border-[1.5px] border-[#E7A62A] rounded-full shadow-none focus:outline-none transition-colors duration-[160ms] cursor-pointer mt-[18px] w-[190px] h-[46px] md:w:[190px] md:h>[46px] lg:w:[210px] lg:h>[48px] text-[16px] font-medium leading>[1]"
                   style={{
                     fontFamily: "Poppins, sans-serif",
@@ -144,7 +133,7 @@ export default function SleepFactsSharingSection() {
                   }}
                 >
                   <ShareIcon />
-                  <span>Share Fact</span>
+                  <span>{t("shareBtn")}</span>
                 </motion.button>
               </motion.article>
             );
@@ -159,7 +148,7 @@ export default function SleepFactsSharingSection() {
             transition={{ duration: 0.15 }}
             type="button"
             onClick={() => {
-              const allText = facts.map((f) => f.text).join("\n\n");
+              const allText = factKeys.map((key) => t(`${key}.text`)).join("\n\n");
               shareFact(allText);
             }}
             className="flex items-center justify-center bg-[#3B35A3] text-white border-none rounded-none shadow-none focus:outline-none transition-all duration-[160ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer w-full max-w-none md:w:[470px] md:max-w:[470px] lg:w:[500px] lg:max-w:[500px] min-h:[50px] h-auto md:h>[52px] lg:h>[54px] px-[18px] py-[12px] md:p-0 lg:p-0 text-[18px] md:text>[18px] lg:text>[19px] font-semibold leading>[1.35] md:leading>[1]"
@@ -179,8 +168,8 @@ export default function SleepFactsSharingSection() {
             }}
           >
             <span>
-              Share These Facts with Your Loved Ones{" "}
-              <span style={{ color: "#F4C623" }}>Now</span>
+              {t("cta1")}{" "}
+              <span style={{ color: "#F4C623" }}>{t("cta2")}</span>
             </span>
           </motion.button>
         </div>

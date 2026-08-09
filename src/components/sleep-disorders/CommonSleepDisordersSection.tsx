@@ -2,61 +2,42 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
-const disorders = [
-  {
-    title: "Insomnia",
-    image: "/assets/section8/Insomnia.jpg",
-    subtitle: "Difficulty falling asleep, staying asleep, or waking too early despite having the opportunity to sleep.",
-  },
-  {
-    title: "Obstructive Sleep Apnea (OSA)",
-    image: "/assets/section8/Sleep-Apnea.jpg",
-    subtitle: "Repeated interruptions in breathing caused by temporary airway collapse during sleep.",
-  },
-  {
-    title: "Restless Legs Syndrome (RLS)",
-    image: "/assets/section8/Restless-Legs-Syndrome.jpg",
-    subtitle: "An uncomfortable urge to move the legs, often worsening during the evening and night.",
-  },
-  {
-    title: "Circadian Rhythm Disorders",
-    image: "/assets/section8/Circadian-Rhythm-Disorders.jpg",
-    subtitle: "Disruptions in the body's natural clock, including shift-work disorder, jet lag, delayed sleep phase, and advanced sleep phase.",
-  },
-  {
-    title: "Narcolepsy",
-    image: "/assets/section8/Narcolepsy.jpg",
-    subtitle: "A neurological condition characterized by excessive daytime sleepiness and sudden sleep episodes.",
-  },
-  {
-    title: "Hypersomnia",
-    image: "/assets/section8/Hypersomnia.jpg",
-    subtitle: "Persistent excessive sleepiness despite adequate sleep duration.",
-  },
-  {
-    title: "Parasomnias",
-    image: "/assets/section8/Parasomnias.jpg",
-    subtitle: "Sleepwalking, sleep talking, nightmares, night terrors, and REM behaviour disorders.",
-  },
-  {
-    title: "Bruxism",
-    image: "/assets/section8/Bruxism.jpg",
-    subtitle: "Grinding or clenching of teeth during sleep.",
-  },
+const disorderKeys = [
+  "insomnia",
+  "osa",
+  "rls",
+  "circadian",
+  "narcolepsy",
+  "hypersomnia",
+  "parasomnias",
+  "bruxism",
 ];
 
 export default function CommonSleepDisordersSection() {
+  const t = useTranslations("disorders");
+  const images: Record<string, string> = {
+    insomnia: "/assets/section8/Insomnia.jpg",
+    osa: "/assets/section8/Sleep-Apnea.jpg",
+    rls: "/assets/section8/Restless-Legs-Syndrome.jpg",
+    circadian: "/assets/section8/Circadian-Rhythm-Disorders.jpg",
+    narcolepsy: "/assets/section8/Narcolepsy.jpg",
+    hypersomnia: "/assets/section8/Hypersomnia.jpg",
+    parasomnias: "/assets/section8/Parasomnias.jpg",
+    bruxism: "/assets/section8/Bruxism.jpg",
+  };
+  const total = disorderKeys.length;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mobileIndex, setMobileIndex] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
   const hasAutoSlid = useRef(false);
 
-  const next = () => setCurrentIndex((prev) => (prev + 2 >= disorders.length ? 0 : prev + 2));
-  const prev = () => setCurrentIndex((prev) => (prev - 2 < 0 ? disorders.length - 2 : prev - 2));
+  const next = () => setCurrentIndex((prev) => (prev + 2 >= total ? 0 : prev + 2));
+  const prev = () => setCurrentIndex((prev) => (prev - 2 < 0 ? total - 2 : prev - 2));
 
-  const mobileNext = () => setMobileIndex((prev) => (prev + 1 >= disorders.length ? 0 : prev + 1));
-  const mobilePrev = () => setMobileIndex((prev) => (prev - 1 < 0 ? disorders.length - 1 : prev - 1));
+  const mobileNext = () => setMobileIndex((prev) => (prev + 1 >= total ? 0 : prev + 1));
+  const mobilePrev = () => setMobileIndex((prev) => (prev - 1 < 0 ? total - 1 : prev - 1));
 
   // Auto-slide once when user first scrolls to this section
   useEffect(() => {
@@ -72,9 +53,9 @@ export default function CommonSleepDisordersSection() {
             // Let user see initial cards, then auto-advance after delay
             setTimeout(() => {
               // Advance desktop carousel by one pair
-              setCurrentIndex((prev) => (prev + 2 >= disorders.length ? 0 : prev + 2));
+              setCurrentIndex((prev) => (prev + 2 >= total ? 0 : prev + 2));
               // Advance mobile carousel by one
-              setMobileIndex((prev) => (prev + 1 >= disorders.length ? 0 : prev + 1));
+              setMobileIndex((prev) => (prev + 1 >= total ? 0 : prev + 1));
             }, 2000);
           }
         });
@@ -111,13 +92,13 @@ export default function CommonSleepDisordersSection() {
           className="m-0 mx-auto text-[clamp(24px,6.5vw,30px)] leading-[1.18] tracking-[-0.02em] md:text-[31px] lg:text-[36px] font-semibold text-center text-[#F59A00]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, letterSpacing: "-0.02em", marginBottom: "8px" }}
         >
-Common Sleep Disorders - 8 Types
+ {t("heading")}
         </h2>
         <p
           className="m-0 mx-auto text-[16px] leading-[1.6] md:text-[16px] lg:text-[17px] font-medium text-center text-[#3B35A3]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, maxWidth: "900px", marginBottom: "24px" }}
         >
-          Sleep disorders can affect sleep quality, daytime functioning, productivity, emotional well-being, and long-term health.
+          {t("sub")}
         </p>
 
           <motion.div
@@ -246,36 +227,36 @@ Common Sleep Disorders - 8 Types
                     <div className="disorders-slide-card">
                       <div className="disorders-slide-card-image">
                         <img
-                          src={disorders[pairStart].image}
-                          alt={`${disorders[pairStart].title} illustration`}
+                          src={images[disorderKeys[pairStart]]}
+                          alt={t(`${disorderKeys[pairStart]}.title`)}
                           className="w-full h-full block object-cover"
                           draggable={false}
                           style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0, boxShadow: "none", display: "block" }}
                         />
                       </div>
                       <h3 className="text-[20px] lg:text-[22px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
-                        {disorders[pairStart].title}
+                        {t(`${disorderKeys[pairStart]}.title`)}
                       </h3>
                       <p className="text-[16px] lg:text-[17px] leading-[1.45] font-medium text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, marginTop: "5px", maxWidth: "440px" }}>
-                        {disorders[pairStart].subtitle}
+                        {t(`${disorderKeys[pairStart]}.subtitle`)}
                       </p>
                     </div>
                     <div className="disorders-slide-divider" aria-hidden="true" />
                     <div className="disorders-slide-card">
                       <div className="disorders-slide-card-image">
                         <img
-                          src={disorders[pairStart + 1].image}
-                          alt={`${disorders[pairStart + 1].title} illustration`}
+                          src={images[disorderKeys[pairStart + 1]]}
+                          alt={t(`${disorderKeys[pairStart + 1]}.title`)}
                           className="w-full h-full block object-cover"
                           draggable={false}
                           style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0, boxShadow: "none", display: "block" }}
                         />
                       </div>
                       <h3 className="text-[20px] lg:text-[22px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
-                        {disorders[pairStart + 1].title}
+                        {t(`${disorderKeys[pairStart + 1]}.title`)}
                       </h3>
                       <p className="text-[16px] lg:text-[17px] leading-[1.45] font-medium text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, marginTop: "5px", maxWidth: "440px" }}>
-                        {disorders[pairStart + 1].subtitle}
+                        {t(`${disorderKeys[pairStart + 1]}.subtitle`)}
                       </p>
                     </div>
                   </div>
@@ -285,7 +266,7 @@ Common Sleep Disorders - 8 Types
 
           <button
             type="button"
-            aria-label="Previous sleep disorder"
+            aria-label={t("prevAria")}
             onClick={prev}
             className="hidden md:flex absolute left-[12px] lg:left-[14px] top-[48px] translate-y-[120px] lg:translate-y-[140px] w-[40px] h-[40px] lg:w-[44px] lg:h-[44px] rounded-full bg-[#6F6F6F] text-white border-none items-center justify-center focus:outline-none cursor-pointer"
             style={{ borderRadius: "9999px", background: "#6F6F6F", boxShadow: "0 2px 6px rgba(0,0,0,0.12)" }}
@@ -296,7 +277,7 @@ Common Sleep Disorders - 8 Types
           </button>
           <button
             type="button"
-            aria-label="Next sleep disorder"
+            aria-label={t("nextAria")}
             onClick={next}
             className="hidden md:flex absolute right-[12px] lg:right-[14px] top-[48px] translate-y-[120px] lg:translate-y-[140px] w-[40px] h-[40px] lg:w-[44px] lg:h-[44px] rounded-full bg-[#6F6F6F] text-white border-none items-center justify-center focus:outline-none cursor-pointer"
             style={{ borderRadius: "9999px", background: "#6F6F6F", boxShadow: "0 2px 6px rgba(0,0,0,0.12)" }}
@@ -316,22 +297,22 @@ Common Sleep Disorders - 8 Types
                   willChange: "transform",
                 }}
               >
-                {disorders.map((disorder) => (
-                  <div key={disorder.title} className="disorders-mobile-card">
+                {disorderKeys.map((key) => (
+                  <div key={key} className="disorders-mobile-card">
                     <div className="disorders-mobile-card-image">
                       <img
-                        src={disorder.image}
-                        alt={`${disorder.title} illustration`}
+                        src={images[key]}
+                        alt={t(`${key}.title`)}
                         className="w-full h-full block object-cover"
                         draggable={false}
                         style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0 }}
                       />
                     </div>
                     <h3 className="text-[20px] leading-[1.3] font-semibold text-[#3B35A3] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "12px" }}>
-                      {disorder.title}
+                      {t(`${key}.title`)}
                     </h3>
                     <p className="text-[16px] leading-[1.45] font-medium text-[#171717] text-left" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, marginTop: "5px" }}>
-                      {disorder.subtitle}
+                      {t(`${key}.subtitle`)}
                     </p>
                   </div>
                 ))}
@@ -341,7 +322,7 @@ Common Sleep Disorders - 8 Types
             <div className="flex justify-center items-center gap-[12px] mt-[4px]">
               <motion.button
                 type="button"
-                aria-label="Previous sleep disorder"
+                aria-label={t("prevAria")}
                 onClick={mobilePrev}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -355,7 +336,7 @@ Common Sleep Disorders - 8 Types
               </motion.button>
               <motion.button
                 type="button"
-                aria-label="Next sleep disorder"
+                aria-label={t("nextAria")}
                 onClick={mobileNext}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -374,7 +355,7 @@ Common Sleep Disorders - 8 Types
 
         <div className="flex items-center justify-center text-center bg-[rgba(255,255,255,0.92)] border-[1.5px] border-[#E4B93D] rounded-none mx-auto mt-[18px] px-[14px] md:px-[20px] lg:px-[24px] py-[12px] md:py-[10px] lg:py-[10px] min-h-[48px] w-full md:w-[calc(100%-80px)] lg:w-[calc(100%-120px)] min-w-0" style={{ borderRadius: 0, width: "100%", fontSize: "14px", lineHeight: "1.45", padding: "12px 14px" }}>
           <p className="m-0 text-[16px] leading-[1.45] md:text-[16px] lg:text-[17px] font-semibold text-[#171717] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
-            Not all sleep problems look the same. Recognizing the signs is the first step toward improvement.
+                        {t("bottom")}
           </p>
         </div>
       </div>

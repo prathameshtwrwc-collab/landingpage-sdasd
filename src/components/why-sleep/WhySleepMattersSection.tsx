@@ -2,36 +2,18 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
-const facts = [
-  { value: "7 to 9 Hours", description: "Recommended sleep duration for most adults" },
-  { value: "90 to 120 Minutes", description: "Average duration of one sleep cycle" },
-  { value: "4 to 6 Cycles", description: "Typical number of sleep cycles per night" },
-  { value: "1 in 3 Adults", description: "Experience sleep-related difficulties during their lifetime" },
-];
+const factKeys = ["fact1", "fact2", "fact3", "fact4"];
 
-const pillars = [
-  {
-    title: "Mind",
-    image: "/assets/section6/Mind.jpg",
-    alt: "Person representing mental clarity, creativity, and emotional well-being",
-    description: "Learning, memory, focus, creativity, emotional balance.",
-  },
-  {
-    title: "Body",
-    image: "/assets/section6/body.jpg",
-    alt: "Healthy person representing physical recovery and long-term health",
-    description: "Immunity, recovery, hormones, metabolism, long-term health.",
-  },
-  {
-    title: "Life",
-    image: "/assets/section6/Life.jpg",
-    alt: "Person representing energy, productivity, and balanced living",
-    description: "Energy, productivity, performance, relationships, and well-being.",
-  },
+const pillarKeys = [
+  { key: "mind", image: "/assets/section6/Mind.jpg" },
+  { key: "body", image: "/assets/section6/body.jpg" },
+  { key: "life", image: "/assets/section6/Life.jpg" },
 ];
 
 export default function WhySleepMattersSection() {
+  const t = useTranslations("whySleep");
   return (
     <section
       id="why-sleep-matters"
@@ -56,14 +38,14 @@ export default function WhySleepMattersSection() {
           className="m-0 mx-auto           text-[clamp(24px,6.5vw,30px)] leading-[1.2] font-semibold text-center text-[#F59A00]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, letterSpacing: "-0.025em", marginBottom: "10px" }}
         >
-          Why Sleep Matters
+          {t("heading")}
         </h2>
 
         <p
           className="m-0 mx-auto text-[clamp(15px,4.5vw,18px)] leading-[1.2] font-semibold text-center text-[#3B35A3]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, letterSpacing: "0.02em", marginBottom: "18px" }}
         >
-          FACT STRIP
+          {t("factStrip")}
         </p>
 
         <motion.div
@@ -81,22 +63,22 @@ export default function WhySleepMattersSection() {
             }}
           >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 w-full items-stretch min-w-0">
-            {facts.map((fact) => (
+            {factKeys.map((key) => (
               <div
-                key={fact.value}
+                key={key}
                 className="fact-cell flex flex-col justify-center items-center text-center px-[16px] py-[18px] md:px-[22px] md:py-[20px] min-h-[96px] md:min-h-[110px] lg:min-h-[150px] relative min-w-0"
               >
                 <p
                   className="m-0 text-[clamp(20px,6vw,28px)] leading-[1.15] md:text-[24px] lg:text-[28px] font-bold text-[#171717] text-center"
                   style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, marginBottom: "6px" }}
                 >
-                  {fact.value}
+                  {t(`${key}.value`)}
                 </p>
                 <p
                   className="m-0 text-[clamp(13px,3.8vw,16px)] leading-[1.35] max-w-[210px] text-center"
                   style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, maxWidth: "210px" }}
                 >
-                  {fact.description}
+                  {t(`${key}.desc`)}
                 </p>
               </div>
             ))}
@@ -128,13 +110,13 @@ export default function WhySleepMattersSection() {
             className="m-0 mx-auto text-[clamp(16px,4.5vw,19px)] leading-[1.45] font-semibold text-center text-[#F59A00]"
             style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginTop: "24px" }}
           >
-            Good sleep changes your energy, your performance, and your quality of life.
+            {t("line1")}
         </p>
         <p
           className="m-0 mx-auto text-[clamp(15px,4vw,18px)] leading-[1.5] font-medium text-center text-[#171717]"
           style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, marginTop: "6px", marginBottom: "24px" }}
         >
-          Quality sleep powers every area of life.
+          {t("line2")}
         </p>
 
         <motion.div
@@ -144,9 +126,9 @@ export default function WhySleepMattersSection() {
           }}
           className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-[28px] md:gap-[20px] lg:gap-[34px] items-start min-w-0"
         >
-          {pillars.map((pillar) => (
+          {pillarKeys.map((pillar) => (
             <motion.div
-              key={pillar.title}
+              key={pillar.key}
               variants={{
                 hidden: { opacity: 0, y: 15 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
@@ -157,12 +139,12 @@ export default function WhySleepMattersSection() {
                 className="m-0 text-[clamp(18px,5vw,22px)] leading-[1.2] md:text-[22px] lg:text-[24px] font-semibold text-center text-[#171717]"
                 style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginBottom: "10px" }}
               >
-                {pillar.title}
+                {t(`${pillar.key}.title`)}
               </h3>
               <div className="w-full h-auto overflow-hidden why-sleep-image-wrap" style={{ aspectRatio: "16 / 9" }}>
                 <img
                   src={pillar.image}
-                  alt={pillar.alt}
+                  alt={t(`${pillar.key}.alt`)}
                   className="w-full h-full block"
                   draggable={false}
                   style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0, boxShadow: "none", display: "block", aspectRatio: "16 / 9", height: "auto" }}
@@ -172,7 +154,7 @@ export default function WhySleepMattersSection() {
                 className="m-0 mx-auto text-[clamp(14px,4vw,16px)] leading-[1.5] md:text-[16px] lg:text-[16px] font-medium text-center text-[#171717]"
                 style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, maxWidth: "280px", marginTop: "10px" }}
               >
-                {pillar.description}
+                {t(`${pillar.key}.desc`)}
               </p>
             </motion.div>
           ))}
@@ -196,7 +178,7 @@ export default function WhySleepMattersSection() {
               e.currentTarget.style.outlineOffset = "";
             }}
           >
-            Explore Sleep Cycles
+                        {t("cta")}
           </motion.button>
         </div>
         </div>

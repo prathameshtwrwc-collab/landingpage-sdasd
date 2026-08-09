@@ -2,19 +2,21 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
-const checklistItems = [
-  "Sleep quality",
-  "Energy levels",
-  "Productivity - Work, Social and Family",
-  "Focus",
-  "Exercise performance",
-  "Recovery",
-  "Nutrition timing",
-  "Work-life balance",
+const checklistKeys = [
+  "check1",
+  "check2",
+  "check3",
+  "check4",
+  "check5",
+  "check6",
+  "check7",
+  "check8",
 ];
 
 export default function ChronotypeOptimizationSection() {
+  const t = useTranslations("chronoOpt");
   return (
     <section
       id="chronotype-optimization"
@@ -66,10 +68,8 @@ export default function ChronotypeOptimizationSection() {
             marginBottom: "30px",
           }}
         >
-          Every chronotype has unique strengths, challenges, and opportunities for optimization.
-        </h2>
-
-        <div
+          {t("heading")}
+        </h2>        <div
           className="
             block md:grid
             md:grid-cols-[minmax(0,1fr)_390px]
@@ -94,9 +94,9 @@ export default function ChronotypeOptimizationSection() {
                 marginBottom: "14px",
               }}
             >
-              Understanding your chronotype
+              {t("sub1")}
               <br />
-              can help optimize:
+              {t("sub2")}
             </p>
 
             <motion.div
@@ -106,9 +106,9 @@ export default function ChronotypeOptimizationSection() {
                 visible: { transition: { staggerChildren: 0.06 } },
               }}
             >
-              {checklistItems.map((item) => (
+              {checklistKeys.map((key) => (
                 <motion.div
-                  key={item}
+                  key={key}
                   variants={{
                     hidden: { opacity: 0, x: -15 },
                     visible: {
@@ -150,7 +150,7 @@ export default function ChronotypeOptimizationSection() {
                       fontWeight: 500,
                     }}
                   >
-                    {item}
+                    {t(key)}
                   </span>
                 </motion.div>
               ))}
@@ -207,7 +207,7 @@ export default function ChronotypeOptimizationSection() {
               fontWeight: 500,
             }}
           >
-            Peak performance comes from doing the right things at the right time.
+            {t("bottom1")}
           </p>
           <p
             className="
@@ -222,8 +222,7 @@ export default function ChronotypeOptimizationSection() {
               fontWeight: 500,
             }}
           >
-            Take the test now to know your type and transform your health, wellness,
-            professional and personal performances.
+            {t("bottom2")}
           </p>
         </div>
       </div>

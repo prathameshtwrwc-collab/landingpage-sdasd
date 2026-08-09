@@ -11,13 +11,33 @@ All notable changes to this project documented in this file. Format based on Kee
 - Client-side locale persistence via localStorage/cookie
 - Translation files for 10 locales: English, Hindi, Marathi, Bengali, Tamil, Telugu, Gujarati, Spanish, French, Arabic
 
+### Changed — i18n Components
+- All landing page sections converted to use `useTranslations()`:
+  - `SiteNavbar` — nav items, login, donate, take test
+  - `HeroSection` — headings, benefits, CTAs, slide labels
+  - `HeroStatementStrip` — line1, line2, line3
+  - `ChronotypeIntroductionSection` — headings, description, influences, conclusion
+  - `ChronotypeOptimizationSection` — heading, recommendations
+  - `DailyEnergyPillarsSection` — heading, pillars, closing
+  - `UnderstandingSleepCyclesSection` — heading, labels
+  - `CommonSleepDisordersSection` — heading, navigation
+  - `SleepFactsSharingSection` — heading, share buttons
+  - `WarningSignsSection` — heading, bottom text
+  - `WhySleepMattersSection` — heading, fact strip
+  - `AdditionalGuidanceSection` — heading, supporting text, CTA
+  - `BetterSleepBetterDaysSection` — heading, benefits
+  - `FloatingTestButton` — aria-label, button text
+  - `DisclaimerFooter` — disclaimer, rich body text
+  - `AssessmentModal`, `DonateModal`, `ConsultModal` — all form labels, buttons, messages
+
 ### Changed — i18n Context Setup
 - **`src/app/layout.tsx`** — Made async, reads locale from cookie server-side, renders `lang`, `dir`, and `data-locale` attributes on `<html>` element
-- **`src/components/i18n/I18nProvider.tsx`** — Initial locale now reads from server-rendered DOM attributes to prevent hydration mismatch
+- **`src/components/i18n/I18nProvider.tsx`** — Initial locale reads from server-rendered DOM attributes; removed post-mount locale override that caused hydration mismatch
 
 ### Fixed — Hydration Mismatch
 - Server-rendered `<html lang="en">` now properly matches client-side locale when cookie contains a different locale
 - `I18nProvider` initial state matches server-rendered HTML attributes
+- Removed `readStoredLocale()` function and `useEffect` that was incorrectly reading from localStorage/cookie after mount
 
 ### Fixed — Build Errors (paused work)
 - **`src/components/DonateModal.tsx`** — Restored missing `</div>` tag in amount selection section

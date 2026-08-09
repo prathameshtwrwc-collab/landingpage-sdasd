@@ -2,18 +2,20 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { useAssessment } from "@/components/assessment/AssessmentContext";
 
-const chronotypeInfluences = [
-  "When you feel most alert",
-  "When you are most productive professionally",
-  "When you prefer to exercise",
-  "When you naturally feel sleepy",
-  "How your energy changes during the day",
+const influenceKeys = [
+  "influence1",
+  "influence2",
+  "influence3",
+  "influence4",
+  "influence5",
 ];
 
 export default function ChronotypeIntroductionSection() {
   const { open: openAssessment } = useAssessment();
+  const t = useTranslations("chronoIntro");
   return (
     <section
       id="chronotypes"
@@ -42,10 +44,10 @@ export default function ChronotypeIntroductionSection() {
           >
           <div className="chronotype-intro-copy w-full min-w-0">
             <h2 className="chronotype-intro-heading m-0 text-[#F59A00] text-left">
-              <span className="chronotype-heading-primary">Discover Your Natural Sleep Rhythm:</span>
+              <span className="chronotype-heading-primary">{t("headingPrimary")}</span>
 
               <span className="chronotype-heading-secondary">
-                Understanding Sleep Chronotypes
+                {t("headingSecondary")}
               </span>
             </h2>
 
@@ -58,8 +60,7 @@ export default function ChronotypeIntroductionSection() {
                 lineHeight: "1.5",
               }}
             >
-              Your chronotype is your natural preference for sleeping, waking,
-              and performing activities throughout the day.
+              {t("description")}
             </p>
 
             <p
@@ -72,13 +73,13 @@ export default function ChronotypeIntroductionSection() {
                 marginBottom: "8px",
               }}
             >
-              It influences:
+              {t("label")}
             </p>
 
             <ul className="chronotype-intro-list m-0 pl-[20px] list-disc list-outside">
-              {chronotypeInfluences.map((item) => (
+              {influenceKeys.map((key) => (
                 <li
-                  key={item}
+                  key={key}
                   className="m-0 mb-[7px] font-medium text-[#171717]"
                   style={{
                     fontFamily: "Poppins, sans-serif",
@@ -87,7 +88,7 @@ export default function ChronotypeIntroductionSection() {
                     lineHeight: "1.4",
                   }}
                 >
-                  {item}
+                  {t(key)}
                 </li>
               ))}
             </ul>
@@ -127,10 +128,8 @@ export default function ChronotypeIntroductionSection() {
               lineHeight: "1.5",
             }}
           >
-            Understanding your rhythm helps you work with your biology and
-            perform at your best.
+            {t("conclusion")}
           </p>
-
           <motion.button
             type="button"
             onClick={openAssessment}
@@ -139,7 +138,7 @@ export default function ChronotypeIntroductionSection() {
             whileTap={{ scale: 0.98 }}
             transition={{ duration: 0.15 }}
           >
-            Take Test Now
+            {t("cta")}
           </motion.button>
         </div>
       </div>

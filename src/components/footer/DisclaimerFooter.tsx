@@ -2,8 +2,10 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 export default function DisclaimerFooter() {
+  const t = useTranslations("footer");
   return (
     <footer
       aria-labelledby="disclaimer-heading"
@@ -24,9 +26,8 @@ export default function DisclaimerFooter() {
             marginBottom: "12px",
           }}
         >
-          DISCLAIMER
+          {t("disclaimer")}
         </h2>
-
         <p
           className="m-0 text-left text-white font-normal text-[clamp(12px,3.6vw,14px)] leading-[1.65] md:text-[13px] lg:text-[14px]"
           style={{
@@ -36,20 +37,18 @@ export default function DisclaimerFooter() {
             maxWidth: "1080px",
           }}
         >
-          The information provided on this website is intended for educational
-          and informational purposes only and should not be considered medical
-          advice, diagnosis, or treatment. Individuals experiencing persistent
-          sleep concerns or symptoms suggestive of a Sleep Disturbance & Sleep
-          Disorder{" "}
-          <span
-            style={{
-              color: "#F59A00",
-              fontWeight: 600,
-            }}
-          >
-            (SDASD)
-          </span>{" "}
-          should seek appropriate professional evaluation.
+          {t.rich("disclaimerBody", {
+            sdasd: (chunks) => (
+              <span
+                style={{
+                  color: "#F59A00",
+                  fontWeight: 600,
+                }}
+              >
+                {chunks}
+              </span>
+            ),
+          })}
         </p>
       </motion.div>
     </footer>
