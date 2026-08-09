@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useAssessment } from "./AssessmentContext";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useTranslations } from "next-intl";
 import { getAssessmentData, createMemberAndStartAssessment, submitAssessment, abandonAndRestartAssessment, saveAnswer } from "@/lib/actions/assessment";
 import { clearCache } from "@/lib/client-cache";
 import { chronotypeImageSrcs } from "@/lib/chronotype-image";
@@ -71,6 +72,7 @@ function CheckCircle() {
 export default function AssessmentModal() {
   const { isOpen, close, retestMemberId } = useAssessment();
   const { open: openConsult } = useConsult();
+  const t = useTranslations("assessment");
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(initialForm);
@@ -238,7 +240,7 @@ export default function AssessmentModal() {
       setQuestions(data.questions);
       setVersionId(data.versionId);
     } catch {
-      setServerError("Failed to load assessment. Please try again.");
+      setServerError(t("failedLoad"));
     }
   }, []);
 
@@ -257,35 +259,36 @@ export default function AssessmentModal() {
 
   const validateForm = () => {
     const e: Record<string, string> = {};
-    if (!form.fname.trim()) e.fname = "Required";
-    if (!form.lname.trim()) e.lname = "Required";
-    if (!form.age) e.age = "Required";
-    if (!form.gender) e.gender = "Required";
-    if (!form.maritalStatus) e.maritalStatus = "Required";
-    if (!form.country.trim()) e.country = "Required";
-    if (!form.city.trim()) e.city = "Required";
+    const req = t("required");
+    if (!form.fname.trim()) e.fname = req;
+    if (!form.lname.trim()) e.lname = req;
+    if (!form.age) e.age = req;
+    if (!form.gender) e.gender = req;
+    if (!form.maritalStatus) e.maritalStatus = req;
+    if (!form.country.trim()) e.country = req;
+    if (!form.city.trim()) e.city = req;
     if (!form.pincode.trim()) {
-      e.pincode = "Required";
+      e.pincode = req;
     }
-    if (!form.location.trim()) e.location = "Required";
-    if (!form.occupation.trim()) e.occupation = "Required";
+    if (!form.location.trim()) e.location = req;
+    if (!form.occupation.trim()) e.occupation = req;
     if (!form.email.trim()) {
-      e.email = "Required";
+      e.email = req;
     } else if (!form.email.includes("@")) {
-      e.email = "Email must include @";
+      e.email = t("emailAt");
     }
     if (!form.phone.trim()) {
-      e.phone = "Required";
+      e.phone = req;
     } else if (!/^\d+$/.test(form.phone)) {
-      e.phone = "Phone must contain numbers only";
+      e.phone = t("phoneNumeric");
     } else {
       const cc = getCountryCode(form.phoneDial);
       const digits = form.phone.replace(/\D/g, "");
       if (cc && (digits.length < cc.minLength || digits.length > cc.maxLength)) {
-        e.phone = `Enter ${cc.minLength === cc.maxLength ? cc.maxLength : `${cc.minLength}–${cc.maxLength}`} digit phone number`;
+        e.phone = t("phoneDigits", { min: cc.minLength, max: cc.maxLength });
       }
     }
-    if (!form.agreed) e.agreed = "Required";
+    if (!form.agreed) e.agreed = req;
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -327,7 +330,7 @@ export default function AssessmentModal() {
         setAnswers({});
       }
     } catch (err) {
-      setServerError(err instanceof Error ? err.message : "Failed to start assessment");
+      setServerError(err instanceof Error ? err.message : t("failedStart"));
     } finally {
       setLoading(false);
     }
@@ -370,7 +373,7 @@ export default function AssessmentModal() {
       // Invalidate the in-memory API cache so the dashboard reflects the new result.
       clearCache();
     } catch (err) {
-      setServerError(err instanceof Error ? err.message : "Failed to submit assessment");
+      setServerError(err instanceof Error ? err.message : t("failedSubmit"));
       setSubmitting(false);
     }
   };
@@ -449,7 +452,7 @@ export default function AssessmentModal() {
           <button
             type="button"
             onClick={resetAndClose}
-            aria-label="Close"
+            aria-label={t("closeAria")}
             className="absolute top-[14px] right-[16px] w-[34px] h-[34px] flex items-center justify-center bg-transparent border-none cursor-pointer z-10 hover:bg-gray-100"
             style={{ borderRadius: "50%" }}
           >
@@ -495,10 +498,10 @@ export default function AssessmentModal() {
               </div>
             </div>
             <h3 className="m-0 text-[19px] font-bold mb-[6px]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>
-              Preparing your assessment
+              {t("preparing")}
             </h3>
             <p className="m-0 text-[13px] leading-[1.6]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
-              Checking your previous attempt…
+              {t("checkingPrev")}
             </p>
           </div>
         ) : existingAssessment ? (
@@ -513,10 +516,10 @@ export default function AssessmentModal() {
               </svg>
             </div>
             <h3 className="m-0 text-[20px] font-bold mb-[6px]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>
-              Assessment In Progress
+              {t("inProgress")}
             </h3>
             <p className="m-0 text-[14px] leading-[1.5] max-w-[380px] mb-[24px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
-              You have an existing assessment in progress. Would you like to resume where you left off or start a fresh one?
+              {t("resumeBody")}
             </p>
 
             <div className="flex flex-col gap-[10px] w-full max-w-[320px]">
@@ -545,7 +548,7 @@ export default function AssessmentModal() {
                     }
                     setExistingAssessment(null);
                   } catch (err) {
-                    setServerError(err instanceof Error ? err.message : "Failed to resume");
+                    setServerError(err instanceof Error ? err.message : t("failedResume"));
                   } finally {
                     setLoading(false);
                   }
@@ -554,7 +557,7 @@ export default function AssessmentModal() {
                 className="w-full text-white text-[15px] font-semibold py-[13px] border-none cursor-pointer transition-all disabled:opacity-60"
                 style={{ borderRadius: "10px", background: "linear-gradient(135deg, #35319B, #5A55C0)", fontFamily: "Poppins, sans-serif", boxShadow: "0 4px 16px rgba(53,49,155,0.25)" }}
               >
-                Resume Assessment
+                {t("resumeBtn")}
               </button>
               <button
                 type="button"
@@ -568,7 +571,7 @@ export default function AssessmentModal() {
                     setAnswers({});
                     setExistingAssessment(null);
                   } catch (err) {
-                    setServerError(err instanceof Error ? err.message : "Failed to restart");
+                    setServerError(err instanceof Error ? err.message : t("failedRestart"));
                   } finally {
                     setLoading(false);
                   }
@@ -577,7 +580,7 @@ export default function AssessmentModal() {
                 className="w-full text-[14px] font-medium py-[12px] border-none cursor-pointer transition-all disabled:opacity-60"
                 style={{ borderRadius: "10px", color: "#888", background: "#F5F5F5", fontFamily: "Poppins, sans-serif" }}
               >
-                Start Over
+                {t("startOver")}
               </button>
             </div>
           </div>
@@ -594,38 +597,38 @@ export default function AssessmentModal() {
                 </svg>
               </div>
               <h3 className="m-0 text-[21px] font-semibold text-[#35319B]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginBottom: "4px" }}>
-                Sleep Chronotype Assessment
+                {t("title")}
               </h3>
               <p className="m-0 text-[13px] leading-[1.4] text-[#888]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
-                Fill in your details to begin the assessment
+                {t("subtitle")}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label="First Name *" value={form.fname} onChange={(v) => updateForm("fname", v)} error={errors.fname} />
-              <Field label="Last Name *" value={form.lname} onChange={(v) => updateForm("lname", v)} error={errors.lname} />
+              <Field label={t("fname")} value={form.fname} onChange={(v) => updateForm("fname", v)} error={errors.fname} />
+              <Field label={t("lname")} value={form.lname} onChange={(v) => updateForm("lname", v)} error={errors.lname} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label="Age *" value={form.age} onChange={(v) => {
+              <Field label={t("age")} value={form.age} onChange={(v) => {
                 const cleaned = v.replace(/[^0-9]/g, "").slice(0, 3);
                 const num = parseInt(cleaned, 10);
                 if (cleaned && (num < 1 || num > 100)) return;
                 updateForm("age", cleaned);
               }} error={errors.age} type="text" inputMode="numeric" />
-              <SelectField label="Gender *" value={form.gender} onChange={(v) => updateForm("gender", v)} error={errors.gender} options={["Male", "Female", "Other"]} />
+              <SelectField label={t("gender")} value={form.gender} onChange={(v) => updateForm("gender", v)} error={errors.gender} options={[t("genderMale"), t("genderFemale"), t("genderOther")]} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <SelectField label="Marital Status *" value={form.maritalStatus} onChange={(v) => updateForm("maritalStatus", v)} error={errors.maritalStatus} options={["Single", "Married", "Divorced", "Widowed"]} />
-              <Field label="Department (Optional)" value={form.department} onChange={(v) => updateForm("department", v)} />
+              <SelectField label={t("maritalStatus")} value={form.maritalStatus} onChange={(v) => updateForm("maritalStatus", v)} error={errors.maritalStatus} options={[t("msSingle"), t("msMarried"), t("msDivorced"), t("msWidowed")]} />
+              <Field label={t("department")} value={form.department} onChange={(v) => updateForm("department", v)} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label="Country *" value={form.country} onChange={(v) => updateForm("country", v)} error={errors.country} />
-              <Field label="City *" value={form.city} onChange={(v) => updateForm("city", v)} error={errors.city} />
+              <Field label={t("country")} value={form.country} onChange={(v) => updateForm("country", v)} error={errors.country} />
+              <Field label={t("city")} value={form.city} onChange={(v) => updateForm("city", v)} error={errors.city} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label="Pincode *" value={form.pincode} onChange={(v) => updateForm("pincode", v)} error={errors.pincode} type="text" maxLength={12} placeholder="Pincode / Postal code" />
+              <Field label={t("pincode")} value={form.pincode} onChange={(v) => updateForm("pincode", v)} error={errors.pincode} type="text" maxLength={12} placeholder={t("pincodePlaceholder")} />
               <div className="relative">
-                <SelectField label="Occupation *" value={form.occupation.startsWith("Other:") ? "Other" : form.occupation}
+                <SelectField label={t("occupation")} value={form.occupation.startsWith("Other:") ? "Other" : form.occupation}
                   onChange={(v) => {
                     if (v === "Other") {
                       updateForm("occupation", "Other: ");
@@ -634,14 +637,14 @@ export default function AssessmentModal() {
                     }
                   }}
                   error={errors.occupation}
-                  options={["Student", "Homemaker", "Salaried", "Working Professional", "Business Owner", "Healthcare Professional", "Retired", "Other"]}
+                  options={[t("occStudent"), t("occHomemaker"), t("occSalaried"), t("occWorking"), t("occBusiness"), t("occHealthcare"), t("occRetired"), t("occOther")]}
                 />
                 {form.occupation.startsWith("Other:") && (
                   <input
                     type="text"
                     value={form.occupation.replace("Other: ", "")}
                     onChange={(e) => updateForm("occupation", `Other: ${e.target.value}`)}
-                    placeholder="Please specify..."
+                    placeholder={t("occupationOtherPlaceholder")}
                     autoFocus
                     className="w-full px-[13px] py-[10px] text-[14px] bg-white rounded-lg outline-none mt-[8px]"
                     style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
@@ -650,10 +653,10 @@ export default function AssessmentModal() {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label="Email *" value={form.email} onChange={(v) => updateForm("email", v)} error={errors.email} type="email" />
+              <Field label={t("email")} value={form.email} onChange={(v) => updateForm("email", v)} error={errors.email} type="email" />
               <div>
                 <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
-                  Phone *
+                  {t("phone")}
                 </label>
                 <div className="flex items-stretch gap-[6px]">
                   <select
@@ -665,7 +668,7 @@ export default function AssessmentModal() {
                     }}
                     className="shrink-0 px-[8px] py-[10px] text-[13px] bg-white transition-shadow cursor-pointer"
                     style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif", width: "110px" }}
-                    aria-label="Country code"
+                    aria-label={t("countryCode")}
                   >
                     {COUNTRY_CODES.map((c) => (
                       <option key={c.code} value={c.dial} title={c.name}>{c.dial} {c.code}</option>
@@ -681,7 +684,7 @@ export default function AssessmentModal() {
                       const cap = cc?.maxLength ?? 15;
                       updateForm("phone", v.slice(0, cap));
                     }}
-                    placeholder="Phone number"
+                    placeholder={t("phonePlaceholder")}
                     maxLength={getCountryCode(form.phoneDial)?.maxLength ?? 15}
                     className="flex-1 w-full min-w-0 px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
                     style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
@@ -691,11 +694,11 @@ export default function AssessmentModal() {
               </div>
             </div>
             <div className="mb-[14px]">
-              <Field label="State *" value={form.location} onChange={(v) => updateForm("location", v)} error={errors.location} />
+              <Field label={t("state")} value={form.location} onChange={(v) => updateForm("location", v)} error={errors.location} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label="Organization Code" value={form.orgCode} onChange={(v) => updateForm("orgCode", v)} readonly={lockedFields.orgCode} placeholder={lockedFields.orgCode ? "Auto-detected" : "Optional"} />
-              <Field label="Referral Code" value={form.referralCode} onChange={(v) => updateForm("referralCode", v)} readonly={lockedFields.referralCode} placeholder={lockedFields.referralCode ? "Auto-detected" : "Optional"} />
+              <Field label={t("orgCode")} value={form.orgCode} onChange={(v) => updateForm("orgCode", v)} readonly={lockedFields.orgCode} placeholder={lockedFields.orgCode ? t("autoDetected") : t("optional")} />
+              <Field label={t("referralCode")} value={form.referralCode} onChange={(v) => updateForm("referralCode", v)} readonly={lockedFields.referralCode} placeholder={lockedFields.referralCode ? t("autoDetected") : t("optional")} />
             </div>
 
             <label className="flex items-start gap-[10px] mt-[18px] mb-[18px] cursor-pointer group">
@@ -707,22 +710,22 @@ export default function AssessmentModal() {
                 style={{ borderRadius: "3px" }}
               />
               <span className="text-[13px] leading-[1.45] text-[#444] group-hover:text-[#35319B] transition-colors" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
-                I agree to the{" "}
+                {t("agreePrefix")}{" "}
                 <button type="button" onClick={() => setShowTerms(true)}
                   className="text-[#35319B] underline font-semibold bg-transparent border-none cursor-pointer inline text-[13px] p-0"
                   style={{ fontFamily: "Poppins, sans-serif" }}>
-                  terms and conditions
+                  {t("terms")}
                 </button>{" "}
                 and{" "}
                 <button type="button" onClick={() => setShowTerms(true)}
                   className="text-[#35319B] underline font-semibold bg-transparent border-none cursor-pointer inline text-[13px] p-0"
                   style={{ fontFamily: "Poppins, sans-serif" }}>
-                  privacy policy
+                  {t("privacy")}
                 </button>{" "}
                 *
               </span>
             </label>
-            {errors.agreed && <p className="m-0 text-[12px] text-red-500 mb-[12px]" style={{ fontFamily: "Poppins, sans-serif" }}>Please agree to continue</p>}
+            {errors.agreed && <p className="m-0 text-[12px] text-red-500 mb-[12px]" style={{ fontFamily: "Poppins, sans-serif" }}>{t("agreeError")}</p>}
 
             <button
               type="button"
@@ -731,12 +734,12 @@ export default function AssessmentModal() {
               className="w-full bg-[#3B35A3] hover:bg-[#2D2890] text-white text-[15px] font-semibold py-[14px] border-none cursor-pointer transition-colors disabled:opacity-60"
               style={{ borderRadius: "10px", fontFamily: "Poppins, sans-serif", letterSpacing: "0.01em" }}
             >
-              {loading ? "Creating Account..." : "Start Assessment"}
+              {loading ? t("creatingAccount") : t("startAssessment")}
             </button>
           </div>
         ) : loading && !questions.length ? (
           <div className="flex items-center justify-center py-[60px]">
-            <p className="text-[14px] text-[#888]" style={{ fontFamily: "Poppins, sans-serif" }}>Loading questions...</p>
+            <p className="text-[14px] text-[#888]" style={{ fontFamily: "Poppins, sans-serif" }}>{t("loadingQuestions")}</p>
           </div>
         ) : questions.length > 0 ? (
           <QuestionsView
@@ -754,7 +757,7 @@ export default function AssessmentModal() {
           />
         ) : (
           <div className="flex items-center justify-center py-[60px]">
-            <p className="text-[14px] text-[#888]" style={{ fontFamily: "Poppins, sans-serif" }}>Loading questions...</p>
+            <p className="text-[14px] text-[#888]" style={{ fontFamily: "Poppins, sans-serif" }}>{t("loadingQuestions")}</p>
           </div>
         )}
 
@@ -878,6 +881,7 @@ function Field({ label, value, onChange, error, type = "text", inputMode, readon
 function SelectField({ label, value, onChange, error, options }: {
   label: string; value: string; onChange: (v: string) => void; error?: string; options: string[];
 }) {
+  const t = useTranslations("assessment");
   return (
     <div>
       <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
@@ -889,7 +893,7 @@ function SelectField({ label, value, onChange, error, options }: {
         className="w-full px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
         style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
       >
-        <option value="">Select</option>
+        <option value="">{t("selectPlaceholder")}</option>
         {options.map((opt) => (
           <option key={opt} value={opt}>{opt}</option>
         ))}
@@ -912,6 +916,7 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
   onSubmit: () => void;
   isSubmitting: boolean;
 }) {
+  const t = useTranslations("assessment");
   const [animDir, setAnimDir] = useState<"left" | "right">("left");
   const [animating, setAnimating] = useState(false);
   const [displayedIdx, setDisplayedIdx] = useState(questionIndex);
@@ -933,7 +938,7 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
   if (!q) {
     return (
       <div className="flex flex-col items-center justify-center px-[24px] py-[48px]" style={{ minHeight: "200px" }}>
-        <p className="text-[14px] text-[#888] text-center" style={{ fontFamily: "Poppins, sans-serif" }}>Loading question...</p>
+        <p className="text-[14px] text-[#888] text-center" style={{ fontFamily: "Poppins, sans-serif" }}>{t("loadingQuestion")}</p>
       </div>
     );
   }
@@ -968,7 +973,7 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
       <div className="mb-[16px]">
         <div className="flex items-center justify-between mb-[6px]">
           <span className="text-[12px] font-medium" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>
-            Question {questionIndex + 1} of {totalQuestions}
+            {t("questionOf", { current: questionIndex + 1, total: totalQuestions })}
           </span>
           <span className="text-[12px] font-semibold" style={{ color: "#35319B", fontFamily: "Poppins, sans-serif" }}>
             {Math.round(progress)}%
@@ -1165,7 +1170,7 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12" />
             </svg>
-            {isSubmitting ? "Submitting..." : "Submit"}
+            {isSubmitting ? t("submitting") : t("submit")}
           </button>
         ) : (
           <button
@@ -1206,6 +1211,7 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
 /* ─── REDESIGNED RESULT SCREEN ─── */
 
 function AnalyzingLoader() {
+  const t = useTranslations("assessment");
   const [msgIdx, setMsgIdx] = useState(0);
   const steps = [
     { icon: "scale", label: "Scoring your answers" },
@@ -1303,7 +1309,7 @@ function AnalyzingLoader() {
       </div>
 
       <p className="m-0 text-[13px] leading-[1.7] max-w-[360px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
-        Your personalized chronotype profile is being prepared — it takes just a few seconds.
+        {t("analyzeBody")}
       </p>
 
       {/* ─── Shimmer progress bar ─── */}
@@ -1379,6 +1385,7 @@ function EnhancedResult({
   generatedAt: string | null;
 }) {
   const { login } = useAuth();
+  const t = useTranslations("assessment");
   const [downloading, setDownloading] = useState(false);
   const chrono = chronotypeResult.chronotype as "LARK" | "EAGLE" | "OWL";
   const isLark = chrono === "LARK";
@@ -1389,7 +1396,7 @@ function EnhancedResult({
   const blueprint = CHRONOTYPE_BLUEPRINT[chrono];
   const label = CHRONOTYPE_LABELS[chrono];
 
-  const subtitle = isLark ? "Morning Type" : isEagle ? "Intermediate Type" : "Evening Type";
+  const subtitle = isLark ? t("subMorning") : isEagle ? t("subIntermediate") : t("subEvening");
 
   // Prefer the member's actual selected inputs from the assessment; fall back
   // to the chronotype template only when the answer is unavailable.
@@ -1419,45 +1426,45 @@ function EnhancedResult({
 
   const strengths = isLark
     ? [
-        { text: "Daytime energy peaks before noon", icon: Zap },
-        { text: "Consistent early-morning wake-up", icon: SunMedium },
-        { text: "Strong focus in the early hours", icon: Target },
+        { text: t("sLark1"), icon: Zap },
+        { text: t("sLark2"), icon: SunMedium },
+        { text: t("sLark3"), icon: Target },
       ]
     : isEagle
       ? [
-          { text: "Steady midday energy for deep work", icon: Zap },
-          { text: "Adaptable to most daily routines", icon: UsersRound },
-          { text: "Balanced social and work timing", icon: Target },
+          { text: t("sEagle1"), icon: Zap },
+          { text: t("sEagle2"), icon: UsersRound },
+          { text: t("sEagle3"), icon: Target },
         ]
       : [
-          { text: "Late-day creative focus", icon: Zap },
-          { text: "Comfortable with flexible schedules", icon: UsersRound },
-          { text: "Strong problem-solving at night", icon: Target },
+          { text: t("sOwl1"), icon: Zap },
+          { text: t("sOwl2"), icon: UsersRound },
+          { text: t("sOwl3"), icon: Target },
         ];
 
   const watchOuts = isLark
     ? [
-        { text: "Evening social events drain energy quickly", icon: Coffee },
-        { text: "Hard to stay awake past 10 PM", icon: Moon },
-        { text: "Weekend sleep drift disrupts rhythm", icon: CalendarDays },
+        { text: t("wLark1"), icon: Coffee },
+        { text: t("wLark2"), icon: Moon },
+        { text: t("wLark3"), icon: CalendarDays },
       ]
     : isEagle
       ? [
-          { text: "Rigid schedules can disrupt balance", icon: Coffee },
-          { text: "Energy dips mid-afternoon", icon: Moon },
-          { text: "Can drift without a consistent routine", icon: CalendarDays },
+          { text: t("wEagle1"), icon: Coffee },
+          { text: t("wEagle2"), icon: Moon },
+          { text: t("wEagle3"), icon: CalendarDays },
         ]
       : [
-          { text: "Early mornings feel physically costly", icon: Coffee },
-          { text: "Morning fog and slow waking", icon: Moon },
-          { text: "Fixed schedules create sleep debt", icon: CalendarDays },
+          { text: t("wOwl1"), icon: Coffee },
+          { text: t("wOwl2"), icon: Moon },
+          { text: t("wOwl3"), icon: CalendarDays },
         ];
 
   const tips = isLark
-    ? ["Schedule important tasks before your noon peak", "Avoid caffeine after 2 PM to protect early sleep", "Wind down with dim lighting by 9 PM"]
+    ? [t("tLark1"), t("tLark2"), t("tLark3")]
     : isEagle
-      ? ["Block 10 AM – 2 PM for your deepest focus", "Keep consistent wake and bed times for stability", "Use midday energy for physical activity"]
-      : ["Use bright light within 30 min of waking", "Avoid critical tasks before 9 AM if possible", "Build a consistent 30-min pre-sleep routine"];
+      ? [t("tEagle1"), t("tEagle2"), t("tEagle3")]
+      : [t("tOwl1"), t("tOwl2"), t("tOwl3")];
 
   const chronotypeName = label.split(" (")[0];
 
@@ -1469,7 +1476,7 @@ function EnhancedResult({
       <button
         type="button"
         onClick={resetAndClose}
-        aria-label="Close result"
+        aria-label={t("closeResult")}
         className="absolute top-[20px] right-[20px] flex items-center justify-center bg-transparent border-none cursor-pointer z-50 rounded-lg transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f] hover:bg-[#E6E6EE]"
         style={{ width: "44px", height: "44px", minWidth: "44px", minHeight: "44px" }}
       >
@@ -1490,10 +1497,10 @@ function EnhancedResult({
         <CheckCircle2 size={22} strokeWidth={1.75} stroke="#18794E" className="shrink-0" />
         <div>
           <p className="m-0 text-[15px] font-semibold leading-[1.35]" style={{ color: "#17172B", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
-            Assessment complete
+            {t("completeTitle")}
           </p>
           <p className="m-0 text-[12px] leading-[1.35] mt-[1px]" style={{ color: "#66677A", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
-            Thank you for taking the Sleep Chronotype Assessment. Your personalised result is ready.
+            Thank you for taking the {t("title")}. Your personalised result is ready.
           </p>
         </div>
       </div>
@@ -1513,7 +1520,7 @@ function EnhancedResult({
             fontWeight: 700,
             fontSize: "clamp(1.8rem, 2.2vw, 2.6rem)",
           }}>
-            Your chronotype is {chronotypeName}
+            {t("resultHeading", { name: chronotypeName })}
           </h2>
           <span className="inline-block mt-[8px] px-[14px] py-[5px] text-[15px] font-medium rounded-[999px]" style={{
             color: "#EE8300",
@@ -1544,7 +1551,7 @@ function EnhancedResult({
             fontFamily: "Poppins, sans-serif",
             fontWeight: 500,
           }}>
-            Peak focus &middot; {focusWindow}
+            {t("peakFocus", { window: focusWindow })}
           </span>
         </div>
       </div>
@@ -1560,9 +1567,9 @@ function EnhancedResult({
         minHeight: "82px",
       }}>
         {[
-          { icon: SunMedium, label: "Ideal wake time", value: wakeHour, color: "#EE8300" },
-          { icon: BriefcaseBusiness, label: "Best focus window", value: focusWindow, color: "#30268F" },
-          { icon: MoonStar, label: "Ideal bedtime", value: bedHour, color: "#30268F" },
+          { icon: SunMedium, label: t("metricWake"), value: wakeHour, color: "#EE8300" },
+          { icon: BriefcaseBusiness, label: t("metricFocus"), value: focusWindow, color: "#30268F" },
+          { icon: MoonStar, label: t("metricBed"), value: bedHour, color: "#30268F" },
         ].map((item, i) => (
           <div key={item.label} className="result-metric-item" style={{
             display: "grid",
@@ -1590,13 +1597,13 @@ function EnhancedResult({
       {/* ─── Chronotype Gallery ─── */}
       <div className="result-gallery" style={{ marginTop: "16px", marginBottom: "20px" }}>
         <span className="text-[10px] font-semibold uppercase tracking-[0.08em]" style={{ color: isLark ? "#EE8300" : isOwl ? "#7B68AE" : "#30268F", fontFamily: "Poppins, sans-serif" }}>
-          Visual journey
+          {t("visualJourney")}
         </span>
         <h3 className="m-0 mt-[4px] text-[16px] font-bold" style={{ color: "#17172B", fontFamily: "Poppins, sans-serif" }}>
-          Your {chronotypeName} gallery
+          {t("galleryTitle", { name: chronotypeName })}
         </h3>
         <p className="m-0 mt-[2px] mb-[12px] text-[12px]" style={{ color: "#66677A", fontFamily: "Poppins, sans-serif" }}>
-          A visual journey through your {chronotypeName} rhythm.
+          {t("gallerySub", { name: chronotypeName })}
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           {chronotypeImageSrcs(chrono).map((src, i) => (
@@ -1623,7 +1630,7 @@ function EnhancedResult({
       }}>
         <div className="rounded-xl" style={{ padding: "10px 16px", background: "#F5FBF7", border: "1px solid #C9DFD1" }}>
           <p className="m-0 text-[15px] font-semibold leading-[1.3] mb-[6px]" style={{ color: "#18794E", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
-            Natural strengths
+            {t("strengths")}
           </p>
           <div className="flex flex-col" style={{ gap: "3px" }}>
             {strengths.map((s, i) => (
@@ -1640,7 +1647,7 @@ function EnhancedResult({
         </div>
         <div className="rounded-xl" style={{ padding: "10px 16px", background: "#FFF8EF", border: "1px solid #F5CF9E" }}>
           <p className="m-0 text-[15px] font-semibold leading-[1.3] mb-[6px]" style={{ color: "#EE8300", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
-            Watch-outs
+            {t("watchOuts")}
           </p>
           <div className="flex flex-col" style={{ gap: "3px" }}>
             {watchOuts.map((w, i) => (
@@ -1665,7 +1672,7 @@ function EnhancedResult({
         padding: "8px 16px 9px",
       }}>
         <p className="m-0 text-[14px] font-semibold mb-[7px]" style={{ color: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
-          Your best next steps
+          {t("nextSteps")}
         </p>
         <div className="result-next-steps-grid" style={{
           display: "grid",
@@ -1716,10 +1723,10 @@ function EnhancedResult({
           </div>
           <div className="min-w-0">
             <h4 className="m-0 text-[14px] font-semibold" style={{ color: "#17172B", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
-              Consult a doctor
+              {t("consultDoctor")}
             </h4>
             <p className="m-0 text-[12px] leading-[1.35] mt-[1px]" style={{ color: "#66677A", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
-              Get personalised guidance from a sleep specialist.
+              {t("consultDoctorBody")}
             </p>
           </div>
           <button
@@ -1728,7 +1735,7 @@ function EnhancedResult({
             className="inline-flex items-center gap-[7px] text-[13px] font-semibold px-[14px] border-none cursor-pointer rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f] shrink-0"
             style={{ minHeight: "42px", color: "#FFFFFF", background: "#EE8300", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
           >
-            Book consultation
+            {t("bookConsultation")}
             <ArrowRight size={14} strokeWidth={1.75} />
           </button>
         </div>
@@ -1749,10 +1756,10 @@ function EnhancedResult({
           </div>
           <div className="min-w-0">
             <h4 className="m-0 text-[14px] font-semibold" style={{ color: "#17172B", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
-              Refer a friend
+              {t("referFriend")}
             </h4>
             <p className="m-0 text-[12px] leading-[1.35] mt-[1px]" style={{ color: "#66677A", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
-              Help someone discover their natural sleep rhythm.
+              {t("referFriendBody")}
             </p>
           </div>
           <button
@@ -1761,7 +1768,7 @@ function EnhancedResult({
               if (!memberReferralCode) return;
               const link = (typeof window !== "undefined" ? window.location.origin + "/?ref=" : "") + memberReferralCode;
               if (typeof navigator !== "undefined" && navigator.share) {
-                try { await navigator.share({ title: "Discover your sleep chronotype", url: link }); return; } catch {}
+                try { await navigator.share({ title: t("shareTitle"), url: link }); return; } catch {}
               }
               await navigator.clipboard.writeText(link);
               setCopiedReferral(true);
@@ -1770,7 +1777,7 @@ function EnhancedResult({
             className="inline-flex items-center gap-[7px] text-[13px] font-semibold px-[14px] border-none cursor-pointer rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f] shrink-0"
             style={{ minHeight: "42px", color: "#FFFFFF", background: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
           >
-            {copiedReferral ? "Link copied" : "Send referral"}
+            {copiedReferral ? t("linkCopied") : t("sendReferral")}
             <ArrowRight size={14} strokeWidth={1.75} />
           </button>
         </div>
@@ -1790,7 +1797,7 @@ function EnhancedResult({
           style={{ minHeight: "44px", color: "#FFFFFF", background: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
         >
           <Download size={19} strokeWidth={1.75} />
-          {downloading ? "Generating report…" : "Download full report"}
+          {downloading ? t("generating") : t("downloadReport")}
         </button>
         <button
           type="button"
@@ -1798,7 +1805,7 @@ function EnhancedResult({
             if (!assessmentId) return;
             const shareUrl = typeof window !== "undefined" ? window.location.origin + "/r/" + assessmentId : "";
             if (typeof navigator !== "undefined" && navigator.share) {
-              try { await navigator.share({ title: "My Chronotype Result", url: shareUrl }); return; } catch {}
+              try { await navigator.share({ title: t("shareResultTitle"), url: shareUrl }); return; } catch {}
             }
             await navigator.clipboard.writeText(shareUrl);
             setCopiedReferral(true);
@@ -1808,7 +1815,7 @@ function EnhancedResult({
           style={{ minHeight: "44px", color: "#17172B", background: "#FFFFFF", border: "1px solid #E2E2EA", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
         >
           <Share2 size={19} strokeWidth={1.75} />
-          Share result
+          {t("shareResult")}
         </button>
         <button
           type="button"
@@ -1816,7 +1823,7 @@ function EnhancedResult({
           className="inline-flex items-center justify-center text-[14px] font-medium bg-transparent border-none cursor-pointer rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f]"
           style={{ minHeight: "44px", color: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
         >
-          Retake assessment
+          {t("retake")}
         </button>
       </div>
 
@@ -1834,7 +1841,7 @@ function EnhancedResult({
         className="w-full inline-flex items-center justify-center gap-[9px] text-[14px] font-semibold border rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f]"
         style={{ minHeight: "46px", color: "#30268F", background: "#F6F4FF", border: "1px solid #D8D3FA", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
       >
-        Go to my Dashboard
+        {t("goDashboard")}
         <ArrowRight size={18} strokeWidth={1.75} />
       </button>
 
@@ -1850,7 +1857,7 @@ function EnhancedResult({
       }}>
         {submissionMeta?.orgLogoUrl ? (
           <div className="flex items-center flex-wrap gap-[8px 16px]" style={{ fontSize: "11px", color: "#77788A", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
-            <span>Participating organisations:</span>
+            <span>{t("participatingOrgs")}</span>
             <img
               src={submissionMeta.orgLogoUrl}
               alt={submissionMeta.orgName ? `${submissionMeta.orgName} logo` : "Partner organisation logo"}
@@ -1862,7 +1869,7 @@ function EnhancedResult({
         <div className="flex items-center justify-center gap-[6px]" style={{ gridColumn: submissionMeta?.orgLogoUrl ? "auto" : "1 / -1" }}>
           <ShieldCheck size={14} strokeWidth={1.75} stroke="#9999AA" />
           <p className="m-0 text-[11px] whitespace-nowrap" style={{ color: "#9999AA", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
-            Wellness guidance only &mdash; not a medical diagnosis.
+            {t("disclaimerNote")}
           </p>
         </div>
       </div>

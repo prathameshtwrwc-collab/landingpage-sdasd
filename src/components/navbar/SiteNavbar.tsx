@@ -1,21 +1,24 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAssessment } from "@/components/assessment/AssessmentContext";
+import { useConsult } from "@/components/consult/ConsultContext";
 import DonateModal from "@/components/DonateModal";
+import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 
 type NavItem = {
-  label: string;
+  key: string;
   href: string;
   id: string;
 };
 
 const navItems: NavItem[] = [
-  { label: "Sleep Science", href: "#why-sleep-matters", id: "why-sleep-matters" },
-  { label: "Chronotypes", href: "#chronotypes", id: "chronotypes" },
-  { label: "Sleep Benefits", href: "#better-sleep-better-days", id: "better-sleep-better-days" },
-  { label: "Sleep Disorders", href: "#common-sleep-disorders", id: "common-sleep-disorders" },
-  { label: "FAQ", href: "#faq-section", id: "faq-section" },
+  { key: "sleepScience", href: "#why-sleep-matters", id: "why-sleep-matters" },
+  { key: "chronotypes", href: "#chronotypes", id: "chronotypes" },
+  { key: "sleepBenefits", href: "#better-sleep-better-days", id: "better-sleep-better-days" },
+  { key: "sleepDisorders", href: "#common-sleep-disorders", id: "common-sleep-disorders" },
+  { key: "faq", href: "#faq-section", id: "faq-section" },
 ];
 
 interface SiteNavbarProps {
@@ -25,6 +28,7 @@ interface SiteNavbarProps {
 
 export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbarProps) {
   const { open: openAssessment } = useAssessment();
+  const t = useTranslations("nav");
   const [donateOpen, setDonateOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -251,7 +255,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                       whiteSpace: "nowrap",
                     }}
                   >
-                    <span className="relative z-10 py-[4px]">{item.label}</span>
+                    <span className="relative z-10 py-[4px]">{t(item.key)}</span>
                     {/* Underline */}
                     <span
                       aria-hidden="true"
@@ -278,6 +282,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
 
             {/* Right: CTA desktop — hidden below 1024 */}
             <div className="hidden lg:flex items-center justify-end gap-[8px]">
+              <LanguageSwitcher />
               <a
                 href="/login"
                 className="cta-login inline-flex items-center justify-center border-none transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer no-underline"
@@ -294,7 +299,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                 onMouseEnter={(e) => { e.currentTarget.style.background = "#E08A00"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = "#F59A00"; }}
               >
-                Login
+                {t("login")}
               </a>
               <button type="button" onClick={() => setDonateOpen(true)}
                 className="cta-donate inline-flex items-center justify-center border cursor-pointer transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px]"
@@ -305,7 +310,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                   borderRadius: 0, fontFamily: "Poppins, sans-serif",
                   fontSize: "12px", fontWeight: 600,
                 }}>
-                ❤ Donate
+                ❤ {t("donate")}
               </button>
               <button
                 type="button"
@@ -336,7 +341,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                   e.currentTarget.style.background = "#3B35A3";
                 }}
               >
-                Take Test Now
+                {t("takeTestNow")}
               </button>
             </div>
 
@@ -345,7 +350,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
               <button
                 ref={hamburgerRef}
                 type="button"
-                aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-label={isMenuOpen ? t("closeMenu") : t("openMenu")}
                 aria-expanded={isMenuOpen}
                 aria-controls="mobile-navigation"
                 onClick={() => setIsMenuOpen((v) => !v)}
@@ -428,6 +433,9 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
             `,
           }}
         />
+        <div className="mb-[14px]">
+          <LanguageSwitcher />
+        </div>
         <nav aria-label="Mobile primary navigation" className="flex flex-col w-full">
           {navItems.map((item) => {
             const isActive = activeId === item.id;
@@ -453,7 +461,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                   textDecoration: "none",
                 }}
               >
-                {item.label}
+                {t(item.key)}
               </a>
             );
           })}
@@ -487,7 +495,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
           onMouseEnter={(e) => (e.currentTarget.style.background = "#332D92")}
           onMouseLeave={(e) => (e.currentTarget.style.background = "#3B35A3")}
         >
-          Take Test Now
+          {t("takeTestNow")}
         </button>
 
         {/* Mobile login link */}
@@ -514,7 +522,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
             e.currentTarget.style.borderColor = "#F59A00";
           }}
         >
-          Login
+          {t("login")}
         </a>
 
         {/* Mobile donate button */}
@@ -534,9 +542,9 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
             color: "#FF6B6B",
             borderRadius: 0,
           }}
-        >
-          ❤ Donate
-        </button>
+          >
+            ❤ {t("donate")}
+          </button>
       </div>
 
       {/* Optional subtle page overlay when menu open — rgba(31,27,83,0.12) */}

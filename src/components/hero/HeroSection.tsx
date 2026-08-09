@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { useAssessment } from "@/components/assessment/AssessmentContext";
 import { useConsult } from "@/components/consult/ConsultContext";
 
@@ -31,6 +32,7 @@ const benefitSets = [
 export default function HeroSection() {
   const { open: openAssessment } = useAssessment();
   const { open: openConsult } = useConsult();
+  const t = useTranslations("hero");
 
   const scrollToSleepCycles = () => {
     const el = document.getElementById("understanding-sleep-cycles");
@@ -516,6 +518,26 @@ export default function HeroSection() {
               from { opacity: 0; }
               to { opacity: 1; }
             }
+
+            /* ===== LOCALIZED (non-Latin) HEADING GUARDS ===== */
+            html[data-locale]:not([data-locale="en"]) .hero-heading-orange {
+              font-size: clamp(32px, 8.2vw, 42px) !important;
+              letter-spacing: -0.02em !important;
+            }
+            html[data-locale]:not([data-locale="en"]) .hero-heading-indigo {
+              font-size: clamp(28px, 7vw, 38px) !important;
+              letter-spacing: -0.015em !important;
+            }
+            @media (min-width: 768px) {
+              html[data-locale]:not([data-locale="en"]) .hero-heading-orange {
+                font-size: clamp(40px, 4.4vw, 58px) !important;
+              }
+              html[data-locale]:not([data-locale="en"]) .hero-heading-indigo {
+                font-size: clamp(36px, 4vw, 54px) !important;
+              }
+            }
+            html[dir="rtl"] .hero-heading { text-align: right !important; }
+            html[dir="rtl"] .hero-actions { direction: rtl !important; }
           `,
         }}
       />
@@ -573,12 +595,12 @@ export default function HeroSection() {
       </div>
 
       {/* DESKTOP arrows (hidden on mobile) */}
-      <button type="button" aria-label="Previous slide" onClick={prev} className="hero-arrow left-arrow hidden md:flex" style={{ left: "12px" }}>
+      <button type="button" aria-label={t("prevSlide")} onClick={prev} className="hero-arrow left-arrow hidden md:flex" style={{ left: "12px" }}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="15 18 9 12 15 6" />
         </svg>
       </button>
-      <button type="button" aria-label="Next slide" onClick={next} className="hero-arrow right-arrow hidden md:flex" style={{ right: "12px" }}>
+      <button type="button" aria-label={t("nextSlide")} onClick={next} className="hero-arrow right-arrow hidden md:flex" style={{ right: "12px" }}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="9 18 15 12 9 6" />
         </svg>
@@ -594,8 +616,8 @@ export default function HeroSection() {
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.15 }}
               className="hero-heading-orange"
             >
-              <span className="hero-line">Sleep is the</span>
-              <span className="hero-line">Foundation.</span>
+              <span className="hero-line">{t("line1")}</span>
+              <span className="hero-line">{t("line2")}</span>
             </motion.span>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
@@ -603,8 +625,8 @@ export default function HeroSection() {
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.35 }}
               className="hero-heading-indigo"
             >
-              <span className="hero-line hero-line-chronotype">Sleep Chronotype</span>
-              <span className="hero-line">is the Blueprint.</span>
+              <span className="hero-line hero-line-chronotype">{t("line3")}</span>
+              <span className="hero-line">{t("line4")}</span>
             </motion.span>
           </h1>
 
@@ -636,7 +658,7 @@ export default function HeroSection() {
                   />
                 </div>
                 <p className="hero-benefit-label" style={{ color: imgIdx === 1 ? "#37329D" : "#FF9700" }}>
-                  {imgIdx === 0 ? "Better Sleep" : imgIdx === 1 ? "Better Energy" : "Better Life"}
+                  {t(imgIdx === 0 ? "betterSleep" : imgIdx === 1 ? "betterEnergy" : "betterLife")}
                 </p>
               </motion.div>
             ))}
@@ -648,21 +670,21 @@ export default function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: "easeOut", delay: 0.55 }}
               type="button" onClick={openAssessment} className="flex items-center justify-center bg-[#3A34A3] hover:bg-[#322e8e] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
-              Take Test Now
+              {t("takeTest")}
             </motion.button>
             <motion.button
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: "easeOut", delay: 0.65 }}
               type="button" onClick={scrollToSleepCycles} className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
-              Learn About Sleep
+              {t("learnAboutSleep")}
             </motion.button>
             <motion.button
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: "easeOut", delay: 0.75 }}
               type="button" onClick={openConsult} className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
-              Consult a Sleep Specialist
+              {t("consultSpecialist")}
             </motion.button>
           </div>
         </div>

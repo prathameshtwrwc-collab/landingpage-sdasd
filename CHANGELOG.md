@@ -2,6 +2,27 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.1] — 2026-08-10 — i18n Migration + Language Switcher Fix
+
+### Added — Internationalization (i18n) Support
+- **`next-intl`** dependency added for full i18n support
+- Language switcher component (`src/components/i18n/LanguageSwitcher.tsx`) for locale selection
+- Server-side locale detection via cookie in `layout.tsx`
+- Client-side locale persistence via localStorage/cookie
+- Translation files for 10 locales: English, Hindi, Marathi, Bengali, Tamil, Telugu, Gujarati, Spanish, French, Arabic
+
+### Changed — i18n Context Setup
+- **`src/app/layout.tsx`** — Made async, reads locale from cookie server-side, renders `lang`, `dir`, and `data-locale` attributes on `<html>` element
+- **`src/components/i18n/I18nProvider.tsx`** — Initial locale now reads from server-rendered DOM attributes to prevent hydration mismatch
+
+### Fixed — Hydration Mismatch
+- Server-rendered `<html lang="en">` now properly matches client-side locale when cookie contains a different locale
+- `I18nProvider` initial state matches server-rendered HTML attributes
+
+### Fixed — Build Errors (paused work)
+- **`src/components/DonateModal.tsx`** — Restored missing `</div>` tag in amount selection section
+- **`src/components/assessment/AssessmentModal.tsx`** — Added missing `useTranslations("assessment")` hook in `SelectField` helper component
+
 ## [2.12.0] — 2026-08-08 — Chronotype gallery everywhere + PDF report polish + performance
 
 ### Added — Chronotype images on result screens

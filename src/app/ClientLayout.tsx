@@ -8,6 +8,7 @@ import LazyConsultModal from "@/components/consult/LazyConsultModal";
 import FloatingTestButton from "@/components/FloatingTestButton";
 import SmoothScrollProvider from "@/components/smooth-scroll/SmoothScrollProvider";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { I18nProvider } from "@/components/i18n/I18nProvider";
 import type { ReactNode } from "react";
 
 export default function ClientLayout({ children }: { children: ReactNode }) {
@@ -16,12 +17,14 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
       <AuthProvider>
         <AssessmentProvider>
           <ConsultProvider>
-            <SmoothScrollProvider>
-              {children}
-              <LazyAssessmentModal />
-              <LazyConsultModal />
-              <FloatingTestButton />
-            </SmoothScrollProvider>
+            <I18nProvider>
+              <SmoothScrollProvider>
+                {children}
+                <LazyAssessmentModal />
+                <LazyConsultModal />
+                <FloatingTestButton />
+              </SmoothScrollProvider>
+            </I18nProvider>
           </ConsultProvider>
         </AssessmentProvider>
       </AuthProvider>

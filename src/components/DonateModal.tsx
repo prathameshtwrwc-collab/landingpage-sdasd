@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import {
   Heart, X, Stethoscope, Pill, UsersRound, CheckCircle2,
   HeartHandshake, LockKeyhole, CircleAlert, CircleCheckBig,
@@ -32,6 +33,7 @@ function DonateVisualPanel() {
 }
 
 export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
+  const t = useTranslations("donate");
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
@@ -97,7 +99,7 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
   const handleDonate = useCallback(() => {
     const amount = showCustomInput ? parseFloat(customAmount) : selectedAmount;
     if (!amount || amount <= 0) {
-      setError("Please select or enter a contribution amount.");
+      setError(t("errorRequired"));
       return;
     }
     setSubmitting(true);
@@ -131,15 +133,15 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
         <CircleCheckBig size={40} strokeWidth={1.75} stroke="#18794E" />
       </div>
       <h2 className="m-0" style={{ color: "#19192B", fontFamily: "Poppins, sans-serif", fontWeight: 700, fontSize: "24px", lineHeight: 1.2 }}>
-        Thank you for your generosity
+        {t("successTitle")}
       </h2>
       <p className="m-0" style={{ color: "#666779", fontFamily: "Poppins, sans-serif", fontWeight: 400, fontSize: "14px", lineHeight: 1.6, maxWidth: "420px" }}>
-        Your contribution of {selectedAmount || customAmount ? formatAmount(selectedAmount || parseFloat(customAmount)) : ""} helps bring essential healthcare and compassionate medical support to families who need it most.
+        {t("successBody", { amount: formatAmount(selectedAmount || parseFloat(customAmount)) })}
       </p>
       <button type="button" onClick={resetAndClose}
         className="inline-flex items-center justify-center border-none cursor-pointer rounded-lg transition-all duration-200 px-[28px]"
         style={{ minHeight: "48px", background: "#30268F", color: "#FFFFFF", fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: "15px" }}>
-        Done
+        {t("done")}
       </button>
     </div>
   );
@@ -150,7 +152,7 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
       padding: "32px 34px 22px", overflowY: "auto", overflowX: "hidden", scrollbarGutter: "stable",
     }}>
       {/* Close button */}
-      <button type="button" onClick={resetAndClose} aria-label="Close donation dialog"
+      <button type="button" onClick={resetAndClose} aria-label={t("closeAria")}
         className="absolute top-[18px] right-[18px] flex items-center justify-center bg-transparent border-none cursor-pointer z-10 rounded-lg transition-colors duration-200 hover:bg-[#E6E6EE] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f]"
         style={{ width: "44px", height: "44px", minWidth: "44px", minHeight: "44px" }}>
         <X size={24} strokeWidth={1.75} stroke="#666779" />
@@ -163,18 +165,18 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
         </div>
         <div>
           <p className="m-0 text-[12px] font-semibold tracking-[0.02em]" style={{ color: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
-            GIVE THE GIFT OF HEALTHCARE
+            {t("eyebrow")}
           </p>
           <h2 ref={headingRef} id="donation-heading" tabIndex={-1} className="m-0 font-bold tracking-[-0.025em] leading-[1.1] donate-heading" style={{
             color: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 700, outline: "none",
           }}>
-            Help a family receive the care they deserve.
+            {t("heading")}
           </h2>
         </div>
       </div>
 
       <p id="donation-description" className="m-0" style={{ color: "#666779", fontFamily: "Poppins, sans-serif", fontWeight: 400, fontSize: "14px", lineHeight: 1.5, maxWidth: "58ch" }}>
-        No family should have to choose between medical treatment and daily essentials. Your contribution helps low-income families access doctor consultations, essential medicines and compassionate care.
+        {t("description")}
       </p>
 
       {/* Impact categories */}
@@ -184,16 +186,16 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
         background: "#F8F6FF", border: "1px solid #EBE8FB", borderRadius: "12px",
       }}>
         {[
-          { icon: Stethoscope, label: "Doctor consultations" },
-          { icon: Pill, label: "Essential medicines" },
-          { icon: UsersRound, label: "Family health support" },
+          { icon: Stethoscope, labelKey: "impact1" },
+          { icon: Pill, labelKey: "impact2" },
+          { icon: UsersRound, labelKey: "impact3" },
         ].map((item, i) => (
           <div key={i} style={{ textAlign: "center" }}>
             <div className="flex items-center justify-center mx-auto mb-[6px]" style={{ width: "48px", height: "48px", borderRadius: "50%", background: "rgba(48,38,143,0.08)" }}>
               <item.icon size={28} strokeWidth={1.75} stroke="#30268F" />
             </div>
             <p className="m-0 text-[12px] font-medium leading-[1.3]" style={{ color: "#19192B", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
-              {item.label}
+              {t(item.labelKey)}
             </p>
           </div>
         ))}
@@ -202,7 +204,7 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
       {/* Amount selection */}
       <div>
         <p className="m-0 text-[14px] font-semibold mb-[10px]" style={{ color: "#19192B", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
-          Choose your contribution
+          {t("choose")}
         </p>
         <div className="amount-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "10px" }}>
           {PRESET_AMOUNTS.map((amt) => {
@@ -235,14 +237,14 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
               color: showCustomInput ? "#FFFFFF" : "#19192B",
               borderColor: showCustomInput ? "#30268F" : "#E2E2EA",
             }}>
-            Other
+            {t("other")}
           </button>
         </div>
 
         {showCustomInput && (
           <div className="mt-[10px]">
             <label htmlFor="custom-amount" className="block text-[13px] font-medium mb-[5px]" style={{ color: "#666779", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
-              Enter contribution amount
+              {t("customLabel")}
             </label>
             <div className="flex items-center" style={{ border: "1px solid #E2E2EA", borderRadius: "8px", overflow: "hidden" }}>
               <span className="flex items-center justify-center px-[14px] text-[15px] font-semibold" style={{ background: "#F8F6FF", color: "#30268F", fontFamily: "Poppins, sans-serif", minHeight: "48px", borderRight: "1px solid #E2E2EA" }}>
@@ -251,10 +253,10 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
               <input id="custom-amount" type="number" min={1} step={1}
                 value={customAmount}
                 onChange={(e) => { setCustomAmount(e.target.value); setError(""); }}
-                placeholder="Enter amount"
+                placeholder={t("customPlaceholder")}
                 className="w-full px-[14px] text-[15px] font-semibold border-none outline-none"
                 style={{ minHeight: "48px", fontFamily: "Poppins, sans-serif", color: "#19192B" }}
-                aria-label="Enter contribution amount"
+                aria-label={t("customLabel")}
               />
             </div>
           </div>
@@ -265,7 +267,7 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
       <div className="flex items-start gap-[10px] rounded-xl" style={{ padding: "10px 12px", background: "#F6F4FF", border: "1px solid #D9D4FA" }}>
         <HeartHandshake size={20} strokeWidth={1.75} stroke="#30268F" className="shrink-0 mt-[1px]" />
         <p className="m-0 text-[12px] leading-[1.5]" style={{ color: "#666779", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
-          Every contribution helps bring essential healthcare closer to a family in need.
+          {t("reassurance")}
         </p>
       </div>
 
@@ -288,12 +290,12 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
         {submitting ? (
           <>
             <span className="inline-block w-[18px] h-[18px] rounded-full border-2 border-white border-t-transparent" style={{ animation: "donate-spin 0.6s linear infinite" }} />
-            Preparing payment&hellip;
+            {t("preparing")}
           </>
         ) : (
           <>
             <Heart size={18} strokeWidth={1.75} />
-            Donate for Family Healthcare
+            {t("donateBtn")}
           </>
         )}
       </button>
@@ -302,7 +304,7 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
       <div className="flex items-center justify-center gap-[6px]">
         <LockKeyhole size={14} strokeWidth={1.75} stroke="#9999AA" />
         <p className="m-0 text-[11px]" style={{ color: "#9999AA", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
-          You&rsquo;ll review your contribution before payment.
+          {t("note")}
         </p>
       </div>
     </div>

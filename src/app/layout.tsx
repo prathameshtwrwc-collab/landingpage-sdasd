@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
+import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import "./globals.css";
 import ClientLayout from "./ClientLayout";
@@ -11,6 +12,17 @@ const poppins = Poppins({
   display: "swap",
 });
 
+const VALID_LOCALES = ["en", "hi", "mr", "bn", "ta", "te", "gu", "es", "fr", "ar"] as const;
+type LocaleCode = (typeof VALID_LOCALES)[number];
+
+function getLocaleFromCookie(cookieStore: { get: (name: string) => { value?: string } | undefined }): LocaleCode {
+  const locale = cookieStore.get("app_locale")?.value;
+  if (typeof locale === "string" && VALID_LOCALES.includes(locale as LocaleCode)) {
+    return locale as LocaleCode;
+  }
+  return "en";
+}
+
 export const metadata: Metadata = {
   title: "Sleep Foundation – Sleep Chronotype Blueprint",
   description: "Sleep is the Foundation. Sleep Chronotype is the Blueprint. Better Sleep, Better Energy, Better Life.",
@@ -19,9 +31,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const cookieStore = await cookies();
+  const locale = getLocaleFromCookie(cookieStore);
+  const dir = locale === "ar" ? "rtl" : "ltr";
+
   return (
-    <html lang="en" className={poppins.variable}>
+    <html lang={locale} dir={dir} data-locale={locale} className={poppins.variable}>
       <head>
         <script dangerouslySetInnerHTML={{
           __html: `(function(){var d=document.documentElement;if(typeof CSS!==typeof(void 0)&&CSS.supports){if(!CSS.supports("font-size","clamp(1px,1px,1px)"))d.setAttribute("data-no-clamp","");if(!CSS.supports("height","100dvh"))d.setAttribute("data-no-dvh","");if(!CSS.supports("width","min(1px,1px)"))d.setAttribute("data-no-min","");if(!CSS.supports("scroll-margin-top","1px"))d.setAttribute("data-no-scroll-margin","");try{var t=document.createElement("div");t.style.display="-webkit-flex";t.style.display="flex";t.style.gap="1px";d.appendChild(t);var s=getComputedStyle(t).gap;d.removeChild(t);if(s!=="1px")d.setAttribute("data-no-flexgap","")}catch(e){d.setAttribute("data-no-flexgap","")}}})();`
