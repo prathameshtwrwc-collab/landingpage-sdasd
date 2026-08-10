@@ -37,7 +37,7 @@
   },
   "statement": {
     "line1": "Uni vahvistaa <highlight>terveyttäsi, mieltäsi, suorituskykyäsi, palautumistasi ja pitkäikäisyyttäsi.</highlight>",
-    "line2": "Joka yö aivosi ja kehosi suorittavat keskeisiä prosesseja, jotka vaikuttavat siihen, miten <h1>ajat, tunnet, opit, työskentelet, kommunikoit</h1><br2/>ja <h2>suoriudut päivän aikana.</h2>",
+    "line2": "Joka yö aivosi ja kehosi suorittavat keskeisiä prosesseja, jotka vaikuttavat siihen, miten <h1>ajat, tunnet, opit, työskentelet, kommunikoit</h1><br2></br2>ja <h2>suoriudut päivän aikana.</h2>",
     "line3": "PÄIVÄSI OVAT VAIN NIIN VAHVOJA KUIN YÖSI."
   },
   "chronoIntro": {

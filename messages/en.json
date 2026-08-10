@@ -37,7 +37,7 @@
   },
   "statement": {
     "line1": "Sleep powers your <highlight>Health, Mind, Performance, Recovery, and Longevity.</highlight>",
-    "line2": "Every night, your brain and body perform essential processes that<br1/>influence how you <h1>Think, Feel, Learn, Work, Communicate,</h1><br2/><h2>and perform throughout the day.</h2>",
+    "line2": "Every night, your brain and body perform essential processes that<br1></br1>influence how you <h1>Think, Feel, Learn, Work, Communicate,</h1><br2></br2><h2>and perform throughout the day.</h2>",
     "line3": "YOUR DAYS ARE ONLY AS POWERFUL AS YOUR NIGHTS."
   },
   "chronoIntro": {

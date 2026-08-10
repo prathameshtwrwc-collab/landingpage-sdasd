@@ -37,7 +37,7 @@
   },
   "statement": {
     "line1": "El sueño impulsa tu <highlight>salud, mente, rendimiento, recuperación y longevidad.</highlight>",
-    "line2": "Cada noche, tu cerebro y tu cuerpo realizan procesos esenciales que<br1/>influyen en cómo <h1>piensas, sientes, aprendes, trabajas y te comunicas,</h1><br2/><h2>y en cómo te desempeñas durante el día.</h2>",
+    "line2": "Cada noche, tu cerebro y tu cuerpo realizan procesos esenciales que<br1></br1>influyen en cómo <h1>piensas, sientes, aprendes, trabajas y te comunicas,</h1><br2></br2><h2>y en cómo te desempeñas durante el día.</h2>",
     "line3": "TUS DÍAS SON TAN PODEROSOS COMO TUS NOCHES."
   },
   "chronoIntro": {

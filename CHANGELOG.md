@@ -2,6 +2,13 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.5] — 2026-08-10 — Fix literal `<br1/>`/`<br2/>` in statement strip
+
+### Fixed — Statement text showing raw `<br1/>` / `<br2/>`
+- The statement section ("Every night, your brain and body perform essential processes that…") rendered literal `<br1/>` and `<br2/>` text because next-intl's ICU parser (formatjs) treats **self-closing** `<br1/>` tags as plain text — only paired tags are recognized as rich-text tags.
+- Replaced `<br1/>` → `<br1></br1>` and `<br2/>` → `<br2></br2>` across all 27 message catalogs, so the `t.rich` handlers in `HeroStatementStrip` render actual `<br>` elements (hidden on mobile for `br1`, hidden below `lg` for `br2`).
+- Verified rendered output now contains `<br class="hidden md:block"/>` and `<br class="hidden lg:block"/>` instead of the literal tags.
+
 ## [2.12.4] — 2026-08-10 — Translate assessment questions & options
 
 ### Added — Localized assessment content

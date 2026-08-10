@@ -37,7 +37,7 @@
   },
   "statement": {
     "line1": "Le sommeil alimente votre <highlight>santé, votre esprit, vos performances, votre récupération et votre longévité.</highlight>",
-    "line2": "Chaque nuit, votre cerveau et votre corps accomplissent des processus essentiels qui<br1/>influencent la façon dont vous <h1>pensez, ressentez, apprenez, travaillez et communiquez,</h1><br2/><h2>et dont vous vous comportez tout au long de la journée.</h2>",
+    "line2": "Chaque nuit, votre cerveau et votre corps accomplissent des processus essentiels qui<br1></br1>influencent la façon dont vous <h1>pensez, ressentez, apprenez, travaillez et communiquez,</h1><br2></br2><h2>et dont vous vous comportez tout au long de la journée.</h2>",
     "line3": "VOS JOURNÉES SONT AUSSI PUISSANTES QUE VOS NUITS."
   },
   "chronoIntro": {
