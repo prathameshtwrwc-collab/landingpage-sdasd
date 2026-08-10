@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Check, ChevronDown, Languages } from "lucide-react";
-import { locales } from "@/i18n/locales";
+import { localesByGroup } from "@/i18n/locales";
 import { useAppLocale } from "./I18nProvider";
 
 export default function LanguageSwitcher() {
@@ -27,7 +27,10 @@ export default function LanguageSwitcher() {
     };
   }, []);
 
-  const current = locales.find((l) => l.code === locale) ?? locales[0];
+  const allLocales = [...localesByGroup("international"), ...localesByGroup("indian")];
+  const current = allLocales.find((l) => l.code === locale) ?? allLocales[0];
+  const international = localesByGroup("international");
+  const indian = localesByGroup("indian");
 
   return (
     <div ref={ref} className="relative" style={{ position: "relative" }}>
@@ -65,14 +68,21 @@ export default function LanguageSwitcher() {
           aria-label={t("label")}
           className="absolute right-0 top-[calc(100%+8px)] z-[1200] rounded-lg"
           style={{
-            minWidth: "190px",
+            minWidth: "230px",
+            maxHeight: "min(70vh, 480px)",
+            overflowY: "auto",
             background: "#FFFFFF",
             border: "1px solid #EFEFF5",
             boxShadow: "0 12px 32px rgba(23,23,23,0.14)",
             padding: "6px",
+            overscrollBehavior: "contain",
           }}
         >
-          {locales.map((l) => {
+          <p className="m-0 px-[10px] pt-[6px] pb-[4px] text-[10px] font-bold uppercase tracking-[0.08em]"
+            style={{ color: "#B45309", fontFamily: "Poppins, sans-serif" }}>
+            International Languages
+          </p>
+          {international.map((l) => {
             const active = l.code === locale;
             return (
               <button
@@ -86,7 +96,41 @@ export default function LanguageSwitcher() {
                 }}
                 className="flex items-center w-full text-left border-none cursor-pointer rounded-md transition-colors"
                 style={{
-                  padding: "8px 10px",
+                  padding: "7px 10px",
+                  gap: "8px",
+                  background: active ? "rgba(53,49,155,0.07)" : "transparent",
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "13px",
+                  fontWeight: active ? 600 : 500,
+                  color: "#171717",
+                }}
+              >
+                <span style={{ flex: "1", minWidth: 0 }}>{l.nativeName}</span>
+                <span style={{ color: "#98A2B3", fontSize: "11px", fontWeight: 400 }}>{l.label}</span>
+                {active && <Check size={14} style={{ color: "#35319B" }} />}
+              </button>
+            );
+          })}
+
+          <p className="m-0 px-[10px] pt-[10px] pb-[4px] text-[10px] font-bold uppercase tracking-[0.08em]"
+            style={{ color: "#B45309", fontFamily: "Poppins, sans-serif" }}>
+            Indian Languages
+          </p>
+          {indian.map((l) => {
+            const active = l.code === locale;
+            return (
+              <button
+                key={`${l.code}-in`}
+                type="button"
+                role="option"
+                aria-selected={active}
+                onClick={() => {
+                  setOpen(false);
+                  if (!active) setLocale(l.code);
+                }}
+                className="flex items-center w-full text-left border-none cursor-pointer rounded-md transition-colors"
+                style={{
+                  padding: "7px 10px",
                   gap: "8px",
                   background: active ? "rgba(53,49,155,0.07)" : "transparent",
                   fontFamily: "Poppins, sans-serif",

@@ -2,6 +2,16 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.2] — 2026-08-10 — Expanded Language Support (17 new languages)
+
+### Added — International & Indian language groups
+- Language switcher now shows **two sections**: **International Languages** (English, Spanish, French, German, Russian, Chinese Simplified, Chinese Traditional, Japanese, Italian, Turkish, Arabic, Bangla, Finnish, Hebrew, Greek, Malay, Portuguese, Urdu-Pakistan) and **Indian Languages** (English, Hindi, Marathi, Bengali, Gujarati, Tamil, Telugu, Kannada, Punjabi, Malayalam, Odia) — each with the native name and English label.
+- **17 new fully-translated message catalogs** added to `messages/`:
+  - International: `de` (German), `ru` (Russian), `zh` (Chinese Simplified), `zh-tw` (Chinese Traditional), `ja` (Japanese), `it` (Italian), `tr` (Turkish), `fi` (Finnish), `he` (Hebrew, RTL), `el` (Greek), `ms` (Malay), `pt` (Portuguese), `ur` (Urdu, RTL)
+  - Indian: `kn` (Kannada), `pa` (Punjabi), `ml` (Malayalam), `or` (Odia)
+- Every catalog covers all sections (nav, hero, chronotypes, sleep cycles, disorders, warning signs, facts, guidance, FAQ, donate, consult, assessment + result screen), with RTL direction for Arabic/Hebrew/Urdu.
+- `locales.ts` now defines locale groups and `localesByGroup()`; `LanguageSwitcher` renders the grouped dropdown; `messages.ts` imports all new catalogs (deep-merged over English).
+
 ## [2.12.1] — 2026-08-10 — i18n Migration + Language Switcher Fix
 
 ### Added — Internationalization (i18n) Support
