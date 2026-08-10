@@ -2,6 +2,13 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.4] — 2026-08-10 — Translate assessment questions & options
+
+### Added — Localized assessment content
+- Assessment questions and their options were previously shown only in English (they are stored in the DB in English). Added a client-side translation catalog (`src/i18n/assessment.ts`) covering **all 27 locales** — each question (by `question_order`) and each option (by `${order}_${option_value}`) is translated.
+- `AssessmentModal` now reads the active locale (`useAppLocale`) and maps the loaded questions/options through `translateAssessment` before rendering, falling back to the DB English text for any locale/entry not covered.
+- Verified: `translateQuestion('hi', 1)` → Hindi wake-time question, `translateQuestion('de', 3)` → German alertness question, `translateOption('ta', 1, 'A')` → Tamil "Before 6:30 AM".
+
 ## [2.12.3] — 2026-08-10 — Fix language switching for newly added locales
 
 ### Fixed — Choosing a new language kept the UI in English

@@ -10,6 +10,8 @@ import {
 import { useAssessment } from "./AssessmentContext";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useTranslations } from "next-intl";
+import { useAppLocale } from "@/components/i18n/I18nProvider";
+import { translateAssessment } from "@/i18n/assessment";
 import { getAssessmentData, createMemberAndStartAssessment, submitAssessment, abandonAndRestartAssessment, saveAnswer } from "@/lib/actions/assessment";
 import { clearCache } from "@/lib/client-cache";
 import { chronotypeImageSrcs } from "@/lib/chronotype-image";
@@ -73,6 +75,7 @@ export default function AssessmentModal() {
   const { isOpen, close, retestMemberId } = useAssessment();
   const { open: openConsult } = useConsult();
   const t = useTranslations("assessment");
+  const { locale } = useAppLocale();
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(initialForm);
@@ -237,12 +240,12 @@ export default function AssessmentModal() {
   const loadAssessmentData = useCallback(async () => {
     try {
       const data = await getAssessmentData();
-      setQuestions(data.questions);
+      setQuestions(translateAssessment(locale, data.questions));
       setVersionId(data.versionId);
     } catch {
       setServerError(t("failedLoad"));
     }
-  }, []);
+  }, [locale]);
 
   if (!isOpen) return null;
 
