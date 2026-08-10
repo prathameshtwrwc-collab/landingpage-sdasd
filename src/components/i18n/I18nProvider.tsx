@@ -26,6 +26,11 @@ const I18nContext = createContext<I18nContextValue | null>(null);
 
 function getInitialLocale(): LocaleCode {
   try {
+    // Superadmin / admin dashboards are always English — never translate
+    // the management UI or the member data shown there.
+    const path = window.location.pathname;
+    if (path.startsWith("/superadmin") || path.startsWith("/admin")) return "en" as LocaleCode;
+
     const fromDataLocale = document.documentElement.getAttribute("data-locale");
     if (fromDataLocale && isValidLocale(fromDataLocale)) return fromDataLocale;
     const fromLang = document.documentElement.lang;
