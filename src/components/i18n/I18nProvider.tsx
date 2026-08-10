@@ -72,7 +72,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   return (
     <I18nContext.Provider value={value}>
-      <NextIntlClientProvider locale={locale} messages={messages}>
+      <NextIntlClientProvider locale={locale} messages={messages} timeZone="UTC">
         {children}
       </NextIntlClientProvider>
     </I18nContext.Provider>
