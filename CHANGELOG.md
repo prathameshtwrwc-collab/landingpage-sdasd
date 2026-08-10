@@ -2,6 +2,13 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.6] — 2026-08-10 — Add Urdu (India) to Indian languages
+
+### Added — Urdu (India)
+- Added **Urdu (India)** (`ur-in`, native name اردو, RTL) to the **Indian Languages** section of the language switcher.
+- `messages.ts` maps `ur-in` to the Urdu (`ur`) catalog; `assessment.ts` includes a `ur-in` entry for all 11 assessment questions and 33 options; server-side locale validation accepts it.
+- Verified: `app_locale=ur-in` renders `<html lang="ur-in" dir="rtl" data-locale="ur-in">` and the UI shows Urdu content.
+
 ## [2.12.5] — 2026-08-10 — Fix literal `<br1/>`/`<br2/>` in statement strip
 
 ### Fixed — Statement text showing raw `<br1/>` / `<br2/>`

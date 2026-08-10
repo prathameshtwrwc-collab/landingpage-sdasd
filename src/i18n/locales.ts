@@ -33,6 +33,7 @@ export const locales = [
   { code: "pa", label: "Punjabi", nativeName: "ਪੰਜਾਬੀ", dir: "ltr", group: "indian" },
   { code: "ml", label: "Malayalam", nativeName: "മലയാളം", dir: "ltr", group: "indian" },
   { code: "or", label: "Odia", nativeName: "ଓଡ଼ିଆ", dir: "ltr", group: "indian" },
+  { code: "ur-in", label: "Urdu (India)", nativeName: "اردو", dir: "rtl", group: "indian" },
 ] as const;
 
 export type LocaleCode = (typeof locales)[number]["code"];

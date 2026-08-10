@@ -49,6 +49,7 @@ function deepMerge(base: Messages, override: Messages): Messages {
 const catalogs: Record<string, Messages> = {
   en, hi, mr, bn, ta, te, gu, kn, pa, ml, or,
   es, fr, de, ru, zh, "zh-tw": zhTw, ja, it, tr, ar, fi, he, el, ms, pt, ur,
+  "ur-in": ur,
 };
 
 export function getMessages(locale: string): Messages {
