@@ -2,6 +2,13 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.3] — 2026-08-10 — Fix language switching for newly added locales
+
+### Fixed — Choosing a new language kept the UI in English
+- **Root cause**: `src/app/layout.tsx` hardcoded `VALID_LOCALES` to the original 10 locales. When a user selected one of the 17 newly added languages (e.g. `de`, `kn`, `ur`), the `app_locale` cookie was set but the server-side `getLocaleFromCookie` rejected it (not in the hardcoded list) and fell back to `en` — so `<html data-locale>` was always `en` and the client re-initialized to English after reload.
+- **Fix**: `layout.tsx` now imports `isValidLocale` / `dirForLocale` from the shared `@/i18n/locales` module (which includes all 27 locales), and derives `dir` from `dirForLocale` — so every locale in the switcher renders correctly with proper `lang`, `dir`, and `data-locale`, including RTL (Arabic/Hebrew/Urdu).
+- Verified server-side: `app_locale=de` → `<html lang="de" dir="ltr" data-locale="de">`; `app_locale=he` → `<html lang="he" dir="rtl" data-locale="he">`; `getMessages()` resolves all new catalogs.
+
 ## [2.12.2] — 2026-08-10 — Expanded Language Support (17 new languages)
 
 ### Added — International & Indian language groups

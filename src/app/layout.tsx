@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import "./globals.css";
 import ClientLayout from "./ClientLayout";
+import { isValidLocale, dirForLocale, type LocaleCode } from "@/i18n/locales";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -12,12 +13,9 @@ const poppins = Poppins({
   display: "swap",
 });
 
-const VALID_LOCALES = ["en", "hi", "mr", "bn", "ta", "te", "gu", "es", "fr", "ar"] as const;
-type LocaleCode = (typeof VALID_LOCALES)[number];
-
 function getLocaleFromCookie(cookieStore: { get: (name: string) => { value?: string } | undefined }): LocaleCode {
   const locale = cookieStore.get("app_locale")?.value;
-  if (typeof locale === "string" && VALID_LOCALES.includes(locale as LocaleCode)) {
+  if (typeof locale === "string" && isValidLocale(locale)) {
     return locale as LocaleCode;
   }
   return "en";
@@ -34,7 +32,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const cookieStore = await cookies();
   const locale = getLocaleFromCookie(cookieStore);
-  const dir = locale === "ar" ? "rtl" : "ltr";
+  const dir = dirForLocale(locale);
 
   return (
     <html lang={locale} dir={dir} data-locale={locale} className={poppins.variable}>
