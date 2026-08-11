@@ -520,20 +520,59 @@ export default function HeroSection() {
             }
 
             /* ===== LOCALIZED (non-Latin) HEADING GUARDS ===== */
+            html[data-locale]:not([data-locale="en"]) .hero-benefit-label {
+              font-size: clamp(13px, 2.6vw, 17px) !important;
+              line-height: 1.2 !important;
+              overflow-wrap: break-word !important;
+            }
+            html[data-locale]:not([data-locale="en"]) .hero-actions {
+              grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+              gap: 6px !important;
+            }
+            html[data-locale]:not([data-locale="en"]) .hero-actions button {
+              font-size: clamp(12px, 2vw, 15px) !important;
+              padding: 0 8px !important;
+              white-space: nowrap !important;
+              overflow: hidden !important;
+              text-overflow: ellipsis !important;
+            }
             html[data-locale]:not([data-locale="en"]) .hero-heading-orange {
-              font-size: clamp(32px, 8.2vw, 42px) !important;
+              font-size: clamp(28px, 7.5vw, 38px) !important;
               letter-spacing: -0.02em !important;
+              white-space: normal !important;
+              word-break: break-word !important;
+              overflow-wrap: break-word !important;
             }
             html[data-locale]:not([data-locale="en"]) .hero-heading-indigo {
-              font-size: clamp(28px, 7vw, 38px) !important;
+              font-size: clamp(25px, 6.5vw, 34px) !important;
               letter-spacing: -0.015em !important;
+              white-space: normal !important;
+              word-break: break-word !important;
+              overflow-wrap: break-word !important;
+            }
+            html[data-locale]:not([data-locale="en"]) .hero-line {
+              white-space: normal !important;
+              overflow-wrap: break-word !important;
+            }
+            html[data-locale]:not([data-locale="en"]) .hero-line-chronotype {
+              white-space: normal !important;
             }
             @media (min-width: 768px) {
               html[data-locale]:not([data-locale="en"]) .hero-heading-orange {
-                font-size: clamp(40px, 4.4vw, 58px) !important;
+                font-size: clamp(34px, 4vw, 52px) !important;
               }
               html[data-locale]:not([data-locale="en"]) .hero-heading-indigo {
-                font-size: clamp(36px, 4vw, 54px) !important;
+                font-size: clamp(31px, 3.7vw, 48px) !important;
+              }
+              html[data-locale]:not([data-locale="en"]) .hero-content {
+                min-width: 0 !important;
+                max-width: 58% !important;
+              }
+            }
+            @media (max-width: 429px) {
+              html[data-locale]:not([data-locale="en"]) .hero-heading {
+                width: calc(100vw - 36px) !important;
+                max-width: calc(100vw - 36px) !important;
               }
             }
             html[dir="rtl"] .hero-heading { text-align: right !important; }

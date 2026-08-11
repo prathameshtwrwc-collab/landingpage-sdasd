@@ -182,6 +182,31 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
               html[data-no-flexgap] #site-navbar .nav-links{ gap:0 !important; }
               html[data-no-flexgap] #site-navbar .nav-links > a{ margin:0 14px 0 0 !important; }
               html[data-no-flexgap] #site-navbar .nav-links > a:last-child{ margin-right:0 !important; }
+              /* Localized nav: smaller font + wrapping so longer translations
+                 never overlap or overflow the header */
+              html[data-locale]:not([data-locale="en"]) #site-navbar .nav-links{ gap:clamp(6px,1vw,16px) !important; }
+              html[data-locale]:not([data-locale="en"]) #site-navbar .nav-link{
+                font-size:clamp(10.5px,1.05vw,12.5px) !important;
+                white-space:normal !important;
+                text-align:center !important;
+                line-height:1.15 !important;
+                padding:2px 0 !important;
+              }
+              html[data-locale]:not([data-locale="en"]) #site-navbar .nav-link > span{ white-space:normal !important; }
+              html[data-locale]:not([data-locale="en"]) #site-navbar .cta-login,
+              html[data-locale]:not([data-locale="en"]) #site-navbar .cta-donate,
+              html[data-locale]:not([data-locale="en"]) #site-navbar .cta-test{
+                width:auto !important;
+                padding:0 10px !important;
+                white-space:nowrap !important;
+                font-size:11px !important;
+              }
+              @media(min-width:1024px) and (max-width:1279px){
+                html[data-locale]:not([data-locale="en"]) #site-navbar .nav-link{ font-size:10px !important; }
+                html[data-locale]:not([data-locale="en"]) #site-navbar .cta-login,
+                html[data-locale]:not([data-locale="en"]) #site-navbar .cta-donate,
+                html[data-locale]:not([data-locale="en"]) #site-navbar .cta-test{ font-size:10px !important; padding:0 7px !important; }
+              }
             `,
           }}
         />

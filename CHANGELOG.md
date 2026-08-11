@@ -2,6 +2,21 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.7] — 2026-08-11 — Fix nav & hero overflow for longer translated text
+
+### Fixed — Navbar links overlapping / overflowing in some languages
+- Longer translations (e.g. German, Russian, Hindi) made the desktop nav links overflow and overlap because links used `white-space: nowrap` with fixed font sizes/gaps.
+- Added locale-aware guards (`html[data-locale]:not([data-locale="en"])`) in `SiteNavbar`:
+  - Nav links now **wrap** (`white-space: normal`, centered) and use a smaller `clamp()` font size; smaller gap.
+  - CTA buttons (Login / Donate / Take Test) switch from fixed widths to `width: auto` + padding so longer labels fit; extra-tight sizing on 1024–1279px.
+
+### Fixed — Hero section text overflowing the screen in some languages
+- Hero heading and benefit/action areas used fixed `clamp()` font sizes with `white-space: nowrap` on the chronotype line, so long translations ran off-screen.
+- Added localized guards in `HeroSection`:
+  - Heading lines (`hero-heading-orange/indigo`, `.hero-line`, `.hero-line-chronotype`) wrap (`white-space: normal`) with `word-break`/`overflow-wrap: break-word`, and smaller `clamp()` sizes per breakpoint.
+  - `.hero-content` `min-width` relaxed (0) and `max-width` raised on desktop so the column flexes.
+  - Hero benefit labels auto-size with wrapping; hero action buttons use fluid `repeat(3, minmax(0,1fr))` grid with ellipsis.
+
 ## [2.12.6] — 2026-08-10 — Add Urdu (India) to Indian languages
 
 ### Added — Urdu (India)
