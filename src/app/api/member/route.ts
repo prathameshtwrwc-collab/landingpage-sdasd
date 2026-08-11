@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const email = searchParams.get("email");
+  const email = searchParams.get("email")?.toLowerCase().trim();
   const memberId = searchParams.get("member_id");
 
   if (!email && !memberId) {

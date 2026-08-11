@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback((email: string, name: string, role: Role): string => {
     const newUser: AuthUser = {
       id: crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      email,
+      email: email.toLowerCase().trim(),
       name,
       role,
     };

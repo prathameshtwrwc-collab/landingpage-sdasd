@@ -32,7 +32,8 @@ export default function LoginCard() {
 
   const checkEmail = async (e: FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    const normalizedEmail = email.toLowerCase().trim();
+    if (!normalizedEmail) return;
     setIsSubmitting(true);
     setError("");
 
@@ -40,7 +41,7 @@ export default function LoginCard() {
       const res = await fetch("/api/auth/check-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.toLowerCase().trim() }),
+        body: JSON.stringify({ email: normalizedEmail }),
       });
       const data = await res.json();
 
@@ -51,13 +52,13 @@ export default function LoginCard() {
 
       if (data.exists && data.role === "member") {
         setDetectedRole("member");
-        const name = data.member?.first_name as string || email.split("@")[0];
+        const name = data.member?.first_name as string || normalizedEmail.split("@")[0];
         setDetectedName(name);
-        const redirect = login(email, name, "member");
+        const redirect = login(normalizedEmail, name, "member");
         router.push(redirect);
       } else if (data.exists && (data.role === "admin" || data.role === "superadmin")) {
         setDetectedRole(data.role);
-        const name = data.admin?.first_name as string || data.member?.first_name as string || email.split("@")[0];
+        const name = data.admin?.first_name as string || data.member?.first_name as string || normalizedEmail.split("@")[0];
         setDetectedName(name);
         setStep("password");
       } else {
@@ -80,8 +81,9 @@ export default function LoginCard() {
     setError("");
 
     try {
+      const normalizedEmail = email.toLowerCase().trim();
       const result = await clerk.client.signIn.create({
-        identifier: email,
+        identifier: normalizedEmail,
         password,
       });
 
@@ -92,7 +94,7 @@ export default function LoginCard() {
           : appRole === "organization_admin"
             ? "/admin/dashboard"
             : "/dashboard";
-        login(email, detectedName || email.split("@")[0], appRole);
+        login(normalizedEmail, detectedName || normalizedEmail.split("@")[0], appRole);
         await clerk.setActive({ session: result.createdSessionId });
         setTimeout(() => { window.location.href = dashboardPath; }, 200);
         return;
@@ -108,12 +110,13 @@ export default function LoginCard() {
 
   const handleSignUp = async () => {
     setIsSubmitting(true);
+    const normalizedEmail = email.toLowerCase().trim();
     try {
       const result = await clerk.client.signUp.create({
-        emailAddress: email,
+        emailAddress: normalizedEmail,
       });
       if (result.status === "missing_requirements") {
-        router.push(`/login?signup=true&email=${encodeURIComponent(email)}`);
+        router.push(`/login?signup=true&email=${encodeURIComponent(normalizedEmail)}`);
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Sign up failed");
@@ -154,7 +157,7 @@ export default function LoginCard() {
             <div className="flex items-center w-full bg-white transition-all duration-150" style={{ borderRadius: "10px", border: "1.5px solid #D5D5D5" }}>
               <span className="flex items-center justify-center pl-[14px] shrink-0"><Mail size={16} stroke="#AAA" /></span>
               <input
-                type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+                type="email" required value={email} onChange={(e) => setEmail(e.target.value.toLowerCase())}
                 placeholder="you@example.com" autoFocus
                 className="w-full bg-transparent border-none px-[12px] py-[13px] text-[14px] outline-none"
                 style={{ fontFamily: "Poppins, sans-serif", borderRadius: "10px" }}

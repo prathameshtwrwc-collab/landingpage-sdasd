@@ -2,6 +2,13 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.10] — 2026-08-11 — Case-insensitive member login (email normalized to lowercase)
+
+### Fixed — Capitalized email login failed for existing member accounts
+- Logging in with an email in uppercase (e.g. `MEMBER@GMAIL.COM`) previously stored the mixed-case email in the session, and the dashboard's `/api/member` lookup (case-sensitive) couldn't find the lowercase DB row — so the member couldn't access their dashboard.
+- **Login email input now lowercases as the user types** (`onChange` → `toLowerCase()`), and the normalized email is used everywhere: `check-user`, Clerk sign-in identifier, `AuthProvider.login` session, and sign-up.
+- Server-side hardening: `/api/member` and `/api/auth/check-user` now lowercase the incoming email before querying, so any pre-existing mixed-case sessions also resolve.
+
 ## [2.12.9] — 2026-08-11 — Store dropdown selections in English (localized labels only)
 
 ### Fixed — Superadmin sees English for localized dropdown selections
