@@ -577,6 +577,17 @@ export default function HeroSection() {
             }
             html[dir="rtl"] .hero-heading { text-align: right !important; }
             html[dir="rtl"] .hero-actions { direction: rtl !important; }
+            /* RTL hero background slider: keep track LTR so translateX math is
+               stable, and mirror the background image itself for RTL readers. */
+            html[dir="rtl"] .hero-bg-track {
+              direction: ltr !important;
+            }
+            html[dir="rtl"] .hero-bg-slide {
+              transform: scaleX(-1);
+            }
+            html[dir="rtl"] .hero-readability-overlay {
+              transform: scaleX(-1);
+            }
           `,
         }}
       />
@@ -603,7 +614,7 @@ export default function HeroSection() {
 
       {/* DESKTOP readability overlay (hidden on mobile) */}
       <div
-        className="hidden md:block absolute inset-0 z-[1] pointer-events-none"
+        className="hidden md:block absolute inset-0 z-[1] pointer-events-none hero-readability-overlay"
         aria-hidden="true"
         style={{
           background: `linear-gradient(90deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.91) 27%, rgba(255,255,255,0.48) 43%, rgba(255,255,255,0.08) 58%, rgba(255,255,255,0) 70%)`,

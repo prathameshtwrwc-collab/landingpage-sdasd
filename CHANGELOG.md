@@ -2,6 +2,13 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.8] — 2026-08-11 — Fix RTL sliders & hero background mirroring
+
+### Fixed — RTL (Arabic / Hebrew / Urdu) sliders
+- **Common Sleep Disorders carousel** (desktop + mobile) broke in RTL pages: the flex track uses `translateX(-N%)`, which assumes LTR, so slides laid out in the wrong direction and images didn't display. The tracks (`.disorders-slide-track`, `.disorders-mobile-track`) are now forced to `direction: ltr` so the slide math stays stable regardless of page direction.
+- **Hero background slider** same root cause — `.hero-bg-track` now forced to `direction: ltr` so the second background image (and auto-slide) works in RTL languages.
+- **Hero background image mirrored for RTL readers**: `html[dir="rtl"] .hero-bg-slide { transform: scaleX(-1) }` mirrors the background art; the desktop readability overlay (`.hero-readability-overlay`) is mirrored too so the white gradient stays under the right-aligned text. No mirroring applied to disorder/benefit images or any text (only hero background as requested).
+
 ## [2.12.7] — 2026-08-11 — Fix nav & hero overflow for longer translated text
 
 ### Fixed — Navbar links overlapping / overflowing in some languages

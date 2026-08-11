@@ -123,10 +123,16 @@ export default function CommonSleepDisordersSection() {
                     overflow: hidden;
                     width: 100%;
                   }
+                  /* Force LTR track so translateX slide math is stable in RTL pages. */
                   .disorders-slide-track {
                     display: flex;
+                    direction: ltr;
                     transition: transform 0.4s ease-in-out;
                     will-change: transform;
+                  }
+                  .disorders-mobile-track {
+                    display: flex;
+                    direction: ltr;
                   }
                   .disorders-slide-pair {
                     width: 100%;
@@ -290,7 +296,7 @@ export default function CommonSleepDisordersSection() {
           <div className="block md:hidden w-full min-w-0">
             <div className="w-full overflow-hidden min-w-0">
               <div
-                className="flex"
+                className="flex disorders-mobile-track"
                 style={{
                   transform: `translateX(-${mobileIndex * 100}%)`,
                   transition: "transform 0.4s ease-in-out",
