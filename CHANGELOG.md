@@ -2,6 +2,13 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.12] — 2026-08-11 — Hero action buttons auto-fit translated text
+
+### Fixed — Hero button text overflowing buttons in some languages
+- The localized guard for `.hero-actions button` previously forced `white-space: nowrap` + `text-overflow: ellipsis`, which clipped long translations (e.g. German "Jetzt Schlaf testen" / Russian) instead of adjusting.
+- Desktop: buttons now allow text to **wrap** (`white-space: normal`, `word-break`, `line-height: 1.25`), auto-height (`height: auto`, `min-height: 48px`, vertical padding), centered; the actions grid uses fluid `repeat(3, minmax(0,1fr))` with `align-items: stretch` so all buttons share height.
+- Mobile already had `width: 100%`, `height: auto`, centered wrap — unchanged.
+
 ## [2.12.11] — 2026-08-11 — One email = one role (member vs admin conflict)
 
 ### Fixed — Same email could exist as both member and org admin

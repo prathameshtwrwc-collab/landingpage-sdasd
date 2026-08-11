@@ -528,13 +528,18 @@ export default function HeroSection() {
             html[data-locale]:not([data-locale="en"]) .hero-actions {
               grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
               gap: 6px !important;
+              align-items: stretch !important;
             }
             html[data-locale]:not([data-locale="en"]) .hero-actions button {
               font-size: clamp(12px, 2vw, 15px) !important;
-              padding: 0 8px !important;
-              white-space: nowrap !important;
-              overflow: hidden !important;
-              text-overflow: ellipsis !important;
+              padding: 10px 8px !important;
+              white-space: normal !important;
+              overflow-wrap: break-word !important;
+              word-break: break-word !important;
+              line-height: 1.25 !important;
+              height: auto !important;
+              min-height: 48px !important;
+              text-align: center !important;
             }
             html[data-locale]:not([data-locale="en"]) .hero-heading-orange {
               font-size: clamp(28px, 7.5vw, 38px) !important;
