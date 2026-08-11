@@ -102,6 +102,21 @@ export async function createMemberAndStartAssessment(data: {
         organization_id: organizationId, source_type: sourceType, referral_code: data.referral_code || null,
       }).eq("id", memberId);
     } else {
+      // One email = one role. Refuse to register a member with an email that
+      // is already an organization admin or superadmin.
+      const normalizedEmail = data.email.toLowerCase().trim();
+      const { data: adminConflict } = await supabase
+        .from("organization_admins")
+        .select("id, role")
+        .eq("email", normalizedEmail)
+        .maybeSingle();
+      if (adminConflict) {
+        throw new Error(
+          adminConflict.role === "superadmin"
+            ? "This email already exists as a superadmin. Please use a different email."
+            : "This email already exists as an organization admin. Please use a different email."
+        );
+      }
       const parsedAge = (() => { const n = parseInt(data.age, 10); return isNaN(n) ? null : n; })();
       const memberData: Record<string, unknown> = {
         first_name: data.first_name, last_name: data.last_name, age: parsedAge,

@@ -100,14 +100,19 @@ export default function UsersPage() {
   const createAdmin = async () => {
     if (!form.first_name || !form.last_name || !form.email || !form.password || !form.organization_id) return;
     setCreating(true);
+    setServerError("");
     const fd = new FormData();
     Object.entries(form).forEach(([k, v]) => fd.append(k, v));
     try {
-      await fetch("/api/admin?action=create_admin", { method: "POST", body: fd });
+      const r = await fetch("/api/admin?action=create_admin", { method: "POST", body: fd });
+      const d = await r.json().catch(() => ({}));
+      if (d.error) { setServerError(d.error); return; }
       setShowForm(false);
       setForm({ first_name: "", last_name: "", email: "", password: "", organization_id: "" });
       await loadData();
-    } catch {}
+    } catch {
+      setServerError("Failed to create admin");
+    }
     setCreating(false);
   };
 

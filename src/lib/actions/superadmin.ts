@@ -14,6 +14,47 @@ async function requireSuperadmin() {
   return session.userId;
 }
 
+/**
+ * Ensures an email is not already registered under a different role.
+ * One email can belong to exactly one of: member, organization admin,
+ * or superadmin. Throws a clear error otherwise.
+ */
+async function assertEmailNotInUse(
+  supabase: ReturnType<typeof createAdminClient>,
+  rawEmail: string,
+  opts: { excludeAdminId?: string | null } = {}
+) {
+  const email = rawEmail.toLowerCase().trim();
+  if (!email) return;
+
+  // Already a member?
+  const { data: member } = await supabase
+    .from("members")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+  if (member) {
+    throw new Error("This email already exists as a member. Please use a different email.");
+  }
+
+  // Already an admin (org admin or superadmin) — ignoring the admin being edited.
+  const adminQuery = supabase
+    .from("organization_admins")
+    .select("id, role")
+    .eq("email", email);
+  if (opts.excludeAdminId) {
+    adminQuery.neq("id", opts.excludeAdminId);
+  }
+  const { data: admin } = await adminQuery.maybeSingle();
+  if (admin) {
+    throw new Error(
+      admin.role === "superadmin"
+        ? "This email already exists as a superadmin. Please use a different email."
+        : "This email already exists as an organization admin. Please use a different email."
+    );
+  }
+}
+
 export async function createOrganizationInternal(formData: FormData) {
   const name = formData.get("name") as string;
   const orgType = (formData.get("organization_type") as string) || "Corporate";
@@ -59,6 +100,11 @@ export async function createOrganizationAdminInternal(formData: FormData) {
   }
 
   const supabase = createAdminClient();
+
+  // An email can only belong to one role: member, org admin, or superadmin.
+  // Reject creating an admin when the email already exists under another role
+  // (or as another admin), instead of silently splitting the account.
+  await assertEmailNotInUse(supabase, email, { excludeAdminId: undefined });
 
   const { data: existingOrg } = await supabase
     .from("organizations")
@@ -169,6 +215,14 @@ export async function deleteOrgInternal(orgId: string) {
 
 export async function editAdminInternal(adminId: string, data: Record<string, string>) {
   const supabase = createAdminClient();
+
+  // If the admin's email is changing, ensure the new email is not already
+  // used by a member, another admin, or a superadmin.
+  const newEmail = data.email;
+  if (newEmail) {
+    await assertEmailNotInUse(supabase, newEmail, { excludeAdminId: adminId });
+  }
+
   const { error } = await supabase.from("organization_admins").update(data).eq("id", adminId);
   if (error) throw new Error(error.message);
   return { success: true };
@@ -183,6 +237,26 @@ export async function deleteAdminInternal(adminId: string) {
 
 export async function editMemberInternal(memberId: string, data: Record<string, unknown>) {
   const supabase = createAdminClient();
+
+  // If the member's email is changing, ensure it is not already used by an
+  // admin (org admin or superadmin) — one email = one role.
+  const newEmail = data.email as string | undefined;
+  if (newEmail) {
+    const email = newEmail.toLowerCase().trim();
+    const { data: adminConflict } = await supabase
+      .from("organization_admins")
+      .select("id, role")
+      .eq("email", email)
+      .maybeSingle();
+    if (adminConflict) {
+      throw new Error(
+        adminConflict.role === "superadmin"
+          ? "This email already exists as a superadmin. Please use a different email."
+          : "This email already exists as an organization admin. Please use a different email."
+      );
+    }
+  }
+
   const { error } = await supabase.from("members").update(data).eq("id", memberId);
   if (error) throw new Error(error.message);
   return { success: true };

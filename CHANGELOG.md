@@ -2,6 +2,14 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.11] — 2026-08-11 — One email = one role (member vs admin conflict)
+
+### Fixed — Same email could exist as both member and org admin
+- Previously an email that was already a **member** could also be registered as an **org admin** (or vice-versa), splitting the account across roles.
+- Added a shared `assertEmailNotInUse` check in `superadmin` actions: creating or editing an **org admin** now rejects emails already used by a member, another admin, or a superadmin — throwing a clear message ("This email already exists as a member. Please use a different email." etc.).
+- **Member creation** (`createMemberAndStartAssessment`) now rejects registering a new member when the email already belongs to an org admin / superadmin; **admin-edited member emails** (`editMemberInternal`) get the same guard.
+- Error messages now surface in the superadmin UI (`createAdmin` in users page reads the API error response instead of swallowing it).
+
 ## [2.12.10] — 2026-08-11 — Case-insensitive member login (email normalized to lowercase)
 
 ### Fixed — Capitalized email login failed for existing member accounts
