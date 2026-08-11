@@ -618,10 +618,19 @@ export default function AssessmentModal() {
                 if (cleaned && (num < 1 || num > 100)) return;
                 updateForm("age", cleaned);
               }} error={errors.age} type="text" inputMode="numeric" />
-              <SelectField label={t("gender")} value={form.gender} onChange={(v) => updateForm("gender", v)} error={errors.gender} options={[t("genderMale"), t("genderFemale"), t("genderOther")]} />
+              <SelectField label={t("gender")} value={form.gender} onChange={(v) => updateForm("gender", v)} error={errors.gender} options={[
+                { value: "Male", label: t("genderMale") },
+                { value: "Female", label: t("genderFemale") },
+                { value: "Other", label: t("genderOther") },
+              ]} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <SelectField label={t("maritalStatus")} value={form.maritalStatus} onChange={(v) => updateForm("maritalStatus", v)} error={errors.maritalStatus} options={[t("msSingle"), t("msMarried"), t("msDivorced"), t("msWidowed")]} />
+              <SelectField label={t("maritalStatus")} value={form.maritalStatus} onChange={(v) => updateForm("maritalStatus", v)} error={errors.maritalStatus} options={[
+                { value: "Single", label: t("msSingle") },
+                { value: "Married", label: t("msMarried") },
+                { value: "Divorced", label: t("msDivorced") },
+                { value: "Widowed", label: t("msWidowed") },
+              ]} />
               <Field label={t("department")} value={form.department} onChange={(v) => updateForm("department", v)} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
@@ -640,7 +649,16 @@ export default function AssessmentModal() {
                     }
                   }}
                   error={errors.occupation}
-                  options={[t("occStudent"), t("occHomemaker"), t("occSalaried"), t("occWorking"), t("occBusiness"), t("occHealthcare"), t("occRetired"), t("occOther")]}
+                  options={[
+                    { value: "Student", label: t("occStudent") },
+                    { value: "Homemaker", label: t("occHomemaker") },
+                    { value: "Salaried", label: t("occSalaried") },
+                    { value: "Working Professional", label: t("occWorking") },
+                    { value: "Business Owner", label: t("occBusiness") },
+                    { value: "Healthcare Professional", label: t("occHealthcare") },
+                    { value: "Retired", label: t("occRetired") },
+                    { value: "Other", label: t("occOther") },
+                  ]}
                 />
                 {form.occupation.startsWith("Other:") && (
                   <input
@@ -882,9 +900,10 @@ function Field({ label, value, onChange, error, type = "text", inputMode, readon
 }
 
 function SelectField({ label, value, onChange, error, options }: {
-  label: string; value: string; onChange: (v: string) => void; error?: string; options: string[];
+  label: string; value: string; onChange: (v: string) => void; error?: string; options: string[] | { value: string; label: string }[];
 }) {
   const t = useTranslations("assessment");
+  const hasValueLabel = typeof options[0] === "object";
   return (
     <div>
       <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
@@ -897,9 +916,13 @@ function SelectField({ label, value, onChange, error, options }: {
         style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
       >
         <option value="">{t("selectPlaceholder")}</option>
-        {options.map((opt) => (
-          <option key={opt} value={opt}>{opt}</option>
-        ))}
+        {hasValueLabel
+          ? (options as { value: string; label: string }[]).map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))
+          : (options as string[]).map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
       </select>
       {error && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>}
     </div>

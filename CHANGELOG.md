@@ -2,6 +2,14 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.9] — 2026-08-11 — Store dropdown selections in English (localized labels only)
+
+### Fixed — Superadmin sees English for localized dropdown selections
+- Assessment (fill-up) and Consult forms previously stored the **translated label** as the dropdown value (e.g. gender "पुरुष" in Hindi), so superadmin viewed non-English values.
+- Both `SelectField` components (assessment + consult) now support `{ value, label }` options: the UI shows the translated label, but the stored/submitted value is the **canonical English value**.
+- Gender → Male / Female / Other; Marital status → Single / Married / Divorced / Widowed; Occupation → Student / Homemaker / Salaried / Working Professional / Business Owner / Healthcare Professional / Retired / Other (custom "Other: …" preserved).
+- Superadmin (forced English locale) now always sees English dropdown values, regardless of the language the member filled the form in.
+
 ## [2.12.8] — 2026-08-11 — Fix RTL sliders & hero background mirroring
 
 ### Fixed — RTL (Arabic / Hebrew / Urdu) sliders
