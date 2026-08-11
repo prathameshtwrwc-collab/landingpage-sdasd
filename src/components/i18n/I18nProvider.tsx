@@ -24,23 +24,6 @@ interface I18nContextValue {
 
 const I18nContext = createContext<I18nContextValue | null>(null);
 
-function getInitialLocale(): LocaleCode {
-  try {
-    // Superadmin / admin dashboards are always English — never translate
-    // the management UI or the member data shown there.
-    const path = window.location.pathname;
-    if (path.startsWith("/superadmin") || path.startsWith("/admin")) return "en" as LocaleCode;
-
-    const fromDataLocale = document.documentElement.getAttribute("data-locale");
-    if (fromDataLocale && isValidLocale(fromDataLocale)) return fromDataLocale;
-    const fromLang = document.documentElement.lang;
-    if (fromLang && isValidLocale(fromLang)) return fromLang;
-  } catch {
-    // ignore storage access errors
-  }
-  return "en" as LocaleCode;
-}
-
 function persistLocale(locale: LocaleCode) {
   try {
     document.cookie = `app_locale=${locale}; path=/; max-age=31536000; samesite=lax`;
@@ -50,16 +33,34 @@ function persistLocale(locale: LocaleCode) {
   }
 }
 
-export function I18nProvider({ children }: { children: ReactNode }) {
-  // Initial locale is read from server-rendered <html data-locale> or lang attribute
-  // This eliminates hydration mismatch - both server and client start with the same value
-  const [locale, setLocaleState] = useState<LocaleCode>(() => getInitialLocale());
+interface I18nProviderProps {
+  children: ReactNode;
+  /** Locale resolved on the server (from the app_locale cookie). Using this as the
+   *  initial state guarantees the client's first render matches the server HTML,
+   *  which eliminates hydration mismatches. */
+  initialLocale: LocaleCode;
+}
+
+export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
+  const [locale, setLocaleState] = useState<LocaleCode>(() =>
+    isValidLocale(initialLocale) ? initialLocale : "en"
+  );
 
   // Keep <html lang dir data-locale> in sync with the active locale.
   useEffect(() => {
     document.documentElement.lang = locale;
     document.documentElement.dir = dirForLocale(locale);
     document.documentElement.setAttribute("data-locale", locale);
+  }, [locale]);
+
+  // Superadmin / admin dashboards are always English — never translate the
+  // management UI or the member data shown there. Applied after hydration so
+  // the server-rendered HTML and client first paint always match.
+  useEffect(() => {
+    const path = window.location.pathname;
+    if ((path.startsWith("/superadmin") || path.startsWith("/admin")) && locale !== "en") {
+      setLocaleState("en");
+    }
   }, [locale]);
 
   const setLocale = useCallback(

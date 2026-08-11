@@ -307,7 +307,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
 
             {/* Right: CTA desktop — hidden below 1024 */}
             <div className="hidden lg:flex items-center justify-end gap-[8px]">
-              <LanguageSwitcher />
+              <LanguageSwitcher variant={isScrolled ? "dark" : "light"} />
               <a
                 href="/login"
                 className="cta-login inline-flex items-center justify-center border-none transition-all duration-[220ms] ease-[ease] hover:-translate-y-[1px] cursor-pointer no-underline"

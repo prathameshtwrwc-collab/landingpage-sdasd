@@ -6,10 +6,20 @@ import { Check, ChevronDown, Languages } from "lucide-react";
 import { localesByGroup } from "@/i18n/locales";
 import { useAppLocale } from "./I18nProvider";
 
-export default function LanguageSwitcher() {
+interface LanguageSwitcherProps {
+  /**
+   * "light"  — ghost/transparent style for dark or photo backgrounds
+   *             (white icon/text, translucent white border, subtle blur).
+   * "dark"   — amber scheme for light/white backgrounds (default).
+   */
+  variant?: "light" | "dark";
+}
+
+export default function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherProps) {
   const { locale, setLocale } = useAppLocale();
   const t = useTranslations("switcher");
   const [open, setOpen] = useState(false);
+  const [hover, setHover] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,11 +42,16 @@ export default function LanguageSwitcher() {
   const international = localesByGroup("international");
   const indian = localesByGroup("indian");
 
+  const isLight = variant === "light";
+  const iconColor = "#3B35A3";
+
   return (
     <div ref={ref} className="relative" style={{ position: "relative" }}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t("label")}
@@ -45,20 +60,38 @@ export default function LanguageSwitcher() {
         style={{
           height: "36px",
           padding: "0 10px",
-          background: "rgba(245,154,0,0.08)",
-          color: "#B45309",
-          borderColor: "rgba(245,154,0,0.45)",
+          background: isLight
+            ? hover
+              ? "rgba(59,53,163,0.18)"
+              : "rgba(59,53,163,0.08)"
+            : hover
+              ? "rgba(59,53,163,0.16)"
+              : "rgba(59,53,163,0.08)",
+          color: iconColor,
+          borderColor: "rgba(59,53,163,0.45)",
+          backdropFilter: isLight ? "blur(8px)" : "none",
+          WebkitBackdropFilter: isLight ? "blur(8px)" : "none",
           fontFamily: "Poppins, sans-serif",
           fontSize: "12px",
           fontWeight: 600,
           whiteSpace: "nowrap",
+          textShadow: "none",
         }}
       >
-        <Languages size={15} />
-        <span>{current.nativeName}</span>
+        <Languages
+          size={15}
+          style={isLight ? { filter: "drop-shadow(0 0 0.15px #FFFFFF) drop-shadow(0 0 0.15px #FFFFFF)" } : undefined}
+        />
+        <span style={isLight ? { WebkitTextStroke: "0.18px #FFFFFF", paintOrder: "stroke fill" } : undefined}>
+          {current.nativeName}
+        </span>
         <ChevronDown
           size={13}
-          style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 180ms ease" }}
+          style={{
+            transform: open ? "rotate(180deg)" : "none",
+            transition: "transform 180ms ease",
+            ...(isLight ? { filter: "drop-shadow(0 0 0.15px #FFFFFF) drop-shadow(0 0 0.15px #FFFFFF)" } : {}),
+          }}
         />
       </button>
 
@@ -66,6 +99,7 @@ export default function LanguageSwitcher() {
         <div
           role="listbox"
           aria-label={t("label")}
+          data-lenis-prevent
           className="absolute right-0 top-[calc(100%+8px)] z-[1200] rounded-lg"
           style={{
             minWidth: "230px",
@@ -79,7 +113,7 @@ export default function LanguageSwitcher() {
           }}
         >
           <p className="m-0 px-[10px] pt-[6px] pb-[4px] text-[10px] font-bold uppercase tracking-[0.08em]"
-            style={{ color: "#B45309", fontFamily: "Poppins, sans-serif" }}>
+            style={{ color: "#3B35A3", fontFamily: "Poppins, sans-serif" }}>
             International Languages
           </p>
           {international.map((l) => {
@@ -113,7 +147,7 @@ export default function LanguageSwitcher() {
           })}
 
           <p className="m-0 px-[10px] pt-[10px] pb-[4px] text-[10px] font-bold uppercase tracking-[0.08em]"
-            style={{ color: "#B45309", fontFamily: "Poppins, sans-serif" }}>
+            style={{ color: "#3B35A3", fontFamily: "Poppins, sans-serif" }}>
             Indian Languages
           </p>
           {indian.map((l) => {
