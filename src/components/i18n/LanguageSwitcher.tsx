@@ -7,11 +7,6 @@ import { localesByGroup } from "@/i18n/locales";
 import { useAppLocale } from "./I18nProvider";
 
 interface LanguageSwitcherProps {
-  /**
-   * "light"  — ghost/transparent style for dark or photo backgrounds
-   *             (white icon/text, translucent white border, subtle blur).
-   * "dark"   — amber scheme for light/white backgrounds (default).
-   */
   variant?: "light" | "dark";
 }
 
@@ -20,7 +15,16 @@ export default function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherP
   const t = useTranslations("switcher");
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 640px)");
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -102,7 +106,7 @@ export default function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherP
           data-lenis-prevent
           className="absolute right-0 top-[calc(100%+8px)] z-[1200] rounded-lg"
           style={{
-            minWidth: "520px",
+            minWidth: isMobile ? "auto" : "520px",
             maxHeight: "min(70vh, 480px)",
             overflowY: "auto",
             background: "#FFFFFF",
@@ -112,7 +116,7 @@ export default function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherP
             overscrollBehavior: "contain",
           }}
         >
-          <div className="flex gap-[24px]">
+          <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "4px" : "24px" }}>
             <div className="flex-1 min-w-0">
               <p className="m-0 px-[6px] pt-[2px] pb-[6px] text-[10px] font-bold uppercase tracking-[0.08em]"
                 style={{ color: "#3B35A3", fontFamily: "Poppins, sans-serif" }}>
@@ -149,7 +153,7 @@ export default function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherP
               })}
             </div>
 
-            <div style={{ width: "1px", background: "#E5E7EB", flexShrink: 0 }} />
+            {!isMobile && <div style={{ width: "1px", background: "#E5E7EB", flexShrink: 0 }} />}
 
             <div className="flex-1 min-w-0">
               <p className="m-0 px-[6px] pt-[2px] pb-[6px] text-[10px] font-bold uppercase tracking-[0.08em]"

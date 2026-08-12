@@ -80,6 +80,7 @@ export function TTSProvider({ children }: { children: ReactNode }) {
   const currentPriorityRef = useRef<SpeechPriority>("LOW");
   const hasInteractedRef = useRef(false);
   const inflightRef = useRef<Set<string>>(new Set());
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   // Init enabled state from localStorage (client-only).
   useEffect(() => {
@@ -119,6 +120,10 @@ export function TTSProvider({ children }: { children: ReactNode }) {
       audio.pause();
       audio.currentTime = 0;
     }
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    utteranceRef.current = null;
     setIsSpeaking(false);
     setIsPaused(false);
     setStatus("idle");
@@ -263,7 +268,9 @@ export function TTSProvider({ children }: { children: ReactNode }) {
               u.lang = locale === "en" ? "en-US" : locale;
               u.rate = 1;
               u.pitch = 1;
+              utteranceRef.current = u;
               u.onend = () => {
+                utteranceRef.current = null;
                 setIsSpeaking(false);
                 setIsPaused(false);
                 setStatus("idle");
@@ -272,6 +279,7 @@ export function TTSProvider({ children }: { children: ReactNode }) {
                 resolve();
               };
               u.onerror = () => {
+                utteranceRef.current = null;
                 setIsSpeaking(false);
                 setIsPaused(false);
                 setStatus("idle");
