@@ -211,6 +211,19 @@ export function TTSProvider({ children }: { children: ReactNode }) {
       if (inflightRef.current.has(key)) return;
       if (currentKeyRef.current === key && status !== "idle") return;
 
+      // Guard: Chrome speechSynthesis may fire onend prematurely for long
+      // utterances, leaving the engine still speaking while React state is
+      // reset. Block duplicate starts while the engine is actually busy.
+      if (
+        typeof window !== "undefined" &&
+        "speechSynthesis" in window &&
+        window.speechSynthesis.speaking &&
+        (status === "idle" || status === "paused")
+      ) {
+        if (priority === "LOW") return;
+        window.speechSynthesis.cancel();
+      }
+
       // Priority: LOW only when idle; HIGH/MEDIUM replace current.
       if (status !== "idle" && status !== "paused") {
         if (priority === "LOW") return;

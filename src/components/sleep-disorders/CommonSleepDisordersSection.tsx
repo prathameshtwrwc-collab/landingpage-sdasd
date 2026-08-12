@@ -4,6 +4,7 @@ import SectionTTSButton from "@/components/tts/SectionTTSButton";
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { useTTS } from "@/components/tts/TTSProvider";
 
 const disorderKeys = [
   "insomnia",
@@ -18,6 +19,7 @@ const disorderKeys = [
 
 export default function CommonSleepDisordersSection() {
   const t = useTranslations("disorders");
+  const { isSpeaking } = useTTS();
   const images: Record<string, string> = {
     insomnia: "/assets/section8/Insomnia.jpg",
     osa: "/assets/section8/Sleep-Apnea.jpg",
@@ -33,6 +35,8 @@ export default function CommonSleepDisordersSection() {
   const [mobileIndex, setMobileIndex] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
   const hasAutoSlid = useRef(false);
+  const isSpeakingRef = useRef(isSpeaking);
+  useEffect(() => { isSpeakingRef.current = isSpeaking; }, [isSpeaking]);
 
   const next = () => setCurrentIndex((prev) => (prev + 2 >= total ? 0 : prev + 2));
   const prev = () => setCurrentIndex((prev) => (prev - 2 < 0 ? total - 2 : prev - 2));
@@ -40,7 +44,7 @@ export default function CommonSleepDisordersSection() {
   const mobileNext = () => setMobileIndex((prev) => (prev + 1 >= total ? 0 : prev + 1));
   const mobilePrev = () => setMobileIndex((prev) => (prev - 1 < 0 ? total - 1 : prev - 1));
 
-  // Auto-slide once when user first scrolls to this section
+  // Auto-slide once when user first scrolls to this section, but not during TTS
   useEffect(() => {
     const el = sectionRef.current;
     if (!el || hasAutoSlid.current) return;
@@ -53,6 +57,8 @@ export default function CommonSleepDisordersSection() {
             observer.disconnect();
             // Let user see initial cards, then auto-advance after delay
             setTimeout(() => {
+              // Skip auto-advance if TTS is currently reading this section
+              if (isSpeakingRef.current) return;
               // Advance desktop carousel by one pair
               setCurrentIndex((prev) => (prev + 2 >= total ? 0 : prev + 2));
               // Advance mobile carousel by one
