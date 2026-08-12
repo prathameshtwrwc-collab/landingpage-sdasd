@@ -1,4 +1,5 @@
 "use client";
+import SectionTTSButton from "@/components/tts/SectionTTSButton";
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
@@ -78,6 +79,7 @@ export default function CommonSleepDisordersSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
+<SectionTTSButton className="absolute top-[18px] right-[18px] z-[5]" />
       <motion.div
         initial="hidden"
         whileInView="visible"

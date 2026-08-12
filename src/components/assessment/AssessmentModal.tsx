@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   CheckCircle2, X, SunMedium, BriefcaseBusiness, MoonStar, Zap,
@@ -17,6 +17,8 @@ import { clearCache } from "@/lib/client-cache";
 import { chronotypeImageSrcs } from "@/lib/chronotype-image";
 import { CHRONOTYPE_LABELS, CHRONOTYPE_DESCRIPTIONS, CHRONOTYPE_PEAK_TIMES, CHRONOTYPE_BLUEPRINT } from "@/lib/chronotype-utils";
 import { useConsult } from "@/components/consult/ConsultContext";
+import { useTTS } from "@/components/tts/TTSProvider";
+import TTSButton from "@/components/tts/TTSButton";
 import { COUNTRY_CODES, getCountryCode } from "@/lib/country-codes";
 import TermsModal from "./TermsModal";
 
@@ -75,6 +77,8 @@ export default function AssessmentModal() {
   const { isOpen, close, retestMemberId } = useAssessment();
   const { open: openConsult } = useConsult();
   const t = useTranslations("assessment");
+  const ttsT = useTranslations("tts");
+  const { speak } = useTTS();
   const { locale } = useAppLocale();
 
   const [step, setStep] = useState(0);
@@ -90,6 +94,17 @@ export default function AssessmentModal() {
 
   // URL-detected codes (locked fields)
   const [lockedFields, setLockedFields] = useState<{ orgCode: boolean; referralCode: boolean }>({ orgCode: false, referralCode: false });
+
+  // First-focus speech per personal-details field (automatic, spoken once).
+  const fieldSpokenRefs = useRef<Record<string, boolean>>({});
+  const speakFieldFirstFocus = useCallback(
+    (field: string, label: string) => {
+      if (fieldSpokenRefs.current[field]) return;
+      fieldSpokenRefs.current[field] = true;
+      speak({ text: `${label}. ${ttsT("fieldRequired")}`, type: "label", automatic: true });
+    },
+    [speak, ttsT]
+  );
 
   // Data from server
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -608,8 +623,8 @@ export default function AssessmentModal() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label={t("fname")} value={form.fname} onChange={(v) => updateForm("fname", v)} error={errors.fname} />
-              <Field label={t("lname")} value={form.lname} onChange={(v) => updateForm("lname", v)} error={errors.lname} />
+              <Field label={t("fname")} value={form.fname} onChange={(v) => updateForm("fname", v)} error={errors.fname} ttsLabel={t("fname")} />
+              <Field label={t("lname")} value={form.lname} onChange={(v) => updateForm("lname", v)} error={errors.lname} ttsLabel={t("lname")} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <Field label={t("age")} value={form.age} onChange={(v) => {
@@ -634,11 +649,11 @@ export default function AssessmentModal() {
               <Field label={t("department")} value={form.department} onChange={(v) => updateForm("department", v)} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label={t("country")} value={form.country} onChange={(v) => updateForm("country", v)} error={errors.country} />
-              <Field label={t("city")} value={form.city} onChange={(v) => updateForm("city", v)} error={errors.city} />
+              <Field label={t("country")} value={form.country} onChange={(v) => updateForm("country", v)} error={errors.country} ttsLabel={t("country")} />
+              <Field label={t("city")} value={form.city} onChange={(v) => updateForm("city", v)} error={errors.city} ttsLabel={t("city")} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label={t("pincode")} value={form.pincode} onChange={(v) => updateForm("pincode", v)} error={errors.pincode} type="text" maxLength={12} placeholder={t("pincodePlaceholder")} />
+              <Field label={t("pincode")} value={form.pincode} onChange={(v) => updateForm("pincode", v)} error={errors.pincode} type="text" maxLength={12} placeholder={t("pincodePlaceholder")} ttsLabel={t("pincode")} />
               <div className="relative">
                 <SelectField label={t("occupation")} value={form.occupation.startsWith("Other:") ? "Other" : form.occupation}
                   onChange={(v) => {
@@ -674,7 +689,7 @@ export default function AssessmentModal() {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label={t("email")} value={form.email} onChange={(v) => updateForm("email", v)} error={errors.email} type="email" />
+              <Field label={t("email")} value={form.email} onChange={(v) => updateForm("email", v)} error={errors.email} type="email" ttsLabel={t("email")} />
               <div>
                 <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
                   {t("phone")}
@@ -862,14 +877,17 @@ export default function AssessmentModal() {
 
 /* ----- FIELD COMPONENTS ----- */
 
-function Field({ label, value, onChange, error, type = "text", inputMode, readonly, placeholder, sanitize, maxLength }: {
-  label: string; value: string; onChange: (v: string) => void; error?: string; type?: string; inputMode?: "text" | "numeric" | "tel" | "email" | "url"; readonly?: boolean; placeholder?: string; sanitize?: "numeric"; maxLength?: number;
+function Field({ label, value, onChange, error, type = "text", inputMode, readonly, placeholder, sanitize, maxLength, ttsLabel }: {
+  label: string; value: string; onChange: (v: string) => void; error?: string; type?: string; inputMode?: "text" | "numeric" | "tel" | "email" | "url"; readonly?: boolean; placeholder?: string; sanitize?: "numeric"; maxLength?: number; ttsLabel?: string;
 }) {
   return (
     <div>
-      <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
-        {label}
-      </label>
+      <div className="flex items-center gap-[8px] mb-[5px]">
+        <label className="block text-[13px] font-medium text-[#444]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+          {label}
+        </label>
+        {ttsLabel && <TTSButton text={ttsLabel} type="label" size={13} />}
+      </div>
       <input
         type={type}
         value={value}
@@ -943,9 +961,12 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
   isSubmitting: boolean;
 }) {
   const t = useTranslations("assessment");
+  const ttsT = useTranslations("tts");
+  const { speak } = useTTS();
   const [animDir, setAnimDir] = useState<"left" | "right">("left");
   const [animating, setAnimating] = useState(false);
   const [displayedIdx, setDisplayedIdx] = useState(questionIndex);
+  const lastSpokenQuestionRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (questionIndex !== displayedIdx) {
@@ -960,6 +981,17 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
 
   const q = questions[displayedIdx];
   const progress = ((questionIndex + 1) / totalQuestions) * 100;
+
+  // Auto-read the current question once when it actually changes (not on
+  // re-render / focus / state updates). Reads the exact displayed text.
+  useEffect(() => {
+    if (!q) return;
+    const key = `${q.id}|${displayedIdx}`;
+    if (lastSpokenQuestionRef.current === key) return;
+    lastSpokenQuestionRef.current = key;
+    const phrase = `${ttsT("questionOf", { n: displayedIdx + 1, total: totalQuestions })} ${q.question_text}`;
+    speak({ text: phrase, type: "question", automatic: true });
+  }, [q, displayedIdx, totalQuestions, ttsT, speak]);
 
   if (!q) {
     return (
@@ -1071,6 +1103,12 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
         >
           {q.question_text}
         </p>
+        <div className="mt-[10px]">
+          <TTSButton
+            text={`${ttsT("questionOf", { n: displayedIdx + 1, total: totalQuestions })} ${q.question_text}`}
+            type="question"
+          />
+        </div>
       </div>
 
       {/* Options */}
@@ -1139,6 +1177,13 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
                 </span>
                 <span className="flex-1 text-[15px] leading-[1.4]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
                   {opt.option_text}
+                </span>
+                <span className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                  <TTSButton
+                    text={`${ttsT("optionOf", { n: optIdx + 1, text: opt.option_text })}`}
+                    type="option"
+                    size={14}
+                  />
                 </span>
                 {isSelected && (
                   <span
@@ -1412,7 +1457,19 @@ function EnhancedResult({
 }) {
   const { login } = useAuth();
   const t = useTranslations("assessment");
+  const ttsT = useTranslations("tts");
+  const { speak } = useTTS();
   const [downloading, setDownloading] = useState(false);
+  const resultSpokenRef = useRef(false);
+
+  useEffect(() => {
+    if (!resultSpokenRef.current) {
+      resultSpokenRef.current = true;
+      const phrase = `${t("completeTitle")}. ${CHRONOTYPE_LABELS[chronotypeResult.chronotype as "LARK" | "EAGLE" | "OWL"]}.`;
+      speak({ text: phrase, type: "success", automatic: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const chrono = chronotypeResult.chronotype as "LARK" | "EAGLE" | "OWL";
   const isLark = chrono === "LARK";
   const isEagle = chrono === "EAGLE";

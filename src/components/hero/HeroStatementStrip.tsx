@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import SectionTTSButton from "@/components/tts/SectionTTSButton";
 
 export default function HeroStatementStrip() {
   const t = useTranslations("statement");
@@ -12,6 +13,7 @@ export default function HeroStatementStrip() {
       className="relative w-full overflow-hidden flex items-center justify-center h-auto md:min-h-[230px]"
       style={{ backgroundColor: "#353080", minHeight: undefined }}
     >
+      <SectionTTSButton scheme="dark" className="absolute top-[14px] right-[14px] z-[5]" />
       {/* Background image with overlay */}
       <div
         className="absolute inset-0 z-0"

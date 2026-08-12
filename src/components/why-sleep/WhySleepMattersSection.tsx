@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import SectionTTSButton from "@/components/tts/SectionTTSButton";
 
 const factKeys = ["fact1", "fact2", "fact3", "fact4"];
 
@@ -24,6 +25,7 @@ export default function WhySleepMattersSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
+      <SectionTTSButton className="absolute top-[18px] right-[18px] z-[5]" />
       <motion.div
         initial="hidden"
         whileInView="visible"

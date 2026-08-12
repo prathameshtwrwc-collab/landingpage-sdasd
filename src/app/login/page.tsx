@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useAuth } from "@/components/auth/AuthProvider";
 import LoginCard from "@/components/auth/LoginCard";
+import VoiceAssistanceToggle from "@/components/tts/VoiceAssistanceToggle";
 import { Moon, Sparkles, Home } from "lucide-react";
 
 export default function LoginPage() {
@@ -93,18 +94,21 @@ export default function LoginPage() {
       <div className="w-full lg:w-1/2 relative flex flex-col items-center justify-center px-[24px] py-[40px] md:px-[48px]"
         style={{ background: "#FFFFFF" }}
       >
-        {/* Back to Home */}
-        <div className="absolute top-[20px] right-[24px] md:right-[48px] z-[50] flex flex-col items-center gap-[4px]">
-          <button
-            type="button"
-            onClick={() => router.push("/")}
-            aria-label="Back to home"
-            title="Back to home"
-            className="flex items-center justify-center w-[44px] h-[44px] rounded-full border-none cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
-            style={{ background: "#FFFFFF", color: "#35319B", boxShadow: "0 4px 16px rgba(53,49,155,0.18)" }}
-          >
-            <Home size={20} strokeWidth={2.2} />
-          </button>
+        {/* Back to Home + Voice Assistance */}
+        <div className="absolute top-[20px] right-[24px] md:right-[48px] z-[50] flex flex-col items-end gap-[10px]">
+          <div className="flex items-center gap-[10px]">
+            <VoiceAssistanceToggle />
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              aria-label="Back to home"
+              title="Back to home"
+              className="flex items-center justify-center w-[44px] h-[44px] rounded-full border-none cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
+              style={{ background: "#FFFFFF", color: "#35319B", boxShadow: "0 4px 16px rgba(53,49,155,0.18)" }}
+            >
+              <Home size={20} strokeWidth={2.2} />
+            </button>
+          </div>
           <span className="text-[10px] font-medium" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>Back to Home</span>
         </div>
 

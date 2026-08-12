@@ -2,6 +2,23 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.13] — 2026-08-12 — TTS: full-section read, navbar toggle, dark-scheme icons
+
+### Added — Section-level TTS buttons across all landing-page sections
+- New `SectionTTSButton` component (`src/components/tts/SectionTTSButton.tsx`) added to every major landing section: `HeroStatementStrip`, `WhySleepMattersSection`, `ChronotypeIntroductionSection`, `ChronotypeOptimizationSection`, `DailyEnergyPillarsSection`, `BetterSleepBetterDaysSection`, `UnderstandingSleepCyclesSection`, `CommonSleepDisordersSection`, `WarningSignsSection`, `SleepFactsSharingSection`, `AdditionalGuidanceSection`, `FaqSection`, and `DisclaimerFooter`.
+- Each button is absolutely positioned in the top-right corner of its section and reads the **full section text** (not just the headline) using a DOM `TreeWalker` that strips out buttons, links, navs, decorative SVGs, and hidden elements before joining visible text nodes.
+
+### Added — Browser-native TTS fallback
+- `TTSProvider` now falls back to `window.speechSynthesis` (`SpeechSynthesisUtterance`) when the server `/api/tts` route returns a non-ok response (e.g. 502 from an unavailable external TTS provider). State cleanup (`isSpeaking`, `status`, `currentText`) is handled in both `onend` and `onerror`.
+
+### Changed — Navbar voice toggle controls all TTS
+- The `VoiceAssistanceToggle` in `SiteNavbar` (desktop + mobile) now globally controls both automatic and manual TTS. Clicking a section speaker icon when the toggle is OFF now turns the toggle ON and speaks; when ON it toggles speech as before.
+
+### Changed — Section TTS button color schemes
+- `SectionTTSButton` accepts a `scheme` prop: `"light"` (default, amber icon/text for white backgrounds) and `"dark"` (white icon/text for dark/indigo backgrounds).
+- `HeroStatementStrip` (indigo background) and `DisclaimerFooter` (black background) now use `scheme="dark"` so the icon is visible.
+- Unavailable-locale state shows a `VolumeX` icon in muted gray regardless of scheme.
+
 ## [2.12.12] — 2026-08-11 — Hero action buttons auto-fit translated text
 
 ### Fixed — Hero button text overflowing buttons in some languages

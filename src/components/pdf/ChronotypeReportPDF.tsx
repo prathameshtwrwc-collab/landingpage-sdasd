@@ -184,22 +184,28 @@ function PageTwoHeader({ vm }: { vm: ReturnType<typeof buildPdfReportViewModel> 
 
 function GalleryPage({ vm, images, startIndex, page, totalPages }: { vm: ReturnType<typeof buildPdfReportViewModel>; images: string[]; startIndex: number; page: number; totalPages: number }) {
   const accent = vm.accent;
+  const src = images[0];
+  const idx = startIndex;
   return (
     <Page size="A4" style={pdfStyles.page}>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, flexDirection: "column" }}>
         <PageTwoHeader vm={vm} />
-        <Text style={[pdfStyles.heroEyebrow, { color: accent, marginTop: 18 }]}>Visual journey</Text>
+        <Text style={[pdfStyles.heroEyebrow, { color: accent, marginTop: 14 }]}>Visual journey</Text>
         <Text style={pdfStyles.galleryTitle}>Your {vm.chronotypeName} gallery</Text>
         <Text style={pdfStyles.gallerySub}>A visual journey through your {vm.chronotypeName} rhythm.</Text>
-        <View>
-          {images.map((src, i) => (
-            <View key={i} style={pdfStyles.galleryItem}>
-              <View style={pdfStyles.galleryBadge}>
-                <Text style={pdfStyles.galleryBadgeText}>{startIndex + i + 1}</Text>
-              </View>
-              <Image src={src} style={pdfStyles.galleryImage} />
+        <View style={{ flex: 1, flexDirection: "row", alignItems: "center", marginTop: 10 }}>
+          <View style={{ position: "absolute", top: 12, left: 12, zIndex: 1 }}>
+            <View style={pdfStyles.galleryBadge}>
+              <Text style={pdfStyles.galleryBadgeText}>{idx + 1}</Text>
             </View>
-          ))}
+          </View>
+          {src ? (
+            <Image
+              src={src}
+              style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: 6 }}
+              cache={false}
+            />
+          ) : null}
         </View>
       </View>
       <Footer vm={vm} page={page} totalPages={totalPages} />
@@ -260,7 +266,7 @@ function chunk<T>(arr: T[], size: number): T[][] {
 
 export default function ChronotypeReportPDF({ data }: { data: ReportData }) {
   const vm = buildPdfReportViewModel(data);
-  const galleryChunks = chunk(vm.galleryImages, 3);
+  const galleryChunks = chunk(vm.galleryImages, 1);
   const totalPages = 2 + galleryChunks.length;
   return (
     <Document
@@ -282,7 +288,7 @@ export default function ChronotypeReportPDF({ data }: { data: ReportData }) {
         <Footer vm={vm} page={1} totalPages={totalPages} />
       </Page>
       {galleryChunks.map((images, i) => (
-        <GalleryPage key={i} vm={vm} images={images} startIndex={i * 3} page={2 + i} totalPages={totalPages} />
+        <GalleryPage key={i} vm={vm} images={images} startIndex={i * 1} page={2 + i} totalPages={totalPages} />
       ))}
       <RecommendationsPage vm={vm} page={2 + galleryChunks.length} totalPages={totalPages} />
     </Document>

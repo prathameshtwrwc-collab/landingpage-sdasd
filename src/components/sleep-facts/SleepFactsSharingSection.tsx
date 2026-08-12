@@ -1,4 +1,5 @@
 "use client";
+import SectionTTSButton from "@/components/tts/SectionTTSButton";
 
 import React from "react"; import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -52,6 +53,7 @@ export default function SleepFactsSharingSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
+      <SectionTTSButton className="absolute top-[18px] right-[18px] z-[5]" />
       <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={{ hidden: { opacity: 0, y: 25 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } } }}>
         <div className="relative z-[1] mx-auto max-w-[1060px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[42px] lg:pt-[46px] pb-[38px] md:pb-[44px] lg:pb-[48px] min-w-0">
         {/* Heading */}

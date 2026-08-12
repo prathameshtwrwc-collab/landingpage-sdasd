@@ -1,4 +1,5 @@
 "use client";
+import SectionTTSButton from "@/components/tts/SectionTTSButton";
 
 import React from "react";
 import { motion } from "framer-motion";
@@ -26,6 +27,7 @@ export default function BetterSleepBetterDaysSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
+<SectionTTSButton className="absolute top-[18px] right-[18px] z-[5]" />
       <div
         className="
           relative z-[1] mx-auto

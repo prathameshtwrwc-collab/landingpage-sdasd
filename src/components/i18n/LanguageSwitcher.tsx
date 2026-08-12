@@ -102,83 +102,91 @@ export default function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherP
           data-lenis-prevent
           className="absolute right-0 top-[calc(100%+8px)] z-[1200] rounded-lg"
           style={{
-            minWidth: "230px",
+            minWidth: "520px",
             maxHeight: "min(70vh, 480px)",
             overflowY: "auto",
             background: "#FFFFFF",
             border: "1px solid #EFEFF5",
             boxShadow: "0 12px 32px rgba(23,23,23,0.14)",
-            padding: "6px",
+            padding: "10px",
             overscrollBehavior: "contain",
           }}
         >
-          <p className="m-0 px-[10px] pt-[6px] pb-[4px] text-[10px] font-bold uppercase tracking-[0.08em]"
-            style={{ color: "#3B35A3", fontFamily: "Poppins, sans-serif" }}>
-            International Languages
-          </p>
-          {international.map((l) => {
-            const active = l.code === locale;
-            return (
-              <button
-                key={l.code}
-                type="button"
-                role="option"
-                aria-selected={active}
-                onClick={() => {
-                  setOpen(false);
-                  if (!active) setLocale(l.code);
-                }}
-                className="flex items-center w-full text-left border-none cursor-pointer rounded-md transition-colors"
-                style={{
-                  padding: "7px 10px",
-                  gap: "8px",
-                  background: active ? "rgba(53,49,155,0.07)" : "transparent",
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "13px",
-                  fontWeight: active ? 600 : 500,
-                  color: "#171717",
-                }}
-              >
-                <span style={{ flex: "1", minWidth: 0 }}>{l.nativeName}</span>
-                <span style={{ color: "#98A2B3", fontSize: "11px", fontWeight: 400 }}>{l.label}</span>
-                {active && <Check size={14} style={{ color: "#35319B" }} />}
-              </button>
-            );
-          })}
+          <div className="flex gap-[24px]">
+            <div className="flex-1 min-w-0">
+              <p className="m-0 px-[6px] pt-[2px] pb-[6px] text-[10px] font-bold uppercase tracking-[0.08em]"
+                style={{ color: "#3B35A3", fontFamily: "Poppins, sans-serif" }}>
+                International Languages
+              </p>
+              {international.map((l) => {
+                const active = l.code === locale;
+                return (
+                  <button
+                    key={l.code}
+                    type="button"
+                    role="option"
+                    aria-selected={active}
+                    onClick={() => {
+                      setOpen(false);
+                      if (!active) setLocale(l.code);
+                    }}
+                    className="flex items-center w-full text-left border-none cursor-pointer rounded-md transition-colors"
+                    style={{
+                      padding: "6px 10px",
+                      gap: "8px",
+                      background: active ? "rgba(53,49,155,0.07)" : "transparent",
+                      fontFamily: "Poppins, sans-serif",
+                      fontSize: "13px",
+                      fontWeight: active ? 600 : 500,
+                      color: "#171717",
+                    }}
+                  >
+                    <span style={{ flex: "1", minWidth: 0 }}>{l.nativeName}</span>
+                    <span style={{ color: "#98A2B3", fontSize: "11px", fontWeight: 400 }}>{l.label}</span>
+                    {active && <Check size={14} style={{ color: "#35319B" }} />}
+                  </button>
+                );
+              })}
+            </div>
 
-          <p className="m-0 px-[10px] pt-[10px] pb-[4px] text-[10px] font-bold uppercase tracking-[0.08em]"
-            style={{ color: "#3B35A3", fontFamily: "Poppins, sans-serif" }}>
-            Indian Languages
-          </p>
-          {indian.map((l) => {
-            const active = l.code === locale;
-            return (
-              <button
-                key={`${l.code}-in`}
-                type="button"
-                role="option"
-                aria-selected={active}
-                onClick={() => {
-                  setOpen(false);
-                  if (!active) setLocale(l.code);
-                }}
-                className="flex items-center w-full text-left border-none cursor-pointer rounded-md transition-colors"
-                style={{
-                  padding: "7px 10px",
-                  gap: "8px",
-                  background: active ? "rgba(53,49,155,0.07)" : "transparent",
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "13px",
-                  fontWeight: active ? 600 : 500,
-                  color: "#171717",
-                }}
-              >
-                <span style={{ flex: "1", minWidth: 0 }}>{l.nativeName}</span>
-                <span style={{ color: "#98A2B3", fontSize: "11px", fontWeight: 400 }}>{l.label}</span>
-                {active && <Check size={14} style={{ color: "#35319B" }} />}
-              </button>
-            );
-          })}
+            <div style={{ width: "1px", background: "#E5E7EB", flexShrink: 0 }} />
+
+            <div className="flex-1 min-w-0">
+              <p className="m-0 px-[6px] pt-[2px] pb-[6px] text-[10px] font-bold uppercase tracking-[0.08em]"
+                style={{ color: "#3B35A3", fontFamily: "Poppins, sans-serif" }}>
+                Indian Languages
+              </p>
+              {indian.map((l) => {
+                const active = l.code === locale;
+                return (
+                  <button
+                    key={`${l.code}-in`}
+                    type="button"
+                    role="option"
+                    aria-selected={active}
+                    onClick={() => {
+                      setOpen(false);
+                      if (!active) setLocale(l.code);
+                    }}
+                    className="flex items-center w-full text-left border-none cursor-pointer rounded-md transition-colors"
+                    style={{
+                      padding: "6px 10px",
+                      gap: "8px",
+                      background: active ? "rgba(53,49,155,0.07)" : "transparent",
+                      fontFamily: "Poppins, sans-serif",
+                      fontSize: "13px",
+                      fontWeight: active ? 600 : 500,
+                      color: "#171717",
+                    }}
+                  >
+                    <span style={{ flex: "1", minWidth: 0 }}>{l.nativeName}</span>
+                    <span style={{ color: "#98A2B3", fontSize: "11px", fontWeight: 400 }}>{l.label}</span>
+                    {active && <Check size={14} style={{ color: "#35319B" }} />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
     </div>

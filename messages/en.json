@@ -375,6 +375,22 @@
     "retake": "Retake assessment",
     "goDashboard": "Go to my Dashboard",
     "participatingOrgs": "Participating organisations:",
-    "disclaimerNote": "Wellness guidance only — not a medical diagnosis."
+    "disclaimerNote": "Wellness guidance only â€” not a medical diagnosis."
+  },
+  "tts": {
+    "onLabel": "Voice ON",
+    "offLabel": "Voice OFF",
+    "speakAria": "Play audio",
+    "stopAria": "Stop audio",
+    "pauseAria": "Pause audio",
+    "resumeAria": "Resume audio",
+    "loadingLabel": "Loading audio",
+    "voiceUnavailable": "Voice not available for this language",
+    "questionOf": "Question {n} of {total}.",
+    "optionOf": "Option {n}. {text}",
+    "emailFocus": "Email address. Please enter your email address.",
+    "passwordFocus": "Password. Please enter your password.",
+    "fieldRequired": "This field is required.",
+    "noAccountFound": "No account was found with this email address. Please check and try again."
   }
 }

@@ -347,11 +347,6 @@ export const pdfStyles = StyleSheet.create({
     color: COLORS.muted,
     marginBottom: 14,
   },
-  galleryItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
   galleryBadge: {
     width: 22,
     height: 22,
@@ -366,10 +361,6 @@ export const pdfStyles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 11,
     fontWeight: "bold",
-  },
-  galleryImage: {
-    width: 300,
-    borderRadius: 6,
   },
 
   // ── Recommendations ──

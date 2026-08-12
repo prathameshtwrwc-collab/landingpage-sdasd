@@ -1,4 +1,5 @@
 "use client";
+import SectionTTSButton from "@/components/tts/SectionTTSButton";
 
 import React from "react";
 import { motion } from "framer-motion";
@@ -18,6 +19,7 @@ export default function AdditionalGuidanceSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
+<SectionTTSButton className="absolute top-[18px] right-[18px] z-[5]" />
       <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={{ hidden: { opacity: 0, y: 25 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } } }} className="relative z-[1] mx-auto max-w-[1120px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[42px] lg:pt-[46px] pb-[38px] md:pb-[44px] lg:pb-[48px] min-w-0">
         <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_390px] lg:grid-cols-[minmax(0,1fr)_470px] gap-[0px] md:gap-[36px] lg:gap-[58px] items-center min-w-0">
           <motion.div variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.45, ease: "easeOut" } } }} className="w-full max-w-[500px] text-left min-w-0">

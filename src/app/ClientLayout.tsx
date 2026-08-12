@@ -9,6 +9,7 @@ import FloatingTestButton from "@/components/FloatingTestButton";
 import SmoothScrollProvider from "@/components/smooth-scroll/SmoothScrollProvider";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { I18nProvider } from "@/components/i18n/I18nProvider";
+import { TTSProvider } from "@/components/tts/TTSProvider";
 import type { LocaleCode } from "@/i18n/locales";
 import type { ReactNode } from "react";
 
@@ -24,12 +25,14 @@ export default function ClientLayout({ children, locale }: ClientLayoutProps) {
         <AssessmentProvider>
           <ConsultProvider>
             <I18nProvider initialLocale={locale}>
-              <SmoothScrollProvider>
-                {children}
-                <LazyAssessmentModal />
-                <LazyConsultModal />
-                <FloatingTestButton />
-              </SmoothScrollProvider>
+              <TTSProvider>
+                <SmoothScrollProvider>
+                  {children}
+                  <LazyAssessmentModal />
+                  <LazyConsultModal />
+                  <FloatingTestButton />
+                </SmoothScrollProvider>
+              </TTSProvider>
             </I18nProvider>
           </ConsultProvider>
         </AssessmentProvider>

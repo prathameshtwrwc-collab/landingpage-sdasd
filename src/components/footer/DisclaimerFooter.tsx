@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import SectionTTSButton from "@/components/tts/SectionTTSButton";
 
 export default function DisclaimerFooter() {
   const t = useTranslations("footer");
@@ -15,6 +16,7 @@ export default function DisclaimerFooter() {
         backgroundColor: "#000000",
       }}
     >
+      <SectionTTSButton scheme="dark" className="absolute top-[14px] right-[14px] z-[5]" />
       <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } } }} className="relative z-[1] mx-auto max-w-[1120px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[28px] md:pt-[32px] lg:pt-[34px] pb-[30px] md:pb-[34px] lg:pb-[38px] min-w-0">
         <h2
           id="disclaimer-heading"
