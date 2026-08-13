@@ -6,7 +6,6 @@ import { useAssessment } from "@/components/assessment/AssessmentContext";
 import { useConsult } from "@/components/consult/ConsultContext";
 import DonateModal from "@/components/DonateModal";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
-import VoiceAssistanceToggle from "@/components/tts/VoiceAssistanceToggle";
 
 type NavItem = {
   key: string;
@@ -308,7 +307,6 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
 
             {/* Right: CTA desktop — hidden below 1024 */}
             <div className="hidden lg:flex items-center justify-end gap-[8px]">
-              <VoiceAssistanceToggle variant={isScrolled ? "dark" : "light"} />
               <LanguageSwitcher variant={isScrolled ? "dark" : "light"} />
               <a
                 href="/login"
@@ -461,7 +459,6 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
           }}
         />
         <div className="flex items-center gap-[10px] mb-[14px] flex-wrap">
-          <VoiceAssistanceToggle />
           <LanguageSwitcher />
         </div>
         <nav aria-label="Mobile primary navigation" className="flex flex-col w-full">
