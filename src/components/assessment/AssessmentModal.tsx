@@ -95,17 +95,6 @@ export default function AssessmentModal() {
   // URL-detected codes (locked fields)
   const [lockedFields, setLockedFields] = useState<{ orgCode: boolean; referralCode: boolean }>({ orgCode: false, referralCode: false });
 
-  // First-focus speech per personal-details field (automatic, spoken once).
-  const fieldSpokenRefs = useRef<Record<string, boolean>>({});
-  const speakFieldFirstFocus = useCallback(
-    (field: string, label: string) => {
-      if (fieldSpokenRefs.current[field]) return;
-      fieldSpokenRefs.current[field] = true;
-      speak({ text: `${label}. ${ttsT("fieldRequired")}`, type: "label", automatic: true });
-    },
-    [speak, ttsT]
-  );
-
   // Data from server
   const [questions, setQuestions] = useState<Question[]>([]);
   const [versionId, setVersionId] = useState("");
@@ -887,7 +876,6 @@ function Field({ label, value, onChange, error, type = "text", inputMode, readon
         <label className="block text-[13px] font-medium text-[#444]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
           {label}
         </label>
-        {ttsLabel && <TTSButton text={ttsLabel} type="label" size={13} />}
       </div>
       <input
         type={type}
@@ -983,16 +971,7 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
   const q = questions[displayedIdx];
   const progress = ((questionIndex + 1) / totalQuestions) * 100;
 
-  // Auto-read the current question once when it actually changes (not on
-  // re-render / focus / state updates). Reads the exact displayed text.
-  useEffect(() => {
-    if (!q) return;
-    const key = `${q.id}|${displayedIdx}`;
-    if (lastSpokenQuestionRef.current === key) return;
-    lastSpokenQuestionRef.current = key;
-    const phrase = `${ttsT("questionOf", { n: displayedIdx + 1, total: totalQuestions })} ${q.question_text}`;
-    speak({ text: phrase, type: "question", automatic: true });
-  }, [q, displayedIdx, totalQuestions, ttsT, speak]);
+  // Auto-read removed: TTS is manual-only on the assessment questionnaire.
 
   if (!q) {
     return (

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useAuth } from "@/components/auth/AuthProvider";
 import LoginCard from "@/components/auth/LoginCard";
-import VoiceAssistanceToggle from "@/components/tts/VoiceAssistanceToggle";
 import { Moon, Sparkles, Home } from "lucide-react";
 
 export default function LoginPage() {
@@ -94,10 +93,9 @@ export default function LoginPage() {
       <div className="w-full lg:w-1/2 relative flex flex-col items-center justify-center px-[24px] py-[40px] md:px-[48px]"
         style={{ background: "#FFFFFF" }}
       >
-        {/* Back to Home + Voice Assistance */}
+        {/* Back to Home */}
         <div className="absolute top-[20px] right-[24px] md:right-[48px] z-[50] flex flex-col items-end gap-[10px]">
           <div className="flex items-center gap-[10px]">
-            <VoiceAssistanceToggle />
             <button
               type="button"
               onClick={() => router.push("/")}
