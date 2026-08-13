@@ -75,7 +75,7 @@ function CheckCircle() {
 
 export default function AssessmentModal() {
   const { isOpen, close, retestMemberId } = useAssessment();
-  const { open: openConsult } = useConsult();
+  const { open: openConsult, openPrefilled: openConsultPrefilled } = useConsult();
   const t = useTranslations("assessment");
   const ttsT = useTranslations("tts");
   const { speak } = useTTS();
@@ -502,6 +502,7 @@ export default function AssessmentModal() {
             setCopiedReferral={setCopiedReferral}
             resetAndClose={resetAndClose}
             openConsult={openConsult}
+            openConsultPrefilled={openConsultPrefilled}
             schedule={schedule}
             generatedAt={generatedAt}
           />
@@ -1438,7 +1439,7 @@ const OwlIllustration = () => <MoonStar size={80} strokeWidth={1.4} stroke="#7B6
 
 function EnhancedResult({
   chronotypeResult, submissionMeta, memberName, memberReferralCode,
-  assessmentId, form, chronotypeDescs, copiedReferral, setCopiedReferral, resetAndClose, openConsult,
+  assessmentId, form, chronotypeDescs, copiedReferral, setCopiedReferral, resetAndClose, openConsult, openConsultPrefilled,
   schedule, generatedAt,
 }: {
   chronotypeResult: { chronotype: string; total_score: number; confidence_score: number; lark_score: number; eagle_score: number; owl_score: number };
@@ -1452,6 +1453,19 @@ function EnhancedResult({
   setCopiedReferral: (v: boolean) => void;
   resetAndClose: () => void;
   openConsult: () => void;
+  openConsultPrefilled: (data: {
+    fname?: string;
+    lname?: string;
+    age?: string;
+    gender?: string;
+    maritalStatus?: string;
+    country?: string;
+    state?: string;
+    city?: string;
+    pincode?: string;
+    email?: string;
+    phone?: string;
+  }) => void;
   schedule: { wakeTime: string | null; bedtime: string | null; peakFocus: string | null } | null;
   generatedAt: string | null;
 }) {
@@ -1814,7 +1828,22 @@ function EnhancedResult({
           </div>
           <button
             type="button"
-            onClick={openConsult}
+            onClick={() => {
+              const phone = form.phoneDial && form.phone ? `${form.phoneDial} ${form.phone}` : (form.phone || form.phoneDial || "");
+              openConsultPrefilled({
+                fname: form.fname || undefined,
+                lname: form.lname || undefined,
+                age: form.age || undefined,
+                gender: form.gender || undefined,
+                maritalStatus: form.maritalStatus || undefined,
+                country: form.country || undefined,
+                state: form.location || undefined,
+                city: form.city || undefined,
+                pincode: form.pincode || undefined,
+                email: form.email || undefined,
+                phone: phone || undefined,
+              });
+            }}
             className="inline-flex items-center gap-[7px] text-[13px] font-semibold px-[14px] border-none cursor-pointer rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f] shrink-0"
             style={{ minHeight: "42px", color: "#FFFFFF", background: "#EE8300", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
           >
