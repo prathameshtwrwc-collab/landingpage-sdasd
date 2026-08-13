@@ -13,7 +13,7 @@ export default function HeroStatementStrip() {
       className="relative w-full overflow-hidden flex items-center justify-center h-auto md:min-h-[230px]"
       style={{ backgroundColor: "#353080", minHeight: undefined }}
     >
-      <SectionTTSButton scheme="dark" className="absolute top-[14px] right-[14px] z-[5]" />
+      <SectionTTSButton scheme="dark" className="absolute top-[10px] right-[10px] md:top-[14px] md:right-[14px] z-[5]" />
       {/* Background image with overlay */}
       <div
         className="absolute inset-0 z-0"

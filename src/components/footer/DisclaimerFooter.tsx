@@ -16,8 +16,8 @@ export default function DisclaimerFooter() {
         backgroundColor: "#000000",
       }}
     >
-      <SectionTTSButton scheme="dark" className="absolute top-[14px] right-[14px] z-[5]" />
-      <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } } }} className="relative z-[1] mx-auto max-w-[1120px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[28px] md:pt-[32px] lg:pt-[34px] pb-[30px] md:pb-[34px] lg:pb-[38px] min-w-0">
+      <SectionTTSButton scheme="dark" className="absolute top-[10px] right-[10px] md:top-[14px] md:right-[14px] z-[5]" />
+      <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } } }} className="relative z-[1] mx-auto max-w-[1120px] px-[20px] max-[389px]:px-[16px] max-[389px]:pr-[44px] md:px-[32px] lg:px-[48px] pt-[28px] md:pt-[32px] lg:pt-[34px] pb-[30px] md:pb-[34px] lg:pb-[38px] min-w-0">
         <h2
           id="disclaimer-heading"
           className="m-0 text-left text-white font-semibold text-[16px] leading-[1.3] md:text-[15px] lg:text-[16px]"

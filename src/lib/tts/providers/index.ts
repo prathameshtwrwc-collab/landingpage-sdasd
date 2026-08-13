@@ -1,13 +1,13 @@
 import { TTSProvider } from "../tts-types";
 import { resolveProvider } from "../tts-config";
-import { FreeTTSProvider } from "./freetts-provider";
+import { ElevenLabsProvider } from "./elevenlabs-provider";
 
 export function getTTSProvider(): TTSProvider {
   const provider = resolveProvider();
   switch (provider) {
-    case "freetts":
-      return new FreeTTSProvider();
+    case "elevenlabs":
+      return new ElevenLabsProvider();
     default:
-      throw new Error(`Unknown TTS provider: ${provider}`);
+      return new ElevenLabsProvider();
   }
 }

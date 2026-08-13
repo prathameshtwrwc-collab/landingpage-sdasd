@@ -27,11 +27,11 @@ export default function BetterSleepBetterDaysSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
-<SectionTTSButton className="absolute top-[18px] right-[18px] z-[5]" />
+<SectionTTSButton className="absolute top-[10px] right-[10px] md:top-[18px] md:right-[18px] z-[5]" />
       <div
         className="
           relative z-[1] mx-auto
-          px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px]
+          px-[20px] max-[389px]:px-[16px] max-[389px]:pr-[44px] md:px-[32px] lg:px-[48px]
           pt-[36px] md:pt-[40px] lg:pt-[44px]
           pb-[38px] md:pb-[44px] lg:pb-[52px]
           max-w-[1120px]

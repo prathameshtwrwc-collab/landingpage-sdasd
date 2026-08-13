@@ -45,8 +45,8 @@ export default function FaqSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
-<SectionTTSButton className="absolute top-[18px] right-[18px] z-[5]" />
-      <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={{ hidden: { opacity: 0, y: 25 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } } }} className="relative z-[1] mx-auto max-w-[980px] px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[42px] lg:pt-[48px] pb-[40px] md:pb-[44px] lg:pb-[52px] min-w-0">
+<SectionTTSButton className="absolute top-[10px] right-[10px] md:top-[18px] md:right-[18px] z-[5]" />
+      <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={{ hidden: { opacity: 0, y: 25 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } } }} className="relative z-[1] mx-auto max-w-[980px] px-[20px] max-[389px]:px-[16px] max-[389px]:pr-[44px] md:px-[32px] lg:px-[48px] pt-[36px] md:pt-[42px] lg:pt-[48px] pb-[40px] md:pb-[44px] lg:pb-[52px] min-w-0">
         {/* Heading */}
 <h2
           id="faq-heading"

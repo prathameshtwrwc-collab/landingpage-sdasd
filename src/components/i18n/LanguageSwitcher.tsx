@@ -104,7 +104,7 @@ export default function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherP
           role="listbox"
           aria-label={t("label")}
           data-lenis-prevent
-          className="absolute right-0 top-[calc(100%+8px)] z-[1200] rounded-lg"
+          className={`absolute ${isMobile ? "left-0" : "right-0"} top-[calc(100%+8px)] z-[1200] rounded-lg`}
           style={{
             minWidth: isMobile ? "auto" : "520px",
             maxHeight: "min(70vh, 480px)",

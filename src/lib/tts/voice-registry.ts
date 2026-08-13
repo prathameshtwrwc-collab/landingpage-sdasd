@@ -2,39 +2,27 @@ import { VoiceResolution } from "./tts-types";
 import { isLocaleActive } from "./tts-config";
 
 /**
- * Voice registry — verified against FreeTTS `GET /api/voices` (2026-08-12).
+ * Voice registry — ElevenLabs voice IDs.
  * Multiple i18n display variants that share one spoken language normalize to
- * one TTS language/voice. No invented voice IDs.
+ * one TTS language/voice.
  *
  * `pa` / `or` intentionally have NO entry (no verified voice, no compatible
  * fallback) → they resolve as `unavailable`.
  */
 const VOICE_BY_LANGUAGE: Record<string, string> = {
-  en: "en-US-JennyNeural",
-  es: "es-ES-ElviraNeural",
-  fr: "fr-FR-DeniseNeural",
-  de: "de-DE-KatjaNeural",
-  ru: "ru-RU-SvetlanaNeural",
-  zh: "zh-CN-XiaoxiaoNeural",
-  "zh-tw": "zh-TW-HsiaoChenNeural",
-  ja: "ja-JP-NanamiNeural",
-  it: "it-IT-ElsaNeural",
-  tr: "tr-TR-EmelNeural",
-  ar: "ar-SA-ZariyahNeural",
-  bn: "bn-IN-TanishaaNeural",
-  fi: "fi-FI-NooraNeural",
-  he: "he-IL-HilaNeural",
-  el: "el-GR-AthinaNeural",
-  ms: "ms-MY-YasminNeural",
-  pt: "pt-PT-RaquelNeural",
-  ur: "ur-IN-GulNeural",
-  hi: "hi-IN-SwaraNeural",
-  mr: "mr-IN-AarohiNeural",
-  gu: "gu-IN-DhwaniNeural",
-  ta: "ta-IN-PallaviNeural",
-  te: "te-IN-ShrutiNeural",
-  kn: "kn-IN-SapnaNeural",
-  ml: "ml-IN-SobhanaNeural",
+  en: "XrExE9yKIg1WjnnlVkGX",
+  hi: "10O5QNlxfEBcKAbSUH4D",
+  bn: "10O5QNlxfEBcKAbSUH4D",
+  ta: "10O5QNlxfEBcKAbSUH4D",
+  te: "10O5QNlxfEBcKAbSUH4D",
+  kn: "10O5QNlxfEBcKAbSUH4D",
+  ml: "10O5QNlxfEBcKAbSUH4D",
+  mr: "10O5QNlxfEBcKAbSUH4D",
+  gu: "10O5QNlxfEBcKAbSUH4D",
+  pa: "10O5QNlxfEBcKAbSUH4D",
+  or: "10O5QNlxfEBcKAbSUH4D",
+  as: "10O5QNlxfEBcKAbSUH4D",
+  ur: "10O5QNlxfEBcKAbSUH4D",
 };
 
 /** i18n locale → normalized TTS language. Identity unless listed. */
@@ -68,4 +56,4 @@ export function voiceUnavailable(locale: string): boolean {
 }
 
 /** Global fallback used only when the incoming locale is invalid. */
-export const GLOBAL_FALLBACK_VOICE = "en-US-JennyNeural";
+export const GLOBAL_FALLBACK_VOICE = "XrExE9yKIg1WjnnlVkGX";

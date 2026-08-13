@@ -5,7 +5,7 @@ import { normalizeForSpeech, hashText } from "@/lib/tts/text-utils";
 import { serverCacheGet, serverCacheSet } from "@/lib/tts/server-cache";
 import { rateLimit } from "@/lib/tts/server-rate-limit";
 import { getTTSProvider } from "@/lib/tts/providers";
-import { TTSRateLimitedError, TTSUnavailableError, TTSTextTooLongError } from "@/lib/tts/providers/freetts-provider";
+import { TTSRateLimitedError, TTSUnavailableError, TTSTextTooLongError } from "@/lib/tts/providers/elevenlabs-provider";
 
 function clientIp(req: Request): string {
   const fwd = req.headers.get("x-forwarded-for");
@@ -63,14 +63,16 @@ export async function POST(req: Request) {
         const result = await getTTSProvider().synthesize({ text: normalized, voice: voiceRes.voice });
         audioBuffer = Buffer.from(result.audioBuffer);
         if (!isUserContent) serverCacheSet(cacheKey, audioBuffer);
-      } catch (err) {
+      } catch (err: any) {
+        const message = err?.message || err?.status || "unknown";
+        console.error("TTS provider error:", message, err);
         if (err instanceof TTSRateLimitedError) {
           return NextResponse.json({ success: false, error: "TTS_RATE_LIMITED" }, { status: 429 });
         }
         if (err instanceof TTSTextTooLongError) {
           return NextResponse.json({ success: false, error: "TTS_TEXT_TOO_LONG" }, { status: 413 });
         }
-        return NextResponse.json({ success: false, error: "TTS_UNAVAILABLE" }, { status: 502 });
+        return NextResponse.json({ success: false, error: "TTS_UNAVAILABLE", detail: String(message) }, { status: 502 });
       }
     }
 

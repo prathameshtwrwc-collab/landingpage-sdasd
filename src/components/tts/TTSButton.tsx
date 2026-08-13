@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Volume2, Square, Loader2, VolumeX } from "lucide-react";
 import { useTTS } from "./TTSProvider";
@@ -35,17 +35,20 @@ export default function TTSButton({
   const normalizedText = (text ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
   const isCurrent = isSpeaking && currentText === normalizedText;
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (unavailable || disabled || !normalizedText) return;
     if (isCurrent) {
       stop();
       return;
     }
     setIsGenerating(true);
-    const finished = () => setIsGenerating(false);
-    speak({ text: normalizedText, type, automatic: false });
-    // Rough indicator: generating state ends shortly after request starts.
-    setTimeout(finished, 1200);
+    try {
+      await speak({ text: normalizedText, type, automatic: false });
+    } catch {
+      // error is handled inside provider
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const labelText = label || t("speakAria");
@@ -55,6 +58,18 @@ export default function TTSButton({
   const bg = variant === "dark" ? "rgba(245,154,0,0.10)" : "rgba(245,154,0,0.08)";
   const border = variant === "dark" ? "rgba(245,154,0,0.35)" : "rgba(245,154,0,0.45)";
 
+  const [isMobile, setIsMobile] = useState(false);
+  const sizeClass = isMobile ? "w-[40px] h-[40px]" : "w-[30px] h-[30px]";
+  const iconBase = isMobile ? size * 1.1 : size * 0.85;
+
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 640px)");
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
   return (
     <button
       type="button"
@@ -63,10 +78,8 @@ export default function TTSButton({
       aria-label={unavailable ? t("voiceUnavailable") : stateLabel}
       aria-pressed={isCurrent}
       title={unavailable ? t("voiceUnavailable") : stateLabel}
-      className={`inline-flex items-center justify-center rounded-sm border cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-1 disabled:opacity-40 disabled:cursor-not-allowed ${className}`}
+      className={`inline-flex items-center justify-center rounded-sm border cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-1 disabled:opacity-40 disabled:cursor-not-allowed ${sizeClass} ${className}`}
       style={{
-        width: 30,
-        height: 30,
         background: bg,
         color: unavailable ? "#AAA" : fg,
         borderColor: unavailable ? "rgba(170,170,170,0.3)" : border,
@@ -74,13 +87,13 @@ export default function TTSButton({
       }}
     >
       {isGenerating ? (
-        <Loader2 size={size * 0.8} className="animate-spin" />
+        <Loader2 size={iconBase} className="animate-spin" />
       ) : isCurrent ? (
-        <Square size={size * 0.8} />
+        <Square size={iconBase} />
       ) : unavailable ? (
-        <VolumeX size={size * 0.8} />
+        <VolumeX size={iconBase} />
       ) : (
-        <Volume2 size={size} />
+        <Volume2 size={iconBase} />
       )}
     </button>
   );

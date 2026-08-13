@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Volume2, VolumeX } from "lucide-react";
 import { useTTS } from "./TTSProvider";
@@ -27,6 +28,18 @@ export default function VoiceAssistanceToggle({ variant = "light", className = "
       ? "rgba(245,154,0,0.28)"
       : "rgba(245,154,0,0.35)";
 
+  const [isMobile, setIsMobile] = useState(false);
+  const btnHeight = isMobile ? 42 : 36;
+  const iconSize = isMobile ? 17 : 15;
+
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 640px)");
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
   return (
     <button
       type="button"
@@ -36,7 +49,7 @@ export default function VoiceAssistanceToggle({ variant = "light", className = "
       title={enabled ? t("onLabel") : t("offLabel")}
       className={`inline-flex items-center gap-[6px] border cursor-pointer transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-2 rounded-sm ${className}`}
       style={{
-        height: 36,
+        height: btnHeight,
         padding: "0 10px",
         background: bg,
         color: fg,
@@ -47,7 +60,7 @@ export default function VoiceAssistanceToggle({ variant = "light", className = "
         whiteSpace: "nowrap",
       }}
     >
-      {enabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
+      {enabled ? <Volume2 size={iconSize} /> : <VolumeX size={iconSize} />}
       <span>{enabled ? t("onLabel") : t("offLabel")}</span>
     </button>
   );

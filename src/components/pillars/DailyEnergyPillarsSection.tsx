@@ -24,7 +24,7 @@ export default function DailyEnergyPillarsSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
-      <SectionTTSButton className="absolute top-[18px] right-[18px] z-[5]" />
+      <SectionTTSButton className="absolute top-[10px] right-[10px] md:top-[18px] md:right-[18px] z-[5]" />
       <motion.div
         initial="hidden"
         whileInView="visible"
@@ -34,7 +34,7 @@ export default function DailyEnergyPillarsSection() {
       <div
         className="
           relative z-[1] mx-auto
-          px-[20px] max-[389px]:px-[16px] md:px-[32px] lg:px-[48px]
+          px-[20px] max-[389px]:px-[16px] max-[389px]:pr-[44px] md:px-[32px] lg:px-[48px]
           pt-[36px] md:pt-[40px] lg:pt-[42px]
           pb-[38px] md:pb-[38px] lg:pb-[40px]
           max-w-[1180px]

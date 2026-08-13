@@ -124,6 +124,11 @@ Phase: Feature Completion & Stabilization — Superadmin Dashboard, RLS Fixes, D
 - **TTS section buttons** — SectionTTSButton added to all 13 landing-page sections; reads full section text via DOM TreeWalker with content-only filter; hero + footer use white-on-dark scheme.
 - **TTS browser fallback** — TTSProvider falls back to window.speechSynthesis when /api/tts returns 502/unavailable.
 - **Navbar voice toggle controls all TTS** — VoiceAssistanceToggle now gates manual section TTS buttons; clicking a section speaker when OFF enables the toggle and speaks.
+- **TTS provider: ElevenLabs** — Replaced FreeTTS with ElevenLabs (`@elevenlabs/elevenlabs-js`). Server route `/api/tts` now synthesizes via ElevenLabs with caching + rate limiting. English voice: `XrExE9yKIg1WjnnlVkGX`. Indian languages (`hi`, `bn`, `ta`, `te`, `kn`, `ml`, `mr`, `gu`, `pa`, `or`, `as`, `ur`) mapped to `10O5QNlxfEBcKAbSUH4D`.
+- **TTS loading spinner** — Spinner now stays visible until audio actually starts playing; removed fixed 1200ms timeout in `SectionTTSButton` and `TTSButton`.
+- **TTS hydration fix** — Removed `typeof window !== "undefined" && window.innerWidth < 640` inline checks from `SectionTTSButton`, `TTSButton`, and `VoiceAssistanceToggle`; replaced with `useState(false)` + `useEffect` + `matchMedia` so SSR and initial client render stay in sync.
+- **Mobile language dropdown** — Fixed dropdown going off-screen on mobile by switching dropdown alignment from `right-0` to `left-0` on `≤640px` in `LanguageSwitcher.tsx`.
+- **Vercel env vars required for TTS** — `ELEVENLABS_API_KEY`, `TTS_PROVIDER=elevenlabs`, `TTS_ACTIVE_LOCALES=en,hi,bn,ta,te,kn,ml,mr,gu,pa,or,as,ur` must be set in Vercel project settings.
 
 ---
 

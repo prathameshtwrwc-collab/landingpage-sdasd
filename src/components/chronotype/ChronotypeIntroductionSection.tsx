@@ -27,7 +27,7 @@ export default function ChronotypeIntroductionSection() {
         borderBottom: "1px solid rgba(228, 185, 61, 0.72)",
       }}
     >
-<SectionTTSButton className="absolute top-[18px] right-[18px] z-[5]" />
+<SectionTTSButton className="absolute top-[10px] right-[10px] md:top-[18px] md:right-[18px] z-[5]" />
       <div
         className="chronotype-intro-section relative z-[1] mx-auto chronotype-intro-container"
         style={{
@@ -271,13 +271,13 @@ export default function ChronotypeIntroductionSection() {
 
         @media (max-width: 389px) {
           .chronotype-intro-section {
-            padding: 36px 16px 38px;
+            padding: 36px 44px 38px 16px;
           }
         }
 
         @media (max-width: 767px) {
           .chronotype-intro-section {
-            padding: 36px 20px 38px;
+            padding: 36px 44px 38px 20px;
           }
 
           .chronotype-intro-grid {

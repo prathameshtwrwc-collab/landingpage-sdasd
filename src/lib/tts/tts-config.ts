@@ -2,17 +2,11 @@ import { SpeechPriority, SpeechType } from "./tts-types";
 
 export interface TTSConfig {
   provider: string;
-  freettsBaseUrl: string;
+  elevenLabsApiKey: string;
+  elevenLabsVoiceId: string;
   maxChars: number;
   timeoutMs: number;
-  rate: string;
-  pitch: string;
-  apiKey?: string;
   allowVoiceOverride: boolean;
-  /**
-   * Locales currently enabled for TTS. Milestone gating — start with English
-   * only; verified locales are added one-by-one as they are confirmed.
-   */
   activeLocales: string[];
 }
 
@@ -33,15 +27,13 @@ function envBool(name: string, fallback: boolean): boolean {
 }
 
 export const ttsConfig: TTSConfig = {
-  provider: env("TTS_PROVIDER", "freetts"),
-  freettsBaseUrl: env("FREETTS_BASE_URL", "https://freetts.org"),
-  maxChars: envNumber("FREETTS_MAX_CHARS", 1000),
-  timeoutMs: envNumber("FREETTS_TIMEOUT_MS", 8000),
-  rate: env("FREETTS_RATE", "+0%"),
-  pitch: env("FREETTS_PITCH", "+0Hz"),
-  apiKey: env("FREETTS_API_KEY", "") || undefined,
+  provider: env("TTS_PROVIDER", "elevenlabs"),
+  elevenLabsApiKey: env("ELEVENLABS_API_KEY", ""),
+  elevenLabsVoiceId: env("ELEVENLABS_VOICE_ID", "XrExE9yKIg1WjnnlVkGX"),
+  maxChars: envNumber("TTS_MAX_CHARS", 1000),
+  timeoutMs: envNumber("TTS_TIMEOUT_MS", 8000),
   allowVoiceOverride: envBool("TTS_ALLOW_VOICE_OVERRIDE", false),
-  activeLocales: env("TTS_ACTIVE_LOCALES", "en").split(",").map((s) => s.trim()).filter(Boolean),
+  activeLocales: env("TTS_ACTIVE_LOCALES", "en,hi,bn,ta,te,kn,ml,mr,gu,pa,or,as,ur").split(",").map((s) => s.trim()).filter(Boolean),
 };
 
 export function resolveProvider(): string {

@@ -9,6 +9,8 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type Dispatch,
+  type SetStateAction,
 } from "react";
 import { useAppLocale } from "@/components/i18n/I18nProvider";
 import { SpeakOptions, SpeechPriority, TTSStatus } from "@/lib/tts/tts-types";
@@ -23,7 +25,7 @@ interface TTSContextValue {
   isPaused: boolean;
   status: TTSStatus;
   currentText: string;
-  speak: (opts: SpeakOptions) => void;
+  speak: (opts: SpeakOptions) => Promise<void>;
   stop: () => void;
   pause: () => void;
   resume: () => void;
@@ -64,6 +66,83 @@ function clientCacheSet(key: string, url: string): void {
 function clearClientCache(): void {
   for (const entry of clientCache.values()) URL.revokeObjectURL(entry.url);
   clientCache.clear();
+}
+
+function pickBestVoice(locale: string): SpeechSynthesisVoice | undefined {
+  if (!("speechSynthesis" in window)) return undefined;
+  const voices = window.speechSynthesis.getVoices();
+  const normalized = locale === "en" ? "en-US" : locale;
+  const exact = voices.find((v) => v.lang === normalized);
+  if (exact) return exact;
+  const prefix = voices.find((v) => v.lang.startsWith(`${normalized}-`));
+  if (prefix) return prefix;
+  const base = voices.find((v) => v.lang.startsWith(normalized.split("-")[0]));
+  return base ?? voices[0];
+}
+
+async function tryNativeSpeech({
+  text,
+  locale,
+  key,
+  priority,
+  currentKeyRef,
+  currentPriorityRef,
+  utteranceRef,
+  setCurrentText,
+  setStatus,
+  setIsSpeaking,
+  setIsPaused,
+}: {
+  text: string;
+  locale: string;
+  key: string;
+  priority: SpeechPriority;
+  currentKeyRef: React.MutableRefObject<string | null>;
+  currentPriorityRef: React.MutableRefObject<SpeechPriority>;
+  utteranceRef: React.MutableRefObject<SpeechSynthesisUtterance | null>;
+  setCurrentText: Dispatch<SetStateAction<string>>;
+  setStatus: Dispatch<SetStateAction<TTSStatus>>;
+  setIsSpeaking: Dispatch<SetStateAction<boolean>>;
+  setIsPaused: Dispatch<SetStateAction<boolean>>;
+}): Promise<boolean> {
+  if (!("speechSynthesis" in window)) return false;
+  const voice = pickBestVoice(locale);
+  if (!voice) return false;
+
+  currentKeyRef.current = key;
+  currentPriorityRef.current = priority;
+  setCurrentText(text);
+  setStatus("speaking");
+  setIsSpeaking(true);
+
+  await new Promise<void>((resolve) => {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = voice.lang;
+    u.rate = 1;
+    u.pitch = 1;
+    if (voice.voiceURI) u.voice = voice;
+    utteranceRef.current = u;
+    u.onend = () => {
+      utteranceRef.current = null;
+      setIsSpeaking(false);
+      setIsPaused(false);
+      setStatus("idle");
+      setCurrentText("");
+      currentKeyRef.current = null;
+      resolve();
+    };
+    u.onerror = () => {
+      utteranceRef.current = null;
+      setIsSpeaking(false);
+      setIsPaused(false);
+      setStatus("idle");
+      currentKeyRef.current = null;
+      resolve();
+    };
+    window.speechSynthesis!.speak(u);
+  });
+
+  return true;
 }
 
 export function TTSProvider({ children }: { children: ReactNode }) {
@@ -193,12 +272,10 @@ export function TTSProvider({ children }: { children: ReactNode }) {
   );
 
   const speak = useCallback(
-    (opts: SpeakOptions) => {
+    async (opts: SpeakOptions) => {
       const text = normalizeForSpeech(opts.text);
       if (!text) return;
 
-      // Interaction gate for automatic speech: only fires after the user has
-      // meaningfully interacted AND the global toggle is ON.
       if (opts.automatic === true) {
         if (!enabled) return;
         if (!hasInteractedRef.current) return;
@@ -207,13 +284,9 @@ export function TTSProvider({ children }: { children: ReactNode }) {
       const priority = priorityForType(opts.type);
       const key = `${locale}|${hashText(text)}`;
 
-      // Dedupe identical request already loading or speaking.
       if (inflightRef.current.has(key)) return;
       if (currentKeyRef.current === key && status !== "idle") return;
 
-      // Guard: Chrome speechSynthesis may fire onend prematurely for long
-      // utterances, leaving the engine still speaking while React state is
-      // reset. Block duplicate starts while the engine is actually busy.
       if (
         typeof window !== "undefined" &&
         "speechSynthesis" in window &&
@@ -224,13 +297,11 @@ export function TTSProvider({ children }: { children: ReactNode }) {
         window.speechSynthesis.cancel();
       }
 
-      // Priority: LOW only when idle; HIGH/MEDIUM replace current.
       if (status !== "idle" && status !== "paused") {
         if (priority === "LOW") return;
         stop();
       }
 
-      // userContent is never cached.
       const cached = opts.userContent ? null : clientCacheGet(key);
 
       if (cached) {
@@ -250,64 +321,41 @@ export function TTSProvider({ children }: { children: ReactNode }) {
       }
 
       inflightRef.current.add(key);
-      fetch("/api/tts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text,
-          locale,
-          type: opts.type ?? "label",
-          userContent: opts.userContent === true,
-        }),
-      })
-        .then(async (res) => {
-          if (!res.ok) throw new Error(`TTS server error ${res.status}`);
-          const blob = await res.blob();
-          currentKeyRef.current = key;
-          currentPriorityRef.current = priority;
-          setCurrentText(text);
-          await playBuffer(blob, key);
-        })
-        .catch(async () => {
-          if (!("speechSynthesis" in window)) return;
-          try {
-            currentKeyRef.current = key;
-            currentPriorityRef.current = priority;
-            setCurrentText(text);
-            setStatus("speaking");
-            setIsSpeaking(true);
-            await new Promise<void>((resolve) => {
-              const u = new SpeechSynthesisUtterance(text);
-              u.lang = locale === "en" ? "en-US" : locale;
-              u.rate = 1;
-              u.pitch = 1;
-              utteranceRef.current = u;
-              u.onend = () => {
-                utteranceRef.current = null;
-                setIsSpeaking(false);
-                setIsPaused(false);
-                setStatus("idle");
-                setCurrentText("");
-                currentKeyRef.current = null;
-                resolve();
-              };
-              u.onerror = () => {
-                utteranceRef.current = null;
-                setIsSpeaking(false);
-                setIsPaused(false);
-                setStatus("idle");
-                currentKeyRef.current = null;
-                resolve();
-              };
-              window.speechSynthesis.speak(u);
-            });
-          } catch {
-            // native TTS also failed — silent
-          }
-        })
-        .finally(() => {
-          inflightRef.current.delete(key);
+      let serverFailed = false;
+      try {
+        const res = await fetch("/api/tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text,
+            locale,
+            type: opts.type ?? "label",
+            userContent: opts.userContent === true,
+          }),
         });
+        if (!res.ok) {
+          const msg = await res.text().catch(() => `TTS server error ${res.status}`);
+          throw new Error(msg);
+        }
+        const blob = await res.blob();
+        currentKeyRef.current = key;
+        currentPriorityRef.current = priority;
+        setCurrentText(text);
+        await playBuffer(blob, key);
+      } catch (e) {
+        serverFailed = true;
+        console.error("TTS server error:", e);
+        if (!("speechSynthesis" in window)) return;
+        try {
+          await tryNativeSpeech({ text, locale, key, priority, currentKeyRef, currentPriorityRef, utteranceRef, setCurrentText, setStatus, setIsSpeaking, setIsPaused });
+        } catch {
+          // native TTS also failed — silent
+        }
+      } finally {
+        if (!serverFailed) {
+          inflightRef.current.delete(key);
+        }
+      }
     },
     [enabled, locale, status, stop, ensureAudio, playBuffer]
   );

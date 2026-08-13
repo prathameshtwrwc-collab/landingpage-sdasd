@@ -2,6 +2,27 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.14] — 2026-08-14 — TTS: ElevenLabs migration, loading spinner, hydration fix, mobile dropdown
+
+### Changed — TTS provider replaced with ElevenLabs
+- Removed `FreeTTSProvider` and the dependency on `freetts.org`.
+- Added `@elevenlabs/elevenlabs-js` SDK and new `ElevenLabsProvider` (`src/lib/tts/providers/elevenlabs-provider.ts`).
+- Server route `/api/tts` now calls ElevenLabs `textToSpeech.convert()` with `model_id: eleven_v3`, `output_format: mp3_44100_128`, and `language_code: en`.
+- Default provider switched to `elevenlabs` in `src/lib/tts/tts-config.ts`.
+- English voice mapped to `XrExE9yKIg1WjnnlVkGX`.
+- Indian language voices (`hi`, `bn`, `ta`, `te`, `kn`, `ml`, `mr`, `gu`, `pa`, `or`, `as`, `ur`) mapped to `10O5QNlxfEBcKAbSUH4D`.
+
+### Fixed — TTS loading spinner stays visible until audio plays
+- Removed fixed `setTimeout(() => setIsGenerating(false), 1200)` from `SectionTTSButton` and `TTSButton`.
+- `handleClick` is now `async` and awaits `speak()`; spinner hides only after playback actually starts (or fails).
+
+### Fixed — TTS hydration mismatch on mobile
+- Removed `typeof window !== "undefined" && window.innerWidth < 640` inline checks from `SectionTTSButton`, `TTSButton`, and `VoiceAssistanceToggle`.
+- Replaced with `useState(false)` + `useEffect` + `window.matchMedia("(max-width: 640px)")` so SSR and initial client render stay in sync.
+
+### Fixed — Mobile language dropdown off-screen
+- `LanguageSwitcher` dropdown now uses `left-0` alignment on `≤640px` instead of `right-0`, preventing it from going off-screen on narrow viewports.
+
 ## [2.12.13] — 2026-08-12 — TTS: full-section read, navbar toggle, dark-scheme icons
 
 ### Added — Section-level TTS buttons across all landing-page sections

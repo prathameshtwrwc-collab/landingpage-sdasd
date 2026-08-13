@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Volume2, Square, Loader2, VolumeX } from "lucide-react";
 import { useTTS } from "./TTSProvider";
@@ -67,7 +67,7 @@ export default function SectionTTSButton({ className = "", scheme = "light" }: S
   const bg = unavailable ? "rgba(120,120,120,0.12)" : isDark ? "rgba(255,255,255,0.12)" : "rgba(245,154,0,0.08)";
   const borderColor = unavailable ? "rgba(120,120,120,0.25)" : isDark ? "rgba(255,255,255,0.35)" : "rgba(245,154,0,0.45)";
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (unavailable) return;
     if (!enabled) {
       setEnabled(true);
@@ -85,13 +85,31 @@ export default function SectionTTSButton({ className = "", scheme = "light" }: S
     }
 
     setIsGenerating(true);
-    speak({ text, type: "page", automatic: false });
-    setTimeout(() => setIsGenerating(false), 1200);
+    try {
+      await speak({ text, type: "page", automatic: false });
+    } catch {
+      // error is handled inside provider
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const stateLabel = isSpeaking ? t("stopAria") : t("speakAria");
   const disabled = unavailable || isGenerating;
   const ariaLabel = !enabled ? t("offLabel") : unavailable ? t("voiceUnavailable") : stateLabel;
+
+  const [isMobile, setIsMobile] = useState(false);
+  const btnSize = isMobile ? 32 : 30;
+  const iconBase = isMobile ? 15 : 14;
+  const iconSmall = isMobile ? 13 : 12;
+
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 640px)");
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
 
   return (
     <button
@@ -103,8 +121,8 @@ export default function SectionTTSButton({ className = "", scheme = "light" }: S
       title={ariaLabel}
       className={`inline-flex items-center justify-center rounded-sm border cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-1 disabled:opacity-40 disabled:cursor-not-allowed ${className}`}
       style={{
-        width: 30,
-        height: 30,
+        width: btnSize,
+        height: btnSize,
         background: bg,
         color: iconColor,
         borderColor: borderColor,
@@ -112,15 +130,15 @@ export default function SectionTTSButton({ className = "", scheme = "light" }: S
       }}
     >
       {isGenerating ? (
-        <Loader2 size={13} className="animate-spin" />
+        <Loader2 size={iconSmall} className="animate-spin" />
       ) : isSpeaking ? (
-        <Square size={12} />
+        <Square size={iconSmall} />
       ) : unavailable ? (
-        <VolumeX size={13} />
+        <VolumeX size={iconSmall} />
       ) : !enabled ? (
-        <VolumeX size={13} />
+        <VolumeX size={iconSmall} />
       ) : (
-        <Volume2 size={14} />
+        <Volume2 size={iconBase} />
       )}
     </button>
   );
