@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import ReCAPTCHA from "react-google-recaptcha";
 import { useTranslations } from "next-intl";
 import { useConsult } from "./ConsultContext";
 
@@ -66,9 +65,6 @@ export default function ConsultModal() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [captchaError, setCaptchaError] = useState("");
-  const captchaRef = useRef<ReCAPTCHA>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -131,9 +127,7 @@ export default function ConsultModal() {
     if (!form.scheduleDate) e.scheduleDate = req;
     if (!form.scheduleTime) e.scheduleTime = req;
     setErrors(e);
-    if (!captchaToken) setCaptchaError(t("captchaError"));
-    else setCaptchaError("");
-    return Object.keys(e).length === 0 && !!captchaToken;
+    return Object.keys(e).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -159,9 +153,6 @@ export default function ConsultModal() {
     setForm(initialForm);
     setErrors({});
     setSubmitted(false);
-    setCaptchaToken(null);
-    setCaptchaError("");
-    captchaRef.current?.reset();
     close();
   };
 
@@ -279,17 +270,6 @@ export default function ConsultModal() {
               <DateField label={t("scheduleDate")} value={form.scheduleDate} onChange={(v) => update("scheduleDate", v)} error={errors.scheduleDate} />
               <TimeField label={t("scheduleTime")} value={form.scheduleTime} onChange={(v) => update("scheduleTime", v)} error={errors.scheduleTime} />
             </div>
-
-            {/* reCAPTCHA */}
-            <div className="mb-[18px] flex justify-center">
-              <ReCAPTCHA
-                ref={captchaRef}
-                sitekey="6LcO6FQtAAAAALeLgzM120ljuL3Mc5uefKWWxfET"
-                onChange={(token) => { setCaptchaToken(token); setCaptchaError(""); }}
-                onExpired={() => { setCaptchaToken(null); setCaptchaError(t("captchaExpired")); }}
-              />
-            </div>
-            {captchaError && <p className="m-0 text-[12px] text-red-500 mb-[16px] text-center" style={{ fontFamily: "Poppins, sans-serif" }}>{captchaError}</p>}
 
             {/* Submit */}
             <button
