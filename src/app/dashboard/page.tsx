@@ -10,7 +10,7 @@ import StatCard from "@/components/dashboard/StatCard";
 import { useRouter } from "next/navigation";
 import { Moon, Sparkles, Activity, TrendingUp, Calendar, Star, FileText, Download, Printer, Share2, ClipboardCopy, ExternalLink, ArrowRight, Stethoscope, Eye, Phone, Heart, Check } from "lucide-react";
 import DonateModal from "@/components/DonateModal";
-import { chronotypeImageSrcs } from "@/lib/chronotype-image";
+import { chronotypeImageSrcs, chronotypeImageSrcsMobile } from "@/lib/chronotype-image";
 
 interface DashboardData {
   member: Record<string, unknown> | null;
@@ -43,9 +43,11 @@ export default function MemberDashboardPage() {
   const [refCopied, setRefCopied] = useState(false);
   const [refShareResult, setRefShareResult] = useState<"idle" | "shared" | "copied">("idle");
   const [resultShared, setResultShared] = useState(false);
-const [showAllReports, setShowAllReports] = useState(false);
-const [donateOpen, setDonateOpen] = useState(false);
-const [downloading, setDownloading] = useState(false);
+  const [showAllReports, setShowAllReports] = useState(false);
+  const [donateOpen, setDonateOpen] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
 const [cardGradient] = useState(() => {
   const gradients = [
     "linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 40%, #FEF2F2 100%)",
@@ -60,7 +62,16 @@ const [cardGradient] = useState(() => {
     "linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 40%, #FFF7ED 100%)",
   ];
   return gradients[Math.floor(Math.random() * gradients.length)];
-});
+  });
+
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mql.matches);
+    setMounted(true);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
 
   useEffect(() => {
     if (user && user.email) {
@@ -348,10 +359,10 @@ Give it a try and let me know your result too!`;
       </div>
 
       {/* ─── Chronotype Gallery (one-by-one) ─── */}
-      {result && (() => {
+      {result && mounted && (() => {
         const key = chronotype === "LARK" ? "LARK" : chronotype === "OWL" ? "OWL" : "EAGLE";
         const galleryLabel = chronotypeLabels[key] ?? key;
-        const galleryImgs = chronotypeImageSrcs(key);
+        const galleryImgs = isMobile && key === "EAGLE" ? chronotypeImageSrcsMobile(key) : chronotypeImageSrcs(key);
         return (
           <div className="rounded-[16px] p-[22px] md:p-[28px] mt-[16px] md:mt-[20px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
             <span className="text-[10px] font-semibold uppercase tracking-[0.08em]" style={{ color: key === "LARK" ? "#EE8300" : key === "OWL" ? "#7B68AE" : "#30268F", fontFamily: "Poppins, sans-serif" }}>

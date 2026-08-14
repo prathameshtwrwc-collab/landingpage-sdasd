@@ -2,6 +2,17 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.15] — 2026-08-14 — PM docs package + mobile vertical-eagle gallery
+
+### Added — Product Manager documentation package
+- Created `docs/product-manager/` with 12 documents: `README.md`, `SRS.md`, `01-PRD.md`, `02-Feature-Requirements.md`, `03-User-Flows.md`, `04-User-Roles-Permissions.md`, `05-UI-UX-Specification.md`, `06-Assessment-Result-Logic.md`, `07-Product-Roadmap.md`, `08-Analytics-Requirements.md`, `09-Technical-Architecture-Overview.md`, `10-UAT-Testing.md`.
+
+### Added — Mobile vertical-eagle images for eagle chronotype
+- Added `VERTICAL_EAGLE_FILES` constant (`1.jpg`–`8.jpg`) mapped to `public/chronotype_media/vertical-eagles/` in `src/lib/chronotype-image.ts`.
+- Added `chronotypeImageSrcsMobile(chr)` helper that returns vertical-eagles paths for `EAGLE`, otherwise falls back to `chronotypeImageSrcs(chr)`.
+- Modified `src/app/dashboard/page.tsx` to detect mobile via `window.matchMedia("(max-width: 767px)")` and use `chronotypeImageSrcsMobile("EAGLE")` on mobile viewports for eagle members.
+- Desktop gallery behavior unchanged; only the mobile viewport switches to the vertical-optimized image set.
+
 ## [2.12.14] — 2026-08-14 — TTS: ElevenLabs migration, loading spinner, hydration fix, mobile dropdown
 
 ### Changed — TTS provider replaced with ElevenLabs

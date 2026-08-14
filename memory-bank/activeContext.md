@@ -129,7 +129,12 @@ Phase: Feature Completion & Stabilization — Superadmin Dashboard, RLS Fixes, D
 - **TTS hydration fix** — Removed `typeof window !== "undefined" && window.innerWidth < 640` inline checks from `SectionTTSButton`, `TTSButton`, and `VoiceAssistanceToggle`; replaced with `useState(false)` + `useEffect` + `matchMedia` so SSR and initial client render stay in sync.
 - **Mobile language dropdown** — Fixed dropdown going off-screen on mobile by switching dropdown alignment from `right-0` to `left-0` on `≤640px` in `LanguageSwitcher.tsx`.
 - **Vercel env vars required for TTS** — `ELEVENLABS_API_KEY`, `TTS_PROVIDER=elevenlabs`, `TTS_ACTIVE_LOCALES=en,hi,bn,ta,te,kn,ml,mr,gu,pa,or,as,ur` must be set in Vercel project settings.
-
+
+- **Product Manager documentation package** — Created `docs/product-manager/` with 12 documents covering SRS, PRD, feature requirements, user flows, roles/permissions, UI/UX spec, assessment logic, roadmap, analytics, architecture overview, and UAT testing.
+
+- **Mobile vertical-eagle gallery** — Eagle chronotype members on mobile (`≤767px`) now see the dedicated vertical-optimized image set (`public/chronotype_media/vertical-eagles/`, 8 images). `src/lib/chronotype-image.ts` gained `VERTICAL_EAGLE_FILES` and `chronotypeImageSrcsMobile()`; dashboard page detects mobile via `matchMedia("(max-width: 767px)")` and switches gallery source for `EAGLE` only. Desktop gallery behavior unchanged.
+
+
 ---
 
 # In Progress
