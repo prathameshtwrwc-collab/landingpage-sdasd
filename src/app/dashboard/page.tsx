@@ -8,7 +8,7 @@ import { useAssessment } from "@/components/assessment/AssessmentContext";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
 import { useRouter } from "next/navigation";
-import { Moon, Sparkles, Activity, TrendingUp, Calendar, Star, FileText, Download, Printer, Share2, ClipboardCopy, ExternalLink, ArrowRight, Stethoscope, Eye, Phone, Heart, Check } from "lucide-react";
+import { Moon, Sparkles, Activity, TrendingUp, Calendar, Star, FileText, Download, Printer, Share2, ClipboardCopy, ExternalLink, ArrowRight, Stethoscope, Eye, Phone, Heart, Check, X } from "lucide-react";
 import DonateModal from "@/components/DonateModal";
 import { chronotypeImageSrcs, chronotypeImageSrcsMobile } from "@/lib/chronotype-image";
 
@@ -48,6 +48,7 @@ export default function MemberDashboardPage() {
   const [downloading, setDownloading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 const [cardGradient] = useState(() => {
   const gradients = [
     "linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 40%, #FEF2F2 100%)",
@@ -72,6 +73,13 @@ const [cardGradient] = useState(() => {
     mql.addEventListener("change", handler);
     return () => mql.removeEventListener("change", handler);
   }, []);
+
+  useEffect(() => {
+    if (!previewSrc) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setPreviewSrc(null); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [previewSrc]);
 
   useEffect(() => {
     if (user && user.email) {
@@ -376,9 +384,9 @@ Give it a try and let me know your result too!`;
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {galleryImgs.map((src, i) => (
-                <a key={i} href={src} target="_blank" rel="noreferrer" aria-label={`${galleryLabel} image ${i + 1}`}
+                <button key={i} type="button" onClick={() => setPreviewSrc(src)} aria-label={`${galleryLabel} image ${i + 1}`}
                   className="flex items-center gap-[12px]"
-                  style={{ padding: "6px", borderRadius: "12px", border: "1px solid #EFEFF5", background: "#F7F7FA", textDecoration: "none" }}>
+                  style={{ padding: "6px", borderRadius: "12px", border: "1px solid #EFEFF5", background: "#F7F7FA", cursor: "pointer", textAlign: "left", width: "100%" }}>
                   <span className="flex items-center justify-center rounded-full text-[13px] font-semibold shrink-0"
                     style={{ width: "30px", height: "30px", background: "#35319B", color: "#FFFFFF", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
                     {i + 1}
@@ -386,12 +394,64 @@ Give it a try and let me know your result too!`;
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={src} alt={`${galleryLabel} image ${i + 1}`} loading={i === 0 ? "eager" : "lazy"}
                     style={{ flex: 1, minWidth: 0, width: "100%", height: "auto", borderRadius: "8px", display: "block" }} />
-                </a>
+                </button>
               ))}
             </div>
           </div>
         );
       })()}
+
+      {previewSrc && (
+        <div
+          onClick={() => setPreviewSrc(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            background: "rgba(0,0,0,0.85)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setPreviewSrc(null)}
+            aria-label="Close preview"
+            style={{
+              position: "absolute",
+              top: "16px",
+              right: "16px",
+              background: "rgba(255,255,255,0.9)",
+              border: "none",
+              borderRadius: "50%",
+              width: "40px",
+              height: "40px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#171717",
+              zIndex: 10000,
+            }}
+          >
+            <X size={22} />
+          </button>
+          <img
+            src={previewSrc}
+            alt="Preview"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: "90vw",
+              maxHeight: "90vh",
+              borderRadius: "8px",
+              cursor: "default",
+              display: "block",
+            }}
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-[16px] md:gap-[20px]">
         <div className="rounded-[16px] p-[22px] md:p-[28px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
