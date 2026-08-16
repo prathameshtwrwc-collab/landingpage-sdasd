@@ -2,6 +2,17 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.23] — 2026-08-16 — Chronotype icon badge in member list rows
+
+### Added — Chronotype icon in member tables
+- Super admin **Users > Members** table: added a **Chrono** column showing a circular icon badge:
+  - Eagle → **E** (indigo `#30268F`)
+  - Lark → **L** (orange `#EE8300`)
+  - Owl → **O** (violet `#7B68AE`)
+  - No assessment → `—`
+- Organization admin **Participants** table: added the same **Chrono** column with icon badges.
+- Backend: `getAdminMembers()` in `src/lib/queries/admin-portal.ts` now fetches each member's latest `chronotype_results` and attaches it as `latest_assessment` so the participants page can display the icon without extra API calls.
+
 ## [2.12.22] — 2026-08-16 — Fix dashboard icon redirecting to org landing page
 
 ### Fixed — Dashboard icon navigation

@@ -510,13 +510,14 @@ const filteredAdmins = admins.filter((a) => {
                     <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Gender</th>
                     <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Source</th>
                     <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Org</th>
+                    <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Chrono</th>
                     <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Joined</th>
                     <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}></th>
                   </tr>
                 </thead>
                 <tbody>
                   {pagedMembers.length === 0 ? (
-                    <tr><td colSpan={8} className="px-[14px] py-[24px] text-center text-[13px]" style={{ color: "#AAA" }}>No members found</td></tr>
+                    <tr><td colSpan={9} className="px-[14px] py-[24px] text-center text-[13px]" style={{ color: "#AAA" }}>No members found</td></tr>
                   ) : pagedMembers.map((m, i) => {
                     const org = (Array.isArray(orgs) ? orgs : []).find((o: Record<string, unknown>) => o.id === m.organization_id);
                     const isEditing = editingMember === m.id;
@@ -543,8 +544,17 @@ const filteredAdmins = admins.filter((a) => {
                                 className="w-full px-[6px] py-[5px] text-[11px] rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5" }} placeholder="Gender" />
                             </td>
                             <td className="px-[14px] py-[6px] text-[11px]">{m.source_type as string}</td>
-                            <td className="px-[14px] py-[6px] text-[11px]">{org?.name as string ?? "—"}</td>
-                            <td className="px-[14px] py-[6px] text-[11px]">{m.created_at ? new Date(m.created_at as string).toLocaleDateString() : "—"}</td>
+                             <td className="px-[14px] py-[6px] text-[11px]">{org?.name as string ?? "—"}</td>
+                             <td className="px-[14px] py-[6px] text-[11px]">
+                               {(() => {
+                                 const c = (m.latest_assessment as Record<string, unknown> | null)?.chronotype as string | undefined;
+                                 if (!c) return "—";
+                                 const label = c.charAt(0).toUpperCase();
+                                 const bg = c.toUpperCase() === "EAGLE" ? "#30268F" : c.toUpperCase() === "LARK" ? "#EE8300" : c.toUpperCase() === "OWL" ? "#7B68AE" : "#888";
+                                 return <span className="inline-flex items-center justify-center w-[22px] h-[22px] rounded-full text-white text-[10px] font-bold" style={{ background: bg, fontFamily: "Poppins, sans-serif" }}>{label}</span>;
+                               })()}
+                             </td>
+                             <td className="px-[14px] py-[6px] text-[11px]">{m.created_at ? new Date(m.created_at as string).toLocaleDateString() : "—"}</td>
                             <td className="px-[14px] py-[6px]">
                               <div className="flex gap-[4px]">
                                 <button onClick={saveEditMember} className="bg-transparent border-none cursor-pointer p-[3px]" title="Save"><Check size={13} stroke="#2E7D32" /></button>
@@ -572,6 +582,15 @@ const filteredAdmins = admins.filter((a) => {
                               }}>{m.source_type as string}</span>
                             </td>
                             <td className="px-[14px] py-[10px] text-[11px]" style={{ color: "#888" }}>{org?.name as string ?? "—"}</td>
+                            <td className="px-[14px] py-[10px] text-[11px]">
+                              {(() => {
+                                const c = (m.latest_assessment as Record<string, unknown> | null)?.chronotype as string | undefined;
+                                if (!c) return <span style={{ color: "#AAA" }}>—</span>;
+                                const label = c.charAt(0).toUpperCase();
+                                const bg = c.toUpperCase() === "EAGLE" ? "#30268F" : c.toUpperCase() === "LARK" ? "#EE8300" : c.toUpperCase() === "OWL" ? "#7B68AE" : "#888";
+                                return <span className="inline-flex items-center justify-center w-[24px] h-[24px] rounded-full text-white text-[11px] font-bold" style={{ background: bg, fontFamily: "Poppins, sans-serif" }}>{label}</span>;
+                              })()}
+                            </td>
                             <td className="px-[14px] py-[10px] text-[11px]" style={{ color: "#888" }}>{m.created_at ? new Date(m.created_at as string).toLocaleDateString() : "—"}</td>
                             <td className="px-[14px] py-[10px]">
                               <div className="flex items-center gap-[4px]">

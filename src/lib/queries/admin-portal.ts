@@ -160,7 +160,27 @@ export async function getAdminMembers(opts?: { page?: number; limit?: number; se
 
   const { data, error, count } = await query.order("created_at", { ascending: false }).range(from, to);
   if (error) throw new Error(error.message);
-  return { data: data ?? [], total: count ?? 0, page, limit, totalPages: Math.ceil((count ?? 0) / limit) };
+
+  const membersWithAssessment = (data ?? []).map((m) => ({ ...m, latest_assessment: null as Record<string, unknown> | null }));
+  const memberIds = membersWithAssessment.map((m) => m.id as string);
+  if (memberIds.length > 0) {
+    const { data: results } = await supabase
+      .from("chronotype_results")
+      .select("member_id, chronotype, generated_at")
+      .in("member_id", memberIds)
+      .order("generated_at", { ascending: false });
+    const latestByMember = new Map<string, Record<string, unknown>>();
+    for (const r of results ?? []) {
+      const mid = r.member_id as string;
+      if (!latestByMember.has(mid)) latestByMember.set(mid, r);
+    }
+    for (const m of membersWithAssessment) {
+      const latest = latestByMember.get(m.id as string);
+      if (latest) m.latest_assessment = { ...latest, member_id: undefined };
+    }
+  }
+
+  return { data: membersWithAssessment, total: count ?? 0, page, limit, totalPages: Math.ceil((count ?? 0) / limit) };
 }
 
 export async function getOrgTeamAdmins() {

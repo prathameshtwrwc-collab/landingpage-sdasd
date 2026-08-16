@@ -84,14 +84,15 @@ export default function ParticipantsPage() {
             <div className="rounded-[16px] overflow-hidden" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
               <div className="overflow-x-auto">
                 <table className="w-full text-left" style={{ fontFamily: "Poppins, sans-serif", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr style={{ background: "#F8F9FF" }}>
-                      <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Member</th>
-                      <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Email</th>
-                      <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Source</th>
-                      <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Joined</th>
-                    </tr>
-                  </thead>
+                   <thead>
+                     <tr style={{ background: "#F8F9FF" }}>
+                       <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Member</th>
+                       <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Email</th>
+                       <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Source</th>
+                       <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Chrono</th>
+                       <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: "#888" }}>Joined</th>
+                     </tr>
+                   </thead>
                   <tbody>
                     {members.map((m, i) => (
                       <tr key={i} style={{ borderTop: "1px solid #F0F0F0" }}>
@@ -103,18 +104,27 @@ export default function ParticipantsPage() {
                             <span className="text-[13px] font-medium" style={{ color: "#171717" }}>{m.first_name as string} {m.last_name as string}</span>
                           </div>
                         </td>
-                        <td className="px-[16px] py-[12px] text-[13px]" style={{ color: "#555" }}>{m.email as string}</td>
-                        <td className="px-[16px] py-[12px]">
-                          <span className="inline-flex items-center gap-[5px] text-[11px] font-semibold px-[8px] py-[3px] rounded-full" style={{
-                            background: (m.source_type as string) === "ORGANIZATION" ? "rgba(53,49,155,0.08)" : "rgba(245,154,0,0.08)",
-                            color: (m.source_type as string) === "ORGANIZATION" ? "#35319B" : "#F59A00",
-                            fontFamily: "Poppins, sans-serif",
-                          }}>
-                            <Globe size={11} />
-                            {sourceLabel(m.source_type as string | undefined | null)}
-                          </span>
-                        </td>
-                        <td className="px-[16px] py-[12px] text-[13px]" style={{ color: "#888" }}>{m.created_at ? new Date(m.created_at as string).toLocaleDateString() : "—"}</td>
+                         <td className="px-[16px] py-[12px] text-[13px]" style={{ color: "#555" }}>{m.email as string}</td>
+                         <td className="px-[16px] py-[12px]">
+                           <span className="inline-flex items-center gap-[5px] text-[11px] font-semibold px-[8px] py-[3px] rounded-full" style={{
+                             background: (m.source_type as string) === "ORGANIZATION" ? "rgba(53,49,155,0.08)" : "rgba(245,154,0,0.08)",
+                             color: (m.source_type as string) === "ORGANIZATION" ? "#35319B" : "#F59A00",
+                             fontFamily: "Poppins, sans-serif",
+                           }}>
+                             <Globe size={11} />
+                             {sourceLabel(m.source_type as string | undefined | null)}
+                           </span>
+                         </td>
+                         <td className="px-[16px] py-[12px] text-[13px]">
+                           {(() => {
+                             const c = (m.latest_assessment as Record<string, unknown> | null)?.chronotype as string | undefined;
+                             if (!c) return <span style={{ color: "#AAA" }}>—</span>;
+                             const label = c.charAt(0).toUpperCase();
+                             const bg = c.toUpperCase() === "EAGLE" ? "#30268F" : c.toUpperCase() === "LARK" ? "#EE8300" : c.toUpperCase() === "OWL" ? "#7B68AE" : "#888";
+                             return <span className="inline-flex items-center justify-center w-[26px] h-[26px] rounded-full text-white text-[12px] font-bold" style={{ background: bg, fontFamily: "Poppins, sans-serif" }}>{label}</span>;
+                           })()}
+                         </td>
+                         <td className="px-[16px] py-[12px] text-[13px]" style={{ color: "#888" }}>{m.created_at ? new Date(m.created_at as string).toLocaleDateString() : "—"}</td>
                       </tr>
                     ))}
                   </tbody>
