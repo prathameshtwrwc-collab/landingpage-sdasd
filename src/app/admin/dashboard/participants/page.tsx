@@ -132,40 +132,41 @@ export default function ParticipantsPage() {
               </div>
               {totalPages > 1 && (
                 <div className="flex items-center justify-between px-[20px] py-[14px]" style={{ borderTop: "1px solid #F0F0F0" }}>
-                  <span className="text-[12px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
-                    Showing {((page - 1) * PAGE_SIZE) + 1}–{Math.min(page * PAGE_SIZE, total)} of {total}
-                  </span>
-                  <div className="flex items-center gap-[6px]">
-                    <button type="button" onClick={() => goPage(page - 1)} disabled={page <= 1}
-                      className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer disabled:opacity-30 disabled:cursor-default transition-colors"
-                      style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
-                      <ChevronLeft size={15} />
-                    </button>
-                    {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
-                      let p: number;
-                      if (totalPages <= 7) p = i + 1;
-                      else if (page <= 4) p = i + 1;
-                      else if (page >= totalPages - 3) p = totalPages - 6 + i;
-                      else p = page - 3 + i;
-                      return (
-                        <button key={p} type="button" onClick={() => goPage(p)}
-                          className="flex items-center justify-center min-w-[34px] h-[34px] rounded-lg border-none cursor-pointer text-[12px] font-semibold transition-colors"
-                          style={{
-                            color: p === page ? "#FFFFFF" : "#35319B",
-                            background: p === page ? "#35319B" : "rgba(53,49,155,0.06)",
-                            fontFamily: "Poppins, sans-serif",
-                          }}>
-                          {p}
-                        </button>
-                      );
-                    })}
-                    <button type="button" onClick={() => goPage(page + 1)} disabled={page >= totalPages}
-                      className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer disabled:opacity-30 disabled:cursor-default transition-colors"
-                      style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
-                      <ChevronRight size={15} />
-                    </button>
-                  </div>
-                </div>
+                   <span className="text-[12px]" style={{ color: "#888", fontFamily: "Poppins, sans-serif" }}>
+                     Showing {((page - 1) * PAGE_SIZE) + 1}–{Math.min(page * PAGE_SIZE, total)} of {total}
+                   </span>
+                   <div className="flex items-center gap-[6px]">
+                     <button type="button" onClick={() => goPage(page - 1)} disabled={page <= 1}
+                       className="flex items-center justify-center w-[36px] h-[36px] rounded-full border-none cursor-pointer disabled:opacity-30 disabled:cursor-default transition-all"
+                       style={{ color: page <= 1 ? "#BBB" : "white", background: page <= 1 ? "#F5F5F5" : "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                       <ChevronLeft size={16} />
+                     </button>
+                     {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                       let p: number;
+                       if (totalPages <= 7) p = i + 1;
+                       else if (page <= 4) p = i + 1;
+                       else if (page >= totalPages - 3) p = totalPages - 6 + i;
+                       else p = page - 3 + i;
+                       return (
+                         <button key={p} type="button" onClick={() => goPage(p)}
+                           className="flex items-center justify-center w-[36px] h-[36px] rounded-full border-none cursor-pointer text-[13px] font-semibold transition-all"
+                           style={{
+                             color: p === page ? "#FFFFFF" : "#666",
+                             background: p === page ? "#35319B" : "transparent",
+                             border: p === page ? "none" : "1px solid #E5E7EB",
+                             fontFamily: "Poppins, sans-serif",
+                           }}>
+                           {p}
+                         </button>
+                       );
+                     })}
+                     <button type="button" onClick={() => goPage(page + 1)} disabled={page >= totalPages}
+                       className="flex items-center justify-center w-[36px] h-[36px] rounded-full border-none cursor-pointer disabled:opacity-30 disabled:cursor-default transition-all"
+                       style={{ color: page >= totalPages ? "#BBB" : "white", background: page >= totalPages ? "#F5F5F5" : "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                       <ChevronRight size={16} />
+                     </button>
+                   </div>
+                 </div>
               )}
             </div>
           )}

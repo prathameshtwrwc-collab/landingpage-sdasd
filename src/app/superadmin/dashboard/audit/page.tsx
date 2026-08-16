@@ -188,9 +188,9 @@ export default function AuditPage() {
             </p>
             <div className="flex items-center gap-[6px]">
               <button type="button" onClick={() => goPage(page - 1)} disabled={page <= 1}
-                className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer disabled:opacity-30 disabled:cursor-default transition-colors"
-                style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
-                <ChevronLeft size={15} />
+                className="flex items-center justify-center w-[36px] h-[36px] rounded-full border-none cursor-pointer disabled:opacity-30 disabled:cursor-default transition-all"
+                style={{ color: page <= 1 ? "#BBB" : "white", background: page <= 1 ? "#F5F5F5" : "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                <ChevronLeft size={16} />
               </button>
               {Array.from({ length: Math.min(data.totalPages, 7) }, (_, i) => {
                 let p: number;
@@ -200,10 +200,11 @@ export default function AuditPage() {
                 else p = page - 3 + i;
                 return (
                   <button key={p} type="button" onClick={() => goPage(p)}
-                    className="flex items-center justify-center min-w-[34px] h-[34px] rounded-lg border-none cursor-pointer text-[12px] font-semibold transition-colors"
+                    className="flex items-center justify-center w-[36px] h-[36px] rounded-full border-none cursor-pointer text-[13px] font-semibold transition-all"
                     style={{
-                      color: p === page ? "#FFFFFF" : "#35319B",
-                      background: p === page ? "#35319B" : "rgba(53,49,155,0.06)",
+                      color: p === page ? "#FFFFFF" : "#666",
+                      background: p === page ? "#35319B" : "transparent",
+                      border: p === page ? "none" : "1px solid #E5E7EB",
                       fontFamily: "Poppins, sans-serif",
                     }}>
                     {p}
@@ -211,9 +212,9 @@ export default function AuditPage() {
                 );
               })}
               <button type="button" onClick={() => goPage(page + 1)} disabled={page >= data.totalPages}
-                className="flex items-center justify-center w-[34px] h-[34px] rounded-lg border-none cursor-pointer disabled:opacity-30 disabled:cursor-default transition-colors"
-                style={{ color: "#35319B", background: "rgba(53,49,155,0.06)", fontFamily: "Poppins, sans-serif" }}>
-                <ChevronRight size={15} />
+                className="flex items-center justify-center w-[36px] h-[36px] rounded-full border-none cursor-pointer disabled:opacity-30 disabled:cursor-default transition-all"
+                style={{ color: page >= data.totalPages ? "#BBB" : "white", background: page >= data.totalPages ? "#F5F5F5" : "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                <ChevronRight size={16} />
               </button>
             </div>
           </div>

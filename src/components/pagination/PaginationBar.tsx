@@ -21,15 +21,15 @@ export default function PaginationBar({
       <span className="text-[12px]" style={{ color: "#888" }}>
         Showing {from}–{to} of {total}
       </span>
-      <div className="flex items-center gap-[4px]">
+      <div className="flex items-center gap-[6px]">
         <button
           type="button"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          className="flex items-center justify-center w-[32px] h-[32px] rounded-lg border-none cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{ background: page <= 1 ? "#F0F0F0" : "#35319B", color: page <= 1 ? "#AAA" : "white" }}
+          className="flex items-center justify-center w-[36px] h-[36px] rounded-full border-none cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          style={{ background: page <= 1 ? "#F5F5F5" : "#35319B", color: page <= 1 ? "#BBB" : "white" }}
         >
-          <ChevronLeft size={15} />
+          <ChevronLeft size={16} />
         </button>
 
         {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
@@ -48,11 +48,12 @@ export default function PaginationBar({
               key={pageNum}
               type="button"
               onClick={() => onPageChange(pageNum)}
-              className="flex items-center justify-center min-w-[32px] h-[32px] px-[6px] rounded-lg border-none cursor-pointer text-[13px] font-medium transition-all"
+              className="flex items-center justify-center w-[36px] h-[36px] rounded-full border-none cursor-pointer text-[13px] font-semibold transition-all"
               style={{
                 background: pageNum === page ? "#35319B" : "transparent",
-                color: pageNum === page ? "white" : "#888",
+                color: pageNum === page ? "white" : "#666",
                 fontFamily: "Poppins, sans-serif",
+                border: pageNum === page ? "none" : "1px solid #E5E7EB",
               }}
             >
               {pageNum}
@@ -64,10 +65,10 @@ export default function PaginationBar({
           type="button"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
-          className="flex items-center justify-center w-[32px] h-[32px] rounded-lg border-none cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{ background: page >= totalPages ? "#F0F0F0" : "#35319B", color: page >= totalPages ? "#AAA" : "white" }}
+          className="flex items-center justify-center w-[36px] h-[36px] rounded-full border-none cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          style={{ background: page >= totalPages ? "#F5F5F5" : "#35319B", color: page >= totalPages ? "#BBB" : "white" }}
         >
-          <ChevronRight size={15} />
+          <ChevronRight size={16} />
         </button>
       </div>
     </div>

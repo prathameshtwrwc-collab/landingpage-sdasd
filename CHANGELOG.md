@@ -2,6 +2,17 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.24] — 2026-08-16 — Redesign pagination button UI across dashboards
+
+### Changed — Pagination button styling
+- All pagination buttons (page numbers, prev/next) redesigned across superadmin users, superadmin audit, admin participants, and shared `PaginationBar` component.
+- Buttons now use `rounded-full` pill shape with consistent `36px` sizing.
+- Active page button: solid `#35319B` background with white text.
+- Inactive page buttons: transparent background with subtle `#E5E7EB` border and `#666` text.
+- Prev/Next disabled state: light gray background (`#F5F5F5`) with muted text.
+- Increased gap between buttons from `4px`/`6px` to `6px` for cleaner spacing.
+- Icon size increased from `15px` to `16px` for better visibility.
+
 ## [2.12.23] — 2026-08-16 — Chronotype icon badge in member list rows
 
 ### Added — Chronotype icon in member tables
