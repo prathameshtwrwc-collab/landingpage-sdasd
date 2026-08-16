@@ -2,6 +2,14 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.26] — 2026-08-16 — Fix unhandled promise rejection and Failed to fetch runtime errors
+
+### Fixed — Runtime errors
+- Removed module-level `cachedFetch("/api/admin-portal")` call in `src/app/admin/dashboard/page.tsx` that had no error handler and caused unhandled promise rejections.
+- Removed module-level `preload(...)` calls in `src/app/superadmin/dashboard/users/page.tsx` and `src/app/superadmin/dashboard/assessments/page.tsx` that could fail silently and trigger `coerceError` / `onUnhandledRejection` errors.
+- Hardened `src/lib/client-cache.ts` `startFetch()` to gracefully handle non-JSON API responses (e.g., HTML error pages) instead of throwing during `res.json()`.
+- Fixed TypeScript type error in `client-cache.ts` error message construction.
+
 ## [2.12.25] — 2026-08-16 — Fix landing page navbar navlink overlap at 125% desktop zoom
 
 ### Fixed — Navbar navlink overlapping

@@ -53,10 +53,18 @@ async function startFetch<T>(url: string, options: RequestInit | undefined, key:
   const promise = (async () => {
     try {
       const res = await fetch(url, options);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      let data: unknown;
+      try {
+        data = await res.json();
+      } catch {
+        data = { error: `Invalid response from ${url}` };
+      }
+      if (!res.ok) {
+        const errMsg = typeof (data as Record<string, unknown>)?.error === "string" ? (data as Record<string, string>).error : `HTTP ${res.status}`;
+        throw new Error(errMsg);
+      }
       if (storeInCache) cache.set(key, { data, timestamp: Date.now() });
-      return data;
+      return data as T;
     } finally {
       inflight.delete(key);
     }

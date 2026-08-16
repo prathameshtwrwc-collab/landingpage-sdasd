@@ -5,10 +5,7 @@ import DashboardShell from "@/components/dashboard/DashboardShell";
 import { ClipboardList, Plus, CheckCircle, AlertTriangle, Eye, Edit3, Copy, Archive, Send, X, ChevronDown, ChevronUp, GripVertical, RotateCcw, Shield, BookOpen, Trash2, Loader2 } from "lucide-react";
 import ConfirmDialog from "@/components/dialogs/ConfirmDialog";
 import BusyOverlay from "@/components/dialogs/BusyOverlay";
-import { cachedFetch, preload } from "@/lib/client-cache";
-
-// Kick off the initial fetch as soon as this route's JS loads.
-preload("/api/admin-assessments");
+import { cachedFetch } from "@/lib/client-cache";
 
 type Question = { id?: string; text: string; category: string; isRequired: boolean; options: { text: string; larkScore: number; eagleScore: number; owlScore: number }[] };
 type ScoringRule = { min_score: number | null; max_score: number | null; chronotype: string; label: string | null; description: string | null };

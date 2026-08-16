@@ -55,7 +55,7 @@ export default function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherP
   const iconColor = "#3B35A3";
 
   return (
-    <div ref={ref} className="relative" style={{ position: "relative" }}>
+    <div ref={ref} className={`relative ${isMobile ? "w-full" : ""}`} style={{ position: "relative" }}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -109,9 +109,10 @@ export default function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherP
           role="listbox"
           aria-label={t("label")}
           data-lenis-prevent
-          className={`absolute ${isRtl ? "left-0" : "right-0"} top-[calc(100%+8px)] z-[1200] rounded-lg`}
+          className={`absolute ${isMobile ? "inset-x-0" : (isRtl ? "left-0" : "right-0")} top-[calc(100%+8px)] z-[1200] rounded-lg`}
           style={{
             minWidth: isMobile ? "auto" : "520px",
+            maxWidth: isMobile ? "calc(100vw - 32px)" : "520px",
             maxHeight: "min(70vh, 480px)",
             overflowY: "auto",
             background: "#FFFFFF",

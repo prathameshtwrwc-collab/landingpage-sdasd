@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { cachedFetch } from "@/lib/client-cache";
 
-// Start fetching immediately
-cachedFetch("/api/admin-portal");
 import { useAuth } from "@/components/auth/AuthProvider";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
