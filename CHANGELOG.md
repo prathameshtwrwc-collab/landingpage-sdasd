@@ -2,6 +2,18 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.22] — 2026-08-16 — Fix dashboard icon redirecting to org landing page
+
+### Fixed — Dashboard icon navigation
+- The Dashboard icon in the sidebar was incorrectly remapped to `/${orgCode}` when an org code existed, causing members to land on the org landing page instead of their dashboard.
+- Removed the `orgCode`-based href override for the Dashboard nav item. It now always routes to its role-specific dashboard (`/dashboard`, `/admin/dashboard`, or `/superadmin/dashboard`).
+
+## [2.12.21] — 2026-08-16 — Fix logo overflow in dashboard sidebar
+
+### Fixed — Logo positioning
+- Top-left logo in `DashboardShell` sidebar was overflowing its container when the sidebar was collapsed.
+- Set `maxWidth` to `40px` when collapsed and `150px` when expanded so the logo stays within the sidebar boundaries.
+
 ## [2.12.20] — 2026-08-16 — Avatar dropdown with logout in all dashboards
 
 ### Added — Avatar dropdown with logout

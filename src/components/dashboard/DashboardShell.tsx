@@ -218,7 +218,7 @@ export default function DashboardShell({
   }, [applyDark]);
 
   const navItems = user ? (roleNavItems[user.role] ?? roleNavItems.member) : roleNavItems.member;
-  const resolvedNavItems = orgCode ? navItems.map((item) => item.label === "Dashboard" ? { ...item, href: `/${orgCode}` } : item) : navItems;
+  const resolvedNavItems = navItems;
 
   const isActive = (href: string) => pathname === href;
   const activeItem = navItems.find((i) => isActive(i.href));
@@ -266,7 +266,7 @@ export default function DashboardShell({
               src="/assets/logos/logo3.png"
               alt="Chronotype"
               className="shrink-0"
-              style={{ height: sidebarCollapsed ? "40px" : "48px", width: "auto", maxWidth: "150px", objectFit: "contain", borderRadius: "8px" }}
+              style={{ height: sidebarCollapsed ? "40px" : "48px", width: "auto", maxWidth: sidebarCollapsed ? "40px" : "150px", objectFit: "contain", borderRadius: "8px" }}
             />
             {!sidebarCollapsed && (
               <div className="flex flex-col">
