@@ -2,6 +2,14 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.20] — 2026-08-16 — Avatar dropdown with logout in all dashboards
+
+### Added — Avatar dropdown with logout
+- Top-right avatar in `DashboardShell` header is now clickable across all dashboards (member, admin, superadmin).
+- Clicking the avatar opens a dropdown menu with a functional **Logout** option.
+- Dropdown closes on outside click or `Escape` key.
+- Logout calls `logout()` from `AuthProvider` and redirects to `/login`.
+
 ## [2.12.19] — 2026-08-16 — Image preview with previous/next navigation
 
 ### Added — Image preview navigation

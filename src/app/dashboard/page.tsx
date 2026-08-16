@@ -8,7 +8,7 @@ import { useAssessment } from "@/components/assessment/AssessmentContext";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
 import { useRouter } from "next/navigation";
-import { Moon, Sparkles, Activity, TrendingUp, Calendar, Star, FileText, Download, Printer, Share2, ClipboardCopy, ExternalLink, ArrowRight, Stethoscope, Eye, Phone, Heart, Check, X, ArrowLeft, ArrowRight } from "lucide-react";
+import { Moon, Sparkles, Activity, TrendingUp, Calendar, Star, FileText, Download, Printer, Share2, ClipboardCopy, ExternalLink, ArrowRight, Stethoscope, Eye, Phone, Heart, Check, X, ArrowLeft } from "lucide-react";
 import DonateModal from "@/components/DonateModal";
 import { chronotypeImageSrcs, chronotypeImageSrcsMobile } from "@/lib/chronotype-image";
 
@@ -377,7 +377,7 @@ Give it a try and let me know your result too!`;
         const galleryImgs = isMobile && (key === "EAGLE" || key === "LARK") ? chronotypeImageSrcsMobile(key) : chronotypeImageSrcs(key);
         const currentSrc = previewIndex !== null ? galleryImgs[previewIndex] : null;
         return (
-          <>
+          <div>
             <div className="rounded-[16px] p-[22px] md:p-[28px] mt-[16px] md:mt-[20px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
             <span className="text-[10px] font-semibold uppercase tracking-[0.08em]" style={{ color: key === "LARK" ? "#EE8300" : key === "OWL" ? "#7B68AE" : "#30268F", fontFamily: "Poppins, sans-serif" }}>
               Visual journey
@@ -442,7 +442,7 @@ Give it a try and let me know your result too!`;
                 <X size={22} />
               </button>
 
-              {previewIndex > 0 && (
+              {previewIndex !== null && previewIndex > 0 && (
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setPreviewIndex((i) => (i === null ? i : i - 1)); }}
@@ -469,7 +469,7 @@ Give it a try and let me know your result too!`;
                 </button>
               )}
 
-              {previewIndex < galleryImgs.length - 1 && (
+              {previewIndex !== null && previewIndex < galleryImgs.length - 1 && (
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setPreviewIndex((i) => (i === null ? i : i + 1)); }}
@@ -498,7 +498,7 @@ Give it a try and let me know your result too!`;
 
               <img
                 src={currentSrc}
-                alt={`${galleryLabel} image ${previewIndex + 1}`}
+                 alt={`${galleryLabel} image ${previewIndex! + 1}`}
                 onClick={(e) => e.stopPropagation()}
                 style={{
                   maxWidth: "90vw",
@@ -509,8 +509,9 @@ Give it a try and let me know your result too!`;
                 }}
               />
              </div>
-          </>
-        );
+           )}
+         </div>
+       );
       })()}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-[16px] md:gap-[20px]">

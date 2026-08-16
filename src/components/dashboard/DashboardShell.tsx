@@ -145,6 +145,8 @@ export default function DashboardShell({
   const [moreOpen, setMoreOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [donateOpen, setDonateOpen] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
+  const avatarRef = useRef<HTMLDivElement>(null);
 
   // Sidebar collapsed state persists across subpage navigations so the user's
   // choice is not reset when the shell remounts.
@@ -175,6 +177,20 @@ export default function DashboardShell({
   }, []);
 
   useEffect(() => { setIsMounted(true); }, []);
+
+  useEffect(() => {
+    if (!avatarOpen) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) setAvatarOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setAvatarOpen(false); };
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [avatarOpen]);
 
   // Apply dark mode on all dashboard pages
   const applyDark = useCallback(() => {
@@ -341,14 +357,48 @@ export default function DashboardShell({
             </h1>
           </div>
           {user && (
-            <div className="flex items-center gap-[6px] md:gap-[10px]">
-              <div className="w-[28px] h-[28px] md:w-[34px] md:h-[34px] rounded-full flex items-center justify-center text-white text-[11px] md:text-[13px] font-bold"
-                style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)" }}>
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <span className="text-[12px] md:text-[13px] font-medium hidden sm:block" style={{ color: darkMode ? "#999" : "#667085", fontFamily: "Poppins, sans-serif" }}>
-                {user.name}
-              </span>
+            <div ref={avatarRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setAvatarOpen((v) => !v)}
+                className="flex items-center gap-[6px] md:gap-[10px] bg-transparent border-none cursor-pointer"
+                aria-haspopup="listbox"
+                aria-expanded={avatarOpen}
+              >
+                <div className="w-[28px] h-[28px] md:w-[34px] md:h-[34px] rounded-full flex items-center justify-center text-white text-[11px] md:text-[13px] font-bold"
+                  style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)" }}>
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <span className="text-[12px] md:text-[13px] font-medium hidden sm:block" style={{ color: darkMode ? "#999" : "#667085", fontFamily: "Poppins, sans-serif" }}>
+                  {user.name}
+                </span>
+              </button>
+              {avatarOpen && (
+                <div
+                  role="listbox"
+                  className="absolute right-0 top-[calc(100%+8px)] z-[1200] rounded-lg overflow-hidden"
+                  style={{
+                    minWidth: "180px",
+                    background: "#FFFFFF",
+                    border: "1px solid #EFEFF5",
+                    boxShadow: "0 12px 32px rgba(23,23,23,0.14)",
+                    padding: "6px",
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={async () => { await logout(); window.location.href = "/login"; }}
+                    className="flex items-center gap-[8px] w-full px-[10px] py-[8px] rounded-md border-none bg-transparent cursor-pointer text-left transition-colors"
+                    style={{
+                      fontFamily: "Poppins, sans-serif",
+                      fontSize: "13px",
+                      color: "#D92D20",
+                    }}
+                  >
+                    <LogOut size={16} /> Logout
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </header>
