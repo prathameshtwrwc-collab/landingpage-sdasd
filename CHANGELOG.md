@@ -2,6 +2,16 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.25] — 2026-08-16 — Fix landing page navbar navlink overlap at 125% desktop zoom
+
+### Fixed — Navbar navlink overlapping
+- On desktop at 125% browser zoom, navlinks in the landing page navbar were overlapping each other.
+- Extended responsive breakpoint coverage from `1024px–1199px` to `1024px–1279px` to cover zoomed viewports.
+- Reduced navlink font size to `10px` and gap to `6px` in that range.
+- Reduced CTA button heights to `30px` and widths proportionally.
+- Added `flex-shrink: 1`, `min-width: 0`, `overflow: hidden`, and `text-overflow: ellipsis` to navlinks so they shrink gracefully instead of overlapping.
+- Reduced brand text and logo sizes at medium breakpoints to free up horizontal space.
+
 ## [2.12.24] — 2026-08-16 — Redesign pagination button UI across dashboards
 
 ### Changed — Pagination button styling

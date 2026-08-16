@@ -164,13 +164,15 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
               @media(min-width:1024px){
                 header#site-navbar{ height:72px !important; }
               }
-              @media(min-width:1024px) and (max-width:1199px){
-                #site-navbar .nav-links{ gap:8px !important; }
-                #site-navbar .nav-link{ font-size:11px !important; }
-                #site-navbar .cta-login{ width:64px !important; font-size:11px !important; }
-                #site-navbar .cta-donate{ width:80px !important; font-size:11px !important; }
-                #site-navbar .cta-test{ width:100px !important; font-size:11px !important; }
+              @media(min-width:1024px) and (max-width:1279px){
+                #site-navbar .nav-links{ gap:6px !important; }
+                #site-navbar .nav-link{ font-size:10px !important; padding:2px 0 !important; }
+                #site-navbar .cta-login{ width:56px !important; font-size:10px !important; height:30px !important; }
+                #site-navbar .cta-donate{ width:68px !important; font-size:10px !important; height:30px !important; }
+                #site-navbar .cta-test{ width:84px !important; font-size:10px !important; height:30px !important; }
                 #site-navbar .nav-scroll{ overflow:hidden !important; }
+                #site-navbar .site-brand-text{ font-size:13px !important; }
+                #site-navbar .brand-logo{ height:32px !important; max-width:110px !important; }
               }
               .site-brand-text { font-size: clamp(14px, 2.2vw, 18px); }
               #site-navbar .nav-link { font-size: clamp(12px, 1.3vw, 14px); }
@@ -269,16 +271,20 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
                       handleNavClick(item.href);
                     }}
                     aria-current={isActive ? "location" : undefined}
-                    className="relative inline-flex items-center justify-center no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-2 rounded-sm group nav-link"
-                    style={{
-                      fontFamily: "Poppins, sans-serif",
-                      lineHeight: "1",
-                      fontWeight: 500,
-                      color: isActive ? "#F59A00" : isScrolled ? "#29275E" : "#2F2A86",
-                      transition: "color 180ms ease",
-                      textDecoration: "none",
-                      whiteSpace: "nowrap",
-                    }}
+                     className="relative inline-flex items-center justify-center no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B35A3] focus-visible:ring-offset-2 rounded-sm group nav-link"
+                     style={{
+                       fontFamily: "Poppins, sans-serif",
+                       lineHeight: "1",
+                       fontWeight: 500,
+                       color: isActive ? "#F59A00" : isScrolled ? "#29275E" : "#2F2A86",
+                       transition: "color 180ms ease",
+                       textDecoration: "none",
+                       whiteSpace: "nowrap",
+                       flexShrink: 1,
+                       minWidth: 0,
+                       overflow: "hidden",
+                       textOverflow: "ellipsis",
+                     }}
                   >
                     <span className="relative z-10 py-[4px]">{t(item.key)}</span>
                     {/* Underline */}
@@ -306,7 +312,7 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
             </nav>
 
             {/* Right: CTA desktop — hidden below 1024 */}
-            <div className="hidden lg:flex items-center justify-end gap-[8px]">
+            <div className="hidden lg:flex items-center justify-end gap-[8px] flex-shrink-0">
               <LanguageSwitcher variant={isScrolled ? "dark" : "light"} />
               <a
                 href="/login"
