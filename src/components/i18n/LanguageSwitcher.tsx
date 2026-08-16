@@ -16,6 +16,7 @@ export default function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherP
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isRtl, setIsRtl] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -25,6 +26,10 @@ export default function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherP
     mql.addEventListener("change", handler);
     return () => mql.removeEventListener("change", handler);
   }, []);
+
+  useEffect(() => {
+    setIsRtl(document.documentElement.dir === "rtl" || document.dir === "rtl");
+  }, [locale]);
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -104,7 +109,7 @@ export default function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherP
           role="listbox"
           aria-label={t("label")}
           data-lenis-prevent
-          className={`absolute ${isMobile ? "left-0" : "right-0"} top-[calc(100%+8px)] z-[1200] rounded-lg`}
+          className={`absolute ${isRtl ? "left-0" : "right-0"} top-[calc(100%+8px)] z-[1200] rounded-lg`}
           style={{
             minWidth: isMobile ? "auto" : "520px",
             maxHeight: "min(70vh, 480px)",

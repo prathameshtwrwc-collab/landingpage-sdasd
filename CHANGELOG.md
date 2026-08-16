@@ -2,6 +2,13 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.16] — 2026-08-16 — Fix RTL language dropdown off-screen on desktop + mobile
+
+### Fixed — RTL language dropdown positioning
+- `LanguageSwitcher` dropdown was hardcoded to `right-0` on desktop and `left-0` on mobile, so RTL languages (Arabic, Hebrew, Urdu) rendered the list off-screen on both viewports.
+- Added RTL detection (`document.documentElement.dir` / `document.dir`, updated on locale change).
+- Dropdown now anchors `right-0` for LTR languages and `left-0` for RTL languages on both mobile and desktop.
+
 ## [2.12.15] — 2026-08-14 — PM docs package + mobile vertical-eagle gallery
 
 ### Added — Product Manager documentation package
