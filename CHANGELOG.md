@@ -2,6 +2,14 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.17] — 2026-08-16 — Mobile dashboard gallery uses vertical images for eagle + lark
+
+### Changed — Mobile member dashboard media gallery
+- `chronotypeImageSrcsMobile()` now returns vertical images for both **EAGLE** (`vertical_images/eagle_vertical/`, 11 images) and **LARK** (`vertical_images/larks_vertical/`, 12 images including `5-cont.....jpg`) on mobile viewports.
+- `VERTICAL_EAGLE_FILES` and new `VERTICAL_LARK_FILES` updated to match the actual files in `public/chronotype_media/vertical_images/`.
+- `src/app/dashboard/page.tsx` mobile gallery condition expanded from `key === "EAGLE"` to `key === "EAGLE" || key === "LARK"` so lark members also see vertical images on mobile.
+- Owl desktop behavior unchanged; owl mobile still falls back to standard images.
+
 ## [2.12.16] — 2026-08-16 — Fix RTL language dropdown off-screen on desktop + mobile
 
 ### Fixed — RTL language dropdown positioning

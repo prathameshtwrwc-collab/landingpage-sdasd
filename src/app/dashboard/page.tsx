@@ -370,7 +370,7 @@ Give it a try and let me know your result too!`;
       {result && mounted && (() => {
         const key = chronotype === "LARK" ? "LARK" : chronotype === "OWL" ? "OWL" : "EAGLE";
         const galleryLabel = chronotypeLabels[key] ?? key;
-        const galleryImgs = isMobile && key === "EAGLE" ? chronotypeImageSrcsMobile(key) : chronotypeImageSrcs(key);
+        const galleryImgs = isMobile && (key === "EAGLE" || key === "LARK") ? chronotypeImageSrcsMobile(key) : chronotypeImageSrcs(key);
         return (
           <div className="rounded-[16px] p-[22px] md:p-[28px] mt-[16px] md:mt-[20px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
             <span className="text-[10px] font-semibold uppercase tracking-[0.08em]" style={{ color: key === "LARK" ? "#EE8300" : key === "OWL" ? "#7B68AE" : "#30268F", fontFamily: "Poppins, sans-serif" }}>

@@ -20,6 +20,12 @@ const OWL_FILES = LARK_FILES;
 
 const VERTICAL_EAGLE_FILES = [
   "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg",
+  "9.jpg", "10.jpg", "11.jpg",
+];
+
+const VERTICAL_LARK_FILES = [
+  "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "5-cont.....jpg", "6.jpg", "7.jpg", "8.jpg",
+  "9.jpg", "10.jpg", "11.jpg",
 ];
 
 function chronotypeFolder(chrono: string): "lark" | "eagle" | "owl" {
@@ -49,7 +55,10 @@ export function chronotypeImageSrcs(chrono: string): string[] {
 export function chronotypeImageSrcsMobile(chrono: string): string[] {
   const key = chrono.toUpperCase();
   if (key === "EAGLE") {
-    return VERTICAL_EAGLE_FILES.map((f) => `/chronotype_media/vertical-eagles/${f}`);
+    return VERTICAL_EAGLE_FILES.map((f) => `/chronotype_media/vertical_images/eagle_vertical/${f}`);
+  }
+  if (key === "LARK") {
+    return VERTICAL_LARK_FILES.map((f) => `/chronotype_media/vertical_images/larks_vertical/${f}`);
   }
   return chronotypeImageSrcs(chrono);
 }
