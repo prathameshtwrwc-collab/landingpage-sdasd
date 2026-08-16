@@ -2,6 +2,20 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.19] — 2026-08-16 — Image preview with previous/next navigation
+
+### Added — Image preview navigation
+- Clicking a gallery image in the member dashboard now opens a full-screen preview overlay.
+- Added functional **Previous** (ArrowLeft) and **Next** (ArrowRight) icon buttons to navigate between images.
+- Keyboard navigation supported: `ArrowLeft` / `ArrowRight` to move between images, `Escape` to close.
+- Previous button hidden on first image; Next button hidden on last image.
+
+## [2.12.18] — 2026-08-16 — Updated eagle vertical images 1 & 2
+
+### Changed — Eagle vertical gallery images
+- Replaced `public/chronotype_media/vertical-eagles/` with `public/chronotype_media/vertical_images/eagle_vertical/` structure (11 images).
+- Eagle vertical photos 1 and 2 updated; new vertical image set now lives under `vertical_images/`.
+
 ## [2.12.17] — 2026-08-16 — Mobile dashboard gallery uses vertical images for eagle + lark
 
 ### Changed — Mobile member dashboard media gallery

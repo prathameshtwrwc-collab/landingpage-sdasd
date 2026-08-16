@@ -8,7 +8,7 @@ import { useAssessment } from "@/components/assessment/AssessmentContext";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatCard from "@/components/dashboard/StatCard";
 import { useRouter } from "next/navigation";
-import { Moon, Sparkles, Activity, TrendingUp, Calendar, Star, FileText, Download, Printer, Share2, ClipboardCopy, ExternalLink, ArrowRight, Stethoscope, Eye, Phone, Heart, Check, X } from "lucide-react";
+import { Moon, Sparkles, Activity, TrendingUp, Calendar, Star, FileText, Download, Printer, Share2, ClipboardCopy, ExternalLink, ArrowRight, Stethoscope, Eye, Phone, Heart, Check, X, ArrowLeft, ArrowRight } from "lucide-react";
 import DonateModal from "@/components/DonateModal";
 import { chronotypeImageSrcs, chronotypeImageSrcsMobile } from "@/lib/chronotype-image";
 
@@ -48,7 +48,7 @@ export default function MemberDashboardPage() {
   const [downloading, setDownloading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [previewSrc, setPreviewSrc] = useState<string | null>(null);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 const [cardGradient] = useState(() => {
   const gradients = [
     "linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 40%, #FEF2F2 100%)",
@@ -75,11 +75,15 @@ const [cardGradient] = useState(() => {
   }, []);
 
   useEffect(() => {
-    if (!previewSrc) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setPreviewSrc(null); };
+    if (previewIndex === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPreviewIndex(null);
+      if (e.key === "ArrowLeft") setPreviewIndex((i) => (i === null || i === 0 ? i : i - 1));
+      if (e.key === "ArrowRight") setPreviewIndex((i) => (i === null ? i : i + 1));
+    };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [previewSrc]);
+  }, [previewIndex]);
 
   useEffect(() => {
     if (user && user.email) {
@@ -371,8 +375,10 @@ Give it a try and let me know your result too!`;
         const key = chronotype === "LARK" ? "LARK" : chronotype === "OWL" ? "OWL" : "EAGLE";
         const galleryLabel = chronotypeLabels[key] ?? key;
         const galleryImgs = isMobile && (key === "EAGLE" || key === "LARK") ? chronotypeImageSrcsMobile(key) : chronotypeImageSrcs(key);
+        const currentSrc = previewIndex !== null ? galleryImgs[previewIndex] : null;
         return (
-          <div className="rounded-[16px] p-[22px] md:p-[28px] mt-[16px] md:mt-[20px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
+          <>
+            <div className="rounded-[16px] p-[22px] md:p-[28px] mt-[16px] md:mt-[20px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
             <span className="text-[10px] font-semibold uppercase tracking-[0.08em]" style={{ color: key === "LARK" ? "#EE8300" : key === "OWL" ? "#7B68AE" : "#30268F", fontFamily: "Poppins, sans-serif" }}>
               Visual journey
             </span>
@@ -384,7 +390,7 @@ Give it a try and let me know your result too!`;
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {galleryImgs.map((src, i) => (
-                <button key={i} type="button" onClick={() => setPreviewSrc(src)} aria-label={`${galleryLabel} image ${i + 1}`}
+                <button key={i} type="button" onClick={() => setPreviewIndex(i)} aria-label={`${galleryLabel} image ${i + 1}`}
                   className="flex items-center gap-[12px]"
                   style={{ padding: "6px", borderRadius: "12px", border: "1px solid #EFEFF5", background: "#F7F7FA", cursor: "pointer", textAlign: "left", width: "100%" }}>
                   <span className="flex items-center justify-center rounded-full text-[13px] font-semibold shrink-0"
@@ -398,60 +404,114 @@ Give it a try and let me know your result too!`;
               ))}
             </div>
           </div>
+          {currentSrc && (
+            <div
+              onClick={() => setPreviewIndex(null)}
+              style={{
+                position: "fixed",
+                inset: 0,
+                zIndex: 9999,
+                background: "rgba(0,0,0,0.85)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setPreviewIndex(null)}
+                aria-label="Close preview"
+                style={{
+                  position: "absolute",
+                  top: "16px",
+                  right: "16px",
+                  background: "rgba(255,255,255,0.9)",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: "40px",
+                  height: "40px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#171717",
+                  zIndex: 10000,
+                }}
+              >
+                <X size={22} />
+              </button>
+
+              {previewIndex > 0 && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setPreviewIndex((i) => (i === null ? i : i - 1)); }}
+                  aria-label="Previous image"
+                  style={{
+                    position: "absolute",
+                    left: "16px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "rgba(255,255,255,0.9)",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "44px",
+                    height: "44px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#171717",
+                    zIndex: 10000,
+                  }}
+                >
+                  <ArrowLeft size={24} />
+                </button>
+              )}
+
+              {previewIndex < galleryImgs.length - 1 && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setPreviewIndex((i) => (i === null ? i : i + 1)); }}
+                  aria-label="Next image"
+                  style={{
+                    position: "absolute",
+                    right: "16px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "rgba(255,255,255,0.9)",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "44px",
+                    height: "44px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#171717",
+                    zIndex: 10000,
+                  }}
+                >
+                  <ArrowRight size={24} />
+                </button>
+              )}
+
+              <img
+                src={currentSrc}
+                alt={`${galleryLabel} image ${previewIndex + 1}`}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  maxWidth: "90vw",
+                  maxHeight: "90vh",
+                  borderRadius: "8px",
+                  cursor: "default",
+                  display: "block",
+                }}
+              />
+             </div>
+          </>
         );
       })()}
-
-      {previewSrc && (
-        <div
-          onClick={() => setPreviewSrc(null)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 9999,
-            background: "rgba(0,0,0,0.85)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setPreviewSrc(null)}
-            aria-label="Close preview"
-            style={{
-              position: "absolute",
-              top: "16px",
-              right: "16px",
-              background: "rgba(255,255,255,0.9)",
-              border: "none",
-              borderRadius: "50%",
-              width: "40px",
-              height: "40px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#171717",
-              zIndex: 10000,
-            }}
-          >
-            <X size={22} />
-          </button>
-          <img
-            src={previewSrc}
-            alt="Preview"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              maxWidth: "90vw",
-              maxHeight: "90vh",
-              borderRadius: "8px",
-              cursor: "default",
-              display: "block",
-            }}
-          />
-        </div>
-      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-[16px] md:gap-[20px]">
         <div className="rounded-[16px] p-[22px] md:p-[28px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
