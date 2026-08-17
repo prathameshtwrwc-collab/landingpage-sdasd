@@ -2,6 +2,14 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.27] — 2026-08-17 — Update owl vertical images for mobile dashboard gallery
+
+### Changed — Owl mobile gallery images
+- Updated `public/chronotype_media/vertical_images/owl_vertical/` with new vertical images (12 files including `5 cont.....jpg`).
+- `VERTICAL_OWL_FILES` updated to match the new folder contents.
+- `chronotypeImageSrcsMobile()` now returns vertical images for **OWL** chronotype on mobile viewports.
+- Member dashboard mobile gallery now shows vertical images for Eagle, Lark, and Owl.
+
 ## [2.12.26] — 2026-08-16 — Fix unhandled promise rejection and Failed to fetch runtime errors
 
 ### Fixed — Runtime errors

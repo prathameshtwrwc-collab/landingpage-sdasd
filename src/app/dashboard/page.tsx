@@ -374,7 +374,7 @@ Give it a try and let me know your result too!`;
       {result && mounted && (() => {
         const key = chronotype === "LARK" ? "LARK" : chronotype === "OWL" ? "OWL" : "EAGLE";
         const galleryLabel = chronotypeLabels[key] ?? key;
-        const galleryImgs = isMobile && (key === "EAGLE" || key === "LARK") ? chronotypeImageSrcsMobile(key) : chronotypeImageSrcs(key);
+        const galleryImgs = isMobile && (key === "EAGLE" || key === "LARK" || key === "OWL") ? chronotypeImageSrcsMobile(key) : chronotypeImageSrcs(key);
         const currentSrc = previewIndex !== null ? galleryImgs[previewIndex] : null;
         return (
           <div>
