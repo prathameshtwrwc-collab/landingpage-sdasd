@@ -2,12 +2,17 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.29] — 2026-08-18 — Hide last 2 Eagle desktop gallery images
+
+### Fixed — Eagle desktop gallery
+- Desktop view of the member dashboard Eagle gallery no longer shows the last 2 images (`11.jpg` and `12.jpg`).
+- `chronotypeImageSrcs()` now trims the last 2 entries for Eagle on desktop; mobile vertical gallery is unchanged.
+
 ## [2.12.28] — 2026-08-18 — Add Help subpage to member dashboard with right-click shortcut
 
 ### Added — Help & Support
 - New `/dashboard/help` subpage with beautiful, fully responsive help content:
   - Hero header with help icon and welcome message
-  - Quick Tips section with 4 sleep improvement tips (Consistent Schedule, Create a Routine, Limit Screen Time, Track Progress)
   - FAQ accordion with 6 common questions about assessments, chronotypes, profile updates, reports, notifications, and data security
   - Contact Support section with email and phone support cards, copy-to-clipboard, and direct email client link
 - Added Help navigation item to member dashboard sidebar (`HelpCircle` icon, routes to `/dashboard/help`)

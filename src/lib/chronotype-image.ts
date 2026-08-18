@@ -8,7 +8,7 @@
 
 const EAGLE_FILES = [
   "1.jpg", "2.jpg", "3.jpg", "3a.jpg", "4.jpg", "5.jpg", "6.jpg",
-  "7.jpg", "8.jpg", "9.jpg", "10.jpg", "hompage.jpg", "hompage-2.jpg",
+  "7.jpg", "8.jpg", "9.jpg", "10.jpg", "11.jpg", "12.jpg",
 ];
 
 const LARK_FILES = [
@@ -54,7 +54,9 @@ export function chronotypeImageSrc(chrono: string, index = 1): string {
 
 export function chronotypeImageSrcs(chrono: string): string[] {
   const folder = chronotypeFolder(chrono);
-  return chronotypeImageFiles(chrono).map((f) => `/chronotype_media/${folder}/${f}`);
+  const files = chronotypeImageFiles(chrono);
+  const trimmed = chrono.toUpperCase() === "EAGLE" ? files.slice(0, -2) : files;
+  return trimmed.map((f) => `/chronotype_media/${folder}/${f}`);
 }
 
 export function chronotypeImageSrcsMobile(chrono: string): string[] {
