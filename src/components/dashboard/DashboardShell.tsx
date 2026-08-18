@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { ROLE_LABELS, type Role } from "@/lib/auth/roles";
 import {
   Home, LogOut, Heart, Menu, ChevronLeft,
   Gauge, MoonStar, BatteryCharging, Lightbulb, ChartNoAxesCombined,
-  CircleUserRound, SlidersHorizontal,
+  CircleUserRound, SlidersHorizontal, HelpCircle,
   IdCard, ClipboardCheck, ChartSpline, Brush, QrCode, BellRing, UserCog, Settings2,
   LayoutGrid, NotebookPen, Landmark, UsersRound, ScrollText, PhoneCall, ChartPie, History, Cpu
 } from "lucide-react";
@@ -30,6 +30,7 @@ const roleNavItems: Record<Role, NavItem[]> = {
     { label: "Progress", href: "/dashboard/progress", icon: <ChartNoAxesCombined size={22} /> },
     { label: "Profile", href: "/dashboard/profile", icon: <CircleUserRound size={22} /> },
     { label: "Settings", href: "/dashboard/settings", icon: <SlidersHorizontal size={22} /> },
+    { label: "Help", href: "/dashboard/help", icon: <HelpCircle size={22} /> },
   ],
   organization_admin: [
     { label: "Dashboard", href: "/admin/dashboard", icon: <Gauge size={22} /> },
@@ -141,12 +142,15 @@ export default function DashboardShell({
 }) {
   const { user, logout, isLoading } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [donateOpen, setDonateOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
+  const contextMenuRef = useRef<HTMLDivElement>(null);
 
   // Sidebar collapsed state persists across subpage navigations so the user's
   // choice is not reset when the shell remounts.
@@ -191,6 +195,25 @@ export default function DashboardShell({
       document.removeEventListener("keydown", onKey);
     };
   }, [avatarOpen]);
+
+  useEffect(() => {
+    const onContextMenu = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest("header") || target.closest("aside") || target.closest("nav")) return;
+      e.preventDefault();
+      setContextMenu({ x: e.clientX, y: e.clientY });
+    };
+    const onDocClick = () => setContextMenu(null);
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setContextMenu(null); };
+    document.addEventListener("contextmenu", onContextMenu);
+    document.addEventListener("click", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("contextmenu", onContextMenu);
+      document.removeEventListener("click", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, []);
 
   // Apply dark mode on all dashboard pages
   const applyDark = useCallback(() => {
@@ -449,6 +472,32 @@ export default function DashboardShell({
           onLogout={async () => { await logout(); window.location.href = "/login"; }}
           onHome={() => { window.location.href = orgCode ? `/${orgCode}` : "/"; }}
         />
+      )}
+
+      {contextMenu && (
+        <div
+          ref={contextMenuRef}
+          className="fixed z-[1300] rounded-lg overflow-hidden"
+          style={{
+            left: contextMenu.x,
+            top: contextMenu.y,
+            background: "#FFFFFF",
+            border: "1px solid #EFEFF5",
+            boxShadow: "0 12px 32px rgba(23,23,23,0.14)",
+            minWidth: "180px",
+            padding: "6px",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            type="button"
+            onClick={() => { router.push("/dashboard/help"); setContextMenu(null); }}
+            className="flex items-center gap-[8px] w-full px-[10px] py-[8px] rounded-md border-none bg-transparent cursor-pointer text-left transition-colors"
+            style={{ fontFamily: "Poppins, sans-serif", fontSize: "13px", color: "#171717" }}
+          >
+            <HelpCircle size={16} /> Help & Support
+          </button>
+        </div>
       )}
 
       <div className="md:hidden h-[68px]" />

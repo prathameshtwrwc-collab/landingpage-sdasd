@@ -106,11 +106,11 @@ export default function UnderstandingSleepCyclesSection() {
               {t("nremLabel")}
             </div>
             {categoryKeys.map((key, idx) => (
-              <div key={`nrem-m-${key}`} className="grid border-b border-[#DDB642] min-w-0" style={{ gridTemplateColumns: "minmax(112px, 36%) minmax(0, 1fr)" }}>
-                <div className="flex items-center text-[#171717] min-w-0" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: "18px", padding: "12px 8px" }}>
+              <div key={`nrem-m-${key}`} className="grid border-b border-[#DDB642] min-w-0" style={{ gridTemplateColumns: "minmax(120px, 42%) minmax(0, 1fr)" }}>
+                <div className="flex items-center text-[#171717] min-w-0 break-words" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: "18px", padding: "12px 8px" }}>
                   {t(key)}
                 </div>
-                <div className="flex items-center text-[#171717] min-w-0" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, fontSize: "17px", lineHeight: "1.45", padding: "12px 8px" }}>
+                <div className="flex items-center text-[#171717] min-w-0 break-words" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, fontSize: "17px", lineHeight: "1.45", padding: "12px 8px" }}>
                   {t(nremKeys[idx])}
                 </div>
               </div>
@@ -122,11 +122,11 @@ export default function UnderstandingSleepCyclesSection() {
               {t("remLabel")}
             </div>
             {categoryKeys.map((key, idx) => (
-              <div key={`rem-m-${key}`} className="grid border-b border-[#DDB642] min-w-0" style={{ gridTemplateColumns: "minmax(112px, 36%) minmax(0, 1fr)" }}>
-                <div className="flex items-center text-[#171717] min-w-0" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: "18px", padding: "12px 8px" }}>
+              <div key={`rem-m-${key}`} className="grid border-b border-[#DDB642] min-w-0" style={{ gridTemplateColumns: "minmax(120px, 42%) minmax(0, 1fr)" }}>
+                <div className="flex items-center text-[#171717] min-w-0 break-words" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: "18px", padding: "12px 8px" }}>
                   {t(key)}
                 </div>
-                <div className="flex items-center text-[#171717] min-w-0" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, fontSize: "17px", lineHeight: "1.45", padding: "12px 8px" }}>
+                <div className="flex items-center text-[#171717] min-w-0 break-words" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500, fontSize: "17px", lineHeight: "1.45", padding: "12px 8px" }}>
                   {t(remKeys[idx])}
                 </div>
               </div>
