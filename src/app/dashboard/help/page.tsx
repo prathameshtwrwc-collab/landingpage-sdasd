@@ -57,10 +57,10 @@ export default function HelpPage() {
             <HelpCircle size={40} strokeWidth={1.5} />
           </div>
           <h1 className="text-[24px] md:text-[32px] font-bold mb-[8px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>
-            How can we help you?
+            Need More Help?
           </h1>
           <p className="text-[14px] md:text-[16px] opacity-90 max-w-[600px] mx-auto" style={{ fontFamily: "Poppins, sans-serif" }}>
-            Find answers to common questions or reach out to our support team for personalized assistance.
+            We're here to help. If you're facing an issue or need assistance, simply request a call back and our team will get in touch with you.
           </p>
         </div>
 
@@ -103,10 +103,14 @@ export default function HelpPage() {
             <Mail size={22} style={{ color: "#35319B" }} />
             Need More Help?
           </h2>
-          <p className="text-[13px] md:text-[14px] mb-[20px]" style={{ fontFamily: "Poppins, sans-serif", color: "#666", lineHeight: "1.6" }}>
-            Can't find what you're looking for? Our support team is here to help you with any questions or concerns.
+          <p className="text-[13px] md:text-[14px] mb-[4px]" style={{ fontFamily: "Poppins, sans-serif", color: "#666", lineHeight: "1.6" }}>
+            We're here to help. If you're facing an issue or need assistance, simply request a call back and our team will get in touch with you.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-[16px]">
+          <p className="text-[13px] md:text-[14px] mb-[20px]" style={{ fontFamily: "Poppins, sans-serif", color: "#666", lineHeight: "1.6" }}>
+            Our team will get back to you within 48 working hours.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-[16px] mb-[20px]">
             <div className="flex items-center gap-[12px] p-[16px] rounded-[12px]" style={{ background: "#F7F7FA", border: "1px solid #EFEFF5" }}>
               <div className="w-[44px] h-[44px] rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(53,49,155,0.08)", color: "#35319B" }}>
                 <Mail size={22} />
@@ -126,7 +130,8 @@ export default function HelpPage() {
               </div>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-[12px] mt-[20px]">
+
+          <div className="flex flex-col sm:flex-row gap-[12px] mb-[16px]">
             <button
               onClick={copyEmail}
               className="flex items-center justify-center gap-[8px] px-[20px] py-[12px] rounded-[10px] border-none cursor-pointer text-[13px] md:text-[14px] font-semibold transition-all"
@@ -142,6 +147,21 @@ export default function HelpPage() {
               <ExternalLink size={16} />
               Open Email Client
             </a>
+          </div>
+
+          <div className="rounded-[12px] p-[16px] md:p-[20px]" style={{ background: "#F7F7FA", border: "1px solid #EFEFF5" }}>
+            <h3 className="text-[15px] md:text-[16px] font-semibold mb-[12px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, color: "#171717" }}>
+              Request a call back
+            </h3>
+            <textarea
+              placeholder="Describe your issue (optional)"
+              rows={4}
+              className="w-full rounded-[10px] border-none p-[12px] text-[13px] md:text-[14px] resize-y"
+              style={{ fontFamily: "Poppins, sans-serif", background: "#FFFFFF", border: "1px solid #E5E7EB", color: "#171717", outline: "none" }}
+            />
+            <p className="text-[11px] mt-[8px]" style={{ color: "#AAA", fontFamily: "Poppins, sans-serif" }}>
+              Message to appear when someone clicks Help — Internal use only
+            </p>
           </div>
         </div>
       </div>

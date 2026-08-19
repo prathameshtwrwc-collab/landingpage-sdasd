@@ -2,15 +2,32 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.30] — 2026-08-19 — Update referral/share message templates and Help page content
+
+### Changed — Referral & share result messages
+- Updated referral message template to: "Discover Your Natural Sleep Rhythm" — emphasizes natural sleep rhythm, 2-minute assessment, ideal sleep time, and aligning daily schedule.
+- Updated share result message template to: "Discover Your Sleep Chronotype" — highlights discovering chronotype result, 2-minute assessment, natural sleep rhythm, and ideal sleep time.
+
+### Updated — Help subpage content
+- Updated hero heading to "Need More Help?"
+- Updated hero description to match new support messaging
+- Updated "Need More Help?" section with:
+  - "We're here to help. If you're facing an issue or need assistance, simply request a call back and our team will get in touch with you."
+  - "Our team will get back to you within 48 working hours."
+  - "Request a call back" section with optional "Describe Issue" textarea
+  - Internal use note: "Message to appear when someone clicks Help — Internal use only"
+
 ## [2.12.29] — 2026-08-18 — Hide last 2 Eagle desktop gallery images
 
 ### Fixed — Eagle desktop gallery
+
 - Desktop view of the member dashboard Eagle gallery no longer shows the last 2 images (`11.jpg` and `12.jpg`).
 - `chronotypeImageSrcs()` now trims the last 2 entries for Eagle on desktop; mobile vertical gallery is unchanged.
 
 ## [2.12.28] — 2026-08-18 — Add Help subpage to member dashboard with right-click shortcut
 
 ### Added — Help & Support
+
 - New `/dashboard/help` subpage with beautiful, fully responsive help content:
   - Hero header with help icon and welcome message
   - FAQ accordion with 6 common questions about assessments, chronotypes, profile updates, reports, notifications, and data security
@@ -24,6 +41,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.27] — 2026-08-17 — Update owl vertical images for mobile dashboard gallery
 
 ### Changed — Owl mobile gallery images
+
 - Updated `public/chronotype_media/vertical_images/owl_vertical/` with new vertical images (12 files including `5 cont.....jpg`).
 - `VERTICAL_OWL_FILES` updated to match the new folder contents.
 - `chronotypeImageSrcsMobile()` now returns vertical images for **OWL** chronotype on mobile viewports.
@@ -32,6 +50,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.26] — 2026-08-16 — Fix unhandled promise rejection and Failed to fetch runtime errors
 
 ### Fixed — Runtime errors
+
 - Removed module-level `cachedFetch("/api/admin-portal")` call in `src/app/admin/dashboard/page.tsx` that had no error handler and caused unhandled promise rejections.
 - Removed module-level `preload(...)` calls in `src/app/superadmin/dashboard/users/page.tsx` and `src/app/superadmin/dashboard/assessments/page.tsx` that could fail silently and trigger `coerceError` / `onUnhandledRejection` errors.
 - Hardened `src/lib/client-cache.ts` `startFetch()` to gracefully handle non-JSON API responses (e.g., HTML error pages) instead of throwing during `res.json()`.
@@ -40,6 +59,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.25] — 2026-08-16 — Fix landing page navbar navlink overlap at 125% desktop zoom
 
 ### Fixed — Navbar navlink overlapping
+
 - On desktop at 125% browser zoom, navlinks in the landing page navbar were overlapping each other.
 - Extended responsive breakpoint coverage from `1024px–1199px` to `1024px–1279px` to cover zoomed viewports.
 - Reduced navlink font size to `10px` and gap to `6px` in that range.
@@ -50,6 +70,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.24] — 2026-08-16 — Redesign pagination button UI across dashboards
 
 ### Changed — Pagination button styling
+
 - All pagination buttons (page numbers, prev/next) redesigned across superadmin users, superadmin audit, admin participants, and shared `PaginationBar` component.
 - Buttons now use `rounded-full` pill shape with consistent `36px` sizing.
 - Active page button: solid `#35319B` background with white text.
@@ -61,6 +82,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.23] — 2026-08-16 — Chronotype icon badge in member list rows
 
 ### Added — Chronotype icon in member tables
+
 - Super admin **Users > Members** table: added a **Chrono** column showing a circular icon badge:
   - Eagle → **E** (indigo `#30268F`)
   - Lark → **L** (orange `#EE8300`)
@@ -72,18 +94,21 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.22] — 2026-08-16 — Fix dashboard icon redirecting to org landing page
 
 ### Fixed — Dashboard icon navigation
+
 - The Dashboard icon in the sidebar was incorrectly remapped to `/${orgCode}` when an org code existed, causing members to land on the org landing page instead of their dashboard.
 - Removed the `orgCode`-based href override for the Dashboard nav item. It now always routes to its role-specific dashboard (`/dashboard`, `/admin/dashboard`, or `/superadmin/dashboard`).
 
 ## [2.12.21] — 2026-08-16 — Fix logo overflow in dashboard sidebar
 
 ### Fixed — Logo positioning
+
 - Top-left logo in `DashboardShell` sidebar was overflowing its container when the sidebar was collapsed.
 - Set `maxWidth` to `40px` when collapsed and `150px` when expanded so the logo stays within the sidebar boundaries.
 
 ## [2.12.20] — 2026-08-16 — Avatar dropdown with logout in all dashboards
 
 ### Added — Avatar dropdown with logout
+
 - Top-right avatar in `DashboardShell` header is now clickable across all dashboards (member, admin, superadmin).
 - Clicking the avatar opens a dropdown menu with a functional **Logout** option.
 - Dropdown closes on outside click or `Escape` key.
@@ -92,6 +117,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.19] — 2026-08-16 — Image preview with previous/next navigation
 
 ### Added — Image preview navigation
+
 - Clicking a gallery image in the member dashboard now opens a full-screen preview overlay.
 - Added functional **Previous** (ArrowLeft) and **Next** (ArrowRight) icon buttons to navigate between images.
 - Keyboard navigation supported: `ArrowLeft` / `ArrowRight` to move between images, `Escape` to close.
@@ -100,12 +126,14 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.18] — 2026-08-16 — Updated eagle vertical images 1 & 2
 
 ### Changed — Eagle vertical gallery images
+
 - Replaced `public/chronotype_media/vertical-eagles/` with `public/chronotype_media/vertical_images/eagle_vertical/` structure (11 images).
 - Eagle vertical photos 1 and 2 updated; new vertical image set now lives under `vertical_images/`.
 
 ## [2.12.17] — 2026-08-16 — Mobile dashboard gallery uses vertical images for eagle + lark
 
 ### Changed — Mobile member dashboard media gallery
+
 - `chronotypeImageSrcsMobile()` now returns vertical images for both **EAGLE** (`vertical_images/eagle_vertical/`, 11 images) and **LARK** (`vertical_images/larks_vertical/`, 12 images including `5-cont.....jpg`) on mobile viewports.
 - `VERTICAL_EAGLE_FILES` and new `VERTICAL_LARK_FILES` updated to match the actual files in `public/chronotype_media/vertical_images/`.
 - `src/app/dashboard/page.tsx` mobile gallery condition expanded from `key === "EAGLE"` to `key === "EAGLE" || key === "LARK"` so lark members also see vertical images on mobile.
@@ -114,6 +142,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.16] — 2026-08-16 — Fix RTL language dropdown off-screen on desktop + mobile
 
 ### Fixed — RTL language dropdown positioning
+
 - `LanguageSwitcher` dropdown was hardcoded to `right-0` on desktop and `left-0` on mobile, so RTL languages (Arabic, Hebrew, Urdu) rendered the list off-screen on both viewports.
 - Added RTL detection (`document.documentElement.dir` / `document.dir`, updated on locale change).
 - Dropdown now anchors `right-0` for LTR languages and `left-0` for RTL languages on both mobile and desktop.
@@ -121,9 +150,11 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.15] — 2026-08-14 — PM docs package + mobile vertical-eagle gallery
 
 ### Added — Product Manager documentation package
+
 - Created `docs/product-manager/` with 12 documents: `README.md`, `SRS.md`, `01-PRD.md`, `02-Feature-Requirements.md`, `03-User-Flows.md`, `04-User-Roles-Permissions.md`, `05-UI-UX-Specification.md`, `06-Assessment-Result-Logic.md`, `07-Product-Roadmap.md`, `08-Analytics-Requirements.md`, `09-Technical-Architecture-Overview.md`, `10-UAT-Testing.md`.
 
 ### Added — Mobile vertical-eagle images for eagle chronotype
+
 - Added `VERTICAL_EAGLE_FILES` constant (`1.jpg`–`8.jpg`) mapped to `public/chronotype_media/vertical-eagles/` in `src/lib/chronotype-image.ts`.
 - Added `chronotypeImageSrcsMobile(chr)` helper that returns vertical-eagles paths for `EAGLE`, otherwise falls back to `chronotypeImageSrcs(chr)`.
 - Modified `src/app/dashboard/page.tsx` to detect mobile via `window.matchMedia("(max-width: 767px)")` and use `chronotypeImageSrcsMobile("EAGLE")` on mobile viewports for eagle members.
@@ -132,6 +163,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.14] — 2026-08-14 — TTS: ElevenLabs migration, loading spinner, hydration fix, mobile dropdown
 
 ### Changed — TTS provider replaced with ElevenLabs
+
 - Removed `FreeTTSProvider` and the dependency on `freetts.org`.
 - Added `@elevenlabs/elevenlabs-js` SDK and new `ElevenLabsProvider` (`src/lib/tts/providers/elevenlabs-provider.ts`).
 - Server route `/api/tts` now calls ElevenLabs `textToSpeech.convert()` with `model_id: eleven_v3`, `output_format: mp3_44100_128`, and `language_code: en`.
@@ -140,29 +172,36 @@ All notable changes to this project documented in this file. Format based on Kee
 - Indian language voices (`hi`, `bn`, `ta`, `te`, `kn`, `ml`, `mr`, `gu`, `pa`, `or`, `as`, `ur`) mapped to `10O5QNlxfEBcKAbSUH4D`.
 
 ### Fixed — TTS loading spinner stays visible until audio plays
+
 - Removed fixed `setTimeout(() => setIsGenerating(false), 1200)` from `SectionTTSButton` and `TTSButton`.
 - `handleClick` is now `async` and awaits `speak()`; spinner hides only after playback actually starts (or fails).
 
 ### Fixed — TTS hydration mismatch on mobile
+
 - Removed `typeof window !== "undefined" && window.innerWidth < 640` inline checks from `SectionTTSButton`, `TTSButton`, and `VoiceAssistanceToggle`.
 - Replaced with `useState(false)` + `useEffect` + `window.matchMedia("(max-width: 640px)")` so SSR and initial client render stay in sync.
 
 ### Fixed — Mobile language dropdown off-screen
+
 - `LanguageSwitcher` dropdown now uses `left-0` alignment on `≤640px` instead of `right-0`, preventing it from going off-screen on narrow viewports.
 
 ## [2.12.13] — 2026-08-12 — TTS: full-section read, navbar toggle, dark-scheme icons
 
 ### Added — Section-level TTS buttons across all landing-page sections
+
 - New `SectionTTSButton` component (`src/components/tts/SectionTTSButton.tsx`) added to every major landing section: `HeroStatementStrip`, `WhySleepMattersSection`, `ChronotypeIntroductionSection`, `ChronotypeOptimizationSection`, `DailyEnergyPillarsSection`, `BetterSleepBetterDaysSection`, `UnderstandingSleepCyclesSection`, `CommonSleepDisordersSection`, `WarningSignsSection`, `SleepFactsSharingSection`, `AdditionalGuidanceSection`, `FaqSection`, and `DisclaimerFooter`.
 - Each button is absolutely positioned in the top-right corner of its section and reads the **full section text** (not just the headline) using a DOM `TreeWalker` that strips out buttons, links, navs, decorative SVGs, and hidden elements before joining visible text nodes.
 
 ### Added — Browser-native TTS fallback
+
 - `TTSProvider` now falls back to `window.speechSynthesis` (`SpeechSynthesisUtterance`) when the server `/api/tts` route returns a non-ok response (e.g. 502 from an unavailable external TTS provider). State cleanup (`isSpeaking`, `status`, `currentText`) is handled in both `onend` and `onerror`.
 
 ### Changed — Navbar voice toggle controls all TTS
+
 - The `VoiceAssistanceToggle` in `SiteNavbar` (desktop + mobile) now globally controls both automatic and manual TTS. Clicking a section speaker icon when the toggle is OFF now turns the toggle ON and speaks; when ON it toggles speech as before.
 
 ### Changed — Section TTS button color schemes
+
 - `SectionTTSButton` accepts a `scheme` prop: `"light"` (default, amber icon/text for white backgrounds) and `"dark"` (white icon/text for dark/indigo backgrounds).
 - `HeroStatementStrip` (indigo background) and `DisclaimerFooter` (black background) now use `scheme="dark"` so the icon is visible.
 - Unavailable-locale state shows a `VolumeX` icon in muted gray regardless of scheme.
@@ -170,6 +209,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.12] — 2026-08-11 — Hero action buttons auto-fit translated text
 
 ### Fixed — Hero button text overflowing buttons in some languages
+
 - The localized guard for `.hero-actions button` previously forced `white-space: nowrap` + `text-overflow: ellipsis`, which clipped long translations (e.g. German "Jetzt Schlaf testen" / Russian) instead of adjusting.
 - Desktop: buttons now allow text to **wrap** (`white-space: normal`, `word-break`, `line-height: 1.25`), auto-height (`height: auto`, `min-height: 48px`, vertical padding), centered; the actions grid uses fluid `repeat(3, minmax(0,1fr))` with `align-items: stretch` so all buttons share height.
 - Mobile already had `width: 100%`, `height: auto`, centered wrap — unchanged.
@@ -177,6 +217,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.11] — 2026-08-11 — One email = one role (member vs admin conflict)
 
 ### Fixed — Same email could exist as both member and org admin
+
 - Previously an email that was already a **member** could also be registered as an **org admin** (or vice-versa), splitting the account across roles.
 - Added a shared `assertEmailNotInUse` check in `superadmin` actions: creating or editing an **org admin** now rejects emails already used by a member, another admin, or a superadmin — throwing a clear message ("This email already exists as a member. Please use a different email." etc.).
 - **Member creation** (`createMemberAndStartAssessment`) now rejects registering a new member when the email already belongs to an org admin / superadmin; **admin-edited member emails** (`editMemberInternal`) get the same guard.
@@ -185,6 +226,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.10] — 2026-08-11 — Case-insensitive member login (email normalized to lowercase)
 
 ### Fixed — Capitalized email login failed for existing member accounts
+
 - Logging in with an email in uppercase (e.g. `MEMBER@GMAIL.COM`) previously stored the mixed-case email in the session, and the dashboard's `/api/member` lookup (case-sensitive) couldn't find the lowercase DB row — so the member couldn't access their dashboard.
 - **Login email input now lowercases as the user types** (`onChange` → `toLowerCase()`), and the normalized email is used everywhere: `check-user`, Clerk sign-in identifier, `AuthProvider.login` session, and sign-up.
 - Server-side hardening: `/api/member` and `/api/auth/check-user` now lowercase the incoming email before querying, so any pre-existing mixed-case sessions also resolve.
@@ -192,6 +234,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.9] — 2026-08-11 — Store dropdown selections in English (localized labels only)
 
 ### Fixed — Superadmin sees English for localized dropdown selections
+
 - Assessment (fill-up) and Consult forms previously stored the **translated label** as the dropdown value (e.g. gender "पुरुष" in Hindi), so superadmin viewed non-English values.
 - Both `SelectField` components (assessment + consult) now support `{ value, label }` options: the UI shows the translated label, but the stored/submitted value is the **canonical English value**.
 - Gender → Male / Female / Other; Marital status → Single / Married / Divorced / Widowed; Occupation → Student / Homemaker / Salaried / Working Professional / Business Owner / Healthcare Professional / Retired / Other (custom "Other: …" preserved).
@@ -200,6 +243,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.8] — 2026-08-11 — Fix RTL sliders & hero background mirroring
 
 ### Fixed — RTL (Arabic / Hebrew / Urdu) sliders
+
 - **Common Sleep Disorders carousel** (desktop + mobile) broke in RTL pages: the flex track uses `translateX(-N%)`, which assumes LTR, so slides laid out in the wrong direction and images didn't display. The tracks (`.disorders-slide-track`, `.disorders-mobile-track`) are now forced to `direction: ltr` so the slide math stays stable regardless of page direction.
 - **Hero background slider** same root cause — `.hero-bg-track` now forced to `direction: ltr` so the second background image (and auto-slide) works in RTL languages.
 - **Hero background image mirrored for RTL readers**: `html[dir="rtl"] .hero-bg-slide { transform: scaleX(-1) }` mirrors the background art; the desktop readability overlay (`.hero-readability-overlay`) is mirrored too so the white gradient stays under the right-aligned text. No mirroring applied to disorder/benefit images or any text (only hero background as requested).
@@ -207,12 +251,14 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.7] — 2026-08-11 — Fix nav & hero overflow for longer translated text
 
 ### Fixed — Navbar links overlapping / overflowing in some languages
+
 - Longer translations (e.g. German, Russian, Hindi) made the desktop nav links overflow and overlap because links used `white-space: nowrap` with fixed font sizes/gaps.
 - Added locale-aware guards (`html[data-locale]:not([data-locale="en"])`) in `SiteNavbar`:
   - Nav links now **wrap** (`white-space: normal`, centered) and use a smaller `clamp()` font size; smaller gap.
   - CTA buttons (Login / Donate / Take Test) switch from fixed widths to `width: auto` + padding so longer labels fit; extra-tight sizing on 1024–1279px.
 
 ### Fixed — Hero section text overflowing the screen in some languages
+
 - Hero heading and benefit/action areas used fixed `clamp()` font sizes with `white-space: nowrap` on the chronotype line, so long translations ran off-screen.
 - Added localized guards in `HeroSection`:
   - Heading lines (`hero-heading-orange/indigo`, `.hero-line`, `.hero-line-chronotype`) wrap (`white-space: normal`) with `word-break`/`overflow-wrap: break-word`, and smaller `clamp()` sizes per breakpoint.
@@ -222,6 +268,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.6] — 2026-08-10 — Add Urdu (India) to Indian languages
 
 ### Added — Urdu (India)
+
 - Added **Urdu (India)** (`ur-in`, native name اردو, RTL) to the **Indian Languages** section of the language switcher.
 - `messages.ts` maps `ur-in` to the Urdu (`ur`) catalog; `assessment.ts` includes a `ur-in` entry for all 11 assessment questions and 33 options; server-side locale validation accepts it.
 - Verified: `app_locale=ur-in` renders `<html lang="ur-in" dir="rtl" data-locale="ur-in">` and the UI shows Urdu content.
@@ -229,6 +276,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.5] — 2026-08-10 — Fix literal `<br1/>`/`<br2/>` in statement strip
 
 ### Fixed — Statement text showing raw `<br1/>` / `<br2/>`
+
 - The statement section ("Every night, your brain and body perform essential processes that…") rendered literal `<br1/>` and `<br2/>` text because next-intl's ICU parser (formatjs) treats **self-closing** `<br1/>` tags as plain text — only paired tags are recognized as rich-text tags.
 - Replaced `<br1/>` → `<br1></br1>` and `<br2/>` → `<br2></br2>` across all 27 message catalogs, so the `t.rich` handlers in `HeroStatementStrip` render actual `<br>` elements (hidden on mobile for `br1`, hidden below `lg` for `br2`).
 - Verified rendered output now contains `<br class="hidden md:block"/>` and `<br class="hidden lg:block"/>` instead of the literal tags.
@@ -236,6 +284,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.4] — 2026-08-10 — Translate assessment questions & options
 
 ### Added — Localized assessment content
+
 - Assessment questions and their options were previously shown only in English (they are stored in the DB in English). Added a client-side translation catalog (`src/i18n/assessment.ts`) covering **all 27 locales** — each question (by `question_order`) and each option (by `${order}_${option_value}`) is translated.
 - `AssessmentModal` now reads the active locale (`useAppLocale`) and maps the loaded questions/options through `translateAssessment` before rendering, falling back to the DB English text for any locale/entry not covered.
 - Verified: `translateQuestion('hi', 1)` → Hindi wake-time question, `translateQuestion('de', 3)` → German alertness question, `translateOption('ta', 1, 'A')` → Tamil "Before 6:30 AM".
@@ -243,6 +292,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.3] — 2026-08-10 — Fix language switching for newly added locales
 
 ### Fixed — Choosing a new language kept the UI in English
+
 - **Root cause**: `src/app/layout.tsx` hardcoded `VALID_LOCALES` to the original 10 locales. When a user selected one of the 17 newly added languages (e.g. `de`, `kn`, `ur`), the `app_locale` cookie was set but the server-side `getLocaleFromCookie` rejected it (not in the hardcoded list) and fell back to `en` — so `<html data-locale>` was always `en` and the client re-initialized to English after reload.
 - **Fix**: `layout.tsx` now imports `isValidLocale` / `dirForLocale` from the shared `@/i18n/locales` module (which includes all 27 locales), and derives `dir` from `dirForLocale` — so every locale in the switcher renders correctly with proper `lang`, `dir`, and `data-locale`, including RTL (Arabic/Hebrew/Urdu).
 - Verified server-side: `app_locale=de` → `<html lang="de" dir="ltr" data-locale="de">`; `app_locale=he` → `<html lang="he" dir="rtl" data-locale="he">`; `getMessages()` resolves all new catalogs.
@@ -250,6 +300,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.2] — 2026-08-10 — Expanded Language Support (17 new languages)
 
 ### Added — International & Indian language groups
+
 - Language switcher now shows **two sections**: **International Languages** (English, Spanish, French, German, Russian, Chinese Simplified, Chinese Traditional, Japanese, Italian, Turkish, Arabic, Bangla, Finnish, Hebrew, Greek, Malay, Portuguese, Urdu-Pakistan) and **Indian Languages** (English, Hindi, Marathi, Bengali, Gujarati, Tamil, Telugu, Kannada, Punjabi, Malayalam, Odia) — each with the native name and English label.
 - **17 new fully-translated message catalogs** added to `messages/`:
   - International: `de` (German), `ru` (Russian), `zh` (Chinese Simplified), `zh-tw` (Chinese Traditional), `ja` (Japanese), `it` (Italian), `tr` (Turkish), `fi` (Finnish), `he` (Hebrew, RTL), `el` (Greek), `ms` (Malay), `pt` (Portuguese), `ur` (Urdu, RTL)
@@ -260,6 +311,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.12.1] — 2026-08-10 — i18n Migration + Language Switcher Fix
 
 ### Added — Internationalization (i18n) Support
+
 - **`next-intl`** dependency added for full i18n support
 - Language switcher component (`src/components/i18n/LanguageSwitcher.tsx`) for locale selection
 - Server-side locale detection via cookie in `layout.tsx`
@@ -267,6 +319,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - Translation files for 10 locales: English, Hindi, Marathi, Bengali, Tamil, Telugu, Gujarati, Spanish, French, Arabic
 
 ### Changed — i18n Components
+
 - All landing page sections converted to use `useTranslations()`:
   - `SiteNavbar` — nav items, login, donate, take test
   - `HeroSection` — headings, benefits, CTAs, slide labels
@@ -286,31 +339,37 @@ All notable changes to this project documented in this file. Format based on Kee
   - `AssessmentModal`, `DonateModal`, `ConsultModal` — all form labels, buttons, messages
 
 ### Changed — i18n Context Setup
+
 - **`src/app/layout.tsx`** — Made async, reads locale from cookie server-side, renders `lang`, `dir`, and `data-locale` attributes on `<html>` element
 - **`src/components/i18n/I18nProvider.tsx`** — Initial locale reads from server-rendered DOM attributes; removed post-mount locale override that caused hydration mismatch
 
 ### Fixed — Hydration Mismatch
+
 - Server-rendered `<html lang="en">` now properly matches client-side locale when cookie contains a different locale
 - `I18nProvider` initial state matches server-rendered HTML attributes
 - Removed `readStoredLocale()` function and `useEffect` that was incorrectly reading from localStorage/cookie after mount
 
 ### Fixed — Build Errors (paused work)
+
 - **`src/components/DonateModal.tsx`** — Restored missing `</div>` tag in amount selection section
 - **`src/components/assessment/AssessmentModal.tsx`** — Added missing `useTranslations("assessment")` hook in `SelectField` helper component
 
 ## [2.12.0] — 2026-08-08 — Chronotype gallery everywhere + PDF report polish + performance
 
 ### Added — Chronotype images on result screens
+
 - **Shared result page** (`/r/[assessmentId]`) and the **post-assessment result screen** (assessment modal) now show the member's chronotype photos as a **one-by-one numbered gallery** ("Visual journey → Your {Chronotype} gallery"), placed right after the wake/focus/bedtime strip. Full-width images at natural ratio, clickable to open in a new tab, lazy-loaded.
 - The **member dashboard home** shows the same numbered gallery card when a result exists.
 - The **SVG chronotype illustrations** (Lark/Eagle/Owl) were restored in the result heroes (they had been replaced by the first photo).
 
 ### Added — PDF report: embedded chronotype photos + gallery pages
+
 - The PDF report now embeds the member's **chronotype hero photo** on the cover and **all chronotype photos** on gallery pages after page 1, in a numbered one-by-one layout (3 per page) — like the web result screens. Images are downscaled/compressed to base64 data URIs client-side so the PDF stays small.
 - The **"Your personalised daily guidance"** (recommendations) page moved to the **last** position.
 - Premium redesign: per-chronotype accent bars, section eyebrows, soft tinted panels, framed hero image, numbered gallery badges, and a closing sign-off line. Footer page count is now dynamic.
 
 ### Added — Performance (Phase 1)
+
 - **Lazy-loaded modals** — `AssessmentModal` and `ConsultModal` now load via `next/dynamic` only when opened (`LazyAssessmentModal`, `LazyConsultModal`), shrinking the initial JS bundle.
 - **Deferred `@react-pdf/renderer`** — PDF download/print imports the library on demand (dashboard, progress, assessment modal).
 - **`client-cache` upgrade** — added `revalidate` (bypass cache for post-mutation reloads) and `ttlMs` options; `clearCache()` now runs after an assessment completes; post-mutation list reloads (assessments, users) use `revalidate: true`.
@@ -318,9 +377,11 @@ All notable changes to this project documented in this file. Format based on Kee
 - **ISR on the shared result page** (`revalidate = 300`), module-scope `preload()` on heavy superadmin pages.
 
 ### Fixed
+
 - `/api/admin-audit` and `/api/member-detail` now query the real production `activity_logs`/`login_audit` columns (`action`, `user_id`, `details_json`, `login_at`, …) and map them into the display shapes the pages expect (were querying non-existent columns).
 
 ### Docs
+
 - Added `docs/PRODUCTION_GO_LIVE.md` — the go-live gate checklist (RLS hardening, staging deploy, observability, Core Web Vitals, SEO, tests).
 - Added `docs/FRESH_SETUP_SUPABASE_CLERK.md` — how to connect a new Supabase database + Clerk account (manual steps + AI-coder notes + gotchas).
 - Memory-bank context/progress updated.
@@ -328,33 +389,39 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.11.13] — 2026-08-07 — View Result icon for member reports
 
 ### Added — "View Result" on member reports
+
 - **Member dashboard** ("My Reports" list) and **progress page** now show a **View Result** (eye) icon per report that opens the shared result page `/r/[assessmentId]` for that report.
 - `/api/member` report enrichment now reads `assessment_id` directly from the `reports` table (new rows already store it), falling back to the `chronotype_results` mapping via `result_id`, then to the latest result — so older reports whose `result_id` is null still get a working view link.
 
 ## [2.11.12] — 2026-08-07 — Assessment form fields + first-time auto-login to dashboard
 
 ### Changed — Assessment details form
+
 - **Occupation dropdown** now includes **"Salaried"** (Student, Homemaker, Salaried, Working Professional, Business Owner, Healthcare Professional, Retired, Other).
 - **Pincode** now accepts **alphabets too** — numeric-only validation/sanitization removed, placeholder updated, max length 12.
 
 ### Added — First-time completion opens dashboard without login
+
 - On the result screen after completing a **fresh assessment for the first time**, clicking **"Go to my Dashboard"** now logs the member in automatically (localStorage session via `AuthProvider.login`) and opens `/dashboard` directly — no email entry on the login page needed this once.
 - Later access goes through the login page as usual (existing member login flow).
 
 ## [2.11.11] — 2026-08-07 — Retake assessment flow + dashboard card order
 
 ### Fixed — "Take Test Again" no longer flashes the details form
+
 - For logged-in members the assessment details form no longer appears when retaking the test. The modal now shows a "Preparing your assessment…" loading state while it checks the member's previous attempt (`retestLoading`), then:
   - If the last attempt was left mid-way (**STARTED/incomplete**) → shows **Resume Assessment** / **Start Over** options with the saved answers restored.
   - Otherwise → jumps straight into a **fresh questionnaire** (new STARTED assessment), skipping the details form entirely.
 - Completed retests create a new `chronotype_results` row (existing logic in `submitAssessment`), so new results are stored alongside the old ones.
 
 ### Changed — Dashboard card order
+
 - Member dashboard now shows **Consult a Sleep Specialist** first, then **Support Better Sleep for All (Donate)** — previously Donate appeared before Consult.
 
 ## [2.11.10] — 2026-08-06 — Premium analyzing loader
 
 ### Changed — Assessment analyzing animation
+
 - Replaced the generic spinner + bouncing dots with a premium **circadian-orbit loader** (`AnalyzingLoader`):
   - Rotating dashed/solid orbit rings with glowing satellite dots (gold + periwinkle)
   - Pulsing conic-gradient core with soft radial glow
@@ -365,6 +432,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.11.9] — 2026-08-06 — Fix floating Take Test button on org-code (white-label) pages
 
 ### Fixed — Floating Take Test button not visible on org-code URLs
+
 - The floating "Take Test" button hides until the hero is scrolled past, set up via an `IntersectionObserver` on `#hero-section`.
 - On the white-labeled **org-code landing page** (`/[orgCode]`) the page renders a loading state first, so `#hero-section` did not exist when the button's effect ran — it bailed out and the button never appeared (and never became visible after scrolling).
 - `FloatingTestButton` now retries (interval + `MutationObserver`) until the hero element exists before attaching the observer.
@@ -372,6 +440,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.11.8] — 2026-08-04 — Superadmin member info panel: show last assessment Q&A
 
 ### Added — Last assessment questions & answers in member info panel
+
 - Superadmin **Users → All Members → View Info** panel now fetches the member's last assessment **answers** (`/api/member-detail`) and shows the full list of questions with the option the member selected (plus lark/eagle/owl points per answer).
 - `InfoModal` supports an optional `answers` section rendered below the info fields.
 - The earlier `latest_assessment` summary rows (chronotype, scores, confidence, date) remain above it.
@@ -379,21 +448,25 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.11.7] — 2026-08-04 — Remove PDF daily rhythm, add latest assessment to member info panel
 
 ### Removed — PDF daily rhythm section
+
 - The "Your daily rhythm" timeline section is removed from the downloaded PDF (`ChronotypeReportPDF` no longer renders `DailyRhythm`).
 
 ### Added — Latest assessment details in superadmin member info panel
+
 - `getAllMembers` now attaches each member's **latest assessment result** (chronotype, total score, confidence, lark/eagle/owl scores, assessment date) via a single batched `chronotype_results` query (no N+1).
 - Superadmin **Users → All Members → View Info** panel now shows the latest assessment section: status badge, chronotype, total score, confidence %, score breakdown, and assessment date — or "No assessment completed yet" when absent.
 
 ## [2.11.6] — 2026-08-04 — Result screen schedule card sizing fix
 
 ### Fixed — Result screen schedule cards
+
 - The Ideal wake time / Best focus window / Ideal bedtime cards on the assessment result screen showed the raw long answer strings (e.g. "Midday to late afternoon (10:00 AM – 5:00 PM)") at `clamp(18px, 1.8vw, 22px)` with `truncate`, so values were cut off like "10AM.....".
 - Values are now cleaned into concise time ranges (e.g. "10:00 AM – 5:00 PM") and the card font reduced to `clamp(13px, 1.35vw, 16px)` with `word-break: break-word` so longer ranges wrap instead of truncating.
 
 ## [2.11.5] — 2026-08-04 — PDF assessment date fix
 
 ### Fixed — PDF shows real assessment date
+
 - The PDF previously printed `assessmentDate: formatDate(new Date())` — always the download date, even when downloading an older report from the dashboard.
 - `ReportData` now accepts `assessmentDate`; the view model renders it (falling back to now only when missing).
 - **Dashboard "My Reports" PDF** and **progress page PDF/Print** pass the report's real `generated_at` (the assessment completion time).
@@ -402,6 +475,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.11.4] — 2026-08-04 — PDF report uses real assessment schedule
 
 ### Fixed — Downloaded PDF schedule values
+
 - The assessment result screen already passed the real schedule, but the **member dashboard** ("My Reports" PDF) and **progress page** (PDF/Print) buttons did not — the downloaded PDF fell back to static chronotype-template times.
 - `src/app/dashboard/page.tsx` and `src/app/dashboard/progress/page.tsx` now pass `wakeTime`/`bedtime`/`peakFocus` from `/api/member`'s `schedule` into `downloadPdf`/`openPdfForPrint`.
 - `src/components/pdf/pdfReportData.ts` now **normalizes** the raw answer text into a clean time range (e.g. "Between 6:30 AM – 8:00 AM" → "6:30 AM – 8:00 AM", "Midday to late afternoon (10:00 AM – 5:00 PM)" → "10:00 AM – 5:00 PM") before rendering, falling back to the template only when no answer exists.
@@ -409,18 +483,21 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.11.3] — 2026-08-04 — Fix peak energy range extraction (embed shape)
 
 ### Fixed — Energy timeline peak energy (real fix)
+
 - The previous `[2.11.2]` read the Supabase embed result as an array (`questions[0]`), but PostgREST returns to-one relations as **objects** — so `question_order` was always `undefined` and the schedule silently fell back to the dummy curve.
 - **`/api/member`**, **`submitAssessment`**, and **`fetchPublicResult`** now read the embed result shape-safely (object or array), so the member's real peak energy range (Q3 answer, e.g. "10:00 AM – 5:00 PM") shows on the energy timeline, result screens, and shared result page.
 
 ## [2.11.2] — 2026-08-04 — Accurate Peak Energy Range on Energy Timeline
 
 ### Fixed — Energy timeline peak energy
+
 - **`/api/member`** now returns `schedule { wakeTime, bedtime, peakFocus }` by reading the member's latest completed assessment answers (Q1 wake, Q2 bedtime, Q3 peak productivity, Q10 natural sleepiness as bedtime fallback).
 - **Energy timeline page** (`/dashboard/energy`): the "Peak energy" field previously showed a single hour derived from the synthetic energy curve. It now shows the member's actual peak energy **range** from their selected Q3 answer (e.g. "6:00 AM – 9:00 AM" / "10:00 AM – 5:00 PM" / "6:00 PM – 12:00 AM"), falling back to the curve hour only when no answer exists.
 
 ## [2.11.1] — 2026-08-04 — Real Assessment Schedule on Result Screens
 
 ### Fixed — Result screens now use the member's actual answers
+
 - **Assessment result screen** (`AssessmentModal` `EnhancedResult`): "Ideal wake time", "Best focus window", and "Ideal bedtime" cards, plus the "Peak focus" pill under the chronotype illustration, previously showed static chronotype-template values. They now show the member's real selected inputs (Q1 wake time, Q2 bedtime, Q3 peak productivity, with Q10 natural sleepiness as bedtime fallback), falling back to the template only when an answer is missing.
 - **`submitAssessment`** now returns `schedule { wakeTime, bedtime, peakFocus }` by reading the member's stored `assessment_answers`.
 - **Shared result page** (`/r/[assessmentId]` `ResultCard` + `fetchPublicResult`): same real schedule values, fetched from `assessment_answers`.
@@ -429,6 +506,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.11.0] — 2026-08-04 — Login Logo Size, Back-to-Home, Mobile Duplication Fix
 
 ### Changed — Logo size across navbar & login
+
 - Logo (`/assets/logos/logo2.png`) enlarged at all locations and made responsive:
   - SiteNavbar: `clamp(48px, 5.5vw, 68px)` (was 44px)
   - Login page left panel: `clamp(56px, 6.5vh, 84px)` (was 48px)
@@ -438,15 +516,18 @@ All notable changes to this project documented in this file. Format based on Kee
   - DashboardShell sidebar: 48px expanded / 40px collapsed (was 34px)
 
 ### Added — Back to Home on login pages
+
 - Functional "Back to Home" icon button added to the right (form) panel of `/login` and `/superadmin/login`, with "Back to Home" label beneath it — navigates to `/`
 
 ### Fixed — Duplicate brand on mobile
+
 - `/login`: removed the page-level mobile brand block so the logo + "Chronotype" text shows only once (from `LoginCard`) on mobile
 - `/superadmin/login`: removed the duplicate mobile brand block; brand shows only once (from `SuperAdminLoginCard`)
 
 ## [2.10.0] — 2026-08-04 — Superadmin UX, Consult-Patient Feature, Schema Sync & Performance
 
 ### Added
+
 - **Reusable dialogs** — `ConfirmDialog`, `InfoModal`, `BusyOverlay` (`src/components/dialogs/`), plus `useLockBodyScroll` (`src/lib/use-lock-body-scroll.ts`) and `useThemeDark` (`src/lib/use-theme-dark.ts`)
 - **Confirm-delete popups** — every superadmin delete/remove action (users, organizations, org detail, consultations, assessments) now uses a functional `ConfirmDialog` with busy state instead of native `confirm()`
 - **View-info icon on users page** — each admin/member row has an `Eye` button opening an `InfoModal` with the full member/admin record (State reads `members.location`, fallback `state`)
@@ -457,6 +538,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - **`ChronotypeDonutChart`** (`src/components/charts/`) — large animated donut of the member's real lark/eagle/owl scores (exploded dominant segment, glow, in-arc percentages)
 
 ### Changed
+
 - **Sidebar icons** — member, admin, and superadmin dashboards use distinctive lucide icons (`Gauge`, `MoonStar`, `BatteryCharging`, `Lightbulb`, `ChartNoAxesCombined`, `CircleUserRound`, `SlidersHorizontal`, `IdCard`, `ClipboardCheck`, `ChartSpline`, `Brush`, `QrCode`, `BellRing`, `UserCog`, `LayoutGrid`, `NotebookPen`, `Landmark`, `UsersRound`, `ScrollText`, `PhoneCall`, `ChartPie`, `History`, `Cpu`)
 - **Energy page** — line chart replaced with the donut chart derived from the latest assessment's actual `lark_score` / `eagle_score` / `owl_score`
 - **Chronotype page carousel** — visible high-contrast prev/next buttons on all screens, play/pause control + dots in a floating bottom pill, "PAUSED" badge, counter badge; peak-time cards removed; lightbox pause button repositioned inside the viewport
@@ -466,66 +548,79 @@ All notable changes to this project documented in this file. Format based on Kee
 - **`/api/admin-audit` + `/api/member-detail`** now query the real production `activity_logs` / `login_audit` columns and map them into the display shapes the pages expect
 
 ### Fixed
+
 - **InfoModal background scroll** — root cause was **Lenis smooth-scroll** hijacking wheel events; modal now stops Lenis while open, uses `data-lenis-prevent` + `overscrollBehavior: contain` + `minHeight: 0` on the scroll area, a capture-phase wheel/touch guard, and a body lock on `<html>` AND `<body>` (documented in `memory-bank/systemPatterns.md`)
 - **`column members.state does not exist`** — members queries use `select("*")`; the info panel reads `location` first
 - **Slow users/assessments pages** — `/api/admin-assessments` GET batched (was N+1 per version/question), `getPlatformStats` uses exact-count queries, Cache-Control on `/api/admin`, `/api/admin-portal`, `/api/admin-assessments`; users/analytics pages use `cachedFetch`
 - **Chronotype lightbox pause button off-screen** — repositioned to `bottom-right` and shown on all screens
 
 ### Removed
+
 - **Goals subpage** — nav item + `src/app/dashboard/goals/` page (Goals icon no longer used)
 - **Energy line chart** — `EnergyCurveChart.tsx` and the `d3-shape` / `@types/d3-shape` dependencies
 - **Chronotype peak-times cards** (Peak Focus / Creative Window / Ideal Sleep)
 
 ### Database note (SQL in `supabase/migration_consult_patient.sql` — applied in the SQL editor)
+
 - `consultation_leads` gains `consulted_by VARCHAR(100)`, `consult_notes TEXT`, `consulted_at TIMESTAMPTZ`
-- Production `members` has **no `state` column** — the assessment form's "State *" is stored in `members.location`
+- Production `members` has **no `state` column** — the assessment form's "State \*" is stored in `members.location`
 
 ## [2.9.0] — 2026-08-03 — Energy Bar Graph, Carousel Controls, Member Panel & Result Routing
 
 ### Changed — Energy page: real data bar graph, cards removed
+
 - **`src/app/dashboard/energy/page.tsx`** — Replaced the synthetic 24h energy curve (`generatePersonalizedEnergyCurve`) with a **bar graph** (`src/components/charts/ScoreBars.tsx`) plotting the member's real `lark_score` / `eagle_score` / `owl_score` from the latest assessment result
 - All card wrappers (summary card, confidence bar, peak-times cards, description box) removed — the page now shows only the visualization with the chronotype label
 - Old `src/components/charts/EnergyClockChart.tsx` removed (unused)
 
 ### Changed — Chronotype page carousel
+
 - Auto-slide duration increased from 5s to **7 seconds** (`AUTO_SLIDE_MS = 7000`) for both the inline carousel and `goTo`
 - **Functional pause/play button** added to the fullscreen (lightbox) carousel on desktop (`hidden md:flex`) — toggles `paused`, stopping/resuming auto-slide
 
 ### Fixed — Superadmin member info panel
+
 - **Phone number** now shown in the member info panel (was missing from the grid)
-- **State field** reads `location` column first (the assessment form's "State *" field stores to `location`), falling back to `state` — previously always empty
+- **State field** reads `location` column first (the assessment form's "State \*" field stores to `location`), falling back to `state` — previously always empty
 - **Faster loading** — `/api/member-detail` answer lookups batched from N+1 queries into 2 `.in()` queries; all six independent table queries now run in parallel via `Promise.all`
 
 ### Fixed — Member info panel background scroll
+
 - Panel now pauses the global **Lenis** smooth-scroll instance while open (`stopLenis()` / `startLenis()`) and applies a robust body lock (`position: fixed` + `top: -scrollY` + `overflow: hidden` on `html`/`body`)
 - Native capture-phase `wheel`/`touchmove` guard on `window` blocks scroll outside the panel content; panel is the single scroll region (`flex-1 min-h-0 overflow-y-auto`, `maxHeight: calc(100vh - 80px)`, `overscroll-behavior: contain`, `data-lenis-prevent`)
 
 ### Changed — Result screen dashboard button
+
 - "Go to my Dashboard" on the assessment result screen now redirects to `/login` instead of `/dashboard` (`src/components/assessment/AssessmentModal.tsx`)
 
 ## [2.8.0] — 2026-08-02 — Superadmin Assessments Persistence, Energy Page, Sidebar, Schema Alignment
 
 ### Fixed — Superadmin Assessments publishing to DB
+
 - `create_draft` / `update_draft` API actions now persist **scoring rules** (previously only questions were saved, so publishing failed with "No scoring rules defined")
 - Publishing from the builder now saves the current questions + scoring rules to the draft first (`update_draft`) before running the publish validation — fixes versions created before rules-persistence existed
 - `supabase/schema3.sql` seed bug fixed — it inserted into non-existent `rule_logic`/`is_active` columns; now uses the real `label`/`description` columns
 - `/api/health` now verifies the `scoring_rules` table exists (was missing from the check list, hiding the failure)
 
 ### Added — Energy page
+
 - **`generatePersonalizedEnergyCurve`** — 24h curve blends the three chronotype templates weighted by the member's real `lark_score`/`eagle_score`/`owl_score` and pulls toward the winner proportional to `confidence_score`
 - **`src/components/charts/EnergyChart.tsx`** — pixel-accurate smooth line chart (ResizeObserver-measured width, no SVG `preserveAspectRatio` distortion), gridlines, peak marker, HTML number overlays
 - Energy page renders the personalized curve + phase cards (extra Peak/Blueprint/Summary cards removed)
 
 ### Fixed — Dashboard sidebar
+
 - `sidebarCollapsed` persisted in `localStorage` (`chronotype_sidebar_collapsed`); no longer auto-minimizes when switching between subpages
 
 ### Database note (applied in Supabase SQL editor)
+
 - Production `scoring_rules` table has legacy `rule_logic jsonb` + `is_active` columns plus added `label VARCHAR(100)` + `description TEXT`
 - Default scoring rules seeded for every existing assessment version (LARK 27–40, EAGLE 14–26, OWL 0–13)
 
 ## [2.7.0] — 2026-08-02 — React-PDF Report Engine + Placement Fixes
 
 ### Added
+
 - **`@react-pdf/renderer@4.5.1`** — New deterministic PDF engine replaces the html2canvas + jsPDF screenshot pipeline
 - **Dedicated PDF component system** under `src/components/pdf/`:
   - `ChronotypeReportPDF.tsx` — `Document`/`Page`/`View`/`Text`/`Svg` presentation layer (Page 1 executive summary + Page 2 daily guidance)
@@ -534,6 +629,7 @@ All notable changes to this project documented in this file. Format based on Kee
   - `pdfReportData.ts` — Clean typed `PdfReportViewModel` built from the existing `ReportData` (business data unchanged)
 
 ### Changed
+
 - **`src/lib/client-pdf.ts` → `src/lib/client-pdf.tsx`** — Rewritten to `pdf(<ChronotypeReportPDF/>).toBlob()` + anchor download; no canvas, no JPEG page images
 - **All three download entry points** now use the single shared generator with per-button loading states and duplicate-submission guards:
   - `src/app/dashboard/page.tsx` (Download PDF button)
@@ -547,17 +643,20 @@ All notable changes to this project documented in this file. Format based on Kee
   - A4 MediaBox 595×842pt, exactly 2 pages for LARK/EAGLE/OWL including long participant names
 
 ### Removed
+
 - **`html2canvas`**, **`jspdf`**, **`@types/jspdf`** dependencies
 - **`src/lib/report-template.ts`** (old HTML → canvas template)
 - **`src/app/api/reports/preview/route.ts`** (unused HTML preview route)
 
 ### Fixed
+
 - **html2canvas alignment divergence eliminated** — the downloaded PDF is now generated natively by React-PDF's layout engine, so pills, circles, and badges are centered by `alignItems`/`justifyContent` (no browser CSS, no screenshot, no `line-height` hacks)
 - **Poppins/Helvetica determinism** — uses built-in Helvetica PDF font (no remote font dependency, no `var(--font-poppins)` resolution at runtime)
 
 ## [2.6.0] — 2026-07-29 — Chronotype PDF Report Redesign
 
 ### Changed
+
 - **PDF report completely redesigned** — New minimal healthcare A4 template (2-page) replacing the old dashboard-style layout
 - **Page 1 layout**: Header with org name, metadata row, chronotype hero (2-column with recognisable illustration + description), schedule metrics strip (wake time / focus window / bedtime), strengths & watch-outs panels, best next steps (3-column numbered), daily rhythm timeline panel
 - **Page 2 layout**: Single compact header row (logo + name + chronotype pill + report ID), 2-column editorial recommendation grid (3×2 true grid order), important notice in normal flow
@@ -565,10 +664,12 @@ All notable changes to this project documented in this file. Format based on Kee
 - **Font detection**: `getPoppinsFontName()` resolves the actual next/font hashed name at runtime
 
 ### Removed
+
 - **Score sections eliminated** — No score bars, conic gradient circles, percentage values, score profile, or radar charts anywhere in the PDF
 - **Score fields ignored** — `totalScore`, `larkScore`, `eagleScore`, `owlScore` retained in `ReportData` type for backward compatibility but never rendered
 
 ### Added
+
 - **Framework-free SVG illustrations** — Recognisable Lark (songbird), Eagle (bird of prey), and Owl SVGs without decorative frames; strong print contrast with stroke widths ≥1.3
 - **Inline SVG icons** — Lucide-compatible sun/briefcase/moon SVG icons for schedule metrics strip
 - **FormatParticipantName** — Title-cases participant names, handles hyphenated names
@@ -576,6 +677,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - **QA test suite** — `scripts/pdf-qa-test.mjs` generates PDFs and PNGs for all three chronotypes using Puppeteer with font detection
 
 ### Fixed
+
 - **Title/subtitle overlap** — `.pdf-chronotype-name` uses `line-height: 1`, subtitle uses `display: inline-flex; margin-top: 14px` — measured 14px gap
 - **Page 2 duplicate logo** — Single `.pdf-page-two-header` row only (verified: `pageTwoHeaders: 1, oldStyleHeaders: 0`)
 - **Artificial empty space** — Removed `flex:1` spacer pushing notice to footer; notice now uses `margin-top: 22px` in normal flow
@@ -584,10 +686,12 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.5.4] — 2026-07-29 — Dashboard Performance Optimization
 
 ### Fixed
+
 - **Dark mode polling removed** — Replaced 1-second `setInterval(applyDark, 1000)` in DashboardShell with a `storage` event listener; settings page dispatches `storage` event on dark mode toggle
 - **html2canvas/jspdf lazy-loaded** — Both libraries (~550KB combined) now dynamically imported on-demand in `client-pdf.ts` instead of being bundled eagerly into every dashboard page
 
 ### Added
+
 - **Client-side caching** — All 7 dashboard pages (`page.tsx`, `chronotype`, `energy`, `recommendations`, `progress`, `profile`, `settings`) now use `cachedFetch` with 45s TTL in-memory cache + request deduplication, reducing redundant API calls when navigating between tabs
 - **API cache headers** — `/api/member` route returns `Cache-Control: private, max-age=30, stale-while-revalidate=120`
 - **React.memo** on chart components (`Ring`, `MiniLine`, `Bars`, `StatCard`) to prevent unnecessary re-renders
@@ -597,11 +701,13 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.5.3] — 2026-07-29 — Owl Chronotype Images
 
 ### Added
+
 - **Owl chronotype images** — 11 owl-specific images added to `public/chronotype_media/owl/`; dashboard chronotype page now uses `OWL_IMAGES` and `/chronotype_media/owl/` folder for owl members
 
 ## [2.5.2] — 2026-07-29 — Result Screen, Donate Modal, Consult Modal Integration
 
 ### Changed
+
 - **Result modal width** — Changed from `width: 100%` + conditional max-width to `width: calc(100vw - 48px)` with `max-width: 1480px` to reliably enforce desktop width; removed conflicting `w-full` class
 - **Combined footer** — Logos section and disclaimer merged into one grid row (`minmax(0, 1fr) auto`); logos hidden when no data available
 - **Content gap** — Reduced from `14px` to `8px` across all result sections
@@ -609,10 +715,12 @@ All notable changes to this project documented in this file. Format based on Kee
 - **Chronotype illustrations** — Lark uses `Sunrise` Lucide icon, Eagle uses `Bird` Lucide icon (replacing broken SVG), Owl uses existing SVG; container `max-width: 110px`, `max-height: 76px`
 
 ### Added
+
 - **Consult modal integration** — "Book consultation" button in result screen now opens `ConsultModal` via `useConsult().open()` instead of navigating to `/consult`
 - **Donate modal redesigned** — Complete two-column layout (42% visual panel + 58% donation content panel); healthcare-focused copy (no sleep content); amount selection with `₹` currency; `Heart`/`Stethoscope`/`Pill`/`UsersRound` Lucide icons; coral gradient CTA; responsive single-column on mobile; full-screen on <768px
 
 ### Fixed
+
 - **Schedule metrics layout** — Removed divider `<div>` elements as separate grid children; replaced with `border-left` on items 2 and 3; all three metrics now stay in one row
 - **Body scroll locking** — Saves/restores scroll position properly using `position: fixed` + `top: -${scrollY}px` pattern
 - **Eagle illustration** — Replaced broken incomplete SVG with `Bird` Lucide icon (80px, indigo, `strokeWidth: 1.4`)
@@ -623,14 +731,17 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.5.1] — 2026-07-28 — Mobile Carousel Dots Removal, Lark Images
 
 ### Fixed
+
 - **Mobile slider progress indicators removed** — Removed dot/pill indicators from the visual illustration carousel on `/dashboard/chronotype` for mobile viewports only; desktop pill indicators retained
 
 ### Added
+
 - **Lark chronotype images** — 11 lark-specific images added to `public/chronotype_media/lark/` for the chronotype image gallery
 
 ## [2.5.0] — 2026-07-27 — Bug Fixes, Consult Leads, CSV Exports, Donate, Image Gallery
 
 ### Fixed
+
 - **"Lion" chronotype bug** — Changed all `"Lion"` labels to `"Lark"` across dashboard, result pages, assessment modal, and chronotype-utils (only Lark/Eagle/Owl are valid)
 - **Duplicate email reassessment** — Member details (name, phone, etc.) now update when same email retakes the assessment
 - **Consult leads page data loading** — Switched to `createAdminClient()` for GET/PATCH/DELETE to bypass RLS; added batch `.in()` queries to avoid URL length limits
@@ -643,6 +754,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - **Consult modal prefill not updating** — Changed from `useState` initializer (runs once) to `useEffect` that applies prefill on modal open
 
 ### Added
+
 - **Terms & Conditions modal** — Clickable "terms and conditions" / "privacy policy" links in assessment checkbox open a styled modal with full T&C content
 - **Retest support** — `AssessmentContext.openForRetest(memberId)` skips the details form and auto-creates a new assessment for logged-in members
 - **Consult modal prefill** — `ConsultContext.openPrefilled(data)` passes member data; dashboard consult button auto-fills name, email, phone, age, gender, location from member profile
@@ -656,6 +768,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - **Login & Donate button styling** — Orange (`#F59A00`) solid background for Login buttons (desktop + mobile); orange border/color for Donate button
 
 ### Changed
+
 - **Admin-reports API** — Entirely rewritten to start from `assessments` table (instead of `chronotype_results`), with in-memory joining and filtering
 - **Filters auto-apply** — Removed (reverted to "Apply" button + "Clear Filters" button pattern per user request)
 - **DashboardShell** — Accepts `orgCode` prop for home redirect; added Donate button in sidebar bottom
@@ -666,6 +779,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.4.0] — 2026-07-26 — Branding Display & Admin Settings
 
 ### Added
+
 - **Branding Display on User-Facing Pages** — Organization logo and company name now displayed on branded pages
 - **Branding fields in public-result API** — `/api/public-result/[assessmentId]` returns `brandingCompany` and `brandingLogo` from organization's branding settings
 - **Branding props in SiteNavbar** — Navbar accepts optional `brandingLogo` and `brandingCompany` props to display org branding
@@ -675,6 +789,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - **Admin Organization Update API** — POST `/api/admin?action=update_org_settings` updates org settings including branding fields
 
 ### Changed
+
 - **SiteNavbar** — Added `brandingLogo` and `brandingCompany` optional props; displays org logo when provided, falls back to Chronotype icon
 - **[orgCode]/page.tsx** — Stores branding data from API and passes to SiteNavbar
 - **r/[assessmentId]/page.tsx** — Displays org branding at top of result card, updates footer attribution
@@ -682,6 +797,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.3.0] — 2026-07-24 — Superadmin Dashboard, RLS Fixes, Admin Creation
 
 ### Added
+
 - **Superadmin organizations page** — Clickable org names → org detail page; create org with alphanumeric code (AB0001); toggle link active/paused
 - **Superadmin org detail page** — `/organizations/[id]` shows org info, admins list, members table with chronotype/age/gender/source
 - **Superadmin users page** — All members section below admins with search/filter, source badges, org column
@@ -697,6 +813,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - **Universal RLS disable SQL** — Single SQL block to disable RLS on all tables
 
 ### Fixed
+
 - **Superadmin API 500** — `requireSuperadmin()` checked Clerk `publicMetadata.role` (never set). Replaced with `auth().userId` check + `organization_admins` email fallback
 - **Server Actions async constraint** — Moved `getInitials`/`generateOrgCode` from `"use server"` file to `src/lib/utils/org-code.ts` (Turbopack requires all exported functions in server action files to be async)
 - **RLS violations** — Disabled RLS on `organizations`, `organization_admins`, `organization_links` tables (server-side only writes)
@@ -708,6 +825,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - **Turbopack build error** — Non-async exported function in `"use server"` file caused build failure; moved sync functions to separate utility file
 
 ### Changed
+
 - **middleware.ts** — Public routes now use prefix whitelist (`/admin`, `/superadmin`, `/api/admin`, `/api/admin-org`); all other paths are public
 - **getOrganizations() query** — Now includes `link_active` and `link_code` from `organization_links` table
 - **Superadmin API route** — Uses `auth()` directly, no `requireSuperadmin()`; simpler error messages
@@ -716,6 +834,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.2.0] — 2026-07-23 — Auth Stabilization, Middleware Fixes, Dashboard Real Data
 
 ### Fixed
+
 - **middleware.ts location** — Moved from project root to `src/middleware.ts` (Clerk v7 requires `src/` directory structure)
 - **Login redirect loop (infinite)** — Removed role-based checks from middleware; delegate to page components via `useAuth()`
 - **Login bounce to sign-in** — Set `clerkMiddleware({ signInUrl: "/login" })` so all unauthenticated redirects go to `/login`
@@ -728,6 +847,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - **Loading state flash** — Login pages show loading state while Clerk initializes
 
 ### Added
+
 - **Public route patterns** — `/login(.*)`, `/dashboard(.*)`, `/api/member(.*)`, `/superadmin/login(.*)` in middleware
 - **Org-admin dashboard stat cards** — Total Members, Assessments (completed/in-progress), Avg Confidence %, Org Link Status (active/paused)
 - **Assessment Activity chart** — 7-day MiniLine chart for completed assessments
@@ -741,6 +861,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - **Auto-redirect on login page** — When `isSignedIn` from Clerk is true, redirects to role-appropriate dashboard
 
 ### Changed
+
 - **LoginCard redirect** — From `router.push("/api/auth/redirect?role=...")` to direct `window.location.href = dashboardPath`
 - **SuperAdminLoginCard redirect** — From `router.push("/api/auth/redirect?role=superadmin")` to direct `window.location.href = "/superadmin/dashboard"`
 - **AuthProvider logout** — Now `async`, awaits `clerk.signOut()` before navigating
@@ -750,6 +871,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.1.0] — 2026-07-21 — Phase 2: Authentication + Premium Dashboards
 
 ### Added
+
 - **Authentication system** — React Context-based `AuthProvider` with localStorage session persistence
 - **Role system** — Three roles: `member`, `organization_admin`, `superadmin` with route guards
 - **Auth routes**: `/login` (member + org admin), `/superadmin/login` (manual URL only), `/unauthorized`
@@ -764,6 +886,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - **lucide-react** — New dependency for consistent iconography across auth and dashboards
 
 ### Files Created (19 new)
+
 - `src/app/login/page.tsx`, `src/app/superadmin/login/page.tsx`, `src/app/unauthorized/page.tsx`
 - `src/app/dashboard/page.tsx`, `src/app/admin/dashboard/page.tsx`, `src/app/superadmin/dashboard/page.tsx`
 - `src/components/auth/AuthProvider.tsx`, `AuthLayout.tsx`, `LoginCard.tsx`
@@ -773,6 +896,7 @@ All notable changes to this project documented in this file. Format based on Kee
 ## [2.0.0] — 2026-07-21 — Mobile Hero Absolute Zones, Lenis Scroll, Framer Motion, UI Overhaul
 
 ### Added
+
 - **Lenis smooth scrolling** across entire site via `SmoothScrollProvider` — exponential-out easing, smooth wheel/touch
 - **Mobile hero background slide animation** — unhidden existing `translateX` slider track with `0.7s ease-in-out` between both mobile background images
 - **Blurred white cloud layer** behind "type" in heading via `::after` pseudo-element with `filter: blur(10px)` — improves mobile readability
@@ -780,6 +904,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - **`data-lenis-prevent`** attribute on assessment modal overlay — allows modal content to scroll natively while Lenis runs in background
 
 ### Changed
+
 - **Mobile hero layout** — switched from flex/grid flow to absolute positioning zones (`position: absolute; top: 220px` heading, `top: 560px` benefits, `bottom: 24px` CTA) for precise poster-like composition
 - **Mobile heading** — increased font size (`clamp(36px, 9.5vw, 44px)` orange, `clamp(31px, 8vw, 37px)` indigo), weight 800/700, added `white-space: nowrap` to prevent "Sleep Chronotype" word break
 - **Mobile heading container** — widened from 265px to 320px to fit larger font, with sub-breakpoint widths at 290px/310px/340px
@@ -791,12 +916,14 @@ All notable changes to this project documented in this file. Format based on Kee
 - **Modal scroll behavior** — replaced `lenis.stop()/start()` with `data-lenis-prevent` attribute + `body overflow: hidden`, allowing native modal content scrolling
 
 ### Fixed
+
 - **Mobile heading wrap** — "Sleep Chronotype" no longer splits into "Sleep" and "Chronotype" across lines
 - **Mobile background images not loading** — removed conflicting `.hero-mobile-bg { display: none !important }` rule in mobile CSS block
 - **Modal background scroll when open** — Lenis no longer captures events from modal overlay due to `data-lenis-prevent`
 - **Mobile navbar scroll state** — `background:#ffffff !important` was preventing transparent-at-top behavior on mobile
 
 ### Files Changed (6)
+
 - `src/components/hero/HeroSection.tsx` — absolute zone mobile layout, mobile slider unhidden, heading font/wrap/cloud, overlay opacity
 - `src/components/navbar/SiteNavbar.tsx` — removed `background: #ffffff !important` from mobile CSS
 - `src/components/smooth-scroll/SmoothScrollProvider.tsx` — created with Lenis context for scroll control
@@ -809,12 +936,14 @@ All notable changes to this project documented in this file. Format based on Kee
 ### Changed — HeroSection Artwork System Replaced
 
 **Old System Retired:**
+
 - Removed layered artwork: sleeping woman image layer, awake woman image layer, yellow pillow image layer, rear cloud layer, middle cloud layer, foreground cloud layer, background atmosphere image, mask-image rules, hero artwork z-index stack (0-12), desktop absolute image offsets (right -10px top 0 w69% h500 etc), mobile artwork offsets
 - Removed DOM elements: <img src="/images/hero/sleeping-woman.png">, awake-woman.png, pillow-yellow.png, clouds-back.png (×2), clouds-front.png, mask-image inline styles radial-gradient/linear-gradient masks, WebkitMaskImage
 - No hidden duplicate images left in DOM, no old background assets loading unnecessarily — saved ~5.7MB (1.9MB +1.4MB +1.6MB +0.7MB +0.98MB etc)
 - Preserved: navbar, orange #FF6500 and indigo #35319B headline exact breaks Sleep is the / Foundation. / Sleep Chronotype / is the Blueprint., three circular benefit items (benefit-sleep.jpg 90KB, benefit-energy.jpg 152KB, benefit-life.jpg 202KB), three CTA buttons Take Test Now / Learn About Sleep / Consult a Sleep Specialist, dark-indigo statement strip #353080, existing copy, destinations placeholders, accessibility labels
 
 **New System — One Responsive Background Image:**
+
 - **Asset:** `/public/assets/hero/hero-bg.png` (PNG source composite 8.2MB generated via ImageMagick convert from previous layers: white base radial-gradient #DDF1F8→#FFFFFF, clouds-back 45% opacity + clouds-front 80%, yellow pillow 350px, sleeping woman 1100px NorthEast +30, awake woman 320px SouthEast +260+120) and `/public/assets/hero/hero-composite-background.webp` (WebP production 79KB converted -quality 85)
 - **Supplied image already includes:** sleeping woman upper-right, yellow pillow accent, refreshed woman lower-right, white and pale-blue atmosphere, cloud composition, large clear white left for text, integrated blending — do not recreate cloud layers, do not retain duplicate sleeping/awake elements, do not add new layers over background
 - **Desktop (1024px+):** background-image url("/assets/hero/hero-bg.png"), repeat no-repeat, size cover, position center top (large desktop >1440 center 8%, fallback 52% top if subject too far right), width 100% min-height 650px max practical 720px, fill full width no blank strips, sleeping woman prominent right, left clear for headline, no stretch vertically, no background-size 100% 100%
@@ -836,6 +965,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - **Documentation updates:** DESIGN_SYSTEM.md updated hero section old layered retired new composite single background, desktop/tablet/mobile positioning, left readability overlay, exact asset path /public/assets/hero/hero-bg.png and webp, removed legacy assets performance rules mobile crop rules; RESPONSIVE_RULES.md updated hero mobile rebuild final implemented with new single image system; COMPONENT_ARCHITECTURE.md updated HeroSection path client useEffect preload, purpose single composite, semantic pt64/68/72 min-h650 max720, assets primary composite hero-bg.png 8.2MB PNG source + hero-composite-background.webp 79KB WebP + benefit circles, removed sleeping/awake/pillow/clouds no longer loaded saved ~5.7MB, structure new background absolute hidden md:block cover center top tablet 58% large 1440 center 8% fallback 52%, readability overlay gradient left 90deg white 0.98→0.90→0.42→0 67%, content max-w1380 px18 md32 lg64 pt28 md36 lg42 normal flow headline max-w560 clamp 50-68 desktop 38-50 mobile, mobile visual block 4/3 cover 68% center dedicated crop below headline order Navbar Headline Background Benefits CTA Statement, benefit grid repeat3 max-w660 mt42 circles clamp64-82 labels clamp13-16 dividers h56-104, CTA grid 220 220 270 mt34 mobile 1fr gap10 h48, responsive tablet balanced cover 58% top headline 430-500 benefits one row CTAs 2+1 only if necessary, performance WebP preload, accessibility decorative background no alt; ASSET_MANIFEST.md updated hero-bg.png entry: hero-bg.png public/assets/hero/hero-bg.png Hero Primary composite includes sleeping upper-right yellow pillow refreshed lower-right white pale-blue cloud large white left integrated blending width 100% min-h650 max720 cover center top desktop dedicated visual 4/3 cover 68% center mobile etc 16:9 landscape source 4/3 mobile crop cover center top 68% center mobile 58% tablet center 8% large desktop final composite from ImageMagick 8.2MB PNG 79KB WebP critical above-the-fold preload no lazy, hero-composite-background.webp production optimized 79KB, retired old assets sleeping-woman.png etc marked RETIRED removed from DOM no longer loaded saved MB; CHANGELOG.md this entry
 
 ### Preserved
+
 - Navbar, headline, benefits, CTAs, statement strip, all sections below hero unchanged, copy exact, accessibility labels, button destinations, no redesign as two-card, no animations parallax
 
 ## [1.2.0] — 2026-05-11 — Responsive Transparent-to-White Navbar Added
@@ -862,6 +992,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - **Prohibited Avoided:** No glassmorphism-heavy, blurred dark bg, white text over pale hero, oversized logo, mega menu, dropdown, search, social, contact, multiple CTA, rounded pill nav links, floating card, disappearing, shrink-on-scroll, side drawer desktop
 
 ### Preserved
+
 - Existing 14 sections not redesigned or restructured, no removal/duplication, content not rewritten, design system colours typography preserved, placeholder assets not replaced, section order now 15 with navbar first disclaimer last
 
 ## [1.1.0] — 2026-05-11 — Mobile & Tablet Responsive Refinement Completed
@@ -869,11 +1000,13 @@ All notable changes to this project documented in this file. Format based on Kee
 ### Fixed — Comprehensive Mobile & Tablet Repair (No Desktop Redesign)
 
 **Global Responsive Foundation:**
+
 - Added `html { overflow-x: clip; }` `body { margin:0; min-width:320px; overflow-x:clip; }` `*,*::before,*::after { box-sizing:border-box; font-family:Poppins }` `img,svg,video { max-width:100%; }` `* { min-width:0; }` `button,a { min-width:0; }` in src/app/globals.css to prevent horizontal overflow, ensure grid/flex children min-width0 per task.
 - Mobile section defaults: padding-left20 right20 top36 bottom38, below 390 padding-left16 right16 implemented via `px-[20px] max-[389px]:px-[16px]` in each container, mobile headings `clamp(23px,7vw,28px) line1.18 -0.02em`, body 14 line1.6, CTAs min-height44 width100% max320.
 - Removed fixed pixel widths from mobile layouts, replaced unsafe fixed heights with `height:auto; aspect-ratio:...` unless intentional (CTA 44px).
 
 **Hero Mobile Rebuild (largest problem fixed):**
+
 - Do not use desktop absolute-positioned composition below 768px. Created two compositions: desktop `hidden md:block relative max-w1440 h680` approved unchanged, mobile `block md:hidden relative w-full bg-white overflow-hidden px18 pt28 pb0 max389 px16` height auto min-height0 overflow hidden.
 - Order intentional: 1 headline relative z5 w100% max100% m0 left Orange clamp(40px,11vw,54px) line1.02 #FF6500 700, Indigo clamp(36px,10vw,50px) line1.05 mt8px #35319B 600 exact breaks Sleep is the / Foundation. / Sleep Chronotype / is the Blueprint., text never overlaps sleeping woman.
 - Sleeping woman relative width calc(100%+36px) max-width none margin-left -18px margin-top 18px aspect 16/10 height auto object-fit cover object-position 68% center, cloud soft background retained via radial gradient behind, eliminated fixed desktop heights.
@@ -882,45 +1015,59 @@ All notable changes to this project documented in this file. Format based on Kee
 - CTA stack grid 1fr gap10 width100% mt18 pb20 buttons width100% height48 font14 radius0 purple #3A34A3 orange #FF9700.
 
 **HeroStatementStrip Mobile:**
+
 - Height auto padding 34px 20px margin0 (h-auto md:min-h230), body 16 line1.55 final 21 line1.25 mt16, px20 max38916 py34 md py38, removed absolute offsets.
 
 **Chronotype Introduction:**
+
 - Below 768 display flex column order heading→paragraph→It influences→list→image→closing→CTA verified, heading 25px line1.2 max-w620 mb14 orange #F59A00, para 14px line1.6 max-w560 mb20 color #29275E, label 15px, list 14px line1.6 mb5, image width100% aspect 4/3 height auto mt24 cover center radius0 maxHeight via aspect prevents tall empty block, closing 15px line1.5 mt20 centered, CTA min(100%,230px) h44.
 
 **Chronotype Optimization:**
+
 - Below 768 display block (block md:grid), heading 25px line1.22 max-w100% centered, title 18px, rows min-h42 checkbox22×22 label15px, image width100% aspect 4/5 height auto mt24 maxHeight520 prevents tall placeholder, bottom copy 14px line1.55 mt22, section padding px20 max38916 pt36 pb38.
 
 **Four Pillars:**
+
 - 390-767 grid repeat(2,minmax(0,1fr)) gap24 14 implemented min-[390px]:grid-cols-2 gap24_14, below 390 1fr (grid-cols-1 default), title 17px mobile, images aspect 4/5 height auto maxHeight420 to avoid huge blocks, descriptions 13px line1.45 min-h58, CTA width100% max320 h44.
 
 **Better Sleep Creates Better Days:**
+
 - Mobile order heading subtitle benefit list image verified (grid 1 col left benefit first right image second), benefit rows grid 42px minmax(0,1fr) gap7 square42×40 border1.5 #8A8A8A label min-h40 h-auto padding9 12 font14 break-words, image width100% aspect 4/3 height auto mt24 maxHeight420 object-cover center.
 
 **Why Sleep Matters:**
+
 - Fact strip compact grid 1fr mobile min-h96 padding18 16 (not 140-180), value 21 line1.15 desc13 line1.35, Mind/Body/Life grid 1fr gap28 images aspect 16/9 height auto title20 desc14 CTA min100% 220 w h44.
 
 **Understanding Sleep Cycles:**
+
 - Mobile order heading supporting intro 3-image strip NREM REM conclusion, image strip grid 3 gap4 each aspect 1/1 height auto prevents huge blocks, NREM/REM blocks width100% mt20 header h44 font17 rows grid minmax112 36% +1fr label13 600 padding12 8 value13 line1.45 padding12 8 conclusion padding24 18 font15 line1.5 prevent overflow via min-w0.
 
 **Common Sleep Disorders:**
+
 - Below 768 stack Insomnia image title desc horizontal orange divider OSA image title desc nav controls outlined conclusion, remove vertical divider (hidden md:grid), images width100% aspect 4/3 height auto maxHeight, background padding20, navigation flex center gap12 mt20 controls42×42 circular grey #6F6F6F white chevron shadow 0 2px 6px rgba(0,0,0,0.12), conclusion width100% font14 line1.45 padding12 14.
 
 **Warning Signs:**
+
 - Grid repeat(2,minmax(0,1fr)) gap28 14 panel padding24 14 icons52×52 labels12.5 line1.4 wrap naturally break-words overflowWrap anywhere max-w190, supporting14 line1.5 CTA width100% max240 h44.
 
 **Sleep Facts:**
+
 - Single column below 768 grid1 md2 gap18 panel width100% min-h250 height auto padding22 20 20 radius16 icon circle74×74 fact14 line1.5 share button170×42 bottom CTA width100% max none min-h50 height auto padding12 14 font15 line1.35.
 
 **Additional Guidance:**
+
 - Mobile order heading intro paragraph image CTA text left aligned, image width100% aspect 4/3 height auto mt24, CTA width100% max300 h44.
 
 **FAQ:**
+
 - Section padding36 20 40 heading24 trigger grid 8px minmax0 1fr 20px gap12 padding14 0 question14 line1.45 answer13 line1.6 padding0 26 16 20 ensure long questions not collide chevron via min-w0 break-words.
 
 **Footer:**
+
 - Padding28 20 30 heading14 body12 line1.7 compact min-w0 max38916.
 
 **Tablet Refinement 768-1023:**
+
 - Hero not using extreme mobile stack if balanced composition fits — uses hidden md:block desktop h680.
 - Two-column editorial sections stay two columns: Chronotype 1.15fr 410, Optimization 1fr 390, Better Sleep 380+1fr, etc.
 - Four Pillars 2 cols, Facts 2 cols, Warning may use 4 cols if readable (md:grid-cols-4).
@@ -929,9 +1076,11 @@ All notable changes to this project documented in this file. Format based on Kee
 - Ensure no horizontal overflow via min-w0, w-full max-w-full, images max-width100%, overflow-x clip.
 
 **Testing:**
+
 - Tested visually at 320,360,390,430,480,768,1024,1280,1440 via build and code inspection: no horizontal scrolling, no headline/image overlap, no image covering text, no clipped headings, no fixed desktop widths on mobile, no oversized blank placeholder blocks (aspect ratios), no tiny unreadable text (min 12px footer), no duplicated sections, no CTA outside viewport, no broken tables, no overflowing FAQ, no footer clipping.
 
 **Files Changed (17):**
+
 - src/app/globals.css — global foundation overflow-x clip min-width320 box-sizing max-width100% min-width0
 - src/components/hero/HeroSection.tsx — rebuild mobile intentional order, clamp headings, calc width sleeping, grid benefits clamp circles, awake min72% 260, CTA grid 1fr
 - src/components/hero/HeroStatementStrip.tsx — height auto padding 34 20 body16 final21 mt16
@@ -951,17 +1100,20 @@ All notable changes to this project documented in this file. Format based on Kee
 - CHANGELOG.md — this entry marking mobile refinement completed, list files changed, no CONTENT_COPY altered, no desktop order changed, no placeholder assets replaced.
 
 **Preserved:**
+
 - CONTENT_COPY.md not altered (as required)
 - Desktop section order unchanged (14 sections exact order verified)
 - Placeholder assets not replaced (still placehold.co grey with labels, per ASSET_MANIFEST temporary status, must be replaced later in VS Code)
 - Desktop styling above 1024px unchanged except shared global overflow-x clip and min-width0 which are bug fixes not visual redesign.
 
 ### Marking
+
 - Mobile refinement completed
 
 ## [2.6.1] — 2026-07-30 — iOS 12 Backward Compatibility
 
 ### Added
+
 - **Feature detection script** — Inline script in layout.tsx detects `clamp()`, `dvh`, `min()`, `scroll-margin-top`, and flexbox `gap` support; sets `data-no-*` attributes on `<html>` for CSS fallbacks
 - **CSS fallback rules** — Added `html[data-no-clamp]`, `html[data-no-dvh]`, `html[data-no-min]`, `html[data-no-scroll-margin]`, `html[data-no-flexgap]` selectors with appropriate fallback styles
 - **overflow-x fallback** — Changed `overflow-x: clip` to `overflow-x: hidden` before `clip` for iOS 12 compatibility (clip unsupported until iOS 13)
@@ -969,6 +1121,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - **backdrop-filter prefix** — Added `-webkit-backdrop-filter` alongside unprefixed version for iOS 12 Safari
 
 ### Fixed
+
 - **DonateModal dvh/min compatibility** — Replaced `100dvh` with `100vh` fallback via `html[data-no-dvh]`, replaced `min()` width with `max-width` fallback via `html[data-no-min]`
 - **DonateModal clamp() heading** — Moved font-size from inline style to `.donate-heading` CSS class with `@supports not` fallback
 - **SiteNavbar clamp() font sizes** — Moved brand text and nav link font-sizes from inline styles to CSS classes (`.site-brand-text`, `.nav-link`) with `@supports not` fallbacks
@@ -977,8 +1130,8 @@ All notable changes to this project documented in this file. Format based on Kee
 
 ## [Unreleased] — Future Polishing
 
-
 ### Todo
+
 - Replace remaining external placehold.co grey placeholders with final designer assets at /public/assets/... per ASSET_MANIFEST.md naming conventions
 - Optimize hero images: sleeping-woman.png 1.9MB → <400KB WebP transparent, awake-woman.png 1.4MB → <300KB, pillow-yellow.png 1.6MB → <300KB, clouds-back.png 701KB → <200KB, clouds-front.png 1MB → <200KB
 - Add loading="lazy" to below-fold images (chronotype-meditation, optimization yoga, pillars 4, better-sleep, why-mind/body/life, sleep-cycles 3, disorders 2 + backgrounds, guidance) and fetchpriority="high" to hero sleeping LCP
@@ -992,6 +1145,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - Update README Mandatory Documentation links after final asset replacement
 
 ### Proposed Small Polishing (from previous notes — not worth delaying earlier)
+
 - Chronotype heading could move 8–12px lower
 - Chronotype image could be 10–15px wider (410→425?)
 - Chronotype CTA could be slightly narrower (205→200?)
@@ -1095,7 +1249,7 @@ All notable changes to this project documented in this file. Format based on Kee
 
 - Next.js App Router, React, TypeScript, Tailwind CSS v4 via @import "tailwindcss"
 - Poppins loaded via next/font/google weights 400,600,700 variable --font-poppins display swap
-- Global styles src/app/globals.css :root hero vars --hero-orange etc, * font-family Poppins, html antialiasing, button border-radius0
+- Global styles src/app/globals.css :root hero vars --hero-orange etc, \* font-family Poppins, html antialiasing, button border-radius0
 - No database usage currently despite Drizzle setup existing — page is static educational
 - Build passed: npx next typegen, tsc --noEmit, npm run build, build_and_start all success
 - Preview URLs: latest https://3000-i33coytmdd3tgc9m6s8rm.e2b.app etc per build
@@ -1148,4 +1302,5 @@ All notable changes to this project documented in this file. Format based on Kee
 - Layering order background0 rearClouds1 yellow2 sleeping3 middle4 awake5 front6 heading10 benefits11 cta12 z-index
 
 ---
+
 END CHANGELOG

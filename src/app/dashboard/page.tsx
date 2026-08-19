@@ -174,21 +174,21 @@ const [cardGradient] = useState(() => {
     if (!referralLink) return;
 
     const sharerName = ((memberRecord?.first_name as string) || user?.name?.split(" ")[0] || "").trim();
-    const intro = sharerName ? `Hi! I'm ${sharerName} \u2014 I just took the Sleep Chronotype Assessment and honestly, it was eye-opening.` : "Hi! I just took the Sleep Chronotype Assessment and honestly, it was eye-opening.";
+    const intro = sharerName ? `Hi! I'm ${sharerName} — I just discovered something really interesting that helps you understand your natural sleep rhythm and when you're naturally at your best.` : "Hi! I just discovered something really interesting that helps you understand your natural sleep rhythm and when you're naturally at your best.";
 
     const message = `${intro}
 
-It takes only about 2 minutes, and in that time it gives you a beautifully detailed breakdown of your natural sleep type (Lark, Eagle, or Owl) \u2014 your ideal sleep and wake times, when your focus peaks during the day, and simple, practical tips to feel more energized.
+It takes just 2 minutes to find your ideal sleep time and align your sleep, work and daily schedule with your natural rhythm!
 
-I genuinely thought of you when I got my result, so here's a personal invite to try it for free:
+I thought you'd love to try it too. Take it for free here:
 
 ${referralLink}
 
-I'd love to hear what your result is!`;
+I'm SO excited to know your result! Do share it with me!`;
 
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ title: "Discover Your Sleep Chronotype", text: message });
+        await navigator.share({ title: "Discover Your Natural Sleep Rhythm", text: message });
         setRefShareResult("shared");
         setTimeout(() => setRefShareResult("idle"), 2500);
         return;
@@ -210,22 +210,22 @@ I'd love to hear what your result is!`;
     const article = /^[aeiou]/i.test(chronoLabel) ? "an" : "a";
     const sharerName = ((memberRecord?.first_name as string) || user?.name?.split(" ")[0] || "").trim();
     const intro = sharerName
-      ? `Hi! I'm ${sharerName} \u2014 I just discovered my sleep chronotype, and it turns out I'm ${article} ${chronoLabel}!`
-      : `Hi! I just discovered my sleep chronotype \u2014 it turns out I'm ${article} ${chronoLabel}!`;
+      ? `Hi! I'm ${sharerName} — I just discovered my Sleep Chronotype result, and it was honestly so interesting!`
+      : `Hi! I just discovered my Sleep Chronotype result, and it was honestly so interesting!`;
 
     const message = `${intro}
 
-The assessment took just 2 minutes and gave me a beautifully detailed breakdown of my natural sleep rhythm \u2014 my ideal sleep and wake times, when my focus peaks through the day, and practical tips I can actually use to feel more energized.
+The assessment takes just 2 minutes and helps you understand your natural sleep rhythm, ideal sleep time, and how to better align your daily schedule with it.
 
-You can see my full result right here:
+You should definitely try it too! Find your result for free here:
 
 ${resultLink}
 
-Give it a try and let me know your result too!`;
+I'm excited to know what your result is!`;
 
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ title: "My Sleep Chronotype Result", text: message });
+        await navigator.share({ title: "Discover Your Sleep Chronotype", text: message });
         setResultShared(true);
         setTimeout(() => setResultShared(false), 2500);
         return;
