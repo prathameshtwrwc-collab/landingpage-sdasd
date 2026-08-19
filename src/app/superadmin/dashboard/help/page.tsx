@@ -1,33 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { HelpCircle, MessageCircle, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { HelpCircle, Mail, Loader2 } from "lucide-react";
 import SuccessModal from "@/components/dialogs/SuccessModal";
 
-const MEMBER_ISSUE_TYPES = [
-  "Assessment Issue",
+const SUPERADMIN_ISSUE_TYPES = [
+  "Admin / Organisation Support",
+  "End User Support",
   "Technical Issue",
-  "Result / Report Issue",
+  "Dashboard / Data Issue",
+  "Payment / Subscription",
   "Other",
 ];
 
-export default function HelpPage() {
+export default function SuperadminHelpPage() {
   const router = useRouter();
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [issueType, setIssueType] = useState("");
   const [description, setDescription] = useState("");
   const [requestCallback, setRequestCallback] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [memberId, setMemberId] = useState<string | null>(null);
   const [successOpen, setSuccessOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-
-  useEffect(() => {
-    const stored = typeof window !== "undefined" ? localStorage.getItem("chronotype_member_id") : null;
-    if (stored) setMemberId(stored);
-  }, []);
 
   const handleSubmit = async () => {
     if (!issueType || !description.trim()) {
@@ -44,8 +39,7 @@ export default function HelpPage() {
           issue_type: issueType,
           description,
           request_callback: requestCallback,
-          raised_by_role: "member",
-          member_id: memberId,
+          raised_by_role: "superadmin",
         }),
       });
       const data = await res.json();
@@ -61,33 +55,6 @@ export default function HelpPage() {
       setSubmitting(false);
     }
   };
-
-  const faqs = [
-    {
-      question: "How do I take the sleep assessment?",
-      answer: "Go to the Chronotype section from the sidebar and click 'Start Assessment'. Answer all questions honestly for the most accurate results. The assessment takes about 10-15 minutes to complete.",
-    },
-    {
-      question: "What is a chronotype?",
-      answer: "Your chronotype is your natural sleep-wake preference. It determines whether you're a morning person (Lark), night owl (Owl), or somewhere in between (Eagle). Understanding your chronotype helps optimize your daily schedule.",
-    },
-    {
-      question: "How often should I update my profile?",
-      answer: "Update your profile whenever your sleep patterns change significantly, or at least once every 3 months to keep your recommendations accurate and relevant.",
-    },
-    {
-      question: "Can I download my sleep reports?",
-      answer: "Yes! Navigate to the Progress section and click the download button to get a detailed PDF report of your sleep patterns and recommendations.",
-    },
-    {
-      question: "How do I change my notification settings?",
-      answer: "Go to Settings from the sidebar and toggle your notification preferences. You can enable or disable email notifications, weekly tips, and goal reminders.",
-    },
-    {
-      question: "Is my sleep data secure?",
-      answer: "Absolutely. We use industry-standard encryption and security measures to protect your personal health data. Your information is never shared with third parties without your explicit consent.",
-    },
-  ];
 
   return (
     <DashboardShell title="Help & Support">
@@ -106,41 +73,9 @@ export default function HelpPage() {
           </p>
         </div>
 
-        <div className="rounded-[16px] p-[20px] md:p-[24px] mb-[24px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
-          <h2 className="text-[18px] md:text-[20px] font-bold mb-[16px] flex items-center gap-[8px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, color: "#171717" }}>
-            <MessageCircle size={22} style={{ color: "#35319B" }} />
-            Frequently Asked Questions
-          </h2>
-          <div className="flex flex-col gap-[8px]">
-            {faqs.map((faq, i) => (
-              <div key={i} className="rounded-[12px] overflow-hidden" style={{ border: "1px solid #EFEFF5" }}>
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between p-[14px] md:p-[16px] bg-transparent border-none cursor-pointer text-left"
-                  style={{ fontFamily: "Poppins, sans-serif" }}
-                >
-                  <span className="text-[13px] md:text-[14px] font-semibold pr-[12px]" style={{ color: "#171717", fontWeight: 600 }}>
-                    {faq.question}
-                  </span>
-                  <span className="shrink-0" style={{ color: "#35319B" }}>
-                    {openFaq === i ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                  </span>
-                </button>
-                {openFaq === i && (
-                  <div className="px-[14px] md:px-[16px] pb-[14px] md:pb-[16px]">
-                    <p className="text-[12px] md:text-[13px] leading-[1.6]" style={{ fontFamily: "Poppins, sans-serif", color: "#555" }}>
-                      {faq.answer}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
         <div className="rounded-[16px] p-[20px] md:p-[24px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
           <h2 className="text-[18px] md:text-[20px] font-bold mb-[4px] flex items-center gap-[8px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, color: "#171717" }}>
-            <HelpCircle size={22} style={{ color: "#35319B" }} />
+            <Mail size={22} style={{ color: "#35319B" }} />
             Need More Help?
           </h2>
           <p className="text-[13px] md:text-[14px] mb-[4px]" style={{ fontFamily: "Poppins, sans-serif", color: "#666", lineHeight: "1.6" }}>
@@ -165,11 +100,10 @@ export default function HelpPage() {
                   style={{ fontFamily: "Poppins, sans-serif", background: "#FFFFFF", border: "1px solid #E5E7EB", color: "#171717", outline: "none" }}
                 >
                   <option value="">Select issue type</option>
-                  {MEMBER_ISSUE_TYPES.map((t) => (
+                  {SUPERADMIN_ISSUE_TYPES.map((t) => (
                     <option key={t} value={t}>{t}</option>
                   ))}
                 </select>
-                <ChevronDown size={16} style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", color: "#888", pointerEvents: "none" }} />
               </div>
             </div>
 

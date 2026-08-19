@@ -2,6 +2,64 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.32] — 2026-08-19 — Add support ticket system with superadmin tickets page
+
+### Added — Support ticket system
+- New `support_tickets` table in Supabase with fields: issue_type, description, request_callback, status, raised_by, raised_by_role, organization_id, member_id, forwarded_by.
+- New API routes:
+  - `POST /api/support-tickets` — create ticket (member, admin, superadmin)
+  - `GET /api/support-tickets` — list tickets with role/org/status filtering
+  - `PATCH /api/support-tickets/[id]` — update status
+  - `DELETE /api/support-tickets/[id]` — delete ticket
+
+### Updated — Member help page
+- Added issue type dropdown (Assessment Issue, Technical Issue, Result/Report Issue, Other)
+- Added "Describe Your Issue" textarea
+- Added functional "Submit Request" button that POSTs to `/api/support-tickets`
+- Kept FAQ accordion
+
+### Added — Org-admin help page
+- New `/admin/dashboard/help` page with issue type dropdown (User/Assessment Issue, Dashboard/Usage Issue, Technical Issue, Payment/Subscription, Other)
+- "Describe Your Issue" textarea and "Submit Request" button
+- No FAQ section
+
+### Added — Superadmin help page
+- New `/superadmin/dashboard/help` page with issue type dropdown (Admin/Organisation Support, End User Support, Technical Issue, Dashboard/Data Issue, Payment/Subscription, Other)
+- "Describe Your Issue" textarea and "Submit Request" button
+
+### Added — Superadmin tickets page
+- New `/superadmin/dashboard/tickets` page showing all support tickets
+- Columns: Issue Type, Description, From (Admin/Member/Superadmin badge), Status, Date
+- Status dropdown to mark Open/Resolved
+- Functional delete icon per ticket
+- Pagination with search
+
+### Updated — Admin notifications page
+- Replaced mock data with real member callback requests from `support_tickets` table
+- Shows: Member, Issue Type, Description, Status, Date
+- Status dropdown: Not Resolved / Resolved / Forwarded to Superadmin
+- "Forward to Superadmin" icon button per ticket
+- Functional delete icon per ticket
+- Pagination with search
+
+### Updated — DashboardShell navigation
+- Added Help nav item to member sidebar (`/dashboard/help`)
+- Added Help nav item to org-admin sidebar (`/admin/dashboard/help`)
+- Added Tickets nav item to superadmin sidebar (`/superadmin/dashboard/tickets`)
+- Right-click context menu now routes to correct help page based on role
+
+## [2.12.31] — 2026-08-19 — Simplify member help page and add org-admin help page
+
+### Changed — Member help page
+- Removed email/phone support cards, copy email button, and open email client button from member help page.
+- Added non-functional "Submit Request" button to the request callback form.
+
+### Added — Org-admin help page
+- New `/admin/dashboard/help` subpage for organization admins.
+- Org-admin help page contains only the request callback form with textarea and "Submit Request" button (no FAQ section).
+- Added Help navigation item to org-admin sidebar (`HelpCircle` icon, routes to `/admin/dashboard/help`).
+- Right-click context menu on org-admin dashboards now navigates to `/admin/dashboard/help`.
+
 ## [2.12.30] — 2026-08-19 — Update referral/share message templates and Help page content
 
 ### Changed — Referral & share result messages

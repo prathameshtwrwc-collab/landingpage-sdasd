@@ -10,7 +10,7 @@ import {
   Gauge, MoonStar, BatteryCharging, Lightbulb, ChartNoAxesCombined,
   CircleUserRound, SlidersHorizontal, HelpCircle,
   IdCard, ClipboardCheck, ChartSpline, Brush, QrCode, BellRing, UserCog, Settings2,
-  LayoutGrid, NotebookPen, Landmark, UsersRound, ScrollText, PhoneCall, ChartPie, History, Cpu
+  LayoutGrid, NotebookPen, Landmark, UsersRound, ScrollText, PhoneCall, ChartPie, History, Cpu, Ticket
 } from "lucide-react";
 import DonateModal from "@/components/DonateModal";
 
@@ -42,12 +42,14 @@ const roleNavItems: Record<Role, NavItem[]> = {
     { label: "Notifications", href: "/admin/dashboard/notifications", icon: <BellRing size={22} />, badge: "3" },
     { label: "Team", href: "/admin/dashboard/team", icon: <UserCog size={22} /> },
     { label: "Settings", href: "/admin/dashboard/settings", icon: <Settings2 size={22} /> },
+    { label: "Help", href: "/admin/dashboard/help", icon: <HelpCircle size={22} /> },
   ],
   superadmin: [
     { label: "Dashboard", href: "/superadmin/dashboard", icon: <LayoutGrid size={22} /> },
     { label: "Assessments", href: "/superadmin/dashboard/assessments", icon: <NotebookPen size={22} /> },
     { label: "Organizations", href: "/superadmin/dashboard/organizations", icon: <Landmark size={22} /> },
     { label: "Users", href: "/superadmin/dashboard/users", icon: <UsersRound size={22} /> },
+    { label: "Tickets", href: "/superadmin/dashboard/tickets", icon: <Ticket size={22} /> },
     { label: "Reports", href: "/superadmin/dashboard/reports", icon: <ScrollText size={22} /> },
     { label: "Consult Leads", href: "/superadmin/dashboard/consultations", icon: <PhoneCall size={22} /> },
     { label: "Analytics", href: "/superadmin/dashboard/analytics", icon: <ChartPie size={22} /> },
@@ -491,7 +493,12 @@ export default function DashboardShell({
         >
           <button
             type="button"
-            onClick={() => { router.push("/dashboard/help"); setContextMenu(null); }}
+            onClick={() => {
+              if (user?.role === "organization_admin") router.push("/admin/dashboard/help");
+              else if (user?.role === "superadmin") router.push("/superadmin/dashboard/help");
+              else router.push("/dashboard/help");
+              setContextMenu(null);
+            }}
             className="flex items-center gap-[8px] w-full px-[10px] py-[8px] rounded-md border-none bg-transparent cursor-pointer text-left transition-colors"
             style={{ fontFamily: "Poppins, sans-serif", fontSize: "13px", color: "#171717" }}
           >

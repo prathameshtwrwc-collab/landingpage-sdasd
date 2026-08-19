@@ -17,8 +17,6 @@ import { clearCache } from "@/lib/client-cache";
 import { chronotypeImageSrcs } from "@/lib/chronotype-image";
 import { CHRONOTYPE_LABELS, CHRONOTYPE_DESCRIPTIONS, CHRONOTYPE_PEAK_TIMES, CHRONOTYPE_BLUEPRINT } from "@/lib/chronotype-utils";
 import { useConsult } from "@/components/consult/ConsultContext";
-import { useTTS } from "@/components/tts/TTSProvider";
-import TTSButton from "@/components/tts/TTSButton";
 import { COUNTRY_CODES, getCountryCode } from "@/lib/country-codes";
 import TermsModal from "./TermsModal";
 
@@ -77,8 +75,6 @@ export default function AssessmentModal() {
   const { isOpen, close, retestMemberId } = useAssessment();
   const { open: openConsult, openPrefilled: openConsultPrefilled } = useConsult();
   const t = useTranslations("assessment");
-  const ttsT = useTranslations("tts");
-  const { speak } = useTTS();
   const { locale } = useAppLocale();
 
   const [step, setStep] = useState(0);
@@ -950,12 +946,9 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
   isSubmitting: boolean;
 }) {
   const t = useTranslations("assessment");
-  const ttsT = useTranslations("tts");
-  const { speak } = useTTS();
   const [animDir, setAnimDir] = useState<"left" | "right">("left");
   const [animating, setAnimating] = useState(false);
   const [displayedIdx, setDisplayedIdx] = useState(questionIndex);
-  const lastSpokenQuestionRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (questionIndex !== displayedIdx) {
@@ -1076,22 +1069,16 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
           transform: animating ? `translateX(${animDir === "left" ? "16px" : "-16px"})` : "translateX(0)",
           transition: "opacity 0.18s ease, transform 0.2s ease",
         }}
-      >
-        <p
-          className="m-0 text-[18px] leading-[1.55] font-semibold"
-          style={{ color: "#171717", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
-        >
-          {q.question_text}
-        </p>
-        <div className="mt-[10px]">
-          <TTSButton
-            text={`${ttsT("questionOf", { n: displayedIdx + 1, total: totalQuestions })} ${q.question_text}`}
-            type="question"
-          />
-        </div>
-      </div>
+         >
+           <p
+             className="m-0 text-[18px] leading-[1.55] font-semibold"
+             style={{ color: "#171717", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}
+           >
+              {q.question_text}
+            </p>
+          </div>
 
-      {/* Options */}
+          {/* Options */}
       <div className="flex flex-col gap-[10px]">
         {q.options.map((opt, optIdx) => {
           const isSelected = answers[questionIndex] === opt.id;
@@ -1158,13 +1145,8 @@ function QuestionsView({ questions, questionIndex, totalQuestions, answers, step
                 <span className="flex-1 text-[15px] leading-[1.4]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
                   {opt.option_text}
                 </span>
-                <span className="shrink-0" onClick={(e) => e.stopPropagation()}>
-                  <TTSButton
-                    text={`${ttsT("optionOf", { n: optIdx + 1, text: opt.option_text })}`}
-                    type="option"
-                    size={14}
-                  />
-                </span>
+                 <span className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                 </span>
                 {isSelected && (
                   <span
                     className="flex items-center justify-center shrink-0"
@@ -1450,19 +1432,7 @@ function EnhancedResult({
 }) {
   const { login } = useAuth();
   const t = useTranslations("assessment");
-  const ttsT = useTranslations("tts");
-  const { speak } = useTTS();
   const [downloading, setDownloading] = useState(false);
-  const resultSpokenRef = useRef(false);
-
-  useEffect(() => {
-    if (!resultSpokenRef.current) {
-      resultSpokenRef.current = true;
-      const phrase = `${t("completeTitle")}. ${CHRONOTYPE_LABELS[chronotypeResult.chronotype as "LARK" | "EAGLE" | "OWL"]}.`;
-      speak({ text: phrase, type: "success", automatic: true });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   const chrono = chronotypeResult.chronotype as "LARK" | "EAGLE" | "OWL";
   const isLark = chrono === "LARK";
   const isEagle = chrono === "EAGLE";

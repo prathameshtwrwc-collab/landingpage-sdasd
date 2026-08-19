@@ -3,11 +3,8 @@
 import { useState, useRef, useEffect, type FormEvent } from "react";
 import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { useAuth } from "./AuthProvider";
 import type { Role } from "@/lib/auth/roles";
-import { useTTS } from "@/components/tts/TTSProvider";
-import TTSButton from "@/components/tts/TTSButton";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 
 type CheckResult = {
@@ -32,42 +29,6 @@ export default function LoginCard() {
   const [step, setStep] = useState<"email" | "password" | "not_found">("email");
   const [detectedRole, setDetectedRole] = useState<"member" | "admin" | "superadmin" | null>(null);
   const [detectedName, setDetectedName] = useState("");
-
-  const t = useTranslations("tts");
-  const { speak } = useTTS();
-  const emailSpokenRef = useRef(false);
-  const passwordSpokenRef = useRef(false);
-  const prevErrorRef = useRef("");
-  const notFoundSpokenRef = useRef(false);
-
-  // Speak validation / not-found errors once per actual change.
-  useEffect(() => {
-    if (error && error !== prevErrorRef.current) {
-      prevErrorRef.current = error;
-      speak({ text: error, type: "error", automatic: true });
-    }
-  }, [error, speak]);
-
-  useEffect(() => {
-    if (step === "not_found" && !notFoundSpokenRef.current) {
-      notFoundSpokenRef.current = true;
-      speak({ text: t("noAccountFound"), type: "error", automatic: true });
-    }
-  }, [step, t, speak]);
-
-  const onEmailFocus = () => {
-    if (!emailSpokenRef.current) {
-      emailSpokenRef.current = true;
-      speak({ text: t("emailFocus"), type: "label", automatic: true });
-    }
-  };
-
-  const onPasswordFocus = () => {
-    if (!passwordSpokenRef.current) {
-      passwordSpokenRef.current = true;
-      speak({ text: t("passwordFocus"), type: "label", automatic: true });
-    }
-  };
 
   const checkEmail = async (e: FormEvent) => {
     e.preventDefault();
@@ -194,7 +155,6 @@ export default function LoginCard() {
               <label className="block text-[12px] font-semibold uppercase tracking-[0.04em]" style={{ color: "#555" }}>
                 Email Address
               </label>
-              <TTSButton text={t("emailFocus")} type="label" />
             </div>
             <div className="flex items-center w-full bg-white transition-all duration-150" style={{ borderRadius: "10px", border: "1.5px solid #D5D5D5" }}>
               <span className="flex items-center justify-center pl-[14px] shrink-0"><Mail size={16} stroke="#AAA" /></span>
@@ -203,7 +163,7 @@ export default function LoginCard() {
                 placeholder="you@example.com" autoFocus
                 className="w-full bg-transparent border-none px-[12px] py-[13px] text-[14px] outline-none"
                 style={{ fontFamily: "Poppins, sans-serif", borderRadius: "10px" }}
-                onFocus={(e) => { e.currentTarget.closest("div")!.style.borderColor = "#35319B"; e.currentTarget.closest("div")!.style.boxShadow = "0 0 0 3px rgba(53,49,155,0.08)"; onEmailFocus(); }}
+                onFocus={(e) => { e.currentTarget.closest("div")!.style.borderColor = "#35319B"; e.currentTarget.closest("div")!.style.boxShadow = "0 0 0 3px rgba(53,49,155,0.08)"; }}
                 onBlur={(e) => { e.currentTarget.closest("div")!.style.borderColor = "#D5D5D5"; e.currentTarget.closest("div")!.style.boxShadow = "none"; }}
               />
             </div>
@@ -249,7 +209,6 @@ export default function LoginCard() {
               <label className="block text-[12px] font-semibold uppercase tracking-[0.04em]" style={{ color: "#555" }}>
                 Password
               </label>
-              <TTSButton text={t("passwordFocus")} type="label" />
             </div>
             <div className="flex items-center w-full bg-white transition-all duration-150" style={{ borderRadius: "10px", border: "1.5px solid #D5D5D5" }}>
               <span className="flex items-center justify-center pl-[14px] shrink-0"><Lock size={16} stroke="#AAA" /></span>
@@ -258,7 +217,7 @@ export default function LoginCard() {
                 onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" autoFocus
                 className="w-full bg-transparent border-none px-[12px] py-[13px] text-[14px] outline-none"
                 style={{ fontFamily: "Poppins, sans-serif", borderRadius: "10px" }}
-                onFocus={(e) => { e.currentTarget.closest("div")!.style.borderColor = "#35319B"; e.currentTarget.closest("div")!.style.boxShadow = "0 0 0 3px rgba(53,49,155,0.08)"; onPasswordFocus(); }}
+                onFocus={(e) => { e.currentTarget.closest("div")!.style.borderColor = "#35319B"; e.currentTarget.closest("div")!.style.boxShadow = "0 0 0 3px rgba(53,49,155,0.08)"; }}
                 onBlur={(e) => { e.currentTarget.closest("div")!.style.borderColor = "#D5D5D5"; e.currentTarget.closest("div")!.style.boxShadow = "none"; }}
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)} className="flex items-center justify-center pr-[14px] bg-transparent border-none cursor-pointer shrink-0" tabIndex={-1}>

@@ -294,6 +294,28 @@ CREATE INDEX IF NOT EXISTS idx_org_admins_clerk ON organization_admins(clerk_use
 CREATE INDEX IF NOT EXISTS idx_consultation_leads_created ON consultation_leads(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_consultation_leads_status ON consultation_leads(status);
 
+-- ─── Support Tickets ────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS support_tickets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  issue_type TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT ''::text,
+  request_callback BOOLEAN NOT NULL DEFAULT false,
+  status TEXT NOT NULL DEFAULT 'open'::text,
+  raised_by TEXT NOT NULL,
+  raised_by_role TEXT NOT NULL CHECK (raised_by_role = ANY (ARRAY['member'::text, 'admin'::text, 'superadmin'::text])),
+  assigned_to TEXT,
+  organization_id UUID,
+  member_id UUID,
+  forwarded_by TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_support_tickets_org ON support_tickets(organization_id);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_raised_by ON support_tickets(raised_by, raised_by_role);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_status ON support_tickets(status);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_created_at ON support_tickets(created_at DESC);
+
 -- ─── RLS Policies (Permissive for Development) ────────────────────
 ALTER TABLE members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE assessments ENABLE ROW LEVEL SECURITY;
@@ -324,6 +346,13 @@ CREATE POLICY "anon_insert_reports" ON reports FOR INSERT TO anon WITH CHECK (tr
 
 CREATE POLICY "anon_all_consultation_leads" ON consultation_leads FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "authenticated_all_consultation_leads" ON consultation_leads FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+ALTER TABLE support_tickets ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "anon_insert_tickets" ON support_tickets FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "anon_select_tickets" ON support_tickets FOR SELECT TO anon USING (true);
+CREATE POLICY "anon_update_tickets" ON support_tickets FOR UPDATE TO anon USING (true);
+CREATE POLICY "anon_delete_tickets" ON support_tickets FOR DELETE TO anon USING (true);
 
 -- Public read access for reference tables
 CREATE POLICY "anon_select_questions" ON questions FOR SELECT TO anon USING (true);
