@@ -2,6 +2,24 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.33] — 2026-08-21 — Fix support ticket callback visibility and sender details
+
+### Fixed — Org-admin callback requests visibility
+- Org-admin `/admin/dashboard/notifications` now correctly shows only Member Callback Requests from members mapped under their organization.
+- Added server-side org auto-detection in `GET /api/support-tickets` from `organization_admins.clerk_user_id` so results are scoped even if the frontend omits the org filter.
+
+### Fixed — Support ticket sender details persistence
+- `POST /api/support-tickets` now resolves and persists sender details directly on the ticket at creation time.
+- Member lookup is now multi-layered: `clerk_user_id` → case-insensitive email lookup → `body.member_id`, with `organization_id` backfill from the resolved member.
+- `sender_name`, `sender_email`, `sender_phone`, and `sender_org` are now saved on the ticket row so dashboards can display them without re-joining member data.
+
+### Fixed — Member help page callback submission
+- Added the missing callback checkbox control to `/dashboard/help` so members can actually submit `request_callback: true`.
+- The member help form now sends `email: user?.email` to the API, giving the server a reliable fallback identifier for custom-auth members.
+
+### Added — Assessment member linkage
+- `createMemberAndStartAssessment` now accepts and persists `clerk_user_id` on `members`, so future callback requests can link back to the correct member record.
+
 ## [2.12.32] — 2026-08-19 — Add support ticket system with superadmin tickets page
 
 ### Added — Support ticket system

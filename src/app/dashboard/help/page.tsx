@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { HelpCircle, MessageCircle, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import SuccessModal from "@/components/dialogs/SuccessModal";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const MEMBER_ISSUE_TYPES = [
   "Assessment Issue",
@@ -15,19 +16,18 @@ const MEMBER_ISSUE_TYPES = [
 
 export default function HelpPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [issueType, setIssueType] = useState("");
   const [description, setDescription] = useState("");
   const [requestCallback, setRequestCallback] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [memberId, setMemberId] = useState<string | null>(null);
+  const [memberId, setMemberId] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("chronotype_member_id");
+  });
   const [successOpen, setSuccessOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-
-  useEffect(() => {
-    const stored = typeof window !== "undefined" ? localStorage.getItem("chronotype_member_id") : null;
-    if (stored) setMemberId(stored);
-  }, []);
 
   const handleSubmit = async () => {
     if (!issueType || !description.trim()) {
@@ -46,6 +46,7 @@ export default function HelpPage() {
           request_callback: requestCallback,
           raised_by_role: "member",
           member_id: memberId,
+          email: user?.email,
         }),
       });
       const data = await res.json();
@@ -65,11 +66,11 @@ export default function HelpPage() {
   const faqs = [
     {
       question: "How do I take the sleep assessment?",
-      answer: "Go to the Chronotype section from the sidebar and click 'Start Assessment'. Answer all questions honestly for the most accurate results. The assessment takes about 10-15 minutes to complete.",
+      answer: "Go to the Chronotype section from the sidebar and click &apos;Start Assessment&apos;. Answer all questions honestly for the most accurate results. The assessment takes about 10-15 minutes to complete.",
     },
     {
       question: "What is a chronotype?",
-      answer: "Your chronotype is your natural sleep-wake preference. It determines whether you're a morning person (Lark), night owl (Owl), or somewhere in between (Eagle). Understanding your chronotype helps optimize your daily schedule.",
+      answer: "Your chronotype is your natural sleep-wake preference. It determines whether you&apos;re a morning person (Lark), night owl (Owl), or somewhere in between (Eagle). Understanding your chronotype helps optimize your daily schedule.",
     },
     {
       question: "How often should I update my profile?",
@@ -102,7 +103,7 @@ export default function HelpPage() {
             Need More Help?
           </h1>
           <p className="text-[14px] md:text-[16px] opacity-90 max-w-[600px] mx-auto" style={{ fontFamily: "Poppins, sans-serif" }}>
-            We're here to help. If you're facing an issue or need assistance, simply request a call back and our team will get in touch with you.
+            We&apos;re here to help. If you&apos;re facing an issue or need assistance, simply request a call back and our team will get in touch with you.
           </p>
         </div>
 
@@ -144,7 +145,7 @@ export default function HelpPage() {
             Need More Help?
           </h2>
           <p className="text-[13px] md:text-[14px] mb-[4px]" style={{ fontFamily: "Poppins, sans-serif", color: "#666", lineHeight: "1.6" }}>
-            We're here to help. If you're facing an issue or need assistance, simply request a call back and our team will get in touch with you.
+            We&apos;re here to help. If you&apos;re facing an issue or need assistance, simply request a call back and our team will get in touch with you.
           </p>
           <p className="text-[13px] md:text-[14px] mb-[20px]" style={{ fontFamily: "Poppins, sans-serif", color: "#666", lineHeight: "1.6" }}>
             Our team will get back to you within 48 working hours.
@@ -183,6 +184,20 @@ export default function HelpPage() {
                 className="w-full rounded-[10px] border-none p-[12px] text-[13px] md:text-[14px] resize-y"
                 style={{ fontFamily: "Poppins, sans-serif", background: "#FFFFFF", border: "1px solid #E5E7EB", color: "#171717", outline: "none" }}
               />
+            </div>
+
+            <div className="flex items-center gap-[8px] mb-[12px]">
+              <input
+                type="checkbox"
+                id="request-callback"
+                checked={requestCallback}
+                onChange={(e) => setRequestCallback(e.target.checked)}
+                className="w-[16px] h-[16px] rounded-[4px] cursor-pointer"
+                style={{ accentColor: "#35319B" }}
+              />
+              <label htmlFor="request-callback" className="text-[13px] cursor-pointer" style={{ fontFamily: "Poppins, sans-serif", color: "#555" }}>
+                Request a callback
+              </label>
             </div>
 
             <div className="flex items-center justify-between mt-[12px]">

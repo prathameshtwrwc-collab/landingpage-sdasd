@@ -74,6 +74,7 @@ function CheckCircle() {
 export default function AssessmentModal() {
   const { isOpen, close, retestMemberId } = useAssessment();
   const { open: openConsult, openPrefilled: openConsultPrefilled } = useConsult();
+  const { user } = useAuth();
   const t = useTranslations("assessment");
   const { locale } = useAppLocale();
 
@@ -214,6 +215,7 @@ export default function AssessmentModal() {
           pincode: "",
           occupation: "",
           member_id: retestMemberId,
+          clerk_user_id: user?.id,
         });
         setMemberId(result.memberId);
         setAssessmentId(result.assessmentId);
@@ -317,6 +319,7 @@ export default function AssessmentModal() {
         occupation: form.occupation,
         org_code: form.orgCode || undefined,
         referral_code: form.referralCode || undefined,
+        clerk_user_id: user?.id,
       });
       setMemberId(result.memberId);
       setAssessmentId(result.assessmentId);

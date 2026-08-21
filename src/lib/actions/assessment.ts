@@ -68,6 +68,7 @@ export async function createMemberAndStartAssessment(data: {
   org_code?: string;
   referral_code?: string;
   member_id?: string;
+  clerk_user_id?: string;
 }) {
   const supabase = await createClient();
 
@@ -100,6 +101,7 @@ export async function createMemberAndStartAssessment(data: {
         department: data.department || null, country: data.country || null, location: data.location || null,
         city: data.city || null, pincode: data.pincode || null, occupation: data.occupation || null,
         organization_id: organizationId, source_type: sourceType, referral_code: data.referral_code || null,
+        clerk_user_id: data.clerk_user_id || null,
       }).eq("id", memberId);
     } else {
       // One email = one role. Refuse to register a member with an email that
@@ -125,6 +127,7 @@ export async function createMemberAndStartAssessment(data: {
         department: data.department || null, country: data.country || null, location: data.location || null,
         city: data.city || null, pincode: data.pincode || null, occupation: data.occupation || null,
         organization_id: organizationId, source_type: sourceType, referral_code: data.referral_code || null,
+        clerk_user_id: data.clerk_user_id || null,
       };
       const { data: member, error } = await supabase.from("members").insert(memberData).select().single();
       if (error) throw new Error(error.message);

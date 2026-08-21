@@ -36,19 +36,11 @@ export default function NotificationsPage() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const [orgId, setOrgId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [senderTicket, setSenderTicket] = useState<Ticket | null>(null);
 
-  useEffect(() => {
-    const stored = typeof window !== "undefined" ? localStorage.getItem("chronotype_org_id") : null;
-    if (stored) setOrgId(stored);
-  }, []);
-
   const fetchTickets = useCallback((p: number, query = search) => {
-    setLoading(true);
-    const params = new URLSearchParams({ limit: String(PAGE_SIZE), offset: String((p - 1) * PAGE_SIZE), role: "member" });
-    if (orgId) params.set("organization_id", orgId);
+    const params = new URLSearchParams({ limit: String(PAGE_SIZE), offset: String((p - 1) * PAGE_SIZE), role: "member", request_callback: "true" });
     if (query) params.set("search", query);
     cachedFetch(`/api/support-tickets?${params.toString()}`).then((d: any) => {
       setTickets(Array.isArray(d?.data) ? d.data : []);
@@ -57,12 +49,18 @@ export default function NotificationsPage() {
       setPage(d?.offset ? Math.floor(d.offset / PAGE_SIZE) + 1 : p);
       setLoading(false);
     }).catch(() => setLoading(false));
-  }, [search, orgId]);
+  }, [search]);
 
-  useEffect(() => { fetchTickets(search ? 1 : page); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+  useEffect(() => {
+    fetchTickets(search ? 1 : page);
+  });
 
   const goPage = (p: number) => {
-    if (p >= 1 && p <= totalPages) { setPage(p); fetchTickets(p); }
+    if (p >= 1 && p <= totalPages) {
+      setLoading(true);
+      setPage(p);
+      fetchTickets(p);
+    }
   };
 
   const updateStatus = async (id: string, status: string) => {
@@ -257,7 +255,7 @@ export default function NotificationsPage() {
               </button>
             </div>
           </div>
-       )}
+         )}
       </div>
 
       {senderTicket && (
