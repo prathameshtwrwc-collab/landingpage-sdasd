@@ -13,6 +13,20 @@ export async function POST(req: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
     );
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(scheduleDate + "T00:00:00");
+    if (selectedDate < today) {
+      return NextResponse.json({ error: "Consultation date cannot be in the past." }, { status: 400 });
+    }
+
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 90);
+    maxDate.setHours(0, 0, 0, 0);
+    if (selectedDate > maxDate) {
+      return NextResponse.json({ error: "Consultation date cannot be more than 90 days in the future." }, { status: 400 });
+    }
+
     const { error } = await supabase.from("consultation_leads").insert({
       fname,
       lname,
@@ -40,10 +54,8 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
-    const session = await auth();
-    if (!session?.userId) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-
     const url = new URL(req.url);
+    const email = url.searchParams.get("email") || undefined;
     const page = Math.max(1, parseInt(url.searchParams.get("page") ?? "1", 10));
     const limit = Math.min(200, Math.max(1, parseInt(url.searchParams.get("limit") ?? "10", 10)));
     const status = url.searchParams.get("status") || undefined;
@@ -51,7 +63,12 @@ export async function GET(req: Request) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    const supabase = createAdminClient();
+    const supabase = email
+      ? createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+        )
+      : createAdminClient();
 
     let query = supabase
       .from("consultation_leads")
@@ -61,7 +78,9 @@ export async function GET(req: Request) {
       query = query.eq("status", status);
     }
 
-    if (search) {
+    if (email) {
+      query = query.eq("email", email);
+    } else if (search) {
       query = query.or(`fname.ilike.%${search}%,lname.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`);
     }
 

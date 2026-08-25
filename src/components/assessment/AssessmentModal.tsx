@@ -277,6 +277,7 @@ export default function AssessmentModal() {
     }
     if (!form.location.trim()) e.location = req;
     if (!form.occupation.trim()) e.occupation = req;
+    if (form.occupation.startsWith("Other:") && !form.occupation.replace("Other: ", "").trim()) e.occupation = req;
     if (!form.email.trim()) {
       e.email = req;
     } else if (!form.email.includes("@")) {
@@ -638,7 +639,21 @@ export default function AssessmentModal() {
               <Field label={t("department")} value={form.department} onChange={(v) => updateForm("department", v)} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label={t("country")} value={form.country} onChange={(v) => updateForm("country", v)} error={errors.country} ttsLabel={t("country")} />
+              <div>
+                <label className="text-[12px] font-medium mb-[6px] block" style={{ fontFamily: "Poppins, sans-serif", color: "#555" }}>{t("country")}</label>
+                <select
+                  value={form.country}
+                  onChange={(e) => updateForm("country", e.target.value)}
+                  className="w-full rounded-[10px] border-none p-[12px] text-[13px] md:text-[14px] appearance-none"
+                  style={{ fontFamily: "Poppins, sans-serif", background: "#FFFFFF", border: "1px solid #E5E7EB", color: "#171717", outline: "none" }}
+                >
+                  <option value="">{t("selectPlaceholder")}</option>
+                  {COUNTRY_CODES.map((c) => (
+                    <option key={c.code} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
+                {errors.country && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{errors.country}</p>}
+              </div>
               <Field label={t("city")} value={form.city} onChange={(v) => updateForm("city", v)} error={errors.city} ttsLabel={t("city")} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">

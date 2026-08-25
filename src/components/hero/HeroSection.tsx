@@ -436,7 +436,7 @@ export default function HeroSection() {
               transition: transform 0.25s ease;
             }
             .hero-benefit-media:hover img {
-              transform: scale(1.08) !important;
+              transform: scale(1.3) !important;
             }
             .hero-benefit:not(:last-child)::after {
               content: "";

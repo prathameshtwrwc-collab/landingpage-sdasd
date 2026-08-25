@@ -20,8 +20,19 @@ interface ConsultForm {
   scheduleTime: string;
 }
 
+const MAX_BOOKING_DAYS = 90;
+
 function todayStr() {
   const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function maxBookingStr() {
+  const d = new Date();
+  d.setDate(d.getDate() + MAX_BOOKING_DAYS);
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
@@ -407,6 +418,8 @@ function DateField({
   label: string; value: string; onChange: (v: string) => void; error?: string;
 }) {
   const t = useTranslations("consult");
+  const min = todayStr();
+  const max = maxBookingStr();
   return (
     <div>
       <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
@@ -415,6 +428,8 @@ function DateField({
       <input
         type="date"
         value={value}
+        min={min}
+        max={max}
         onChange={(e) => onChange(e.target.value)}
         className="w-full px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
         style={{

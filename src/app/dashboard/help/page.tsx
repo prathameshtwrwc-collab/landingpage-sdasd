@@ -30,8 +30,8 @@ export default function HelpPage() {
   const [successMessage, setSuccessMessage] = useState("");
 
   const handleSubmit = async () => {
-    if (!issueType || !description.trim()) {
-      alert("Please select an issue type and describe your issue.");
+    if (!issueType) {
+      alert("Please select an issue type.");
       return;
     }
     setSubmitting(true);
