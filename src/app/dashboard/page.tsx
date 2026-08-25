@@ -312,6 +312,15 @@ I'm excited to know what your result is!`;
                 Know More <ArrowRight size={14} />
               </button>
             )}
+            {Boolean(memberRecord?.id) && (
+              <button type="button" onClick={() => openForRetest(String(memberRecord?.id as string))}
+                className="inline-flex items-center gap-[4px] text-[12px] font-semibold px-[12px] py-[6px] rounded-lg border-none cursor-pointer transition-all hover:-translate-y-[0.5px]"
+                style={{ color: "#35319B", background: "rgba(53,49,155,0.08)", fontFamily: "Poppins, sans-serif" }}
+                title="Retake assessment">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ marginRight: "4px" }}><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                Retake Test
+              </button>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-[16px] mt-[8px]">
             <span className="text-[13px]" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>
