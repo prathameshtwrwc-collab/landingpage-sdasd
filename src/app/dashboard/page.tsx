@@ -283,7 +283,10 @@ I'm excited to know what your result is!`;
   };
 
   return (
-    <DashboardShell orgCode={data?.orgCode || undefined}>
+    <DashboardShell
+      orgCode={data?.orgCode || undefined}
+      retakeMemberId={memberRecord?.id ? String(memberRecord.id) : undefined}
+    >
       <div
         className="relative overflow-hidden rounded-[20px] p-[24px] md:p-[32px] mb-[24px] md:mb-[28px]"
         style={{ background: cardGradient }}

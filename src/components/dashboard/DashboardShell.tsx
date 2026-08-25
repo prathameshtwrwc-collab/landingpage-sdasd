@@ -10,9 +10,10 @@ import {
   Gauge, MoonStar, BatteryCharging, Lightbulb, ChartNoAxesCombined,
   CircleUserRound, SlidersHorizontal, HelpCircle,
   IdCard, ClipboardCheck, ChartSpline, Brush, QrCode, BellRing, UserCog, Settings2,
-  LayoutGrid, NotebookPen, Landmark, UsersRound, ScrollText, PhoneCall, ChartPie, History, Cpu, Ticket
+  LayoutGrid, NotebookPen, Landmark, UsersRound, ScrollText, PhoneCall, ChartPie, History, Cpu, Ticket, RefreshCw
 } from "lucide-react";
 import DonateModal from "@/components/DonateModal";
+import { useAssessment } from "@/components/assessment/AssessmentContext";
 
 interface NavItem {
   label: string;
@@ -137,12 +138,15 @@ export default function DashboardShell({
   children,
   title,
   orgCode,
+  retakeMemberId,
 }: {
   children: ReactNode;
   title?: string;
   orgCode?: string;
+  retakeMemberId?: string;
 }) {
   const { user, logout, isLoading } = useAuth();
+  const { openForRetest } = useAssessment();
   const pathname = usePathname();
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
@@ -375,11 +379,25 @@ export default function DashboardShell({
         {/* Top header */}
         <header className="sticky top-0 z-30 flex items-center justify-between px-[14px] md:px-[32px] h-[56px] md:h-[68px]"
           style={{ background: darkMode ? "#16162A" : "#FFFFFF", borderBottom: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA" }}>
-          <div>
-            <h1 className="m-0 text-[16px] md:text-[22px] font-bold tracking-[-0.02em]"
-              style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, color: darkMode ? "#E0E0E0" : "#19164F" }}>
-              {title || (activeItem?.label ?? "Dashboard")}
-            </h1>
+          <div className="flex items-center gap-[10px] min-w-0">
+            <div>
+              <h1 className="m-0 text-[16px] md:text-[22px] font-bold tracking-[-0.02em]"
+                style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, color: darkMode ? "#E0E0E0" : "#19164F" }}>
+                {title || (activeItem?.label ?? "Dashboard")}
+              </h1>
+            </div>
+            {user?.role === "member" && retakeMemberId && (
+              <button
+                type="button"
+                onClick={() => openForRetest(retakeMemberId)}
+                className="inline-flex items-center gap-[6px] text-[11px] md:text-[12px] font-semibold px-[10px] md:px-[12px] py-[6px] md:py-[7px] rounded-lg border-none cursor-pointer transition-all hover:-translate-y-[0.5px] shrink-0"
+                style={{ color: "#35319B", background: "rgba(53,49,155,0.08)", fontFamily: "Poppins, sans-serif" }}
+                title="Retake assessment"
+              >
+                <RefreshCw size={13} />
+                Retake Test
+              </button>
+            )}
           </div>
           {user && (
             <div ref={avatarRef} className="relative">
