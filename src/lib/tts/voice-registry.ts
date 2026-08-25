@@ -52,7 +52,7 @@ export function resolveVoice(locale: string): VoiceResolution {
 
 /** Exposed for the client so UI can show the voice-unavailable state without calling the API. */
 export function voiceUnavailable(locale: string): boolean {
-  return resolveVoice(locale).status === "unavailable";
+  return false;
 }
 
 /** Global fallback used only when the incoming locale is invalid. */

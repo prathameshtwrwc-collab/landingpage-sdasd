@@ -63,6 +63,12 @@ export default function TTSButton({
   const iconBase = isMobile ? size * 1.1 : size * 0.85;
 
   useEffect(() => {
+    if (isCurrent) {
+      setIsGenerating(false);
+    }
+  }, [isCurrent]);
+
+  useEffect(() => {
     const mql = window.matchMedia("(max-width: 640px)");
     setIsMobile(mql.matches);
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);

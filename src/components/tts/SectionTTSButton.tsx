@@ -104,6 +104,12 @@ export default function SectionTTSButton({ className = "", scheme = "light" }: S
   const iconSmall = isMobile ? 13 : 12;
 
   useEffect(() => {
+    if (isSpeaking) {
+      setIsGenerating(false);
+    }
+  }, [isSpeaking]);
+
+  useEffect(() => {
     const mql = window.matchMedia("(max-width: 640px)");
     setIsMobile(mql.matches);
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);

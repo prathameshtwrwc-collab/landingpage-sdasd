@@ -1,13 +1,13 @@
-import { TTSProvider } from "../tts-types";
-import { resolveProvider } from "../tts-config";
-import { ElevenLabsProvider } from "./elevenlabs-provider";
+import { TTSProvider, TTSResult } from "../tts-types";
+
+export class NativeTTSUnavailableError extends Error {}
+
+export class NativeTTSProvider implements TTSProvider {
+  async synthesize(): Promise<TTSResult> {
+    throw new NativeTTSUnavailableError("ElevenLabs TTS is disabled. Use native browser speech synthesis instead.");
+  }
+}
 
 export function getTTSProvider(): TTSProvider {
-  const provider = resolveProvider();
-  switch (provider) {
-    case "elevenlabs":
-      return new ElevenLabsProvider();
-    default:
-      return new ElevenLabsProvider();
-  }
+  return new NativeTTSProvider();
 }
