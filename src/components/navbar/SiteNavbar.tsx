@@ -15,8 +15,8 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { key: "chronotypes", href: "#chronotypes", id: "chronotypes" },
-  { key: "sleepScience", href: "#why-sleep-matters", id: "why-sleep-matters" },
   { key: "sleepBenefits", href: "#better-sleep-better-days", id: "better-sleep-better-days" },
+  { key: "sleepScience", href: "#why-sleep-matters", id: "why-sleep-matters" },
   { key: "sleepDisorders", href: "#common-sleep-disorders", id: "common-sleep-disorders" },
   { key: "faq", href: "#faq-section", id: "faq-section" },
 ];

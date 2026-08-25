@@ -708,7 +708,7 @@ export default function HeroSection() {
                     onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                     className={`hero-benefit-img hero-benefit-img-${imgIdx}`}
                     style={{
-                      transform: imgIdx === 2 ? "scale(1.25)" : imgIdx === 1 ? "scale(1.1)" : "scale(1.08)",
+                      transform: "scale(1.08)",
                     }}
                   />
                 </div>

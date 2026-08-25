@@ -153,8 +153,8 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { issue_type, description, request_callback, raised_by_role, organization_id, member_id, email } = body;
 
-    if (!issue_type || !description) {
-      return NextResponse.json({ error: "issue_type and description are required" }, { status: 400 });
+    if (!issue_type) {
+      return NextResponse.json({ error: "issue_type is required" }, { status: 400 });
     }
 
     const supabase = await createClient();
