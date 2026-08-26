@@ -89,6 +89,19 @@ export default function AssessmentModal() {
   const [serverError, setServerError] = useState("");
   const [showTerms, setShowTerms] = useState(false);
 
+  // Email verification
+  const [verifyState, setVerifyState] = useState<"idle" | "send" | "verify" | "verified">("idle");
+  const [otp, setOtp] = useState("");
+  const [verifyError, setVerifyError] = useState("");
+  const [verificationEmail, setVerificationEmail] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+
+  // Existing member check
+  const [existingMember, setExistingMember] = useState<Record<string, unknown> | null>(null);
+  const [showExistingMemberModal, setShowExistingMemberModal] = useState(false);
+  const [updateExistingMember, setUpdateExistingMember] = useState(false);
+  const [checkingExisting, setCheckingExisting] = useState(false);
+
   // URL-detected codes (locked fields)
   const [lockedFields, setLockedFields] = useState<{ orgCode: boolean; referralCode: boolean }>({ orgCode: false, referralCode: false });
 
@@ -187,6 +200,17 @@ export default function AssessmentModal() {
       window.scrollTo(0, scrollY);
     };
   }, [isOpen]);
+
+  // Reset email verification when email changes
+  useEffect(() => {
+    if (verifyState === "verified" && form.email !== verificationEmail) {
+      setVerifyState("idle");
+      setOtp("");
+      setOtpSent(false);
+      setVerificationEmail("");
+      setVerifyError("");
+    }
+  }, [form.email, verificationEmail, verifyState]);
 
   // Handle retest for a logged-in member: never show the details form.
   // If the last attempt was left mid-way (STARTED), offer resume / start-over.
@@ -299,11 +323,174 @@ export default function AssessmentModal() {
     return Object.keys(e).length === 0;
   };
 
+  const sendOtp = async () => {
+    if (!form.email.trim()) return;
+    setVerifyError("");
+    setVerifyState("send");
+    try {
+      const res = await fetch("/api/verify-email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to send verification code");
+      setVerificationEmail(form.email.trim());
+      setOtpSent(true);
+      setVerifyState("verify");
+    } catch (err) {
+      setVerifyError(err instanceof Error ? err.message : "Failed to send verification code");
+      setVerifyState("idle");
+    }
+  };
+
+  const confirmOtp = async () => {
+    if (!otp.trim() || !verificationEmail) return;
+    setVerifyError("");
+    setVerifyState("send");
+    try {
+      const res = await fetch("/api/verify-email/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: verificationEmail, code: otp.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Invalid verification code");
+      setVerifyState("verified");
+    } catch (err) {
+      setVerifyError(err instanceof Error ? err.message : "Invalid verification code");
+      setVerifyState("verify");
+    }
+  };
+
+  const checkExistingMember = async (email: string): Promise<boolean> => {
+    setCheckingExisting(true);
+    try {
+      const res = await fetch(`/api/member?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      if (data.member) {
+        setExistingMember(data.member);
+        setShowExistingMemberModal(true);
+        return true;
+      } else {
+        setExistingMember(null);
+        setShowExistingMemberModal(false);
+        return false;
+      }
+    } catch {
+      setExistingMember(null);
+      setShowExistingMemberModal(false);
+      return false;
+    } finally {
+      setCheckingExisting(false);
+    }
+  };
+
+  const handleUpdateExistingMember = async () => {
+    if (!existingMember?.id) return;
+    setShowExistingMemberModal(false);
+    setUpdateExistingMember(true);
+    try {
+      await createMemberAndStartAssessment({
+        first_name: form.fname,
+        last_name: form.lname,
+        age: form.age,
+        email: form.email,
+        phone: `${form.phoneDial}${form.phone}`,
+        gender: form.gender,
+        marital_status: form.maritalStatus,
+        department: form.department,
+        country: form.country,
+        location: form.location,
+        city: form.city,
+        pincode: form.pincode,
+        occupation: form.occupation,
+        org_code: form.orgCode || undefined,
+        referral_code: form.referralCode || undefined,
+        member_id: existingMember.id as string,
+        clerk_user_id: user?.id,
+      }).then((result) => {
+        setMemberId(result.memberId);
+        setAssessmentId(result.assessmentId);
+        if ("hasExistingAssessment" in result && result.hasExistingAssessment) {
+          setExistingAssessment({
+            resumeIndex: (result as Record<string, unknown>).resumeIndex as number,
+            existingAnswers: (result as Record<string, unknown>).existingAnswers as Record<number, string>,
+            prevAssessmentId: result.assessmentId,
+          });
+        } else {
+          setStep(1);
+          setAnswers({});
+        }
+      });
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : t("failedStart"));
+    } finally {
+      setUpdateExistingMember(false);
+    }
+  };
+
+  const handleKeepExistingMember = async () => {
+    if (!existingMember?.id) return;
+    setShowExistingMemberModal(false);
+    setUpdateExistingMember(true);
+    try {
+      await createMemberAndStartAssessment({
+        first_name: form.fname,
+        last_name: form.lname,
+        age: form.age,
+        email: form.email,
+        phone: `${form.phoneDial}${form.phone}`,
+        gender: form.gender,
+        marital_status: form.maritalStatus,
+        department: form.department,
+        country: form.country,
+        location: form.location,
+        city: form.city,
+        pincode: form.pincode,
+        occupation: form.occupation,
+        org_code: form.orgCode || undefined,
+        referral_code: form.referralCode || undefined,
+        member_id: existingMember.id as string,
+        clerk_user_id: user?.id,
+      }).then((result) => {
+        setMemberId(result.memberId);
+        setAssessmentId(result.assessmentId);
+        if ("hasExistingAssessment" in result && result.hasExistingAssessment) {
+          setExistingAssessment({
+            resumeIndex: (result as Record<string, unknown>).resumeIndex as number,
+            existingAnswers: (result as Record<string, unknown>).existingAnswers as Record<number, string>,
+            prevAssessmentId: result.assessmentId,
+          });
+        } else {
+          setStep(1);
+          setAnswers({});
+        }
+      });
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : t("failedStart"));
+    } finally {
+      setUpdateExistingMember(false);
+    }
+  };
+
   const submitForm = async () => {
     if (!validateForm()) return;
+    if (verifyState !== "verified") {
+      await sendOtp();
+      return;
+    }
+
     setLoading(true);
     setServerError("");
+
     try {
+      const exists = await checkExistingMember(form.email.trim());
+      if (exists) {
+        setLoading(false);
+        return;
+      }
+
       const result = await createMemberAndStartAssessment({
         first_name: form.fname,
         last_name: form.lname,
@@ -325,7 +512,6 @@ export default function AssessmentModal() {
       setMemberId(result.memberId);
       setAssessmentId(result.assessmentId);
 
-      // Resume support: if user has an in-progress assessment, show prompt
       if ("hasExistingAssessment" in result && result.hasExistingAssessment) {
         setExistingAssessment({
           resumeIndex: (result as Record<string, unknown>).resumeIndex as number,
@@ -406,6 +592,14 @@ export default function AssessmentModal() {
     setMemberId("");
     setAssessmentId("");
     setLockedFields({ orgCode: false, referralCode: false });
+    setVerifyState("idle");
+    setOtp("");
+    setVerifyError("");
+    setVerificationEmail("");
+    setOtpSent(false);
+    setExistingMember(null);
+    setShowExistingMemberModal(false);
+    setUpdateExistingMember(false);
     close();
   };
 
@@ -733,6 +927,51 @@ export default function AssessmentModal() {
                 {errors.phone && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{errors.phone}</p>}
               </div>
             </div>
+
+            {verifyState !== "verified" && form.email.trim() ? (
+              <div className="mb-[14px]">
+                <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+                  Verify Email
+                </label>
+                <div className="flex flex-col sm:flex-row gap-[8px]">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={6}
+                    placeholder="Enter verification code"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                    className="flex-1 px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
+                    style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={otpSent ? confirmOtp : sendOtp}
+                    disabled={verifyState === "send" || (!otpSent && !form.email.trim())}
+                    className="px-[16px] py-[10px] text-[13px] font-semibold border-none cursor-pointer transition-colors disabled:opacity-60"
+                    style={{ borderRadius: "8px", background: "#35319B", color: "#FFF", fontFamily: "Poppins, sans-serif", whiteSpace: "nowrap" }}
+                  >
+                    {verifyState === "send" ? "Please wait..." : otpSent ? "Verify Code" : "Send Code"}
+                  </button>
+                </div>
+                {verifyError && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{verifyError}</p>}
+                {otpSent && (
+                  <p className="m-0 text-[12px] mt-[3px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
+                    Verification code sent to {form.email.trim()}
+                  </p>
+                )}
+              </div>
+            ) : form.email.trim() && verifyState === "verified" ? (
+              <div className="mb-[14px] flex items-center gap-[8px]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span className="text-[13px] font-medium" style={{ color: "#16a34a", fontFamily: "Poppins, sans-serif" }}>
+                  Email verified successfully
+                </span>
+              </div>
+            ) : null}
             <div className="mb-[14px]">
               <Field label={t("state")} value={form.location} onChange={(v) => updateForm("location", v)} error={errors.location} />
             </div>
@@ -774,7 +1013,7 @@ export default function AssessmentModal() {
               className="w-full bg-[#3B35A3] hover:bg-[#2D2890] text-white text-[15px] font-semibold py-[14px] border-none cursor-pointer transition-colors disabled:opacity-60"
               style={{ borderRadius: "10px", fontFamily: "Poppins, sans-serif", letterSpacing: "0.01em" }}
             >
-              {loading ? t("creatingAccount") : t("startAssessment")}
+              {loading ? t("creatingAccount") : verifyState === "verified" ? t("startAssessment") : "Verify Email to Start"}
             </button>
           </div>
         ) : loading && !questions.length ? (
@@ -798,6 +1037,49 @@ export default function AssessmentModal() {
         ) : (
           <div className="flex items-center justify-center py-[60px]">
             <p className="text-[14px] text-[#888]" style={{ fontFamily: "Poppins, sans-serif" }}>{t("loadingQuestions")}</p>
+          </div>
+        )}
+
+        {/* Existing Member Modal */}
+        {showExistingMemberModal && existingMember && (
+          <div
+            className="fixed inset-0 z-[10000] flex items-center justify-center p-[16px]"
+            style={{ background: "rgba(15,23,42,0.5)", backdropFilter: "blur(2px)" }}
+            onClick={(e) => { if (e.target === e.currentTarget) setShowExistingMemberModal(false); }}
+          >
+            <div
+              className="w-full max-w-[420px] rounded-[16px] overflow-hidden"
+              style={{ background: "#FFFFFF", boxShadow: "0 16px 40px rgba(0,0,0,0.18)", fontFamily: "Poppins, sans-serif" }}
+            >
+              <div className="px-[20px] py-[16px]" style={{ borderBottom: "1px solid #F1F4FA", background: "#F8F9FF" }}>
+                <h3 className="m-0 text-[15px] font-bold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>Existing Member Detected</h3>
+              </div>
+              <div className="px-[20px] py-[16px]">
+                <p className="m-0 text-[13px] leading-[1.6] mb-[12px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
+                  You are an existing member. The personal details you entered are different from your existing profile. Would you like to update your details with the new information, or keep your previous details?
+                </p>
+                <div className="flex flex-col gap-[10px]">
+                  <button
+                    type="button"
+                    onClick={handleUpdateExistingMember}
+                    disabled={updateExistingMember}
+                    className="w-full text-white text-[14px] font-semibold py-[12px] border-none cursor-pointer transition-colors disabled:opacity-60"
+                    style={{ borderRadius: "10px", background: "linear-gradient(135deg, #35319B, #5A55C0)", fontFamily: "Poppins, sans-serif" }}
+                  >
+                    {updateExistingMember ? "Updating..." : "Update with new details"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleKeepExistingMember}
+                    disabled={updateExistingMember}
+                    className="w-full text-[14px] font-medium py-[12px] border-none cursor-pointer transition-colors disabled:opacity-60"
+                    style={{ borderRadius: "10px", background: "#F5F5F5", color: "#666", fontFamily: "Poppins, sans-serif" }}
+                  >
+                    Keep existing details
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
