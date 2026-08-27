@@ -89,54 +89,85 @@ export async function createOrganizationInternal(formData: FormData) {
 }
 
 export async function createOrganizationAdminInternal(formData: FormData) {
-  const firstName = formData.get("first_name") as string;
-  const lastName = formData.get("last_name") as string;
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const organizationId = formData.get("organization_id") as string;
+  try {
+    const firstName = formData.get("first_name") as string;
+    const lastName = formData.get("last_name") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const organizationId = formData.get("organization_id") as string;
 
-  if (!firstName || !lastName || !email || !password || !organizationId) {
-    throw new Error("All fields are required (including password)");
+    if (!firstName || !lastName || !email || !password || !organizationId) {
+      return { error: "All fields are required (including password)" };
+    }
+
+    const supabase = createAdminClient();
+
+    const emailLower = email.toLowerCase().trim();
+
+    const { data: member } = await supabase
+      .from("members")
+      .select("id")
+      .eq("email", emailLower)
+      .maybeSingle();
+    if (member) {
+      return { error: "This email already exists as a member. Please use a different email." };
+    }
+
+    const { data: existingAdmin } = await supabase
+      .from("organization_admins")
+      .select("id, role")
+      .eq("email", emailLower)
+      .maybeSingle();
+    if (existingAdmin) {
+      return {
+        error:
+          existingAdmin.role === "superadmin"
+            ? "This email already exists as a superadmin. Please use a different email."
+            : "This email already exists as an organization admin. Please use a different email.",
+      };
+    }
+
+    const { data: existingOrg } = await supabase
+      .from("organizations")
+      .select("id")
+      .eq("id", organizationId)
+      .single();
+
+    if (!existingOrg) return { error: "Organization not found" };
+
+    const clerk = await clerkClient();
+
+    const existingClerkUsers = await clerk.users.getUserList({
+      emailAddress: [emailLower],
+    });
+
+    if (existingClerkUsers.totalCount > 0) {
+      return { error: "This email is already registered. Please use a different email." };
+    }
+
+    const clerkUser = await clerk.users.createUser({
+      emailAddress: [email],
+      password,
+      firstName,
+      lastName,
+      publicMetadata: { role: "admin" },
+    });
+
+    const { error } = await supabase.from("organization_admins").insert({
+      organization_id: organizationId,
+      clerk_user_id: clerkUser.id,
+      first_name: firstName,
+      last_name: lastName,
+      email: emailLower,
+      role: "admin",
+    });
+
+    if (error) return { error: error.message };
+
+    return { success: true };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Failed to create admin" };
   }
-
-  const supabase = createAdminClient();
-
-  // An email can only belong to one role: member, org admin, or superadmin.
-  // Reject creating an admin when the email already exists under another role
-  // (or as another admin), instead of silently splitting the account.
-  await assertEmailNotInUse(supabase, email, { excludeAdminId: undefined });
-
-  const { data: existingOrg } = await supabase
-    .from("organizations")
-    .select("id")
-    .eq("id", organizationId)
-    .single();
-
-  if (!existingOrg) throw new Error("Organization not found");
-
-  // Create Clerk user with password
-  const clerk = await clerkClient();
-  const clerkUser = await clerk.users.createUser({
-    emailAddress: [email],
-    password,
-    firstName,
-    lastName,
-    publicMetadata: { role: "admin" },
-  });
-
-  // Insert into organization_admins with clerk_user_id
-  const { error } = await supabase.from("organization_admins").insert({
-    organization_id: organizationId,
-    clerk_user_id: clerkUser.id,
-    first_name: firstName,
-    last_name: lastName,
-    email,
-    role: "admin",
-  });
-
-  if (error) throw new Error(error.message);
-
-  return { success: true };
 }
 
 export async function toggleOrgActiveLinkInternal(orgId: string, active: boolean) {

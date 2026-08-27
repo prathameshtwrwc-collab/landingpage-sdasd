@@ -205,6 +205,18 @@ CREATE TABLE IF NOT EXISTS reports (
   result_id UUID REFERENCES chronotype_results(id)
 );
 
+-- ─── Email Verifications ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS email_verifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT NOT NULL UNIQUE,
+  code TEXT NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  verified BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_email_verifications_email ON email_verifications(email);
+
 -- ─── Organization Links ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS organization_links (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

@@ -102,8 +102,13 @@ export default function UsersPage() {
     Object.entries(form).forEach(([k, v]) => fd.append(k, v));
     try {
       const r = await fetch("/api/admin?action=create_admin", { method: "POST", body: fd });
-      const d = await r.json().catch(() => ({}));
-      if (d.error) { setServerError(d.error); return; }
+      const text = await r.text();
+      let d: Record<string, unknown> = {};
+      try { d = JSON.parse(text); } catch { d = {}; }
+      if (!r.ok || d.error) {
+        setServerError((d.error as string) || `Request failed with status ${r.status}`);
+        return;
+      }
       setShowForm(false);
       setForm({ first_name: "", last_name: "", email: "", password: "", organization_id: "" });
       await loadData();
