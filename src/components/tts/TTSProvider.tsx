@@ -293,12 +293,10 @@ export function TTSProvider({ children }: { children: ReactNode }) {
         window.speechSynthesis.speaking &&
         (status === "idle" || status === "paused")
       ) {
-        if (priority === "LOW") return;
         window.speechSynthesis.cancel();
       }
 
       if (status !== "idle" && status !== "paused") {
-        if (priority === "LOW") return;
         stop();
       }
 
@@ -352,9 +350,7 @@ export function TTSProvider({ children }: { children: ReactNode }) {
           // native TTS also failed — silent
         }
       } finally {
-        if (!serverFailed) {
-          inflightRef.current.delete(key);
-        }
+        inflightRef.current.delete(key);
       }
     },
     [enabled, locale, status, stop, ensureAudio, playBuffer]

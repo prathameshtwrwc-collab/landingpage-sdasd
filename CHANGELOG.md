@@ -2,6 +2,18 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.34] — 2026-08-28 — Fix TTS listen button replay and inflight leak
+
+### Fixed — TTS listen button replay after stop
+- `TTSProvider` now correctly restarts speech synthesis when the listen icon is clicked again after stopping.
+- Removed priority guard that prevented low-priority requests from retriggering `speechSynthesis.cancel()` after a stop.
+
+### Fixed — TTS inflight leak on server failure
+- `inflightRef` now always removes the request key in `finally`, preventing duplicate requests from being silently dropped after a failed `/api/tts` call.
+
+### Changed — Repository sync
+- Pulled latest upstream changes and resolved merge conflict in `tsconfig.tsbuildinfo`.
+
 ## [2.12.33] — 2026-08-21 — Fix support ticket callback visibility and sender details
 
 ### Fixed — Org-admin callback requests visibility
