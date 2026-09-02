@@ -1,4 +1,4 @@
-# Sleep Wellness Health-Tech Landing — Arena
+# Sleep  Landing — Arena
 
 Full-stack Next.js (App Router) + PostgreSQL via Drizzle ORM + Tailwind CSS v4.
 
