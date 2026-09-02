@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS organizations (
   country TEXT,
   logo_url TEXT,
   settings_json JSONB NOT NULL DEFAULT '{}',
+  share_message_template TEXT NOT NULL DEFAULT '',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   branding_logo TEXT,

@@ -26,6 +26,24 @@ export async function GET(req: Request) {
       }
 
       const org = await getOrganizationDetails(admin.organization_id);
+
+      let brandingLogo = org.branding_logo ?? "";
+      let brandingCompany = org.branding_company ?? "";
+
+      try {
+        const { data: link } = await supabase
+          .from("organization_links")
+          .select("branding_logo, branding_company")
+          .eq("organization_id", admin.organization_id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (link) {
+          if (!brandingLogo && link.branding_logo) brandingLogo = link.branding_logo as string;
+          if (!brandingCompany && link.branding_company) brandingCompany = link.branding_company as string;
+        }
+      } catch {}
+
       return NextResponse.json({
         id: org.id,
         name: org.name,
@@ -38,8 +56,8 @@ export async function GET(req: Request) {
         pincode: org.pincode ?? "",
         city: org.city ?? "",
         state: org.state ?? "",
-        brandingLogo: org.branding_logo ?? "",
-        brandingCompany: org.branding_company ?? "",
+        brandingLogo,
+        brandingCompany,
       });
     }
 

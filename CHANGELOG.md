@@ -2,6 +2,33 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.34] — 2026-09-02 — Fix admin creation error handling, add share message template, and improve settings page
+
+### Fixed — Admin creation 500/Unprocessable Entity error
+- `createOrganizationAdminInternal` in `src/lib/actions/superadmin.ts` now returns `{ error }` objects instead of throwing unhandled exceptions.
+- Added `clerk.users.getUserList({ emailAddress: [...] })` pre-check so duplicate emails in Clerk are caught with a clear message before creation.
+- `POST /api/admin?action=create_admin` now returns HTTP 400 on validation/business-logic failures instead of 500.
+- Frontend `createAdmin` handler in `src/app/superadmin/dashboard/users/page.tsx` now safely handles non-JSON and non-2xx responses.
+
+### Added — Share link message template
+- New `share_message_template` column on `organizations` table.
+- Admin Share Link page (`/admin/dashboard/share-link`) now lets admins customize the message template used when sharing their unique organization link.
+- Admins can preview the combined message + link, save the template, and share via system share or copy.
+- Dashboard Org Link card share button now includes the custom/default message with the link.
+
+### Fixed — Verification email delivery
+- Added missing `email_verifications` table to `supabase/schema2.sql`.
+- `POST /api/verify-email/send` now fails fast with a clear 500 if `RESEND_FROM_EMAIL` is missing, instead of silently not sending.
+- Resend API failures are now returned as 502 with the actual error message so the frontend can surface them.
+
+### Updated — Admin settings page
+- `/admin/dashboard/settings` now loads existing data automatically on mount, including branding fields.
+- Added Edit mode: all fields are disabled by default. Admins click Edit to enable editing, then Save or Cancel.
+- Branding section now correctly displays saved values and supports live editing.
+
+### Added — Resend setup documentation
+- New `resendsteps.md` with steps to verify `sdasdhealth.com` in Resend and configure production environment variables.
+
 ## [2.12.33] — 2026-08-21 — Fix support ticket callback visibility and sender details
 
 ### Fixed — Org-admin callback requests visibility

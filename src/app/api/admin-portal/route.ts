@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminDashboardStats, getAdminMembers, getAdminAssessmentResults, getOrgTeamAdmins } from "@/lib/queries/admin-portal";
+import { getAdminDashboardStats, getAdminMembers, getAdminAssessmentResults, getOrgTeamAdmins, saveShareMessageTemplate } from "@/lib/queries/admin-portal";
 
 export async function GET(req: Request) {
   try {
@@ -27,6 +27,31 @@ export async function GET(req: Request) {
     return NextResponse.json({ stats, members, results, team }, {
       headers: { "Cache-Control": "private, max-age=20, stale-while-revalidate=60" },
     });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown" }, { status: 500 });
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const session = await (await import("@clerk/nextjs/server")).auth();
+    if (!session?.userId) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { action, template } = body;
+
+    if (action === "save_share_template") {
+      try {
+        const result = await saveShareMessageTemplate(template || "");
+        return NextResponse.json(result);
+      } catch (err) {
+        return NextResponse.json({ error: err instanceof Error ? err.message : "Failed to save template" }, { status: 500 });
+      }
+    }
+
+    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown" }, { status: 500 });
   }

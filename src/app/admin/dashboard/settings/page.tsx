@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Settings, Save, Upload, Link } from "lucide-react";
+import { Settings, Save, Upload, Link, Pencil } from "lucide-react";
 
 interface OrgSettings {
   id: string;
@@ -26,6 +26,7 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin?action=org-settings")
@@ -65,6 +66,7 @@ export default function AdminSettingsPage() {
         throw new Error(data.error || "Failed to save");
       }
       setSaved(true);
+      setEditing(false);
       setTimeout(() => setSaved(false), 2000);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save");
@@ -93,6 +95,11 @@ export default function AdminSettingsPage() {
     );
   }
 
+  const fieldClass = (base: string) =>
+    editing
+      ? `${base} cursor-text`
+      : `${base} cursor-default bg-[#F5F5F5] text-[#555]`;
+
   return (
     <DashboardShell title="Organization Settings">
       <div className="rounded-[16px] p-[20px] md:p-[28px] max-w-[600px]" style={{ background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
@@ -111,14 +118,14 @@ export default function AdminSettingsPage() {
             <div key={i}>
               <label className="block text-[12px] font-semibold mb-[5px] uppercase tracking-[0.04em]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>{f.label}</label>
               {f.type === "select" ? (
-                <select value={f.value} onChange={(e) => setSettings({ ...settings, [f.key]: e.target.value })}
-                  className="w-full px-[13px] py-[10px] text-[14px] bg-white rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}>
+                <select value={f.value} onChange={(e) => setSettings({ ...settings, [f.key]: e.target.value })} disabled={!editing}
+                  className={fieldClass("w-full px-[13px] py-[10px] text-[14px] bg-white rounded-lg outline-none")} style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}>
                   {(f.options ?? []).map((o) => <option key={o} value={o}>{o}</option>)}
                 </select>
               ) : (
-                <input type={f.type} value={f.value} onChange={(e) => setSettings({ ...settings, [f.key]: e.target.value })}
-                  className="w-full px-[13px] py-[10px] text-[14px] bg-white rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
-                  onFocus={(e) => { e.currentTarget.style.borderColor = "#35319B"; }}
+                <input type={f.type} value={f.value} onChange={(e) => setSettings({ ...settings, [f.key]: e.target.value })} disabled={!editing}
+                  className={fieldClass("w-full px-[13px] py-[10px] text-[14px] bg-white rounded-lg outline-none")} style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
+                  onFocus={(e) => { if (editing) e.currentTarget.style.borderColor = "#35319B"; }}
                   onBlur={(e) => { e.currentTarget.style.borderColor = "#D5D5D5"; }}
                 />
               )}
@@ -137,20 +144,20 @@ export default function AdminSettingsPage() {
                   ) : (
                     <div style={{ width: "32px", height: "32px", borderRadius: "4px", background: "#E5E7EB" }} />
                   )}
-                  <input type="text" value={settings.brandingLogo} onChange={(e) => setSettings({ ...settings, brandingLogo: e.target.value })}
+                  <input type="text" value={settings.brandingLogo} onChange={(e) => setSettings({ ...settings, brandingLogo: e.target.value })} disabled={!editing}
                     placeholder="https://example.com/logo.png"
-                    className="flex-1 px-[13px] py-[10px] text-[14px] bg-white rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
-                    onFocus={(e) => { e.currentTarget.style.borderColor = "#35319B"; }}
+                    className={fieldClass("flex-1 px-[13px] py-[10px] text-[14px] bg-white rounded-lg outline-none")} style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
+                    onFocus={(e) => { if (editing) e.currentTarget.style.borderColor = "#35319B"; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = "#D5D5D5"; }}
                   />
                 </div>
               </div>
               <div>
                 <label className="block text-[12px] font-semibold mb-[5px] uppercase tracking-[0.04em]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>Company Name (for branding)</label>
-                <input type="text" value={settings.brandingCompany} onChange={(e) => setSettings({ ...settings, brandingCompany: e.target.value })}
+                <input type="text" value={settings.brandingCompany} onChange={(e) => setSettings({ ...settings, brandingCompany: e.target.value })} disabled={!editing}
                   placeholder="Your Company Name"
-                  className="w-full px-[13px] py-[10px] text-[14px] bg-white rounded-lg outline-none" style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
-                  onFocus={(e) => { e.currentTarget.style.borderColor = "#35319B"; }}
+                  className={fieldClass("w-full px-[13px] py-[10px] text-[14px] bg-white rounded-lg outline-none")} style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
+                  onFocus={(e) => { if (editing) e.currentTarget.style.borderColor = "#35319B"; }}
                   onBlur={(e) => { e.currentTarget.style.borderColor = "#D5D5D5"; }}
                 />
               </div>
@@ -162,13 +169,29 @@ export default function AdminSettingsPage() {
           <p className="m-0 mt-[12px] text-[13px] text-[#DC2626]">{error}</p>
         )}
 
-        <button type="button" onClick={handleSave} disabled={saving}
-          className="mt-[20px] inline-flex items-center gap-[8px] text-white text-[14px] font-semibold px-[24px] py-[12px] border-none cursor-pointer rounded-xl transition-all disabled:opacity-70"
-          style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)", boxShadow: "0 4px 16px rgba(53,49,155,0.25)", fontFamily: "Poppins, sans-serif" }}
-        >
-          <Save size={16} stroke="white" />
-          {saving ? "Saving..." : saved ? "Saved!" : "Save Changes"}
-        </button>
+        <div className="flex items-center gap-[10px] mt-[20px]">
+          {!editing ? (
+            <button type="button" onClick={() => setEditing(true)}
+              className="inline-flex items-center gap-[8px] text-white text-[14px] font-semibold px-[24px] py-[12px] border-none cursor-pointer rounded-xl transition-all"
+              style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)", boxShadow: "0 4px 16px rgba(53,49,155,0.25)", fontFamily: "Poppins, sans-serif" }}>
+              <Pencil size={16} stroke="white" /> Edit
+            </button>
+          ) : (
+            <>
+              <button type="button" onClick={handleSave} disabled={saving}
+                className="inline-flex items-center gap-[8px] text-white text-[14px] font-semibold px-[24px] py-[12px] border-none cursor-pointer rounded-xl transition-all disabled:opacity-70"
+                style={{ background: "linear-gradient(135deg, #35319B, #5A55C0)", boxShadow: "0 4px 16px rgba(53,49,155,0.25)", fontFamily: "Poppins, sans-serif" }}>
+                <Save size={16} stroke="white" />
+                {saving ? "Saving..." : saved ? "Saved!" : "Save Changes"}
+              </button>
+              <button type="button" onClick={() => setEditing(false)}
+                className="inline-flex items-center gap-[8px] text-[14px] font-semibold px-[24px] py-[12px] border-none cursor-pointer rounded-xl transition-all"
+                style={{ background: "#F5F5F5", color: "#555", border: "1px solid #E0E0E0", fontFamily: "Poppins, sans-serif" }}>
+                Cancel
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </DashboardShell>
   );

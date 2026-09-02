@@ -21,6 +21,7 @@ interface DashboardStats {
   avgConfidence: number;
   orgLinkStatus: string;
   orgUniqueCode: string;
+  shareMessageTemplate?: string;
   assessmentActivity: Array<{ label: string; value: number }>;
   chronotypeMix: Array<{ label: string; value: number; color: string }>;
 }
@@ -233,24 +234,27 @@ export default function AdminDashboardPage() {
                   {s.orgLinkStatus === "active" ? "Active" : "Paused"}
                 </span>
               </div>
-              <div className="flex items-center justify-between p-[14px] rounded-xl" style={{ background: "rgba(53,49,155,0.04)" }}>
-                <span className="text-[13px] font-medium" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>Share URL</span>
-                <div className="flex items-center gap-[8px]">
-                  <code className="text-[12px] font-mono truncate max-w-[260px]" style={{ color: "#888" }}>
-                    {typeof window !== "undefined" ? `${window.location.origin}/${s.orgUniqueCode}` : `.../${s.orgUniqueCode}`}
-                  </code>
-                  <button type="button" onClick={() => { navigator.clipboard.writeText(typeof window !== "undefined" ? `${window.location.origin}/${s.orgUniqueCode}` : `/ ${s.orgUniqueCode}`); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000); }}
-                    className="flex items-center justify-center w-[30px] h-[30px] rounded-lg border-none cursor-pointer transition-colors shrink-0"
-                    style={{ color: linkCopied ? "#2E7D32" : "#888", background: linkCopied ? "rgba(46,125,50,0.1)" : "rgba(0,0,0,0.04)" }}>
-                    {linkCopied ? <Check size={13} /> : <Copy size={13} />}
-                  </button>
-                  <button type="button" onClick={async () => { const url = typeof window !== "undefined" ? `${window.location.origin}/${s.orgUniqueCode}` : `/${s.orgUniqueCode}`; if (navigator.share) try { await navigator.share({ url }); return; } catch {} navigator.clipboard.writeText(url); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000); }}
-                    className="flex items-center justify-center w-[30px] h-[30px] rounded-lg border-none cursor-pointer transition-colors shrink-0"
-                    style={{ color: "#888", background: "rgba(0,0,0,0.04)" }}>
-                    <Share2 size={13} />
-                  </button>
-                </div>
-              </div>
+               <div className="flex items-center justify-between p-[14px] rounded-xl" style={{ background: "rgba(53,49,155,0.04)" }}>
+                 <span className="text-[13px] font-medium" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>Share URL</span>
+                 <div className="flex items-center gap-[8px]">
+                   <code className="text-[12px] font-mono truncate max-w-[260px]" style={{ color: "#888" }}>
+                     {typeof window !== "undefined" ? `${window.location.origin}/${s.orgUniqueCode}` : `.../${s.orgUniqueCode}`}
+                   </code>
+                   <button type="button" onClick={async () => {
+                     const url = typeof window !== "undefined" ? `${window.location.origin}/${s.orgUniqueCode}` : `/${s.orgUniqueCode}`;
+                     const defaultMsg = "Check out this sleep chronotype assessment:";
+                     const msg = (s.shareMessageTemplate?.trim() || defaultMsg);
+                     const text = `${msg}\n${url}`;
+                     if (navigator.share) { try { await navigator.share({ title: "Sleep Chronotype Assessment", text }); return; } catch {} }
+                     navigator.clipboard.writeText(text);
+                     setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000);
+                   }}
+                     className="flex items-center justify-center w-[30px] h-[30px] rounded-lg border-none cursor-pointer transition-colors shrink-0"
+                     style={{ color: "#888", background: "rgba(0,0,0,0.04)" }}>
+                     <Share2 size={13} />
+                   </button>
+                 </div>
+               </div>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-[20px]" style={{ border: "1.5px dashed #E0E0E0", borderRadius: "12px" }}>

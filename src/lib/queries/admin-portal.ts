@@ -87,6 +87,14 @@ export async function getAdminDashboardStats() {
   const orgLinkStatus = link ? (link.active ? "active" : "paused") : "none";
   const orgUniqueCode = link?.unique_code ?? "";
 
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("share_message_template")
+    .eq("id", organizationId)
+    .maybeSingle();
+
+  const shareMessageTemplate = (org as any)?.share_message_template ?? "";
+
   // Assessment activity: daily counts for last 7 days
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
@@ -131,6 +139,7 @@ export async function getAdminDashboardStats() {
     avgConfidence,
     orgLinkStatus,
     orgUniqueCode,
+    shareMessageTemplate,
     assessmentActivity,
     chronotypeMix: [
       { label: "Larks", value: totalChrono > 0 ? Math.round((counts.LARK / totalChrono) * 100) : 0, color: "#f4b54d" },
@@ -215,4 +224,18 @@ export async function getAdminAssessmentResults() {
     members: { first_name: string; last_name: string } | null;
     chronotype_results: { chronotype: string; confidence_score: number } | null;
   }[];
+}
+
+export async function saveShareMessageTemplate(template: string) {
+  const { organizationId } = await getAdminOrg();
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("organizations")
+    .update({ share_message_template: template })
+    .eq("id", organizationId);
+
+  if (error) throw new Error(error.message);
+
+  return { success: true };
 }
