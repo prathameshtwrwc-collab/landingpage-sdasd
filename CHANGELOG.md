@@ -2,6 +2,23 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.36] — 2026-09-06 — Fix assessment modal form ordering, manual type fields, and email verify placement
+
+### Fixed — Assessment modal field ordering
+- Country, State, and City fields are now consecutive and properly ordered in both desktop and mobile views.
+
+### Added — Manual type option for location fields
+- Country, State, and City dropdowns now include a "Type manually..." option.
+- When selected, a text input appears below the dropdown so users can enter custom values.
+- Manual values are persisted to the database through the normal form submission flow.
+
+### Fixed — Verify email placement on mobile
+- The verify email section now appears directly below the email field, instead of after the phone number field on mobile view.
+
+### Fixed — Assessment modal close behavior
+- Modal overlay no longer closes the form when clicked outside.
+- Modal now only closes when the close icon button is clicked.
+
 ## [2.12.35] — 2026-09-02 — Fix admin creation error handling, add share message template, and improve settings page
 
 ### Fixed — Admin creation 500/Unprocessable Entity error
