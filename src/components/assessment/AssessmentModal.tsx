@@ -121,14 +121,16 @@ export default function AssessmentModal() {
       setAvailableCities([]);
       setManualCountry(false);
       setCustomCountry("");
+      setManualState(false);
+      setCustomState("");
+      setManualCity(false);
+      setCustomCity("");
       return;
     }
     const states = getStatesForCountry(form.country);
     setAvailableStates(states);
     setAvailableCities([]);
     setForm((prev) => ({ ...prev, location: "", city: "" }));
-    setManualCountry(false);
-    setCustomCountry("");
     setManualState(false);
     setCustomState("");
     setManualCity(false);
@@ -138,14 +140,10 @@ export default function AssessmentModal() {
   useEffect(() => {
     if (!form.country || !form.location) {
       setAvailableCities([]);
-      setManualCity(false);
-      setCustomCity("");
       return;
     }
     const cities = getCitiesForState(form.country, form.location);
     setAvailableCities(cities);
-    setManualCity(false);
-    setCustomCity("");
   }, [form.country, form.location]);
 
   // Data from server
@@ -882,7 +880,6 @@ export default function AssessmentModal() {
                   onChange={(e) => {
                     if (e.target.value === "__manual__") {
                       setManualCountry(true);
-                      updateForm("country", customCountry);
                     } else {
                       setManualCountry(false);
                       updateForm("country", e.target.value);
@@ -917,7 +914,6 @@ export default function AssessmentModal() {
                   onChange={(e) => {
                     if (e.target.value === "__manual__") {
                       setManualState(true);
-                      updateForm("location", customState);
                     } else {
                       setManualState(false);
                       updateForm("location", e.target.value);
@@ -955,7 +951,6 @@ export default function AssessmentModal() {
                   onChange={(e) => {
                     if (e.target.value === "__manual__") {
                       setManualCity(true);
-                      updateForm("city", customCity);
                     } else {
                       setManualCity(false);
                       updateForm("city", e.target.value);
