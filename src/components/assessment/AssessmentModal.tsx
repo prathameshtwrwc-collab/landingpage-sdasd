@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   CheckCircle2, X, SunMedium, BriefcaseBusiness, MoonStar, Zap,
@@ -18,6 +18,7 @@ import { chronotypeImageSrcs } from "@/lib/chronotype-image";
 import { CHRONOTYPE_LABELS, CHRONOTYPE_DESCRIPTIONS, CHRONOTYPE_PEAK_TIMES, CHRONOTYPE_BLUEPRINT } from "@/lib/chronotype-utils";
 import { useConsult } from "@/components/consult/ConsultContext";
 import { COUNTRY_CODES, getCountryCode } from "@/lib/country-codes";
+import { getStatesForCountry, getCitiesForState } from "@/lib/country-states-cities";
 import TermsModal from "./TermsModal";
 
 interface Question {
@@ -104,6 +105,30 @@ export default function AssessmentModal() {
 
   // URL-detected codes (locked fields)
   const [lockedFields, setLockedFields] = useState<{ orgCode: boolean; referralCode: boolean }>({ orgCode: false, referralCode: false });
+
+  const [availableStates, setAvailableStates] = useState<string[]>([]);
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!form.country) {
+      setAvailableStates([]);
+      setAvailableCities([]);
+      return;
+    }
+    const states = getStatesForCountry(form.country);
+    setAvailableStates(states);
+    setAvailableCities([]);
+    setForm((prev) => ({ ...prev, location: "", city: "" }));
+  }, [form.country]);
+
+  useEffect(() => {
+    if (!form.country || !form.location) {
+      setAvailableCities([]);
+      return;
+    }
+    const cities = getCitiesForState(form.country, form.location);
+    setAvailableCities(cities);
+  }, [form.country, form.location]);
 
   // Data from server
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -848,7 +873,7 @@ export default function AssessmentModal() {
                 </select>
                 {errors.country && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{errors.country}</p>}
               </div>
-              <Field label={t("city")} value={form.city} onChange={(v) => updateForm("city", v)} error={errors.city} ttsLabel={t("city")} />
+              <SelectField label={t("city")} value={form.city} onChange={(v) => updateForm("city", v)} error={errors.city} options={availableCities} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <Field label={t("pincode")} value={form.pincode} onChange={(v) => updateForm("pincode", v)} error={errors.pincode} type="text" maxLength={12} placeholder={t("pincodePlaceholder")} ttsLabel={t("pincode")} />
@@ -973,7 +998,7 @@ export default function AssessmentModal() {
               </div>
             ) : null}
             <div className="mb-[14px]">
-              <Field label={t("state")} value={form.location} onChange={(v) => updateForm("location", v)} error={errors.location} />
+              <SelectField label={t("state")} value={form.location} onChange={(v) => updateForm("location", v)} error={errors.location} options={availableStates} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <Field label={t("orgCode")} value={form.orgCode} onChange={(v) => updateForm("orgCode", v)} readonly={lockedFields.orgCode} placeholder={lockedFields.orgCode ? t("autoDetected") : t("optional")} />
