@@ -11,6 +11,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalizedEmail)) {
+      return NextResponse.json({ error: "Email is invalid, please enter valid email id" }, { status: 400 });
+    }
+
     const supabase = await createClient();
 
     const code = String(Math.floor(100000 + Math.random() * 900000));
@@ -73,6 +78,9 @@ export async function POST(req: Request) {
       if (!resendRes.ok) {
         const resendText = await resendRes.text();
         console.error("Resend email error:", resendRes.status, resendText);
+        if (resendRes.status === 422) {
+          return NextResponse.json({ error: "Email is invalid, please enter valid email id" }, { status: 400 });
+        }
         return NextResponse.json({ error: `Failed to send email: ${resendRes.status} ${resendText}` }, { status: 502 });
       }
     } catch (emailError) {
