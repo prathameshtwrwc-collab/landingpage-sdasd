@@ -108,26 +108,44 @@ export default function AssessmentModal() {
 
   const [availableStates, setAvailableStates] = useState<string[]>([]);
   const [availableCities, setAvailableCities] = useState<string[]>([]);
+  const [manualCountry, setManualCountry] = useState(false);
+  const [manualState, setManualState] = useState(false);
+  const [manualCity, setManualCity] = useState(false);
+  const [customCountry, setCustomCountry] = useState("");
+  const [customState, setCustomState] = useState("");
+  const [customCity, setCustomCity] = useState("");
 
   useEffect(() => {
     if (!form.country) {
       setAvailableStates([]);
       setAvailableCities([]);
+      setManualCountry(false);
+      setCustomCountry("");
       return;
     }
     const states = getStatesForCountry(form.country);
     setAvailableStates(states);
     setAvailableCities([]);
     setForm((prev) => ({ ...prev, location: "", city: "" }));
+    setManualCountry(false);
+    setCustomCountry("");
+    setManualState(false);
+    setCustomState("");
+    setManualCity(false);
+    setCustomCity("");
   }, [form.country]);
 
   useEffect(() => {
     if (!form.country || !form.location) {
       setAvailableCities([]);
+      setManualCity(false);
+      setCustomCity("");
       return;
     }
     const cities = getCitiesForState(form.country, form.location);
     setAvailableCities(cities);
+    setManualCity(false);
+    setCustomCity("");
   }, [form.country, form.location]);
 
   // Data from server
@@ -658,7 +676,6 @@ export default function AssessmentModal() {
         WebkitOverflowScrolling: "touch",
         alignItems: "safe center",
       }}
-      onClick={(e) => { if (e.target === e.currentTarget) resetAndClose(); }}
     >
       <div
         className="relative bg-white result-modal-container"
@@ -861,22 +878,115 @@ export default function AssessmentModal() {
               <div>
                 <label className="text-[12px] font-medium mb-[6px] block" style={{ fontFamily: "Poppins, sans-serif", color: "#555" }}>{t("country")}</label>
                 <select
-                  value={form.country}
-                  onChange={(e) => updateForm("country", e.target.value)}
+                  value={manualCountry ? "__manual__" : form.country}
+                  onChange={(e) => {
+                    if (e.target.value === "__manual__") {
+                      setManualCountry(true);
+                      updateForm("country", customCountry);
+                    } else {
+                      setManualCountry(false);
+                      updateForm("country", e.target.value);
+                    }
+                  }}
                   className="w-full rounded-[10px] border-none p-[12px] text-[13px] md:text-[14px] appearance-none"
                   style={{ fontFamily: "Poppins, sans-serif", background: "#FFFFFF", border: "1px solid #E5E7EB", color: "#171717", outline: "none" }}
                 >
                   <option value="">{t("selectPlaceholder")}</option>
+                  <option value="__manual__">Type manually...</option>
                   {COUNTRY_CODES.map((c) => (
                     <option key={c.code} value={c.name}>{c.name}</option>
                   ))}
                 </select>
                 {errors.country && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{errors.country}</p>}
+                {manualCountry && (
+                  <input
+                    type="text"
+                    value={customCountry}
+                    onChange={(e) => { setCustomCountry(e.target.value); updateForm("country", e.target.value); }}
+                    placeholder="Enter country name"
+                    autoFocus
+                    className="w-full px-[13px] py-[10px] text-[14px] bg-white rounded-lg outline-none mt-[8px]"
+                    style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
+                  />
+                )}
               </div>
-              <SelectField label={t("city")} value={form.city} onChange={(v) => updateForm("city", v)} error={errors.city} options={availableCities} />
+              <div>
+                <label className="text-[12px] font-medium mb-[6px] block" style={{ fontFamily: "Poppins, sans-serif", color: "#555" }}>{t("state")}</label>
+                <select
+                  value={manualState ? "__manual__" : form.location}
+                  onChange={(e) => {
+                    if (e.target.value === "__manual__") {
+                      setManualState(true);
+                      updateForm("location", customState);
+                    } else {
+                      setManualState(false);
+                      updateForm("location", e.target.value);
+                    }
+                  }}
+                  disabled={!form.country}
+                  className="w-full rounded-[10px] border-none p-[12px] text-[13px] md:text-[14px] appearance-none"
+                  style={{ fontFamily: "Poppins, sans-serif", background: "#FFFFFF", border: "1px solid #E5E7EB", color: "#171717", outline: "none" }}
+                >
+                  <option value="">{t("selectPlaceholder")}</option>
+                  <option value="__manual__">Type manually...</option>
+                  {availableStates.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                {errors.location && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{errors.location}</p>}
+                {manualState && (
+                  <input
+                    type="text"
+                    value={customState}
+                    onChange={(e) => { setCustomState(e.target.value); updateForm("location", e.target.value); }}
+                    placeholder="Enter state name"
+                    autoFocus
+                    className="w-full px-[13px] py-[10px] text-[14px] bg-white rounded-lg outline-none mt-[8px]"
+                    style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
+                  />
+                )}
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
+              <div>
+                <label className="text-[12px] font-medium mb-[6px] block" style={{ fontFamily: "Poppins, sans-serif", color: "#555" }}>{t("city")}</label>
+                <select
+                  value={manualCity ? "__manual__" : form.city}
+                  onChange={(e) => {
+                    if (e.target.value === "__manual__") {
+                      setManualCity(true);
+                      updateForm("city", customCity);
+                    } else {
+                      setManualCity(false);
+                      updateForm("city", e.target.value);
+                    }
+                  }}
+                  disabled={!form.country || !form.location}
+                  className="w-full rounded-[10px] border-none p-[12px] text-[13px] md:text-[14px] appearance-none"
+                  style={{ fontFamily: "Poppins, sans-serif", background: "#FFFFFF", border: "1px solid #E5E7EB", color: "#171717", outline: "none" }}
+                >
+                  <option value="">{t("selectPlaceholder")}</option>
+                  <option value="__manual__">Type manually...</option>
+                  {availableCities.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                {errors.city && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{errors.city}</p>}
+                {manualCity && (
+                  <input
+                    type="text"
+                    value={customCity}
+                    onChange={(e) => { setCustomCity(e.target.value); updateForm("city", e.target.value); }}
+                    placeholder="Enter city name"
+                    autoFocus
+                    className="w-full px-[13px] py-[10px] text-[14px] bg-white rounded-lg outline-none mt-[8px]"
+                    style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
+                  />
+                )}
+              </div>
               <Field label={t("pincode")} value={form.pincode} onChange={(v) => updateForm("pincode", v)} error={errors.pincode} type="text" maxLength={12} placeholder={t("pincodePlaceholder")} ttsLabel={t("pincode")} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <div className="relative">
                 <SelectField label={t("occupation")} value={form.occupation.startsWith("Other:") ? "Other" : form.occupation}
                   onChange={(v) => {
@@ -912,7 +1022,53 @@ export default function AssessmentModal() {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
-              <Field label={t("email")} value={form.email} onChange={(v) => updateForm("email", v)} error={errors.email} type="email" ttsLabel={t("email")} />
+              <div>
+                <Field label={t("email")} value={form.email} onChange={(v) => updateForm("email", v)} error={errors.email} type="email" ttsLabel={t("email")} />
+                {verifyState !== "verified" && form.email.trim() ? (
+                  <div className="mb-[14px] mt-[10px]">
+                    <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+                      Verify Email
+                    </label>
+                    <div className="flex flex-col sm:flex-row gap-[8px]">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={6}
+                        placeholder="Enter verification code"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                        className="flex-1 px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
+                        style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
+                      />
+                      <button
+                        type="button"
+                        onClick={otpSent ? confirmOtp : sendOtp}
+                        disabled={verifyState === "send" || (!otpSent && !form.email.trim())}
+                        className="px-[16px] py-[10px] text-[13px] font-semibold border-none cursor-pointer transition-colors disabled:opacity-60"
+                        style={{ borderRadius: "8px", background: "#35319B", color: "#FFF", fontFamily: "Poppins, sans-serif", whiteSpace: "nowrap" }}
+                      >
+                        {verifyState === "send" ? "Please wait..." : otpSent ? "Verify Code" : "Send Code"}
+                      </button>
+                    </div>
+                    {verifyError && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{verifyError}</p>}
+                    {otpSent && (
+                      <p className="m-0 text-[12px] mt-[3px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
+                        Verification code sent to {form.email.trim()}
+                      </p>
+                    )}
+                  </div>
+                ) : form.email.trim() && verifyState === "verified" ? (
+                  <div className="mb-[14px] mt-[10px] flex items-center gap-[8px]">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span className="text-[13px] font-medium" style={{ color: "#16a34a", fontFamily: "Poppins, sans-serif" }}>
+                      Email verified successfully
+                    </span>
+                  </div>
+                ) : null}
+              </div>
               <div>
                 <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
                   {t("phone")}
@@ -951,54 +1107,6 @@ export default function AssessmentModal() {
                 </div>
                 {errors.phone && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{errors.phone}</p>}
               </div>
-            </div>
-
-            {verifyState !== "verified" && form.email.trim() ? (
-              <div className="mb-[14px]">
-                <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
-                  Verify Email
-                </label>
-                <div className="flex flex-col sm:flex-row gap-[8px]">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={6}
-                    placeholder="Enter verification code"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                    className="flex-1 px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
-                    style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
-                  />
-                  <button
-                    type="button"
-                    onClick={otpSent ? confirmOtp : sendOtp}
-                    disabled={verifyState === "send" || (!otpSent && !form.email.trim())}
-                    className="px-[16px] py-[10px] text-[13px] font-semibold border-none cursor-pointer transition-colors disabled:opacity-60"
-                    style={{ borderRadius: "8px", background: "#35319B", color: "#FFF", fontFamily: "Poppins, sans-serif", whiteSpace: "nowrap" }}
-                  >
-                    {verifyState === "send" ? "Please wait..." : otpSent ? "Verify Code" : "Send Code"}
-                  </button>
-                </div>
-                {verifyError && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{verifyError}</p>}
-                {otpSent && (
-                  <p className="m-0 text-[12px] mt-[3px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
-                    Verification code sent to {form.email.trim()}
-                  </p>
-                )}
-              </div>
-            ) : form.email.trim() && verifyState === "verified" ? (
-              <div className="mb-[14px] flex items-center gap-[8px]">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                <span className="text-[13px] font-medium" style={{ color: "#16a34a", fontFamily: "Poppins, sans-serif" }}>
-                  Email verified successfully
-                </span>
-              </div>
-            ) : null}
-            <div className="mb-[14px]">
-              <SelectField label={t("state")} value={form.location} onChange={(v) => updateForm("location", v)} error={errors.location} options={availableStates} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <Field label={t("orgCode")} value={form.orgCode} onChange={(v) => updateForm("orgCode", v)} readonly={lockedFields.orgCode} placeholder={lockedFields.orgCode ? t("autoDetected") : t("optional")} />
