@@ -516,40 +516,42 @@ export default function AssessmentModal() {
   };
 
   const submitForm = async () => {
-    if (!validateForm()) return;
-    if (verifyState !== "verified") {
-      await sendOtp();
-      return;
-    }
-
-    setLoading(true);
-    setServerError("");
-
     try {
+      if (!validateForm()) return;
+      if (verifyState !== "verified") {
+        await sendOtp();
+        return;
+      }
+
+      setLoading(true);
+      setServerError("");
+
       const exists = await checkExistingMember(form.email.trim());
       if (exists) {
         setLoading(false);
         return;
       }
 
-      const result = await createMemberAndStartAssessment({
-        first_name: form.fname,
-        last_name: form.lname,
-        age: form.age,
-        email: form.email,
-        phone: `${form.phoneDial}${form.phone}`,
-        gender: form.gender,
-        marital_status: form.maritalStatus,
-        department: form.department,
-        country: form.country,
-        location: form.location,
-        city: form.city,
-        pincode: form.pincode,
-        occupation: form.occupation,
-        org_code: form.orgCode || undefined,
-        referral_code: form.referralCode || undefined,
-        clerk_user_id: user?.id,
-      });
+      const payload = {
+        first_name: form.fname.trim(),
+        last_name: form.lname.trim(),
+        age: form.age.trim(),
+        email: form.email.trim(),
+        phone: `${form.phoneDial}${form.phone}`.trim(),
+        gender: form.gender || undefined,
+        marital_status: form.maritalStatus || undefined,
+        department: form.department || undefined,
+        country: form.country || undefined,
+        location: form.location || undefined,
+        city: form.city || undefined,
+        pincode: form.pincode || undefined,
+        occupation: form.occupation || undefined,
+        org_code: form.orgCode?.trim() || undefined,
+        referral_code: form.referralCode?.trim() || undefined,
+        clerk_user_id: user?.id || undefined,
+      };
+
+      const result = await createMemberAndStartAssessment(payload);
       setMemberId(result.memberId);
       setAssessmentId(result.assessmentId);
 
@@ -564,6 +566,7 @@ export default function AssessmentModal() {
         setAnswers({});
       }
     } catch (err) {
+      console.error("submitForm error:", err);
       setServerError(err instanceof Error ? err.message : t("failedStart"));
     } finally {
       setLoading(false);

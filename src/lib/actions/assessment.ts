@@ -104,8 +104,6 @@ export async function createMemberAndStartAssessment(data: {
         clerk_user_id: data.clerk_user_id || null,
       }).eq("id", memberId);
     } else {
-      // One email = one role. Refuse to register a member with an email that
-      // is already an organization admin or superadmin.
       const normalizedEmail = data.email.toLowerCase().trim();
       const { data: adminConflict } = await supabase
         .from("organization_admins")
@@ -130,7 +128,10 @@ export async function createMemberAndStartAssessment(data: {
         clerk_user_id: data.clerk_user_id || null,
       };
       const { data: member, error } = await supabase.from("members").insert(memberData).select().single();
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error("Failed to insert member:", error);
+        throw new Error(error.message);
+      }
       memberId = member.id;
 
       if (data.referral_code) {
@@ -142,7 +143,6 @@ export async function createMemberAndStartAssessment(data: {
     }
   }
 
-  // If member already exists, check for an in-progress (STARTED) assessment
   if (existingMember) {
     const { data: started } = await supabase
       .from("assessments")
@@ -208,7 +208,10 @@ export async function createMemberAndStartAssessment(data: {
     .select()
     .single();
 
-  if (asErr) throw new Error(asErr.message);
+  if (asErr) {
+    console.error("Failed to create assessment:", asErr);
+    throw new Error(asErr.message);
+  }
 
   return { memberId, assessmentId: assessment.id };
 }
