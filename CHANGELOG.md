@@ -2,6 +2,26 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.37] — 2026-09-09 — Add bulk user selection, bulk delete/move, date filters, and detailed CSV export
+
+### Added — Bulk user selection and actions
+- Superadmin Users page now supports checkbox selection for both admins and members.
+- Selected users can be bulk deleted or bulk moved to another organization.
+- Bulk actions are available in the toolbar when one or more rows are selected.
+
+### Added — Date filters for members
+- New date filter dropdown on the members table: This Month, Last Month, Last 90 Days, This Year, All Time.
+- Filtering is applied client-side against member `created_at`.
+
+### Added — Detailed member CSV export
+- Download CSV now includes: First Name, Last Name, Chronotype, Email, Phone, Age, Gender, Marital Status, Department, Occupation, Country, State, City, Pincode, Source, Joining Date.
+- Source column shows organization name for org-sourced members, referrer name for referral members, and “Direct” for self-registered.
+- Exported file is UTF-8 with BOM for Excel compatibility.
+
+### Changed — Backend support for bulk operations
+- New server actions: `bulk_delete_members`, `bulk_delete_admins`, `bulk_move_members`, `bulk_move_admins`.
+- `getAllMembers` query enriched with `organization_name` and `referrer_name` for CSV and display.
+
 ## [2.12.36] — 2026-09-06 — Fix assessment modal form ordering, manual type fields, and email verify placement
 
 ### Fixed — Assessment modal field ordering
