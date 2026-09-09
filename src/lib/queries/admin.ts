@@ -77,11 +77,12 @@ export async function getOrganizations(opts?: { page?: number; limit?: number; s
   };
 }
 
-export async function getAllMembers(opts?: { page?: number; limit?: number; search?: string }) {
+export async function getAllMembers(opts?: { page?: number; limit?: number; search?: string; dateFilter?: string }) {
   const supabase = await createClient();
   const page = opts?.page ?? 1;
   const limit = opts?.limit ?? DEFAULT_LIMIT;
   const search = opts?.search?.trim() ?? "";
+  const dateFilter = opts?.dateFilter;
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
@@ -91,6 +92,30 @@ export async function getAllMembers(opts?: { page?: number; limit?: number; sear
 
   if (search) {
     query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`);
+  }
+
+  if (dateFilter) {
+    const now = new Date();
+    let startDate: Date;
+    if (dateFilter === "this_month") {
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    } else if (dateFilter === "last_month") {
+      startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const endDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      query = query.gte("created_at", startDate.toISOString()).lt("created_at", endDate.toISOString());
+    } else if (dateFilter === "last_90_days") {
+      startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      query = query.gte("created_at", startDate.toISOString());
+    } else if (dateFilter === "this_year") {
+      startDate = new Date(now.getFullYear(), 0, 1);
+      query = query.gte("created_at", startDate.toISOString());
+    } else {
+      startDate = new Date(dateFilter);
+      query = query.gte("created_at", startDate.toISOString());
+    }
+    if (dateFilter !== "last_month") {
+      query = query.gte("created_at", startDate.toISOString());
+    }
   }
 
   const { data, error, count } = await query.order("created_at", { ascending: false }).range(from, to);
@@ -116,7 +141,31 @@ export async function getAllMembers(opts?: { page?: number; limit?: number; sear
     }
   }
 
-  return { data: membersWithAssessment, total: count ?? 0, page, limit, totalPages: Math.ceil((count ?? 0) / limit) };
+  // Attach org name and referrer name
+  const orgIds = membersWithAssessment.map((m) => m.organization_id as string | undefined).filter(Boolean) as string[];
+  const orgMap = new Map<string, string>();
+  if (orgIds.length > 0) {
+    const { data: orgs } = await supabase.from("organizations").select("id, name").in("id", orgIds);
+    for (const o of orgs ?? []) orgMap.set(o.id as string, o.name as string);
+  }
+
+  // Get referrer names for referral members
+  const referralCodes = membersWithAssessment.map((m) => m.referral_code as string | undefined).filter(Boolean) as string[];
+  const referrerMap = new Map<string, string>();
+  if (referralCodes.length > 0) {
+    const { data: referrers } = await supabase.from("members").select("referral_code, first_name, last_name").in("referral_code", referralCodes);
+    for (const r of referrers ?? []) {
+      if (r.referral_code) referrerMap.set(r.referral_code, `${r.first_name ?? ""} ${r.last_name ?? ""}`.trim());
+    }
+  }
+
+  const enriched = membersWithAssessment.map((m) => ({
+    ...m,
+    organization_name: orgMap.get(m.organization_id as string) || null,
+    referrer_name: m.source_type === "REFERRAL" && m.referral_code ? referrerMap.get(m.referral_code) || null : null,
+  }));
+
+  return { data: enriched, total: count ?? 0, page, limit, totalPages: Math.ceil((count ?? 0) / limit) };
 }
 
 export async function getOrganizationMembers(orgId: string, opts?: { page?: number; limit?: number }) {

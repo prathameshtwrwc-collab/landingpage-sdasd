@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { cachedFetch } from "@/lib/client-cache";
 import { useRouter } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { Users, Plus, Shield, Mail, Search, Globe, Calendar, Building2, Eye, Edit2, Trash2, X, Check, Save, Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, Plus, Shield, Mail, Search, Globe, Calendar, Building2, Eye, Edit2, Trash2, X, Check, Save, Download, ChevronLeft, ChevronRight, ChevronDown, UsersRound } from "lucide-react";
 import { SkeletonStatCard, SkeletonTable, SkeletonChart, SkeletonHero } from "@/components/skeleton/SkeletonCard";
-import { exportCsv } from "@/components/admin/CsvExport";
+import { exportCsv, useCsvSelection, CheckAllCell, CheckRowCell } from "@/components/admin/CsvExport";
 import ConfirmDialog from "@/components/dialogs/ConfirmDialog";
 import InfoModal, { type InfoField } from "@/components/dialogs/InfoModal";
 
@@ -27,12 +27,30 @@ const MEMBER_CSV_COLS = [
   { key: "organization_id", label: "Organization ID" },
 ];
 
+const MEMBER_DETAILED_CSV_COLS = [
+  { key: "first_name", label: "First Name" },
+  { key: "last_name", label: "Last Name" },
+  { key: "latest_assessment.chronotype", label: "Chronotype" },
+  { key: "email", label: "Email" },
+  { key: "phone", label: "Phone" },
+  { key: "age", label: "Age" },
+  { key: "gender", label: "Gender" },
+  { key: "marital_status", label: "Marital Status" },
+  { key: "department", label: "Department" },
+  { key: "occupation", label: "Occupation" },
+  { key: "country", label: "Country" },
+  { key: "location", label: "State" },
+  { key: "city", label: "City" },
+  { key: "pincode", label: "Pincode" },
+  { key: "source_display", label: "Source" },
+  { key: "created_at", label: "Joining Date" },
+];
+
 const PAGE_SIZE = 10;
 
 export default function UsersPage() {
   const router = useRouter();
   const [admins, setAdmins] = useState<Array<Record<string, unknown>>>([]);
-// const router = useRouter();
   const [members, setMembers] = useState<Array<Record<string, unknown>>>([]);
   const [orgs, setOrgs] = useState<Array<Record<string, unknown>>>([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +63,7 @@ export default function UsersPage() {
   const [adminRoleFilter, setAdminRoleFilter] = useState("");
   const [memberOrgFilter, setMemberOrgFilter] = useState("");
   const [memberSourceFilter, setMemberSourceFilter] = useState("");
+  const [memberDateFilter, setMemberDateFilter] = useState("");
   const [editingAdmin, setEditingAdmin] = useState<string | null>(null);
   const [editingMember, setEditingMember] = useState<string | null>(null);
   const [editData, setEditData] = useState<Record<string, string>>({});
@@ -56,13 +75,20 @@ export default function UsersPage() {
   const [exportMode, setExportMode] = useState<"full" | "contacts" | "emails">("full");
   const [adminPage, setAdminPage] = useState(1);
   const [memberPage, setMemberPage] = useState(1);
+  const [selectedAdminIds, setSelectedAdminIds] = useState<Set<string>>(new Set());
+  const [selectedMemberIds, setSelectedMemberIds] = useState<Set<string>>(new Set());
+  const [bulkActionType, setBulkActionType] = useState<"delete" | "move" | "">("");
+  const [bulkTargetOrg, setBulkTargetOrg] = useState("");
+  const [moveModalOpen, setMoveModalOpen] = useState(false);
+  const [moveTargetType, setMoveTargetType] = useState<"admin" | "member">("member");
 
   useEffect(() => { setAdminPage(1); }, [search, adminOrgFilter, adminRoleFilter]);
-  useEffect(() => { setMemberPage(1); }, [memberSearch, memberOrgFilter, memberSourceFilter]);
+  useEffect(() => { setMemberPage(1); }, [memberSearch, memberOrgFilter, memberSourceFilter, memberDateFilter]);
 
   const loadData = async () => {
     try {
-      const r = await cachedFetch("/api/admin?org_limit=200&admin_limit=200&member_limit=200", undefined, { revalidate: true });
+      const url = `/api/admin?org_limit=200&admin_limit=200&member_limit=200${memberDateFilter ? `&member_date_filter=${encodeURIComponent(memberDateFilter)}` : ""}`;
+      const r = await cachedFetch(url, undefined, { revalidate: true });
       const data = await r as Record<string, unknown>;
       const toArr = (val: unknown): Array<Record<string, unknown>> => {
         if (!val) return [];
@@ -78,7 +104,119 @@ export default function UsersPage() {
     setLoading(false);
   };
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [memberDateFilter]);
+
+  const adminSelection = useCsvSelection(admins);
+  const memberSelection = useCsvSelection(members);
+
+  const handleBulkDelete = async () => {
+    if (moveTargetType === "admin" && selectedAdminIds.size === 0) return;
+    if (moveTargetType === "member" && selectedMemberIds.size === 0) return;
+    setDeleting("bulk");
+    try {
+      if (moveTargetType === "admin") {
+        await fetch("/api/admin?action=bulk_delete_admins", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ adminIds: Array.from(selectedAdminIds) }),
+        });
+        setSelectedAdminIds(new Set());
+      } else {
+        await fetch("/api/admin?action=bulk_delete_members", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ memberIds: Array.from(selectedMemberIds) }),
+        });
+        setSelectedMemberIds(new Set());
+      }
+      setBulkActionType("");
+      setMoveModalOpen(false);
+      await loadData();
+    } catch { setServerError("Failed to delete selected items"); }
+    setDeleting(null);
+  };
+
+  const handleBulkMove = async () => {
+    if (!bulkTargetOrg) return;
+    setDeleting("bulk");
+    try {
+      if (moveTargetType === "admin") {
+        await fetch("/api/admin?action=bulk_move_admins", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ adminIds: Array.from(selectedAdminIds), orgId: bulkTargetOrg }),
+        });
+        setSelectedAdminIds(new Set());
+      } else {
+        await fetch("/api/admin?action=bulk_move_members", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ memberIds: Array.from(selectedMemberIds), orgId: bulkTargetOrg }),
+        });
+        setSelectedMemberIds(new Set());
+      }
+      setBulkActionType("");
+      setMoveModalOpen(false);
+      setBulkTargetOrg("");
+      await loadData();
+    } catch { setServerError("Failed to move selected items"); }
+    setDeleting(null);
+  };
+
+  const downloadMemberCsv = () => {
+    const getSourceDisplay = (m: Record<string, unknown>) => {
+      if ((m.source_type as string) === "ORGANIZATION") {
+        const org = (Array.isArray(orgs) ? orgs : []).find((o: Record<string, unknown>) => o.id === m.organization_id);
+        return (org?.name as string) || "Organization";
+      } else if ((m.source_type as string) === "REFERRAL" && m.referral_code) {
+        const referrer = members.find((rm) => rm.referral_code === m.referral_code);
+        return referrer ? `${referrer.first_name as string} ${referrer.last_name as string}`.trim() : "Referral";
+      }
+      return "Direct";
+    };
+
+    const rowsToExport = memberSelection.selected.size > 0 ? members.filter((_, i) => memberSelection.selected.has(i)) : members;
+    if (rowsToExport.length === 0) return;
+
+    const headers = ["First Name", "Last Name", "Chronotype", "Email", "Phone", "Age", "Gender", "Marital Status", "Department", "Occupation", "Country", "State", "City", "Pincode", "Source", "Joining Date"];
+    const csvRows: string[][] = [headers];
+    rowsToExport.forEach((m) => {
+      const chronotype = (m.latest_assessment as Record<string, unknown> | null)?.chronotype as string | undefined;
+      csvRows.push([
+        String(m.first_name ?? ""),
+        String(m.last_name ?? ""),
+        chronotype || "—",
+        String(m.email ?? ""),
+        String(m.phone ?? ""),
+        String(m.age ?? ""),
+        String(m.gender ?? ""),
+        String(m.marital_status ?? ""),
+        String(m.department ?? ""),
+        String(m.occupation ?? ""),
+        String(m.country ?? ""),
+        String(m.location ?? ""),
+        String(m.city ?? ""),
+        String(m.pincode ?? ""),
+        getSourceDisplay(m),
+        m.created_at ? new Date(m.created_at as string).toLocaleDateString() : "—",
+      ]);
+    });
+
+    const csv = csvRows.map((row) => row.map((cell) => {
+      if (cell.includes(",") || cell.includes('"') || cell.includes("\n")) {
+        return `"${cell.replace(/"/g, '""')}"`;
+      }
+      return cell;
+    }).join(",")).join("\r\n");
+
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;bom" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `members-export-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const openMemberInfo = async (m: Record<string, unknown>) => {
     setViewInfo({ type: "member", data: m });
@@ -217,7 +355,25 @@ const filteredAdmins = admins.filter((a) => {
       (m.email as string ?? "").toLowerCase().includes(q);
     const matchesOrg = memberOrgFilter === "" || m.organization_id === memberOrgFilter;
     const matchesSource = memberSourceFilter === "" || (m.source_type as string) === memberSourceFilter;
-    return matchesSearch && matchesOrg && matchesSource;
+    const matchesDate = !memberDateFilter || (() => {
+      const created = m.created_at ? new Date(m.created_at as string) : null;
+      if (!created) return false;
+      const now = new Date();
+      if (memberDateFilter === "this_month") {
+        return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+      } else if (memberDateFilter === "last_month") {
+        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        return created >= lastMonth && created < thisMonth;
+      } else if (memberDateFilter === "last_90_days") {
+        const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        return created >= ninetyDaysAgo;
+      } else if (memberDateFilter === "this_year") {
+        return created.getFullYear() === now.getFullYear();
+      }
+      return true;
+    })();
+    return matchesSearch && matchesOrg && matchesSource && matchesDate;
   });
 
   const adminTotalPages = Math.max(1, Math.ceil(filteredAdmins.length / PAGE_SIZE));
@@ -294,21 +450,31 @@ const filteredAdmins = admins.filter((a) => {
             <div className="flex items-center gap-[8px]">
               <Shield size={18} stroke="#D32F2F" />
               <h3 className="m-0 text-[16px] font-bold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>Admins ({filteredAdmins.length})</h3>
+              {selectedAdminIds.size > 0 && (
+                <span className="text-[11px] font-medium px-[8px] py-[2px] rounded-full" style={{ background: "rgba(53,49,155,0.08)", color: "#35319B" }}>{selectedAdminIds.size} selected</span>
+              )}
             </div>
             <div className="flex items-center gap-[8px] flex-wrap">
+              {selectedAdminIds.size > 0 && (
+                <>
+                  <button type="button" onClick={() => { setMoveTargetType("admin"); setMoveModalOpen(true); }}
+                    className="inline-flex items-center gap-[6px] text-white text-[12px] font-semibold px-[14px] py-[8px] border-none cursor-pointer rounded-lg transition-all"
+                    style={{ background: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                    <Building2 size={14} stroke="white" /> Move to Org
+                  </button>
+                  <button type="button" onClick={() => setConfirmDelete({ type: "admin", id: "bulk", name: `${selectedAdminIds.size} selected admins` })}
+                    className="inline-flex items-center gap-[6px] text-white text-[12px] font-semibold px-[14px] py-[8px] border-none cursor-pointer rounded-lg transition-all"
+                    style={{ background: "#D32F2F", fontFamily: "Poppins, sans-serif" }}>
+                    <Trash2 size={14} stroke="white" /> Delete Selected
+                  </button>
+                </>
+              )}
               <button type="button" onClick={() => setShowForm(!showForm)}
                 className="inline-flex items-center gap-[6px] text-white text-[13px] font-semibold px-[16px] py-[10px] border-none cursor-pointer rounded-xl transition-all"
                 style={{ background: "linear-gradient(135deg, #D32F2F, #FF6B6B)", boxShadow: "0 4px 12px rgba(211,47,47,0.25)", fontFamily: "Poppins, sans-serif" }}>
                 <Plus size={16} stroke="white" /> {showForm ? "Cancel" : "Add Admin"}
               </button>
-              <select value={exportMode} onChange={(e) => setExportMode(e.target.value as "full" | "contacts" | "emails")}
-                className="px-[10px] py-[7px] rounded-lg border text-[11px] cursor-pointer outline-none"
-                style={{ borderColor: "#E0E0E0", color: "#555", background: "#FFF", fontFamily: "Poppins, sans-serif" }}>
-                <option value="full">Full Details</option>
-                <option value="contacts">Contacts Only</option>
-                <option value="emails">Emails Only</option>
-              </select>
-              <button type="button" onClick={() => exportCsv(filteredAdmins, new Set(), ADMIN_CSV_COLS, exportMode, "admins")}
+              <button type="button" onClick={() => exportCsv(filteredAdmins, adminSelection.selected, ADMIN_CSV_COLS, exportMode, "admins")}
                 className="flex items-center gap-[5px] px-[12px] py-[7px] rounded-lg border-none cursor-pointer text-[11px] font-semibold text-white transition-colors"
                 style={{ background: "#35319B", fontFamily: "Poppins, sans-serif" }}>
                 <Download size={13} /> CSV
@@ -381,6 +547,7 @@ const filteredAdmins = admins.filter((a) => {
               <table className="w-full text-left" style={{ fontFamily: "Poppins, sans-serif", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: "#F8F9FF" }}>
+                    <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase" style={{ color: "#888" }}><CheckAllCell checked={adminSelection.allSelected} onToggle={adminSelection.toggleAll} /></th>
                     <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase" style={{ color: "#888" }}>Admin</th>
                     <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase" style={{ color: "#888" }}>Email</th>
                     <th className="px-[16px] py-[12px] text-[11px] font-semibold uppercase" style={{ color: "#888" }}>Role</th>
@@ -390,14 +557,16 @@ const filteredAdmins = admins.filter((a) => {
                 </thead>
                 <tbody>
                   {pagedAdmins.length === 0 ? (
-                    <tr><td colSpan={5} className="px-[16px] py-[24px] text-center text-[13px]" style={{ color: "#AAA" }}>No admins found</td></tr>
+                    <tr><td colSpan={6} className="px-[16px] py-[24px] text-center text-[13px]" style={{ color: "#AAA" }}>No admins found</td></tr>
                   ) : pagedAdmins.map((a, i) => {
                     const org = (a.organizations as Record<string, unknown> | null);
                     const isEditing = editingAdmin === a.id;
+                    const globalIndex = admins.indexOf(a);
                     return (
                       <tr key={i} style={{ borderTop: "1px solid #F0F0F0" }}>
                         {isEditing ? (
                           <>
+                            <td className="px-[16px] py-[8px]"></td>
                             <td className="px-[16px] py-[8px]" colSpan={2}>
                               <div className="flex gap-[6px]">
                                 <input value={editData.first_name ?? ""} onChange={(e) => setEditData({ ...editData, first_name: e.target.value })}
@@ -419,6 +588,7 @@ const filteredAdmins = admins.filter((a) => {
                           </>
                         ) : (
                           <>
+                            <td className="px-[16px] py-[12px]"><CheckRowCell checked={adminSelection.selected.has(globalIndex)} onToggle={() => adminSelection.toggle(globalIndex)} /></td>
                             <td className="px-[16px] py-[12px]">
                               <div className="flex items-center gap-[10px]">
                                 <div className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-white text-[11px] font-bold" style={{ background: "linear-gradient(135deg, #D32F2F, #FF6B6B)" }}>
@@ -458,28 +628,48 @@ const filteredAdmins = admins.filter((a) => {
             <div className="flex items-center gap-[8px]">
               <Users size={18} stroke="#35319B" />
               <h3 className="m-0 text-[16px] font-bold" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>All Members ({filteredMembers.length})</h3>
+              {selectedMemberIds.size > 0 && (
+                <span className="text-[11px] font-medium px-[8px] py-[2px] rounded-full" style={{ background: "rgba(53,49,155,0.08)", color: "#35319B" }}>{selectedMemberIds.size} selected</span>
+              )}
             </div>
-            <div className="flex items-center gap-[8px]">
-              <select id="member-export-mode" className="px-[10px] py-[7px] rounded-lg border text-[11px] cursor-pointer outline-none"
-                style={{ borderColor: "#E0E0E0", color: "#555", background: "#FFF", fontFamily: "Poppins, sans-serif" }}>
-                <option value="full">Full Details</option>
-                <option value="contacts">Contacts Only</option>
-                <option value="emails">Emails Only</option>
-              </select>
-              <button type="button" onClick={() => exportCsv(filteredMembers, new Set(), MEMBER_CSV_COLS, (document.getElementById("member-export-mode") as HTMLSelectElement)?.value as "full" | "contacts" | "emails" || "full", "members")}
+            <div className="flex items-center gap-[8px] flex-wrap">
+              {selectedMemberIds.size > 0 && (
+                <>
+                  <button type="button" onClick={() => { setMoveTargetType("member"); setMoveModalOpen(true); }}
+                    className="inline-flex items-center gap-[6px] text-white text-[12px] font-semibold px-[14px] py-[8px] border-none cursor-pointer rounded-lg transition-all"
+                    style={{ background: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                    <Building2 size={14} stroke="white" /> Move to Org
+                  </button>
+                  <button type="button" onClick={() => setConfirmDelete({ type: "member", id: "bulk", name: `${selectedMemberIds.size} selected members` })}
+                    className="inline-flex items-center gap-[6px] text-white text-[12px] font-semibold px-[14px] py-[8px] border-none cursor-pointer rounded-lg transition-all"
+                    style={{ background: "#D32F2F", fontFamily: "Poppins, sans-serif" }}>
+                    <Trash2 size={14} stroke="white" /> Delete Selected
+                  </button>
+                </>
+              )}
+              <button type="button" onClick={downloadMemberCsv}
                 className="flex items-center gap-[5px] px-[12px] py-[7px] rounded-lg border-none cursor-pointer text-[11px] font-semibold text-white transition-colors"
                 style={{ background: "#35319B", fontFamily: "Poppins, sans-serif" }}>
-                <Download size={13} /> CSV
+                <Download size={13} /> Download CSV
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-[12px] mb-[16px]">
+          <div className="flex items-center gap-[12px] mb-[16px] flex-wrap">
             <div className="flex-1 flex items-center px-[14px] py-[10px] rounded-xl" style={{ border: "1.5px solid #E0E0E0", background: "#FFFFFF" }}>
               <Search size={16} stroke="#AAA" />
               <input type="text" value={memberSearch} onChange={(e) => setMemberSearch(e.target.value)} placeholder="Search members..."
                 className="flex-1 bg-transparent border-none ml-[10px] text-[14px] outline-none" style={{ fontFamily: "Poppins, sans-serif" }} />
             </div>
+            <select value={memberDateFilter} onChange={(e) => setMemberDateFilter(e.target.value)}
+              className="px-[10px] py-[7px] rounded-lg border text-[12px] cursor-pointer outline-none"
+              style={{ borderColor: "#E0E0E0", color: "#555", background: "#FFF", fontFamily: "Poppins, sans-serif" }}>
+              <option value="">All Time</option>
+              <option value="this_month">This Month</option>
+              <option value="last_month">Last Month</option>
+              <option value="last_90_days">Last 90 Days</option>
+              <option value="this_year">This Year</option>
+            </select>
             <select value={memberSourceFilter} onChange={(e) => setMemberSourceFilter(e.target.value)}
               className="px-[10px] py-[7px] rounded-lg border text-[12px] cursor-pointer outline-none"
               style={{ borderColor: "#E0E0E0", color: "#555", background: "#FFF", fontFamily: "Poppins, sans-serif" }}>
@@ -494,8 +684,8 @@ const filteredAdmins = admins.filter((a) => {
               <option value="">All Organizations</option>
               {orgs.map((o) => <option key={o.id as string} value={o.id as string}>{o.name as string}</option>)}
             </select>
-            {(memberOrgFilter || memberSourceFilter) && (
-              <button type="button" onClick={() => { setMemberOrgFilter(""); setMemberSourceFilter(""); }}
+            {(memberOrgFilter || memberSourceFilter || memberDateFilter) && (
+              <button type="button" onClick={() => { setMemberOrgFilter(""); setMemberSourceFilter(""); setMemberDateFilter(""); }}
                 className="p-[4px] rounded hover:opacity-70 bg-transparent border-none cursor-pointer" title="Clear filters">
                 <X size={14} stroke="#888" />
               </button>
@@ -507,6 +697,7 @@ const filteredAdmins = admins.filter((a) => {
               <table className="w-full text-left" style={{ fontFamily: "Poppins, sans-serif", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: "#F8F9FF" }}>
+                    <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}><CheckAllCell checked={memberSelection.allSelected} onToggle={memberSelection.toggleAll} /></th>
                     <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Member</th>
                     <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Email</th>
                     <th className="px-[14px] py-[10px] text-[10px] font-semibold uppercase" style={{ color: "#888" }}>Age</th>
@@ -520,14 +711,16 @@ const filteredAdmins = admins.filter((a) => {
                 </thead>
                 <tbody>
                   {pagedMembers.length === 0 ? (
-                    <tr><td colSpan={9} className="px-[14px] py-[24px] text-center text-[13px]" style={{ color: "#AAA" }}>No members found</td></tr>
+                    <tr><td colSpan={10} className="px-[14px] py-[24px] text-center text-[13px]" style={{ color: "#AAA" }}>No members found</td></tr>
                   ) : pagedMembers.map((m, i) => {
                     const org = (Array.isArray(orgs) ? orgs : []).find((o: Record<string, unknown>) => o.id === m.organization_id);
                     const isEditing = editingMember === m.id;
+                    const globalIndex = members.indexOf(m);
                     return (
                       <tr key={i} style={{ borderTop: "1px solid #F0F0F0" }}>
                         {isEditing ? (
                           <>
+                            <td className="px-[14px] py-[6px]"></td>
                             <td className="px-[14px] py-[6px]" colSpan={2}>
                               <div className="flex gap-[4px]">
                                 <input value={editData.first_name ?? ""} onChange={(e) => setEditData({ ...editData, first_name: e.target.value })}
@@ -567,6 +760,7 @@ const filteredAdmins = admins.filter((a) => {
                           </>
                         ) : (
                           <>
+                            <td className="px-[14px] py-[10px]"><CheckRowCell checked={memberSelection.selected.has(globalIndex)} onToggle={() => memberSelection.toggle(globalIndex)} /></td>
                             <td className="px-[14px] py-[10px]">
                               <div className="flex items-center gap-[8px]">
                                 <div className="w-[28px] h-[28px] rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ background: "linear-gradient(135deg, #35319B, #7B76D4)" }}>
@@ -628,10 +822,47 @@ const filteredAdmins = admins.filter((a) => {
         onCancel={() => { if (!deleting) setConfirmDelete(null); }}
         onConfirm={() => {
           if (!confirmDelete) return;
-          if (confirmDelete.type === "admin") confirmDeleteAdmin(confirmDelete.id);
-          else confirmDeleteMember(confirmDelete.id);
+          if (confirmDelete.id === "bulk") {
+            handleBulkDelete();
+          } else if (confirmDelete.type === "admin") {
+            confirmDeleteAdmin(confirmDelete.id);
+          } else {
+            confirmDeleteMember(confirmDelete.id);
+          }
         }}
       />
+
+      {/* Move to Org modal */}
+      {moveModalOpen && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-[16px]"
+          style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(2px)" }}
+          onClick={(e) => { if (e.target === e.currentTarget) setMoveModalOpen(false); }}>
+          <div className="p-[24px] rounded-[16px] max-w-[420px] w-full" style={{ background: "#FFF", boxShadow: "0 12px 40px rgba(0,0,0,0.15)" }}>
+            <h3 className="m-0 text-[16px] font-bold mb-[8px]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>Move to Organization</h3>
+            <p className="m-0 text-[13px] mb-[16px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
+              Select the target organization for the selected {moveTargetType === "admin" ? "admins" : "members"}.
+            </p>
+            <select value={bulkTargetOrg} onChange={(e) => setBulkTargetOrg(e.target.value)}
+              className="w-full px-[13px] py-[10px] text-[14px] bg-white rounded-lg outline-none mb-[16px]"
+              style={{ border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}>
+              <option value="">Select organization</option>
+              {orgs.map((o) => <option key={o.id as string} value={o.id as string}>{o.name as string}</option>)}
+            </select>
+            <div className="flex items-center gap-[10px]">
+              <button type="button" onClick={handleBulkMove} disabled={deleting === "bulk" || !bulkTargetOrg}
+                className="flex-1 text-white text-[14px] font-semibold py-[10px] border-none cursor-pointer rounded-lg transition-all disabled:opacity-60"
+                style={{ background: "#35319B", fontFamily: "Poppins, sans-serif" }}>
+                {deleting === "bulk" ? "Moving..." : "Move"}
+              </button>
+              <button type="button" onClick={() => setMoveModalOpen(false)}
+                className="flex-1 text-[14px] font-medium py-[10px] border-none cursor-pointer rounded-lg transition-all"
+                style={{ background: "#F5F5F5", color: "#555", border: "1px solid #E0E0E0", fontFamily: "Poppins, sans-serif" }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* View info dialog */}
       <InfoModal

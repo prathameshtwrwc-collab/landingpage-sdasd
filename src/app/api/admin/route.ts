@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getPlatformStats, getOrganizations, getOrganizationAdmins, getAllMembers, getOrganizationDetails } from "@/lib/queries/admin";
-import { createOrganizationInternal, createOrganizationAdminInternal, toggleOrgActiveLinkInternal, editOrgInternal, deleteOrgInternal, editAdminInternal, deleteAdminInternal, editMemberInternal, deleteMemberInternal } from "@/lib/actions/superadmin";
+import { createOrganizationInternal, createOrganizationAdminInternal, toggleOrgActiveLinkInternal, editOrgInternal, deleteOrgInternal, editAdminInternal, deleteAdminInternal, editMemberInternal, deleteMemberInternal, bulkDeleteMembersInternal, bulkDeleteAdminsInternal, bulkMoveMembersToOrgInternal, bulkMoveAdminsToOrgInternal } from "@/lib/actions/superadmin";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: Request) {
@@ -81,12 +81,13 @@ export async function GET(req: Request) {
     const memberPage = parsePage("member_page");
     const memberLimit = parseLimit("member_limit");
     const memberSearch = url.searchParams.get("member_search") || undefined;
+    const memberDateFilter = url.searchParams.get("member_date_filter") || undefined;
 
     const [stats, organizations, admins, members] = await Promise.all([
       getPlatformStats(),
       getOrganizations({ page: orgPage, limit: orgLimit, search: orgSearch }),
       getOrganizationAdmins({ page: adminPage, limit: adminLimit, search: adminSearch }),
-      getAllMembers({ page: memberPage, limit: memberLimit, search: memberSearch }),
+      getAllMembers({ page: memberPage, limit: memberLimit, search: memberSearch, dateFilter: memberDateFilter }),
     ]);
 
     return NextResponse.json({ stats, organizations, admins, members }, {
@@ -159,6 +160,34 @@ export async function POST(req: Request) {
     if (action === "delete_member") {
       const { memberId } = await req.json();
       const result = await deleteMemberInternal(memberId);
+      return NextResponse.json(result);
+    }
+
+    if (action === "bulk_delete_members") {
+      const { memberIds } = await req.json();
+      if (!Array.isArray(memberIds) || memberIds.length === 0) return NextResponse.json({ error: "No members selected" }, { status: 400 });
+      const result = await bulkDeleteMembersInternal(memberIds);
+      return NextResponse.json(result);
+    }
+
+    if (action === "bulk_delete_admins") {
+      const { adminIds } = await req.json();
+      if (!Array.isArray(adminIds) || adminIds.length === 0) return NextResponse.json({ error: "No admins selected" }, { status: 400 });
+      const result = await bulkDeleteAdminsInternal(adminIds);
+      return NextResponse.json(result);
+    }
+
+    if (action === "bulk_move_members") {
+      const { memberIds, orgId } = await req.json();
+      if (!Array.isArray(memberIds) || memberIds.length === 0 || !orgId) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+      const result = await bulkMoveMembersToOrgInternal(memberIds, orgId);
+      return NextResponse.json(result);
+    }
+
+    if (action === "bulk_move_admins") {
+      const { adminIds, orgId } = await req.json();
+      if (!Array.isArray(adminIds) || adminIds.length === 0 || !orgId) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+      const result = await bulkMoveAdminsToOrgInternal(adminIds, orgId);
       return NextResponse.json(result);
     }
 

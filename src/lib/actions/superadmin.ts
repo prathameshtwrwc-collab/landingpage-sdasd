@@ -300,6 +300,34 @@ export async function deleteMemberInternal(memberId: string) {
   return { success: true };
 }
 
+export async function bulkDeleteMembersInternal(memberIds: string[]) {
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("members").delete().in("id", memberIds);
+  if (error) throw new Error(error.message);
+  return { success: true, deleted: memberIds.length };
+}
+
+export async function bulkDeleteAdminsInternal(adminIds: string[]) {
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("organization_admins").delete().in("id", adminIds);
+  if (error) throw new Error(error.message);
+  return { success: true, deleted: adminIds.length };
+}
+
+export async function bulkMoveMembersToOrgInternal(memberIds: string[], orgId: string) {
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("members").update({ organization_id: orgId }).in("id", memberIds);
+  if (error) throw new Error(error.message);
+  return { success: true, updated: memberIds.length };
+}
+
+export async function bulkMoveAdminsToOrgInternal(adminIds: string[], orgId: string) {
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("organization_admins").update({ organization_id: orgId }).in("id", adminIds);
+  if (error) throw new Error(error.message);
+  return { success: true, updated: adminIds.length };
+}
+
 // ─── Server-action wrappers (with auth check) ───────────────────────
 
 export async function editOrg(formData: FormData) {
