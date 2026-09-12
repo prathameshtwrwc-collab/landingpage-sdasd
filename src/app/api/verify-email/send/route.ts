@@ -59,16 +59,21 @@ export async function POST(req: Request) {
           to: normalizedEmail,
           subject: "Your verification code",
           replyTo: fromEmail,
+          headers: [
+            { name: "List-Unsubscribe", value: `<mailto:${fromEmail}>` },
+            { name: "X-Priority", value: "1" },
+            { name: "X-Mailer", value: "Resend" },
+          ],
           html: `
             <div style="font-family: Poppins, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; color: #171717;">
-              <h2 style="color: #35319B; margin-bottom: 8px;">Verify your email</h2>
-              <p style="color: #555; font-size: 14px; line-height: 1.6;">
+              <h2 style="color: #35319B; margin-bottom: 8px; font-size: 18px;">Verify your email</h2>
+              <p style="color: #555; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">
                 Use the following 6-digit code to verify your email address:
               </p>
-              <div style="background: #F8F9FF; border: 1px solid #E5E7EB; border-radius: 12px; padding: 16px; text-align: center; margin: 20px 0;">
+              <div style="background: #F8F9FF; border: 1px solid #E5E7EB; border-radius: 12px; padding: 16px; text-align: center; margin: 0 0 20px 0;">
                 <span style="font-size: 24px; font-weight: 700; letter-spacing: 6px; color: #35319B;">${code}</span>
               </div>
-              <p style="color: #888; font-size: 13px;">
+              <p style="color: #888; font-size: 13px; margin: 0; line-height: 1.5;">
                 This code expires in 10 minutes. If you did not request this, please ignore this email.
               </p>
             </div>
