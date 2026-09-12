@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     }
 
     const resendApiKey = process.env.RESEND_API_KEY;
-    const fromEmail = process.env.RESEND_FROM_EMAIL;
+    const fromEmail = process.env.RESEND_FROM_EMAIL || "auth@sdasdhealth.com";
     const fromName = process.env.RESEND_FROM_NAME || "Chronotype Sleep Wellness";
 
     if (!resendApiKey) {
@@ -57,7 +57,8 @@ export async function POST(req: Request) {
         body: JSON.stringify({
           from: `${fromName} <${fromEmail}>`,
           to: normalizedEmail,
-          subject: "Your Chronotype Verification Code",
+          subject: "Your verification code",
+          replyTo: fromEmail,
           html: `
             <div style="font-family: Poppins, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; color: #171717;">
               <h2 style="color: #35319B; margin-bottom: 8px;">Verify your email</h2>
@@ -72,6 +73,7 @@ export async function POST(req: Request) {
               </p>
             </div>
           `,
+          text: `Verify your email\n\nUse the following 6-digit code to verify your email address:\n\n${code}\n\nThis code expires in 10 minutes. If you did not request this, please ignore this email.\n`,
         }),
       });
 

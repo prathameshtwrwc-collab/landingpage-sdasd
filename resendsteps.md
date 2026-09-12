@@ -14,7 +14,7 @@ Set these variables in your production environment (e.g. Vercel):
 
 ```
 RESEND_API_KEY=re_xxxxx
-RESEND_FROM_EMAIL=no-reply@sdasdhealth.com
+RESEND_FROM_EMAIL=auth@sdasdhealth.com
 RESEND_FROM_NAME=Chronotype Sleep Wellness
 ```
 
