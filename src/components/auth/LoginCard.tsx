@@ -34,6 +34,7 @@ export default function LoginCard() {
    const [otpSubmitting, setOtpSubmitting] = useState(false);
    const [otpSent, setOtpSent] = useState(false);
    const [showResendPopup, setShowResendPopup] = useState(false);
+   const [showSpamNotice, setShowSpamNotice] = useState(false);
 
   const checkEmail = async (e: FormEvent) => {
     e.preventDefault();
@@ -93,6 +94,7 @@ export default function LoginCard() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to send verification code");
       setOtpSent(true);
+      setShowSpamNotice(true);
     } catch (err) {
       setOtpError(err instanceof Error ? err.message : "Failed to send verification code");
     } finally {
@@ -358,6 +360,28 @@ export default function LoginCard() {
               Please check your mailbox for the new code.
             </p>
             <button type="button" onClick={() => setShowResendPopup(false)}
+              className="w-full text-white text-[14px] font-semibold py-[10px] border-none cursor-pointer rounded-lg transition-all"
+              style={{ background: "#35319B", fontFamily: "Poppins, sans-serif" }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "#2D2890"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "#35319B"}
+            >
+              Okay
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showSpamNotice && (
+        <div className="fixed inset-0 z-[10001] flex items-center justify-center p-[16px]"
+          style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(2px)" }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowSpamNotice(false); }}
+        >
+          <div className="p-[24px] rounded-[16px] max-w-[400px] w-full" style={{ background: "#FFF", boxShadow: "0 12px 40px rgba(0,0,0,0.15)" }}>
+            <h3 className="m-0 text-[16px] font-bold mb-[8px]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>Check your inbox</h3>
+            <p className="m-0 text-[14px] mb-[20px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif", lineHeight: 1.5 }}>
+              Please check your email inbox for the verification code. If you don’t see it, also check your spam or junk folder. If it lands in spam, please mark it as <strong>“Not Spam”</strong> to help future emails reach your inbox.
+            </p>
+            <button type="button" onClick={() => setShowSpamNotice(false)}
               className="w-full text-white text-[14px] font-semibold py-[10px] border-none cursor-pointer rounded-lg transition-all"
               style={{ background: "#35319B", fontFamily: "Poppins, sans-serif" }}
               onMouseEnter={(e) => e.currentTarget.style.background = "#2D2890"}

@@ -75,4 +75,5 @@ After testing all viewports, run final validation:
 All must pass before considering task complete.
 
 ---
+
 END IMPLEMENTATION_CHECKLIST

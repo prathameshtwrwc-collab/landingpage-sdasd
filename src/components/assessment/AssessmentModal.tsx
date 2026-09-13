@@ -96,6 +96,7 @@ export default function AssessmentModal() {
   const [verifyError, setVerifyError] = useState("");
   const [verificationEmail, setVerificationEmail] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [showInboxNotice, setShowInboxNotice] = useState(false);
 
   // Existing member check
   const [existingMember, setExistingMember] = useState<Record<string, unknown> | null>(null);
@@ -378,6 +379,7 @@ export default function AssessmentModal() {
       if (!res.ok) throw new Error(data.error || "Failed to send verification code");
       setVerificationEmail(form.email.trim());
       setOtpSent(true);
+      setShowInboxNotice(true);
       setVerifyState("verify");
     } catch (err) {
       setVerifyError(err instanceof Error ? err.message : "Failed to send verification code");
@@ -1287,6 +1289,28 @@ export default function AssessmentModal() {
         />
 
         <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
+
+        {showInboxNotice && (
+          <div className="fixed inset-0 z-[10001] flex items-center justify-center p-[16px]"
+            style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(2px)" }}
+            onClick={(e) => { if (e.target === e.currentTarget) setShowInboxNotice(false); }}
+          >
+            <div className="p-[24px] rounded-[16px] max-w-[400px] w-full" style={{ background: "#FFF", boxShadow: "0 12px 40px rgba(0,0,0,0.15)" }}>
+              <h3 className="m-0 text-[16px] font-bold mb-[8px]" style={{ color: "#171717", fontFamily: "Poppins, sans-serif" }}>Check your inbox</h3>
+              <p className="m-0 text-[14px] mb-[20px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif", lineHeight: 1.5 }}>
+                Please check your email inbox for the verification code. If you don't see it, also check your spam or junk folder. If it lands in spam, please mark it as <strong>Not Spam</strong> to help future emails reach your inbox.
+              </p>
+              <button type="button" onClick={() => setShowInboxNotice(false)}
+                className="w-full text-white text-[14px] font-semibold py-[10px] border-none cursor-pointer rounded-lg transition-all"
+                style={{ background: "#35319B", fontFamily: "Poppins, sans-serif" }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "#2D2890"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "#35319B"}
+              >
+                Okay
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
