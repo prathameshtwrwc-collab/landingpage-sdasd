@@ -2297,6 +2297,83 @@ function EnhancedResult({
             <ArrowRight size={14} strokeWidth={1.75} />
           </button>
         </div>
+        {/* Sleep Score Check */}
+        <div className="result-action-card" style={{
+          display: "grid",
+          gridTemplateColumns: "46px minmax(0, 1fr) auto",
+          alignItems: "center",
+          gap: "12px",
+          padding: "8px 14px",
+          borderRadius: "12px",
+          minHeight: "70px",
+          background: "#F6F4FF",
+          border: "1px solid #D8D3FA",
+        }}>
+          <div className="flex items-center justify-center rounded-full" style={{ width: "46px", height: "46px", minWidth: "46px", background: "rgba(48,38,143,0.08)" }}>
+            <ShieldCheck size={24} strokeWidth={1.75} stroke="#30268F" />
+          </div>
+          <div className="min-w-0">
+            <h4 className="m-0 text-[14px] font-semibold" style={{ color: "#17172B", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+              Sleep Score Check
+            </h4>
+            <p className="m-0 text-[12px] leading-[1.35] mt-[1px]" style={{ color: "#66677A", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+              Click to find out how good is your sleep score.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                window.open("https://welcomecure-sleepcheck.netlify.app/", "_blank");
+              }
+            }}
+            className="inline-flex items-center gap-[7px] text-[13px] font-semibold px-[14px] border-none cursor-pointer rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f] shrink-0"
+            style={{ minHeight: "42px", color: "#FFFFFF", background: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
+          >
+            Check Score
+            <ArrowRight size={14} strokeWidth={1.75} />
+          </button>
+        </div>
+        {/* Download Sleep Hygiene Form */}
+        <div className="result-action-card" style={{
+          display: "grid",
+          gridTemplateColumns: "46px minmax(0, 1fr) auto",
+          alignItems: "center",
+          gap: "12px",
+          padding: "8px 14px",
+          borderRadius: "12px",
+          minHeight: "70px",
+          background: "#F6F4FF",
+          border: "1px solid #D8D3FA",
+        }}>
+          <div className="flex items-center justify-center rounded-full" style={{ width: "46px", height: "46px", minWidth: "46px", background: "rgba(48,38,143,0.08)" }}>
+            <Download size={24} strokeWidth={1.75} stroke="#30268F" />
+          </div>
+          <div className="min-w-0">
+            <h4 className="m-0 text-[14px] font-semibold" style={{ color: "#17172B", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+              Sleep Hygiene Form
+            </h4>
+            <p className="m-0 text-[12px] leading-[1.35] mt-[1px]" style={{ color: "#66677A", fontFamily: "Poppins, sans-serif", fontWeight: 400 }}>
+              Download the sleep hygiene assessment form.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const link = document.createElement("a");
+              link.href = "/api/download/sleep-hygiene-form";
+              link.download = "sleep-hygiene-form.pdf";
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}
+            className="inline-flex items-center gap-[7px] text-[13px] font-semibold px-[14px] border-none cursor-pointer rounded-lg transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#30268f] shrink-0"
+            style={{ minHeight: "42px", color: "#FFFFFF", background: "#30268F", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
+          >
+            Download
+            <Download size={14} strokeWidth={1.75} />
+          </button>
+        </div>
       </div>
 
       {/* ─── Bottom Actions ─── */}
