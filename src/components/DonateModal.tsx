@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import {
   Heart, X, Stethoscope, Pill, UsersRound, CheckCircle2,
-  HeartHandshake, LockKeyhole, CircleAlert, CircleCheckBig,
+  HeartHandshake, LockKeyhole, CircleAlert, CircleCheckBig, QrCode,
 } from "lucide-react";
 
 interface DonateModalProps {
@@ -40,6 +40,8 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const [paymentId, setPaymentId] = useState("");
   const contentRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -104,12 +106,15 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
     }
     setSubmitting(true);
     setError("");
-    // Simulate donation flow — payment not yet connected
+    const ref = `DONATE-${Date.now()}-${Math.floor(Math.random() * 900000 + 100000)}`;
+    const qrData = `upi://pay?pa=welcomecure@upi&pn=WelcomeCure&am=${amount}&tr=${ref}&cu=INR`;
+    setPaymentId(ref);
+    setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrData)}`);
     setTimeout(() => {
       setSubmitting(false);
       setSubmitted(true);
     }, 1200);
-  }, [selectedAmount, customAmount, showCustomInput]);
+  }, [selectedAmount, customAmount, showCustomInput, t]);
 
   const resetAndClose = useCallback(() => {
     setSelectedAmount(null);
@@ -118,6 +123,8 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
     setSubmitting(false);
     setSubmitted(false);
     setError("");
+    setQrCodeUrl("");
+    setPaymentId("");
     onClose();
   }, [onClose]);
 
@@ -138,6 +145,21 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
       <p className="m-0" style={{ color: "#666779", fontFamily: "Poppins, sans-serif", fontWeight: 400, fontSize: "14px", lineHeight: 1.6, maxWidth: "420px" }}>
         {t("successBody", { amount: formatAmount(selectedAmount || parseFloat(customAmount)) })}
       </p>
+
+      {qrCodeUrl && (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", marginTop: "8px" }}>
+          <div style={{ padding: "12px", borderRadius: "16px", border: "1px solid #E2E2EA", background: "#FFFFFF" }}>
+            <img src={qrCodeUrl} alt="Payment QR Code" width={220} height={220} style={{ display: "block", borderRadius: "8px" }} />
+          </div>
+          <p className="m-0" style={{ color: "#555", fontFamily: "Poppins, sans-serif", fontWeight: 500, fontSize: "13px" }}>
+            Scan to pay ₹{formatAmount(selectedAmount || parseFloat(customAmount)).replace("₹", "")}
+          </p>
+          <p className="m-0" style={{ color: "#9999AA", fontFamily: "Poppins, sans-serif", fontWeight: 400, fontSize: "12px" }}>
+            Ref: {paymentId}
+          </p>
+        </div>
+      )}
+
       <button type="button" onClick={resetAndClose}
         className="inline-flex items-center justify-center border-none cursor-pointer rounded-lg transition-all duration-200 px-[28px]"
         style={{ minHeight: "48px", background: "#30268F", color: "#FFFFFF", fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: "15px" }}>
