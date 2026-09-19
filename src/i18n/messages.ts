@@ -1,3 +1,5 @@
+import en from "../../messages/en.json";
+
 type Messages = Record<string, unknown>;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -50,10 +52,18 @@ const localeFiles: Record<string, string> = {
 };
 
 const cache = new Map<string, Messages>();
+cache.set("en", en);
+
+export function getMessagesSync(locale: string): Messages {
+  const base = cache.get("en") ?? en;
+  if (locale === "en") return base;
+  const cached = cache.get(locale);
+  if (cached) return deepMerge(base, cached);
+  return base;
+}
 
 export async function getMessages(locale: string): Promise<Messages> {
-  const base = cache.get("en") ?? (await import("../../messages/en.json")).default;
-  cache.set("en", base);
+  const base = cache.get("en") ?? en;
 
   if (locale === "en") return base;
 

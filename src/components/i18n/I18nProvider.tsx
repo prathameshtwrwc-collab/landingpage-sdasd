@@ -15,7 +15,7 @@ import {
   isValidLocale,
   type LocaleCode,
 } from "@/i18n/locales";
-import { getMessages } from "@/i18n/messages";
+import { getMessages, getMessagesSync } from "@/i18n/messages";
 
 interface I18nContextValue {
   locale: LocaleCode;
@@ -42,15 +42,14 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
   const [locale, setLocaleState] = useState<LocaleCode>(() =>
     isValidLocale(initialLocale) ? initialLocale : "en"
   );
-  const [messages, setMessages] = useState<Record<string, unknown>>({});
-  const [messagesLoaded, setMessagesLoaded] = useState(false);
+  const [messages, setMessages] = useState<Record<string, unknown>>(() => getMessagesSync(locale));
+  const [messagesLoaded, setMessagesLoaded] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     getMessages(locale).then((msgs) => {
       if (!cancelled) {
         setMessages(msgs);
-        setMessagesLoaded(true);
       }
     });
     return () => {
@@ -81,16 +80,6 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
   );
 
   const value = useMemo(() => ({ locale, setLocale }), [locale, setLocale]);
-
-  if (!messagesLoaded) {
-    return (
-      <I18nContext.Provider value={value}>
-        <NextIntlClientProvider locale={locale} messages={messages} timeZone="UTC">
-          {children}
-        </NextIntlClientProvider>
-      </I18nContext.Provider>
-    );
-  }
 
   return (
     <I18nContext.Provider value={value}>
