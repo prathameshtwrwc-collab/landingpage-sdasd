@@ -2,8 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-const MIN_VISIBLE_MS = 600;
-const FALLBACK_REMOVE_MS = 2200;
+const MIN_VISIBLE_MS = 500;
 
 export default function SitePreloader() {
   const startedAt = useRef<number | null>(null);
@@ -35,11 +34,25 @@ export default function SitePreloader() {
       return;
     }
 
-    const fallback = window.setTimeout(() => {
+    if (document.readyState === "complete") {
       removePreloader();
-    }, FALLBACK_REMOVE_MS);
+      return;
+    }
+
+    const onLoaded = () => {
+      window.removeEventListener("load", onLoaded);
+      removePreloader();
+    };
+
+    window.addEventListener("load", onLoaded);
+
+    const fallback = window.setTimeout(() => {
+      window.removeEventListener("load", onLoaded);
+      removePreloader();
+    }, 10000);
 
     return () => {
+      window.removeEventListener("load", onLoaded);
       window.clearTimeout(fallback);
     };
   }, []);

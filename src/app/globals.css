@@ -7,6 +7,10 @@ html.preloader-active body {
   height: 100%;
 }
 
+html.preloader-active .preloader-content {
+  visibility: hidden;
+}
+
 @keyframes preloaderFade {
   0%,
   100% {
