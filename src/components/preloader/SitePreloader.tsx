@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-const MIN_VISIBLE_MS = 1200;
+const MIN_VISIBLE_MS = 500;
 
 export default function SitePreloader() {
   const startedAt = useRef<number | null>(null);
@@ -17,11 +17,11 @@ export default function SitePreloader() {
       setTimeout(() => {
         const el = document.getElementById("site-preloader");
         if (el) {
-          el.style.transition = "opacity 0.25s ease-out";
+          el.style.transition = "opacity 0.2s ease-out";
           el.style.opacity = "0";
           setTimeout(() => {
             el.remove();
-          }, 260);
+          }, 220);
         }
         document.documentElement.classList.remove("preloader-active");
         document.body.style.overflow = "";
@@ -34,26 +34,25 @@ export default function SitePreloader() {
       return;
     }
 
-    if (document.readyState === "complete") {
+    if (document.readyState === "interactive" || document.readyState === "complete") {
       removePreloader();
       return;
     }
 
-    const onLoaded = () => {
-      window.removeEventListener("load", onLoaded);
+    const onReady = () => {
+      window.removeEventListener("DOMContentLoaded", onReady);
       removePreloader();
     };
 
-    window.addEventListener("load", onLoaded);
+    window.addEventListener("DOMContentLoaded", onReady);
 
-    // Fallback in case load event already fired or is unreliable
     const fallback = window.setTimeout(() => {
-      window.removeEventListener("load", onLoaded);
+      window.removeEventListener("DOMContentLoaded", onReady);
       removePreloader();
-    }, 6000);
+    }, 4000);
 
     return () => {
-      window.removeEventListener("load", onLoaded);
+      window.removeEventListener("DOMContentLoaded", onReady);
       window.clearTimeout(fallback);
     };
   }, []);

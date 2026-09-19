@@ -1,9 +1,9 @@
 import SiteNavbar from "@/components/navbar/SiteNavbar";
 import HeroSection from "@/components/hero/HeroSection";
-import HeroStatementStrip from "@/components/hero/HeroStatementStrip";
-import ChronotypeIntroductionSection from "@/components/chronotype/ChronotypeIntroductionSection";
 import dynamic from "next/dynamic";
 
+const HeroStatementStrip = dynamic(() => import("@/components/hero/HeroStatementStrip"), { ssr: true });
+const ChronotypeIntroductionSection = dynamic(() => import("@/components/chronotype/ChronotypeIntroductionSection"), { ssr: true });
 const ChronotypeOptimizationSection = dynamic(() => import("@/components/optimization/ChronotypeOptimizationSection"));
 const DailyEnergyPillarsSection = dynamic(() => import("@/components/pillars/DailyEnergyPillarsSection"));
 const BetterSleepBetterDaysSection = dynamic(() => import("@/components/better-sleep/BetterSleepBetterDaysSection"));

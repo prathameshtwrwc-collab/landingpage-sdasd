@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useAssessment } from "@/components/assessment/AssessmentContext";
 import { useConsult } from "@/components/consult/ConsultContext";
@@ -42,7 +41,12 @@ export default function HeroSection() {
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [transitionEnabled, setTransitionEnabled] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const isTransitioning = useRef(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const next = useCallback(() => {
     if (isTransitioning.current) return;
@@ -520,6 +524,20 @@ export default function HeroSection() {
               to { opacity: 1; }
             }
 
+            @keyframes fadeInUp {
+              from { opacity: 0; transform: translateY(20px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+
+            @keyframes fadeInUpSmall {
+              from { opacity: 0; transform: translateY(15px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+
+            .hero-animate-in {
+              animation-fill-mode: both;
+            }
+
             /* ===== LOCALIZED (non-Latin) HEADING GUARDS ===== */
             html[data-locale]:not([data-locale="en"]) .hero-benefit-label {
               font-size: clamp(13px, 2.6vw, 17px) !important;
@@ -666,40 +684,32 @@ export default function HeroSection() {
       <div className="hero-inner relative z-[2] w-full max-w-[1440px] mx-auto min-w-0">
         <div className="hero-content">
           <h1 className="hero-heading m-0 p-0">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut", delay: 0.15 }}
+            <span
               className="hero-heading-orange"
+              style={{ animation: mounted ? "fadeInUp 0.5s ease-out 0.15s both" : "none" }}
             >
               <span className="hero-line">{t("line1")}</span>
               <span className="hero-line">{t("line2")}</span>
-            </motion.span>
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut", delay: 0.35 }}
+            </span>
+            <span
               className="hero-heading-indigo"
+              style={{ animation: mounted ? "fadeInUp 0.5s ease-out 0.35s both" : "none" }}
             >
               <span className="hero-line hero-line-chronotype">{t("line3")}</span>
               <span className="hero-line">{t("line4")}</span>
-            </motion.span>
+            </span>
           </h1>
 
-          <motion.div
+          <div
             key={currentSlide % totalDesktopSlides}
             className="hero-benefits"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut", delay: 0.45 }}
+            style={{ animation: mounted ? "fadeInUp 0.5s ease-out 0.45s both" : "none" }}
           >
             {benefitSets[currentSlide % totalDesktopSlides].map((src, imgIdx) => (
-              <motion.div
+              <div
                 key={imgIdx}
                 className="hero-benefit"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut", delay: 0.55 + imgIdx * 0.08 }}
+                style={{ animation: mounted ? `fadeInUpSmall 0.4s ease-out ${0.55 + imgIdx * 0.08}s both` : "none" }}
               >
                 <div className="hero-benefit-media">
                   <Image
@@ -718,32 +728,35 @@ export default function HeroSection() {
                 <p className="hero-benefit-label" style={{ color: imgIdx === 1 ? "#37329D" : "#FF9700" }}>
                   {t(imgIdx === 0 ? "betterSleep" : imgIdx === 1 ? "betterEnergy" : "betterLife")}
                 </p>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
 
           <div className="hero-actions">
-            <motion.button
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: "easeOut", delay: 0.55 }}
-              type="button" onClick={openAssessment} className="flex items-center justify-center bg-[#3A34A3] hover:bg-[#322e8e] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
+            <button
+              type="button"
+              onClick={openAssessment}
+              style={{ animation: mounted ? "fadeInUpSmall 0.4s ease-out 0.55s both" : "none" }}
+              className="flex items-center justify-center bg-[#3A34A3] hover:bg-[#322e8e] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] hover:brightness-[0.96] cursor-pointer"
+            >
               {t("takeTest")}
-            </motion.button>
-            <motion.button
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: "easeOut", delay: 0.65 }}
-              type="button" onClick={scrollToSleepCycles} className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
+            </button>
+            <button
+              type="button"
+              onClick={scrollToSleepCycles}
+              style={{ animation: mounted ? "fadeInUpSmall 0.4s ease-out 0.65s both" : "none" }}
+              className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer"
+            >
               {t("learnAboutSleep")}
-            </motion.button>
-            <motion.button
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: "easeOut", delay: 0.75 }}
-              type="button" onClick={openConsult} className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer" style={{ fontWeight: 600, borderRadius: 0 }}>
+            </button>
+            <button
+              type="button"
+              onClick={openConsult}
+              style={{ animation: mounted ? "fadeInUpSmall 0.4s ease-out 0.75s both" : "none" }}
+              className="flex items-center justify-center bg-[#e67300] hover:bg-[#cc6500] text-white text-[17px] font-semibold leading-[1] tracking-[-0.01em] px-[18px] rounded-none shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9700] focus-visible:ring-offset-2 transition-all duration-[180ms] hover:-translate-y-[1px] cursor-pointer"
+            >
               {t("consultSpecialist")}
-            </motion.button>
+            </button>
           </div>
         </div>
       </div>
