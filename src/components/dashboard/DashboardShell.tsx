@@ -151,6 +151,7 @@ export default function DashboardShell({
   const pathname = usePathname();
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [donateOpen, setDonateOpen] = useState(false);
@@ -159,8 +160,13 @@ export default function DashboardShell({
   const avatarRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
 
-  // Sidebar collapsed state persists across subpage navigations so the user's
-  // choice is not reset when the shell remounts.
+  useEffect(() => {
+    setIsMounted(true);
+    setIsDesktop(window.innerWidth >= 768);
+    const handler = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     // Prefer the module cache (set during this SPA session) so navigation
@@ -377,7 +383,7 @@ export default function DashboardShell({
 
       {/* ── MAIN CONTENT ── */}
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-200`}
-        style={{ marginLeft: isMounted && window.innerWidth >= 768 ? (sidebarCollapsed ? "72px" : "260px") : "0px" }}>
+        style={{ marginLeft: isMounted && isDesktop ? (sidebarCollapsed ? "72px" : "260px") : "0px" }}>
 
         {/* Top header */}
         <header className="sticky top-0 z-30 flex items-center justify-between px-[14px] md:px-[32px] h-[56px] md:h-[68px]"
