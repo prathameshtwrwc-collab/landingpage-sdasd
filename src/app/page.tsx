@@ -3,7 +3,6 @@ import HeroSection from "@/components/hero/HeroSection";
 import HeroStatementStrip from "@/components/hero/HeroStatementStrip";
 import ChronotypeIntroductionSection from "@/components/chronotype/ChronotypeIntroductionSection";
 import dynamic from "next/dynamic";
-import SitePreloader from "@/components/preloader/SitePreloader";
 
 const ChronotypeOptimizationSection = dynamic(() => import("@/components/optimization/ChronotypeOptimizationSection"));
 const DailyEnergyPillarsSection = dynamic(() => import("@/components/pillars/DailyEnergyPillarsSection"));
@@ -20,7 +19,6 @@ const DisclaimerFooter = dynamic(() => import("@/components/footer/DisclaimerFoo
 export default function HomePage() {
   return (
     <main className="min-h-screen w-full bg-white">
-      <SitePreloader />
       <SiteNavbar />
       <HeroSection />
       <HeroStatementStrip />

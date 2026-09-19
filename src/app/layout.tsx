@@ -36,7 +36,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const dir = dirForLocale(locale);
 
   return (
-    <html lang={locale} dir={dir} data-locale={locale} className={poppins.variable}>
+    <html lang={locale} dir={dir} data-locale={locale} className={`${poppins.variable} preloader-active`}>
       <head>
         <Script
           id="css-feature-detection"
@@ -49,6 +49,31 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <link rel="dns-prefetch" href="https://wqoplsaxjjazctvcccxn.supabase.co" />
       </head>
       <body className="bg-white text-[#171717] antialiased font-[var(--font-poppins)]">
+        <div
+          id="site-preloader"
+          aria-hidden="true"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 99999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "#FFFFFF",
+          }}
+        >
+          <div
+            style={{
+              width: "clamp(120px, 28vw, 200px)",
+              aspectRatio: "1 / 1",
+              backgroundImage: "url(/assets/logos/logo3.png)",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              backgroundSize: "contain",
+              animation: "preloaderFade 1.8s ease-in-out infinite, preloaderZoom 3s ease-in-out infinite",
+            }}
+          />
+        </div>
         <ClientLayout locale={locale}>{children}</ClientLayout>
       </body>
     </html>

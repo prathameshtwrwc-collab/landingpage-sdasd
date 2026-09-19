@@ -1,5 +1,32 @@
 @import "tailwindcss";
 
+/* Preloader scroll lock and animations */
+html.preloader-active,
+html.preloader-active body {
+  overflow: hidden;
+  height: 100%;
+}
+
+@keyframes preloaderFade {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes preloaderZoom {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
 :root {
   --hero-orange: #FF6A00;
   --hero-orange-button: #FF9900;

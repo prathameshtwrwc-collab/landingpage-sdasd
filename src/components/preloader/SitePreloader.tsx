@@ -1,68 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
+import { useEffect, useRef } from "react";
+
+const MIN_VISIBLE_MS = 1200;
 
 export default function SitePreloader() {
-  const [visible, setVisible] = useState(true);
+  const startedAt = useRef<number | null>(null);
 
   useEffect(() => {
-    const onReady = () => {
-      setVisible(false);
+    startedAt.current = Date.now();
+
+    const removePreloader = () => {
+      const elapsed = Date.now() - (startedAt.current ?? Date.now());
+      const remaining = Math.max(0, MIN_VISIBLE_MS - elapsed);
+
+      setTimeout(() => {
+        const el = document.getElementById("site-preloader");
+        if (el) {
+          el.style.transition = "opacity 0.25s ease-out";
+          el.style.opacity = "0";
+          setTimeout(() => {
+            el.remove();
+          }, 260);
+        }
+        document.documentElement.classList.remove("preloader-active");
+        document.body.style.overflow = "";
+        document.body.style.height = "";
+      }, remaining);
     };
 
-    if (typeof window !== "undefined") {
-      if (document.readyState === "complete") {
-        onReady();
-      } else {
-        window.addEventListener("load", onReady, { once: true });
-      }
+    if (typeof window === "undefined") {
+      removePreloader();
+      return;
     }
 
+    if (document.readyState === "complete") {
+      removePreloader();
+      return;
+    }
+
+    const onLoaded = () => {
+      window.removeEventListener("load", onLoaded);
+      removePreloader();
+    };
+
+    window.addEventListener("load", onLoaded);
+
+    // Fallback in case load event already fired or is unreliable
+    const fallback = window.setTimeout(() => {
+      window.removeEventListener("load", onLoaded);
+      removePreloader();
+    }, 6000);
+
     return () => {
-      window.removeEventListener("load", onReady);
+      window.removeEventListener("load", onLoaded);
+      window.clearTimeout(fallback);
     };
   }, []);
 
-  if (!visible) return null;
-
-  return (
-    <div
-      className="fixed inset-0 z-[99999] flex items-center justify-center bg-white"
-      aria-hidden="true"
-    >
-      <div className="preloader-logo" />
-      <style jsx>{`
-        .preloader-logo {
-          width: clamp(120px, 28vw, 200px);
-          height: auto;
-          background-image: url("/assets/logos/logo3.png");
-          background-repeat: no-repeat;
-          background-position: center;
-          background-size: contain;
-          animation: preloaderFade 1.8s ease-in-out infinite, preloaderZoom 3s ease-in-out infinite;
-        }
-
-        @keyframes preloaderFade {
-          0%,
-          100% {
-            opacity: 0.35;
-          }
-          50% {
-            opacity: 1;
-          }
-        }
-
-        @keyframes preloaderZoom {
-          0%,
-          100% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.08);
-          }
-        }
-      `}</style>
-    </div>
-  );
+  return null;
 }

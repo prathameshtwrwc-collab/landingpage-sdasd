@@ -10,6 +10,7 @@ import SmoothScrollProvider from "@/components/smooth-scroll/SmoothScrollProvide
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { I18nProvider } from "@/components/i18n/I18nProvider";
 import { TTSProvider } from "@/components/tts/TTSProvider";
+import SitePreloader from "@/components/preloader/SitePreloader";
 import type { LocaleCode } from "@/i18n/locales";
 import type { ReactNode } from "react";
 
@@ -28,6 +29,7 @@ export default function ClientLayout({ children, locale }: ClientLayoutProps) {
               <TTSProvider>
                 <SmoothScrollProvider>
                   {children}
+                  <SitePreloader />
                   <LazyAssessmentModal />
                   <LazyConsultModal />
                   <FloatingTestButton />
