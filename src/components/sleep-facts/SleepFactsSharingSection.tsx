@@ -1,7 +1,7 @@
 "use client";
 import SectionTTSButton from "@/components/tts/SectionTTSButton";
 
-import React from "react"; import { motion } from "framer-motion";
+import React from "react"; import Image from "next/image"; import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
 const factKeys = ["fact1", "fact2", "fact3", "fact4"];
@@ -93,12 +93,14 @@ export default function SleepFactsSharingSection() {
                   }}
                 >
                   <div className="flex items-center justify-center w-[74px] h-[74px] md:w-[78px] md:h-[78px] lg:w-[86px] lg:h-[86px] p-[10px]">
-                    <img
+                    <Image
                       src={factImages[key]}
                       alt=""
                       className="w-full h-full object-contain"
                       draggable={false}
                       style={{ objectFit: "contain" }}
+                      width={86}
+                      height={86}
                     />
                   </div>
                 </div>

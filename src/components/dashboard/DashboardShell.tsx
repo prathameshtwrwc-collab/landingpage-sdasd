@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -291,11 +292,13 @@ export default function DashboardShell({
         {/* Brand + Toggle */}
         <div className="flex items-center justify-between px-[16px] h-[68px] shrink-0" style={{ borderBottom: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA" }}>
           <div className="flex items-center gap-[10px]">
-            <img
+            <Image
               src="/assets/logos/logo3.png"
               alt="Chronotype"
               className="shrink-0"
               style={{ height: sidebarCollapsed ? "40px" : "48px", width: "auto", maxWidth: sidebarCollapsed ? "40px" : "150px", objectFit: "contain", borderRadius: "8px" }}
+              width={150}
+              height={48}
             />
             {!sidebarCollapsed && (
               <div className="flex flex-col">

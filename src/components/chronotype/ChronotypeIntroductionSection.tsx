@@ -4,6 +4,7 @@ import SectionTTSButton from "@/components/tts/SectionTTSButton";
 import React from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 import { useAssessment } from "@/components/assessment/AssessmentContext";
 
 const influenceKeys = [
@@ -101,10 +102,11 @@ export default function ChronotypeIntroductionSection() {
             variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.45, ease: "easeOut" } } }}
           >
           <div className="chronotype-intro-image-wrap w-full max-w-[340px] md:max-w-[420px] lg:max-w-[480px] mx-auto md:mx-0 md:align-self-start mt-[24px] md:mt-0 overflow-hidden">
-            <img
+            <Image
               src="/assets/section2/section-2.jpg"
               alt="Woman meditating while visualizing her natural biological rhythm"
               className="chronotype-intro-image w-full h-auto object-cover"
+              draggable={false}
               style={{
                 fontFamily: "Poppins, sans-serif",
                 display: "block",
@@ -114,7 +116,8 @@ export default function ChronotypeIntroductionSection() {
                 borderRadius: 0,
                 boxShadow: "none",
               }}
-              draggable={false}
+              width={640}
+              height={480}
             />
           </div>
           </motion.div>

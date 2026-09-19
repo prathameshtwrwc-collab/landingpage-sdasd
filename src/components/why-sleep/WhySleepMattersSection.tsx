@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import SectionTTSButton from "@/components/tts/SectionTTSButton";
@@ -144,12 +145,14 @@ export default function WhySleepMattersSection() {
                 {t(`${pillar.key}.title`)}
               </h3>
               <div className="w-full h-auto overflow-hidden why-sleep-image-wrap" style={{ aspectRatio: "16 / 9" }}>
-                <img
+                <Image
                   src={pillar.image}
                   alt={t(`${pillar.key}.alt`)}
                   className="w-full h-full block"
                   draggable={false}
                   style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0, boxShadow: "none", display: "block", aspectRatio: "16 / 9", height: "auto" }}
+                  width={640}
+                  height={360}
                 />
               </div>
               <p

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, type FormEvent } from "react";
+import Image from "next/image";
 import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./AuthProvider";
@@ -207,7 +208,7 @@ export default function LoginCard() {
     <div className="w-full max-w-[420px] mx-auto" style={{ fontFamily: "Poppins, sans-serif" }}>
       {/* Logo */}
       <div className="flex items-center gap-[12px] mb-[32px]">
-        <img src="/assets/logos/logo3.png" alt="Chronotype" style={{ height: "52px", width: "auto", objectFit: "contain" }} />
+        <Image src="/assets/logos/logo3.png" alt="Chronotype" style={{ height: "52px", width: "auto", objectFit: "contain" }} width={120} height={52} />
         <span className="text-[20px] font-bold" style={{ color: "#1A1668" }}>Chronotype</span>
       </div>
 

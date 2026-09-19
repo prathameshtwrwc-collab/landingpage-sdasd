@@ -1,5 +1,10 @@
 import type { Variants } from "framer-motion";
 
+export const reducedMotion: Variants = {
+  hidden: { opacity: 1, y: 0, x: 0, scale: 1 },
+  visible: { opacity: 1, y: 0, x: 0, scale: 1, transition: { duration: 0 } },
+};
+
 export const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },

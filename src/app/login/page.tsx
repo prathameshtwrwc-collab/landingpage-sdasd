@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -54,7 +55,7 @@ export default function LoginPage() {
         <div className="relative z-10 flex flex-col items-center text-center px-[40px] max-w-[480px]">
           {/* Logo */}
           <span className="flex items-center justify-center rounded-2xl mb-[28px] px-[18px] py-[10px]" style={{ background: "#FFFFFF", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}>
-            <img src="/assets/logos/logo3.png" alt="Chronotype" style={{ height: "clamp(56px, 6.5vh, 84px)", width: "auto", objectFit: "contain" }} />
+            <Image src="/assets/logos/logo3.png" alt="Chronotype" style={{ height: "clamp(56px, 6.5vh, 84px)", width: "auto", objectFit: "contain" }} width={84} height={84} />
           </span>
 
           <h1 className="m-0 text-[32px] font-bold leading-[1.2] text-white mb-[12px]">

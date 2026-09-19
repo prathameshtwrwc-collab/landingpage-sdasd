@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useAssessment } from "@/components/assessment/AssessmentContext";
 import { useConsult } from "@/components/consult/ConsultContext";
@@ -239,9 +240,9 @@ export default function SiteNavbar({ brandingLogo, brandingCompany }: SiteNavbar
               aria-label={brandingCompany ? `${brandingCompany} - Home` : "Chronotype - Home"}
             >
               {brandingLogo ? (
-                <img src={brandingLogo} alt={brandingCompany ?? "Brand"} className="shrink-0" style={{ height: "clamp(36px, 4vw, 46px)", width: "auto", maxWidth: "140px", objectFit: "contain" }} />
+                <Image src={brandingLogo} alt={brandingCompany ?? "Brand"} className="shrink-0" style={{ height: "clamp(36px, 4vw, 46px)", width: "auto", maxWidth: "140px", objectFit: "contain" }} width={140} height={46} unoptimized />
               ) : (
-                <img src="/assets/logos/logo3.png" alt="Chronotype" className="shrink-0" style={{ height: "clamp(36px, 4vw, 46px)", width: "auto", maxWidth: "140px", objectFit: "contain" }} />
+                <Image src="/assets/logos/logo3.png" alt="Chronotype" className="shrink-0" style={{ height: "clamp(36px, 4vw, 46px)", width: "auto", maxWidth: "140px", objectFit: "contain" }} width={140} height={46} />
               )}
               <span
                 className="font-semibold leading-[1] tracking-[-0.01em] site-brand-text"

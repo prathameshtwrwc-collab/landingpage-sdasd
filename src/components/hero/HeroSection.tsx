@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useAssessment } from "@/components/assessment/AssessmentContext";
@@ -701,7 +702,7 @@ export default function HeroSection() {
                 transition={{ duration: 0.4, ease: "easeOut", delay: 0.55 + imgIdx * 0.08 }}
               >
                 <div className="hero-benefit-media">
-                  <img
+                  <Image
                     src={src}
                     alt=""
                     draggable={false}
@@ -710,6 +711,8 @@ export default function HeroSection() {
                     style={{
                       transform: "scale(1.08)",
                     }}
+                    width={128}
+                    height={128}
                   />
                 </div>
                 <p className="hero-benefit-label" style={{ color: imgIdx === 1 ? "#37329D" : "#FF9700" }}>

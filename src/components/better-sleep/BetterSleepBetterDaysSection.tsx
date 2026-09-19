@@ -2,6 +2,7 @@
 import SectionTTSButton from "@/components/tts/SectionTTSButton";
 
 import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
@@ -178,7 +179,7 @@ export default function BetterSleepBetterDaysSection() {
               "
               style={{ aspectRatio: "4 / 3", height: "auto" }}
             >
-              <img
+              <Image
                 src="/assets/section5/section-5.jpg"
                 alt="Woman sleeping peacefully in a comfortable bright room"
                 className="w-full h-full object-cover block"
@@ -193,6 +194,8 @@ export default function BetterSleepBetterDaysSection() {
                   height: "auto",
                   maxHeight: "420px",
                 }}
+                width={640}
+                height={480}
               />
             </div>
           </motion.div>

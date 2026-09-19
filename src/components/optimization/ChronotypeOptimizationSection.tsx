@@ -2,6 +2,7 @@
 import SectionTTSButton from "@/components/tts/SectionTTSButton";
 
 import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
@@ -172,7 +173,7 @@ export default function ChronotypeOptimizationSection() {
               aspectRatio: "4 / 5",
             }}
           >
-            <img
+            <Image
               src="/assets/section3/section-3.jpg"
               alt="Woman practicing a balance pose outdoors"
               className="w-full h-full"
@@ -186,6 +187,8 @@ export default function ChronotypeOptimizationSection() {
                 height: "auto",
                 maxHeight: "520px",
               }}
+              width={480}
+              height={600}
             />
           </div>
         </div>

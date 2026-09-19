@@ -2,6 +2,7 @@
 import SectionTTSButton from "@/components/tts/SectionTTSButton";
 
 import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useConsult } from "@/components/consult/ConsultContext";
@@ -73,12 +74,14 @@ export default function WarningSignsSection() {
                     className="flex items-center justify-center w-[52px] h-[52px] md:w-[58px] md:h-[58px] lg:w-[68px] lg:h-[68px] shrink-0"
                     aria-hidden="true"
                   >
-                    <img
+                    <Image
                       src={warningImages[key]}
                       alt=""
                       className="w-full h-full object-contain"
                       draggable={false}
                       style={{ objectFit: "contain" }}
+                      width={68}
+                      height={68}
                     />
                   </div>
                   <p

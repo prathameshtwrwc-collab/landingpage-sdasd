@@ -35,9 +35,6 @@ function persistLocale(locale: LocaleCode) {
 
 interface I18nProviderProps {
   children: ReactNode;
-  /** Locale resolved on the server (from the app_locale cookie). Using this as the
-   *  initial state guarantees the client's first render matches the server HTML,
-   *  which eliminates hydration mismatches. */
   initialLocale: LocaleCode;
 }
 
@@ -45,17 +42,28 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
   const [locale, setLocaleState] = useState<LocaleCode>(() =>
     isValidLocale(initialLocale) ? initialLocale : "en"
   );
+  const [messages, setMessages] = useState<Record<string, unknown>>({});
+  const [messagesLoaded, setMessagesLoaded] = useState(false);
 
-  // Keep <html lang dir data-locale> in sync with the active locale.
+  useEffect(() => {
+    let cancelled = false;
+    getMessages(locale).then((msgs) => {
+      if (!cancelled) {
+        setMessages(msgs);
+        setMessagesLoaded(true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
+
   useEffect(() => {
     document.documentElement.lang = locale;
     document.documentElement.dir = dirForLocale(locale);
     document.documentElement.setAttribute("data-locale", locale);
   }, [locale]);
 
-  // Superadmin / admin dashboards are always English — never translate the
-  // management UI or the member data shown there. Applied after hydration so
-  // the server-rendered HTML and client first paint always match.
   useEffect(() => {
     const path = window.location.pathname;
     if ((path.startsWith("/superadmin") || path.startsWith("/admin")) && locale !== "en") {
@@ -72,9 +80,17 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
     [locale]
   );
 
-  const messages = useMemo(() => getMessages(locale), [locale]);
-
   const value = useMemo(() => ({ locale, setLocale }), [locale, setLocale]);
+
+  if (!messagesLoaded) {
+    return (
+      <I18nContext.Provider value={value}>
+        <NextIntlClientProvider locale={locale} messages={messages} timeZone="UTC">
+          {children}
+        </NextIntlClientProvider>
+      </I18nContext.Provider>
+    );
+  }
 
   return (
     <I18nContext.Provider value={value}>

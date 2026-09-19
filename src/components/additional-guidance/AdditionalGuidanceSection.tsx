@@ -2,6 +2,7 @@
 import SectionTTSButton from "@/components/tts/SectionTTSButton";
 
 import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useConsult } from "@/components/consult/ConsultContext";
@@ -61,7 +62,7 @@ export default function AdditionalGuidanceSection() {
 
           <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.45, ease: "easeOut" } } }} className="w-full mt-[24px] md:mt-0 max-w-full min-w-0">
             <div className="w-full aspect-[4/3] md:aspect-auto md:h-[340px] lg:h-[390px] overflow-hidden">
-              <img
+              <Image
                 src="/assets/section11/section11.jpg"
                 alt="Woman waking refreshed and stretching in a bright bedroom"
                 className="w-full h-full block object-cover"
@@ -73,6 +74,8 @@ export default function AdditionalGuidanceSection() {
                   boxShadow: "none",
                   display: "block",
                 }}
+                width={640}
+                height={480}
               />
             </div>
           </motion.div>

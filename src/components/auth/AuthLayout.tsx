@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Moon, Sparkles } from "lucide-react";
 
 export default function AuthLayout({
@@ -77,7 +78,7 @@ export default function AuthLayout({
               : "0 4px 12px rgba(53, 49, 155, 0.18)",
           }}
         >
-          <img src="/assets/logos/logo3.png" alt="Chronotype" style={{ height: "clamp(48px, 6vh, 64px)", width: "auto", objectFit: "contain" }} />
+          <Image src="/assets/logos/logo3.png" alt="Chronotype" style={{ height: "clamp(48px, 6vh, 64px)", width: "auto", objectFit: "contain" }} width={64} height={64} />
         </span>
         <div className="flex flex-col">
           <span

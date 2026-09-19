@@ -2,6 +2,7 @@
 import SectionTTSButton from "@/components/tts/SectionTTSButton";
 
 import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
@@ -51,7 +52,7 @@ export default function UnderstandingSleepCyclesSection() {
           <div className="w-full h-[390px] md:h-[350px] lg:h-[390px] grid grid-rows-[1fr_1fr_1fr] gap-[4px] min-w-0">
             {stripImages.map((img) => (
               <div key={img.altKey} className="w-full h-full overflow-hidden bg-[#F7F7F7] min-w-0">
-                <img src={img.src} alt={t(img.altKey)} className="w-full h-full block object-cover" draggable={false} style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0, boxShadow: "none" }} />
+                <Image src={img.src} alt={t(img.altKey)} className="w-full h-full block object-cover" draggable={false} style={{ objectFit: "cover", objectPosition: "center", borderRadius: 0, boxShadow: "none" }} width={300} height={130} />
               </div>
             ))}
           </div>
@@ -96,7 +97,7 @@ export default function UnderstandingSleepCyclesSection() {
           <div className="grid grid-cols-3 gap-[4px] w-full mb-[20px] min-w-0">
             {stripImages.map((img) => (
               <div key={img.altKey + "-mobile"} className="w-full h-auto overflow-hidden bg-[#F7F7F7] min-w-0" style={{ aspectRatio: "1 / 1" }}>
-                <img src={img.src} alt={t(img.altKey)} className="w-full h-full object-cover block" draggable={false} style={{ objectFit: "cover", borderRadius: 0, aspectRatio: "1 / 1", height: "auto" }} />
+                <Image src={img.src} alt={t(img.altKey)} className="w-full h-full object-cover block" draggable={false} style={{ objectFit: "cover", borderRadius: 0, aspectRatio: "1 / 1", height: "auto" }} width={300} height={300} />
               </div>
             ))}
           </div>
