@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -97,16 +98,15 @@ export default function LoginPage() {
         {/* Back to Home */}
         <div className="absolute top-[20px] right-[24px] md:right-[48px] z-[50] flex flex-col items-end gap-[10px]">
           <div className="flex items-center gap-[10px]">
-            <button
-              type="button"
-              onClick={() => router.push("/")}
+            <Link
+              href="/"
               aria-label="Back to home"
               title="Back to home"
               className="flex items-center justify-center w-[44px] h-[44px] rounded-full border-none cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
-              style={{ background: "#FFFFFF", color: "#35319B", boxShadow: "0 4px 16px rgba(53,49,155,0.18)" }}
+              style={{ background: "#FFFFFF", color: "#35319B", boxShadow: "0 4px 16px rgba(53,49,155,0.18)", textDecoration: "none" }}
             >
               <Home size={20} strokeWidth={2.2} />
-            </button>
+            </Link>
           </div>
           <span className="text-[10px] font-medium" style={{ color: "#667085", fontFamily: "Poppins, sans-serif" }}>Back to Home</span>
         </div>
