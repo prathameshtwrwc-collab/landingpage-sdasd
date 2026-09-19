@@ -84,9 +84,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             }}
           />
         </div>
-        <div className="preloader-content">
-          <ClientLayout locale={locale}>{children}</ClientLayout>
-        </div>
+        <ClientLayout locale={locale}>{children}</ClientLayout>
       </body>
     </html>
   );

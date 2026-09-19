@@ -20,7 +20,7 @@ export default function SitePreloader() {
           el.style.transition = "opacity 0.2s ease-out";
           el.style.opacity = "0";
           setTimeout(() => {
-            el.remove();
+            el.style.display = "none";
           }, 220);
         }
         document.documentElement.classList.remove("preloader-active");

@@ -11,6 +11,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { I18nProvider } from "@/components/i18n/I18nProvider";
 import { TTSProvider } from "@/components/tts/TTSProvider";
 import SitePreloader from "@/components/preloader/SitePreloader";
+import ClerkErrorGuard from "@/components/ClerkErrorGuard";
 import type { LocaleCode } from "@/i18n/locales";
 import type { ReactNode } from "react";
 
@@ -28,11 +29,13 @@ export default function ClientLayout({ children, locale }: ClientLayoutProps) {
             <I18nProvider initialLocale={locale}>
               <TTSProvider>
                 <SmoothScrollProvider>
-                  {children}
-                  <SitePreloader />
-                  <LazyAssessmentModal />
-                  <LazyConsultModal />
-                  <FloatingTestButton />
+                  <ClerkErrorGuard>
+                    {children}
+                    <SitePreloader />
+                    <LazyAssessmentModal />
+                    <LazyConsultModal />
+                    <FloatingTestButton />
+                  </ClerkErrorGuard>
                 </SmoothScrollProvider>
               </TTSProvider>
             </I18nProvider>
