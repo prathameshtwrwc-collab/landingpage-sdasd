@@ -36,7 +36,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const dir = dirForLocale(locale);
 
   return (
-    <html lang={locale} dir={dir} data-locale={locale} className={`${poppins.variable} preloader-active`}>
+    <html lang={locale} dir={dir} data-locale={locale} className={poppins.variable}>
       <head>
         <Script
           id="css-feature-detection"
@@ -47,8 +47,18 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         />
         <link rel="preconnect" href="https://wqoplsaxjjazctvcccxn.supabase.co" />
         <link rel="dns-prefetch" href="https://wqoplsaxjjazctvcccxn.supabase.co" />
+        <style
+          id="site-preloader-styles"
+          dangerouslySetInnerHTML={{
+            __html: `
+              html.preloader-active, html.preloader-active body { overflow: hidden; height: 100%; }
+              @keyframes preloaderFade { 0%,100% { opacity: 0.35; } 50% { opacity: 1; } }
+              @keyframes preloaderZoom { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+            `,
+          }}
+        />
       </head>
-      <body className="bg-white text-[#171717] antialiased font-[var(--font-poppins)]">
+      <body className="bg-white text-[#171717] antialiased font-[var(--font-poppins)]" style={{ overflow: "hidden", height: "100%" }}>
         <div
           id="site-preloader"
           aria-hidden="true"

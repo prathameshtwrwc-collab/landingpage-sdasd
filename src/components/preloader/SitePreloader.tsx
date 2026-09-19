@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-const MIN_VISIBLE_MS = 500;
+const MIN_VISIBLE_MS = 600;
+const FALLBACK_REMOVE_MS = 2200;
 
 export default function SitePreloader() {
   const startedAt = useRef<number | null>(null);
@@ -34,25 +35,11 @@ export default function SitePreloader() {
       return;
     }
 
-    if (document.readyState === "interactive" || document.readyState === "complete") {
-      removePreloader();
-      return;
-    }
-
-    const onReady = () => {
-      window.removeEventListener("DOMContentLoaded", onReady);
-      removePreloader();
-    };
-
-    window.addEventListener("DOMContentLoaded", onReady);
-
     const fallback = window.setTimeout(() => {
-      window.removeEventListener("DOMContentLoaded", onReady);
       removePreloader();
-    }, 4000);
+    }, FALLBACK_REMOVE_MS);
 
     return () => {
-      window.removeEventListener("DOMContentLoaded", onReady);
       window.clearTimeout(fallback);
     };
   }, []);
