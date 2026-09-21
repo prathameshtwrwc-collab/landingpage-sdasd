@@ -243,7 +243,7 @@ export default function DashboardShell({
   }
 
   return (
-    <div className={`min-h-screen flex ${darkMode ? "dark" : ""}`} style={{ fontFamily: "Poppins, sans-serif", background: darkMode ? "#0F0F23" : "#F8FAFC" }}>
+    <div className={`min-h-screen flex ${darkMode ? "dark" : ""}`} style={{ fontFamily: "Poppins, sans-serif", background: darkMode ? "#0F0F23" : "#F8FAFC", overflowX: "hidden" }}>
       {/* Dark mode CSS overrides */}
       <style>{`
         .dark .dm-bg-card { background: #1A1A2E !important; }
@@ -259,7 +259,7 @@ export default function DashboardShell({
       `}</style>
 
       {/* ── DESKTOP SIDEBAR ── */}
-      <aside className={`hidden md:flex md:flex-col md:fixed md:inset-y-0 md:left-0 md:z-40 transition-all duration-200`}
+      <aside className={`hidden md:flex md:flex-col md:fixed md:inset-y-0 md:left-0 md:z-50 transition-all duration-200`}
         style={{
           width: sidebarCollapsed ? "72px" : "260px",
           background: darkMode ? "#16162A" : "#FFFFFF",
@@ -353,7 +353,7 @@ export default function DashboardShell({
 
       {/* ── MAIN CONTENT ── */}
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-200`}
-        style={{ marginLeft: isMounted && isDesktop ? (sidebarCollapsed ? "72px" : "260px") : "0px" }}>
+        style={{ marginLeft: isMounted && isDesktop ? (sidebarCollapsed ? "72px" : "260px") : "0px", overflowX: "hidden" }}>
 
         {/* Top header */}
         <header className="sticky top-0 z-30 flex items-center justify-between px-[14px] md:px-[32px] h-[56px] md:h-[68px]"
