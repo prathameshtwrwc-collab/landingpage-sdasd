@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { AssessmentProvider } from "@/components/assessment/AssessmentContext";
 import LazyAssessmentModal from "@/components/assessment/LazyAssessmentModal";
@@ -14,6 +15,31 @@ import SitePreloader from "@/components/preloader/SitePreloader";
 import ClerkErrorGuard from "@/components/ClerkErrorGuard";
 import type { LocaleCode } from "@/i18n/locales";
 import type { ReactNode } from "react";
+
+function CssFeatureDetector() {
+  useEffect(() => {
+    const d = document.documentElement;
+    if (typeof CSS !== "undefined" && CSS.supports) {
+      if (!CSS.supports("font-size", "clamp(1px,1px,1px)")) d.setAttribute("data-no-clamp", "");
+      if (!CSS.supports("height", "100dvh")) d.setAttribute("data-no-dvh", "");
+      if (!CSS.supports("width", "min(1px,1px)")) d.setAttribute("data-no-min", "");
+      if (!CSS.supports("scroll-margin-top", "1px")) d.setAttribute("data-no-scroll-margin", "");
+      try {
+        const t = document.createElement("div");
+        t.style.display = "-webkit-flex";
+        t.style.display = "flex";
+        t.style.gap = "1px";
+        d.appendChild(t);
+        const s = getComputedStyle(t).gap;
+        d.removeChild(t);
+        if (s !== "1px") d.setAttribute("data-no-flexgap", "");
+      } catch {
+        d.setAttribute("data-no-flexgap", "");
+      }
+    }
+  }, []);
+  return null;
+}
 
 interface ClientLayoutProps {
   children: ReactNode;
@@ -30,6 +56,7 @@ export default function ClientLayout({ children, locale }: ClientLayoutProps) {
               <TTSProvider>
                 <SmoothScrollProvider>
                   <ClerkErrorGuard>
+                    <CssFeatureDetector />
                     {children}
                     <SitePreloader />
                     <LazyAssessmentModal />

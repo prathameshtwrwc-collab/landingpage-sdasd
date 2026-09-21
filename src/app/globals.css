@@ -31,6 +31,15 @@ html.preloader-active .preloader-content {
   }
 }
 
+@keyframes dashboardFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-content-enter {
+  animation: dashboardFadeIn 0.18s ease-out;
+}
+
 :root {
   --hero-orange: #FF6A00;
   --hero-orange-button: #FF9900;

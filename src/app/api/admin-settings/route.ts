@@ -17,7 +17,7 @@ export async function GET() {
     const supabase = await createClient();
     const { data, error } = await supabase.from("platform_settings").select("key, value");
 
-    if (error && error.message.includes("relation")) {
+    if (error && (error.message.includes("relation") || error.message.includes("Could not find the table"))) {
       return NextResponse.json({ settings: DEFAULTS, dbMissing: true });
     }
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       { onConflict: "key" }
     );
 
-    if (error && error.message.includes("relation")) {
+    if (error && (error.message.includes("relation") || error.message.includes("Could not find the table"))) {
       // Table doesn't exist - just return success since we'll use client-side fallback
       return NextResponse.json({ success: true, dbMissing: true });
     }

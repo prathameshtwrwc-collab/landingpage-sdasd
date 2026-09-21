@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import DonateModal from "@/components/DonateModal";
 import { useAssessment } from "@/components/assessment/AssessmentContext";
+import { preload } from "@/lib/client-cache";
 
 interface NavItem {
   label: string;
@@ -150,13 +151,34 @@ export default function DashboardShell({
   const { openForRetest } = useAssessment();
   const pathname = usePathname();
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [contentReady, setContentReady] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [donateOpen, setDonateOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
+  const [sidebarReady, setSidebarReady] = useState(false);
   const avatarRef = useRef<HTMLDivElement>(null);
+
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return cachedSidebarCollapsed ?? readSidebarPref();
+  });
+
+  useEffect(() => {
+    setSidebarCollapsed((prev) => {
+      const persisted = cachedSidebarCollapsed ?? readSidebarPref();
+      if (prev !== persisted) return persisted;
+      return prev;
+    });
+    setSidebarReady(true);
+  }, []);
+
+  const effectiveSidebarCollapsed = sidebarReady ? sidebarCollapsed : false;
+
+  useEffect(() => {
+    setIsDesktop(window.innerWidth >= 768);
+  }, []);
 
   useEffect(() => {
     if (!avatarOpen) return;
@@ -172,21 +194,6 @@ export default function DashboardShell({
     };
   }, [avatarOpen]);
 
-  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
-    if (typeof window === "undefined") return true;
-    return cachedSidebarCollapsed ?? readSidebarPref();
-  });
-
-  // Sync after hydration: guarantees the state matches the persisted value even
-  // if React resumed the useState from the server snapshot during hydration.
-  useEffect(() => {
-    setSidebarCollapsed((prev) => {
-      const persisted = cachedSidebarCollapsed ?? readSidebarPref();
-      if (prev !== persisted) return persisted;
-      return prev;
-    });
-  }, []);
-
   const toggleSidebar = useCallback(() => {
     setSidebarCollapsed((prev) => {
       const next = !prev;
@@ -196,10 +203,12 @@ export default function DashboardShell({
     });
   }, []);
 
-  useEffect(() => { 
-    setIsMounted(true);
-    setIsDesktop(window.innerWidth >= 768);
-  }, []);
+  // Quick content skeleton on navigation for smoother feel
+  useEffect(() => {
+    setContentReady(false);
+    const timer = setTimeout(() => setContentReady(true), 120);
+    return () => clearTimeout(timer);
+  }, [pathname]);
 
   // Apply dark mode on all dashboard pages
   const applyDark = useCallback(() => {
@@ -234,16 +243,33 @@ export default function DashboardShell({
   const mobileMainItems = navItems.slice(0, MOBILE_MAIN_COUNT);
   const mobileMoreItems = navItems.slice(MOBILE_MAIN_COUNT);
 
-  if (!isMounted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ fontFamily: "Poppins, sans-serif", background: "#F8FAFC" }}>
-        <div className="text-center">
-          <div className="w-[28px] h-[28px] mx-auto mb-[10px] rounded-full border-2 border-[#35319B] border-t-transparent animate-spin" />
-          <p className="text-[13px]" style={{ color: "#667085" }}>Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  // Preload data on hover for instant navigation
+  const handleNavHover = useCallback((href: string) => {
+    const preloadMap: Record<string, string> = {
+      "/superadmin/dashboard": "/api/admin?org_limit=5&admin_limit=5&member_limit=5",
+      "/superadmin/dashboard/users": "/api/admin?org_limit=200&admin_limit=200&member_limit=200",
+      "/superadmin/dashboard/organizations": "/api/admin?org_limit=50",
+      "/superadmin/dashboard/assessments": "/api/admin-assessments",
+      "/superadmin/dashboard/reports": "/api/admin-reports",
+      "/superadmin/dashboard/consultations": "/api/consultation-leads?limit=10",
+      "/superadmin/dashboard/tickets": "/api/support-tickets?limit=10",
+      "/superadmin/dashboard/settings": "/api/admin-settings",
+      "/superadmin/dashboard/analytics": "/api/admin-reports",
+      "/superadmin/dashboard/audit": "/api/admin-audit?limit=10",
+      "/admin/dashboard": "/api/admin-portal",
+      "/admin/dashboard/participants": "/api/admin-portal",
+      "/admin/dashboard/reports": "/api/admin-portal",
+      "/admin/dashboard/team": "/api/admin-portal",
+      "/admin/dashboard/settings": "/api/admin?action=org-settings",
+      "/admin/dashboard/notifications": "/api/support-tickets?limit=10",
+      "/admin/dashboard/help": "/api/support-tickets?limit=10",
+      "/dashboard": "/api/member",
+    };
+    const url = preloadMap[href];
+    if (url) {
+      preload(url);
+    }
+  }, []);
 
   return (
     <div className={`min-h-screen flex ${darkMode ? "dark" : ""}`} style={{ fontFamily: "Poppins, sans-serif", background: darkMode ? "#0F0F23" : "#F8FAFC" }}>
@@ -262,12 +288,14 @@ export default function DashboardShell({
       `}</style>
 
       {/* ── DESKTOP SIDEBAR ── */}
-      <aside className={`hidden md:flex md:flex-col md:fixed md:inset-y-0 md:left-0 md:z-50 transition-all duration-200`}
+      <aside suppressHydrationWarning
+        className={`hidden md:flex md:flex-col md:fixed md:inset-y-0 md:left-0 md:z-50 transition-all duration-200`}
         style={{
-          width: sidebarCollapsed ? "72px" : "260px",
+          width: effectiveSidebarCollapsed ? "72px" : "260px",
           background: darkMode ? "#16162A" : "#FFFFFF",
           borderRight: darkMode ? "1px solid #2A2A4A" : "1px solid #E6E8F0",
         }}>
+        <div suppressHydrationWarning>
         {/* Brand + Toggle */}
         <div className="flex items-center justify-between px-[16px] h-[68px] shrink-0" style={{ borderBottom: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA" }}>
           <div className="flex items-center gap-[10px]">
@@ -275,11 +303,12 @@ export default function DashboardShell({
               src="/assets/logos/logo3.png"
               alt="Chronotype"
               className="shrink-0"
-              style={{ height: sidebarCollapsed ? "40px" : "48px", width: "auto", maxWidth: sidebarCollapsed ? "40px" : "150px", objectFit: "contain", borderRadius: "8px" }}
+              style={{ height: effectiveSidebarCollapsed ? "40px" : "48px", width: "auto", maxWidth: effectiveSidebarCollapsed ? "40px" : "150px", objectFit: "contain", borderRadius: "8px" }}
               width={150}
               height={48}
+              suppressHydrationWarning
             />
-            {!sidebarCollapsed && (
+            {!effectiveSidebarCollapsed && (
               <div className="flex flex-col">
                 <span className="text-[15px] font-bold leading-[1.2]" style={{ color: darkMode ? "#E0E0E0" : "#19164F", fontFamily: "Poppins, sans-serif", fontWeight: 700 }}>Chronotype</span>
                 <span className="text-[10px] font-medium" style={{ color: darkMode ? "#888" : "#667085", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
@@ -291,7 +320,7 @@ export default function DashboardShell({
           <button type="button" onClick={toggleSidebar}
             className="flex items-center justify-center w-[24px] h-[24px] rounded-lg border-none cursor-pointer bg-transparent shrink-0"
             style={{ color: darkMode ? "#666" : "#98A2B3" }}>
-            <ChevronLeft size={14} style={{ transform: sidebarCollapsed ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+            <ChevronLeft size={14} style={{ transform: effectiveSidebarCollapsed ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
           </button>
         </div>
 
@@ -299,8 +328,9 @@ export default function DashboardShell({
         <nav className="flex-1 overflow-y-auto px-[8px] py-[16px] space-y-[2px]">
           {resolvedNavItems.map((item) => {
             const active = isActive(item.href);
-            return sidebarCollapsed ? (
+            return effectiveSidebarCollapsed ? (
               <Link key={item.href} href={item.href} title={item.label}
+                onMouseEnter={() => handleNavHover(item.href)}
                 className="flex items-center justify-center px-[0] py-[10px] rounded-xl no-underline transition-all duration-150"
                 style={{
                   background: active ? (darkMode ? "rgba(89,83,203,0.2)" : "rgba(59,53,163,0.08)") : "transparent",
@@ -310,6 +340,7 @@ export default function DashboardShell({
               </Link>
             ) : (
               <Link key={item.href} href={item.href}
+                onMouseEnter={() => handleNavHover(item.href)}
                 className="flex items-center justify-between px-[12px] py-[12px] rounded-xl text-[15px] font-medium no-underline transition-all duration-150"
                 style={{
                   fontFamily: "Poppins, sans-serif",
@@ -338,25 +369,27 @@ export default function DashboardShell({
         <div className="px-[8px] pb-[16px] flex items-center justify-center gap-[10px] flex-wrap"
           style={{ borderTop: darkMode ? "1px solid #2A2A4A" : "1px solid #F1F4FA", paddingTop: "12px" }}>
           <Link href={orgCode ? `/${orgCode}` : "/"} className="flex items-center gap-[8px] text-[15px] font-medium no-underline"
-            style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif", padding: sidebarCollapsed ? "8px" : "0" }}>
-            <Home size={22} /> {!sidebarCollapsed && "Home"}
+            style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif", padding: effectiveSidebarCollapsed ? "8px" : "0" }}>
+            <Home size={22} /> {!effectiveSidebarCollapsed && "Home"}
           </Link>
           <button onClick={() => setDonateOpen(true)}
             className="flex items-center gap-[8px] text-[15px] font-medium bg-none border-none cursor-pointer"
-            style={{ color: "#FF6B6B", fontFamily: "Poppins, sans-serif", padding: sidebarCollapsed ? "8px" : "0" }}>
-            <Heart size={22} /> {!sidebarCollapsed && "Donate"}
+            style={{ color: "#FF6B6B", fontFamily: "Poppins, sans-serif", padding: effectiveSidebarCollapsed ? "8px" : "0" }}>
+            <Heart size={22} /> {!effectiveSidebarCollapsed && "Donate"}
           </button>
           <button onClick={async () => { await logout(); window.location.href = "/login"; }}
             className="flex items-center gap-[8px] text-[15px] font-medium bg-none border-none cursor-pointer"
-            style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif", padding: sidebarCollapsed ? "8px" : "0" }}>
-            <LogOut size={22} /> {!sidebarCollapsed && "Logout"}
+            style={{ color: darkMode ? "#666" : "#98A2B3", fontFamily: "Poppins, sans-serif", padding: effectiveSidebarCollapsed ? "8px" : "0" }}>
+            <LogOut size={22} /> {!effectiveSidebarCollapsed && "Logout"}
           </button>
+        </div>
         </div>
       </aside>
 
       {/* ── MAIN CONTENT ── */}
-      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-200 md:ml-[260px]`}
-        style={{ marginLeft: isDesktop && sidebarCollapsed ? "72px" : undefined }}>
+      <div suppressHydrationWarning
+        className={`flex-1 flex flex-col min-h-screen transition-all duration-200 md:ml-[260px]`}
+        style={{ marginLeft: isDesktop && effectiveSidebarCollapsed ? "72px" : undefined }}>
 
         {/* Top header */}
         <header className="sticky top-0 z-30 flex items-center justify-between px-[14px] md:px-[32px] h-[56px] md:h-[68px]"
@@ -430,7 +463,9 @@ export default function DashboardShell({
 
         {/* Page content */}
         <main className="flex-1 px-[12px] md:px-[32px] py-[16px] md:py-[28px] pb-[80px] md:pb-[28px]" style={{ background: darkMode ? "#0F0F23" : "transparent" }}>
-          {children}
+          <div className={`dashboard-content-enter ${contentReady ? "" : "opacity-0"}`}>
+            {children}
+          </div>
         </main>
       </div>
 
