@@ -196,7 +196,10 @@ export default function DashboardShell({
     });
   }, []);
 
-  useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => { 
+    setIsMounted(true);
+    setIsDesktop(window.innerWidth >= 768);
+  }, []);
 
   // Apply dark mode on all dashboard pages
   const applyDark = useCallback(() => {
@@ -352,8 +355,8 @@ export default function DashboardShell({
       </aside>
 
       {/* ── MAIN CONTENT ── */}
-      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-200`}
-        style={{ marginLeft: isDesktop ? (sidebarCollapsed ? "72px" : "260px") : "0px" }}>
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-200 md:ml-[260px]`}
+        style={{ marginLeft: isDesktop && sidebarCollapsed ? "72px" : undefined }}>
 
         {/* Top header */}
         <header className="sticky top-0 z-30 flex items-center justify-between px-[14px] md:px-[32px] h-[56px] md:h-[68px]"
