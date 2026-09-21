@@ -2,6 +2,19 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.39] — 2026-09-21 — Remove superadmin context menu, add consultation cooldown, and remove email verify from consult
+
+### Removed — Superadmin right-click context menu
+- Removed the right-click Help & Support context menu from dashboard shell. It was not functional in superadmin and is accessible from the sidebar.
+
+### Added — Consultation request cooldown
+- Member dashboard consult button now checks for existing consultation requests within the last 24 hours.
+- If a recent request exists, the consult modal shows the scheduled date/time and a live countdown timer until the next request is allowed.
+- If 24 hours have passed, the user can submit a new consultation request.
+
+### Removed — Email verification from consult modal
+- Consultation form no longer requires email OTP verification. Users can submit directly without email verification.
+
 ## [2.12.38] — 2026-09-21 — Mobile SMS OTP verification and email verification UX improvements
 
 ### Added — Mobile SMS OTP verification
@@ -12,7 +25,7 @@ All notable changes to this project documented in this file. Format based on Kee
 - Phone verification is required before starting the assessment if a mobile number is provided.
 
 ### Improved — Email verification UX
-- Email OTP confirmation now auto-submits when the user enters 6 digits, removing the extra tap/click.
+- Email verification flow remains manual with Verify button in assessment modal.
 - Faster visual feedback during verification.
 
 ### Fixed — Preloader and Clerk DOM errors

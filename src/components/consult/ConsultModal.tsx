@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useConsult } from "./ConsultContext";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 interface ConsultForm {
   fname: string;
@@ -19,8 +20,6 @@ interface ConsultForm {
   scheduleDate: string;
   scheduleTime: string;
 }
-
-type VerifyState = "idle" | "send" | "verify" | "verified";
 
 const MAX_BOOKING_DAYS = 90;
 
@@ -73,23 +72,18 @@ function CheckCircle() {
 
 export default function ConsultModal() {
   const { isOpen, close, prefill } = useConsult();
+  const { user } = useAuth();
   const t = useTranslations("consult");
   const [form, setForm] = useState<ConsultForm>(initialForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [verifyState, setVerifyState] = useState<VerifyState>("idle");
-  const [otp, setOtp] = useState("");
-  const [verifyError, setVerifyError] = useState("");
-  const [verificationEmail, setVerificationEmail] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
+  const [latestConsultation, setLatestConsultation] = useState<{ created_at: string; schedule_date: string; schedule_time: string; status: string } | null>(null);
+  const [cooldownEnd, setCooldownEnd] = useState<number | null>(null);
+  const [remainingTime, setRemainingTime] = useState<number>(0);
 
   useEffect(() => {
     if (isOpen) {
-      // Robust background scroll-lock for all browsers incl. iPad/iOS touch.
-      // `overflow: hidden` alone does not stop touch scrolling on mobile;
-      // `position: fixed` on body is required to truly lock the page. The
-      // modal overlay is the single scroll container.
       const scrollY = window.scrollY;
       const prevOverflow = document.body.style.overflow;
       const prevPosition = document.body.style.position;
@@ -108,6 +102,39 @@ export default function ConsultModal() {
       document.documentElement.style.overflow = "hidden";
 
       if (prefill) setForm((prev) => ({ ...prev, ...prefill }));
+
+      // Fetch latest consultation for cooldown check
+      const email = user?.email || prefill?.email || "";
+      if (email) {
+        fetch(`/api/consultation-leads?email=${encodeURIComponent(email)}&limit=1`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.data && data.data.length > 0) {
+              const latest = data.data[0];
+              setLatestConsultation(latest);
+              const created = new Date(latest.created_at).getTime();
+              const cooldown = created + 24 * 60 * 60 * 1000;
+              const now = Date.now();
+              if (cooldown > now) {
+                setCooldownEnd(cooldown);
+                setRemainingTime(Math.ceil((cooldown - now) / 1000));
+              } else {
+                setCooldownEnd(null);
+                setRemainingTime(0);
+              }
+            } else {
+              setLatestConsultation(null);
+              setCooldownEnd(null);
+              setRemainingTime(0);
+            }
+          })
+          .catch(() => {
+            setLatestConsultation(null);
+            setCooldownEnd(null);
+            setRemainingTime(0);
+          });
+      }
+
       return () => {
         document.body.style.overflow = prevOverflow;
         document.body.style.position = prevPosition;
@@ -119,7 +146,25 @@ export default function ConsultModal() {
         window.scrollTo(0, scrollY);
       };
     }
-  }, [isOpen]);
+  }, [isOpen, prefill, user?.email]);
+
+  // Countdown timer
+  useEffect(() => {
+    if (!cooldownEnd || remainingTime <= 0) return;
+    const timer = setInterval(() => {
+      const now = Date.now();
+      const left = Math.ceil((cooldownEnd - now) / 1000);
+      if (left <= 0) {
+        setRemainingTime(0);
+        setCooldownEnd(null);
+        setLatestConsultation(null);
+        clearInterval(timer);
+      } else {
+        setRemainingTime(left);
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldownEnd, remainingTime]);
 
   if (!isOpen) return null;
 
@@ -135,7 +180,6 @@ export default function ConsultModal() {
     if (!form.lname.trim()) e.lname = req;
     if (!form.age) e.age = req;
     if (!form.gender) e.gender = req;
-    if (!form.maritalStatus) e.maritalStatus = req;
     if (!form.country.trim()) e.country = req;
     if (!form.city.trim()) e.city = req;
     if (!form.state.trim()) e.state = req;
@@ -148,53 +192,9 @@ export default function ConsultModal() {
     return Object.keys(e).length === 0;
   };
 
-  const sendOtp = async () => {
-    if (!form.email.trim()) return;
-    setVerifyError("");
-    setVerifyState("send");
-    try {
-      const res = await fetch("/api/verify-email/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to send verification code");
-      setVerificationEmail(form.email.trim());
-      setOtpSent(true);
-      setVerifyState("verify");
-    } catch (err) {
-      setVerifyError(err instanceof Error ? err.message : "Failed to send verification code");
-      setVerifyState("idle");
-    }
-  };
-
-  const confirmOtp = async () => {
-    if (!otp.trim() || !verificationEmail) return;
-    setVerifyError("");
-    setVerifyState("send");
-    try {
-      const res = await fetch("/api/verify-email/confirm", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: verificationEmail, code: otp.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Invalid verification code");
-      setVerifyState("verified");
-    } catch (err) {
-      setVerifyError(err instanceof Error ? err.message : "Invalid verification code");
-      setVerifyState("verify");
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    if (verifyState !== "verified") {
-      await sendOtp();
-      return;
-    }
     setSubmitting(true);
     try {
       const res = await fetch("/api/consultation-leads", {
@@ -216,6 +216,13 @@ export default function ConsultModal() {
     setErrors({});
     setSubmitted(false);
     close();
+  };
+
+  const formatTimeLeft = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h}h ${m}m ${s}s`;
   };
 
   return (
@@ -262,6 +269,34 @@ export default function ConsultModal() {
             </h3>
             <p className="m-0 text-[15px] leading-[1.6] text-[#555] text-center max-w-[400px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, marginBottom: "28px" }}>
               {t("successBody")}
+            </p>
+            <button
+              type="button"
+              onClick={resetAndClose}
+              className="bg-[#3B35A3] hover:bg-[#2D2890] text-white text-[15px] font-semibold px-[44px] py-[12px] border-none cursor-pointer transition-colors"
+              style={{ borderRadius: "8px", fontFamily: "Poppins, sans-serif" }}
+            >
+              {t("done")}
+            </button>
+          </div>
+        ) : remainingTime > 0 && latestConsultation ? (
+          /* ----- COOLDOWN ----- */
+          <div className="flex flex-col items-center px-[24px] py-[48px] md:px-[40px]">
+            <div style={{ marginBottom: "20px" }}>
+              <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                <circle cx="32" cy="32" r="30" stroke="#35319B" strokeWidth="3" />
+                <path d="M32 18v18l10 6" stroke="#35319B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <h3 className="m-0 text-[20px] font-semibold text-[#35319B] text-center" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 600, marginBottom: "8px" }}>
+              Consultation Already Scheduled
+            </h3>
+            <p className="m-0 text-[14px] leading-[1.6] text-[#555] text-center max-w-[400px]" style={{ fontFamily: "Poppins, sans-serif", marginBottom: "16px" }}>
+              Your consultation is scheduled for <strong>{latestConsultation.schedule_date}</strong> at <strong>{latestConsultation.schedule_time}</strong>.
+              You can request another consultation after the cooldown period.
+            </p>
+            <p className="m-0 text-[14px] font-medium text-[#35319B] text-center" style={{ fontFamily: "Poppins, sans-serif", marginBottom: "28px" }}>
+              Time remaining: {formatTimeLeft(remainingTime)}
             </p>
             <button
               type="button"
@@ -328,42 +363,6 @@ export default function ConsultModal() {
               <FormField label={t("phone")} value={form.phone} onChange={(v) => update("phone", v)} error={errors.phone} type="tel" />
             </div>
 
-            {verifyState !== "verified" && (
-              <div className="mb-[14px]">
-                <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
-                  Verify Email
-                </label>
-                <div className="flex flex-col sm:flex-row gap-[8px]">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={6}
-                    placeholder="Enter verification code"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                    className="flex-1 px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
-                    style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
-                  />
-                  <button
-                    type="button"
-                    onClick={otpSent ? confirmOtp : sendOtp}
-                    disabled={verifyState === "send" || !form.email.trim() || (!otpSent && !form.email.trim())}
-                    className="px-[16px] py-[10px] text-[13px] font-semibold border-none cursor-pointer transition-colors disabled:opacity-60"
-                    style={{ borderRadius: "8px", background: "#35319B", color: "#FFF", fontFamily: "Poppins, sans-serif", whiteSpace: "nowrap" }}
-                  >
-                    {verifyState === "send" ? "Please wait..." : otpSent ? "Verify Code" : "Send Code"}
-                  </button>
-                </div>
-                {verifyError && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{verifyError}</p>}
-                {otpSent && (
-                  <p className="m-0 text-[12px] mt-[3px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
-                    Verification code sent to {form.email.trim()}
-                  </p>
-                )}
-              </div>
-            )}
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
               <DateField label={t("scheduleDate")} value={form.scheduleDate} onChange={(v) => update("scheduleDate", v)} error={errors.scheduleDate} />
               <TimeField label={t("scheduleTime")} value={form.scheduleTime} onChange={(v) => update("scheduleTime", v)} error={errors.scheduleTime} />
@@ -376,7 +375,7 @@ export default function ConsultModal() {
               className="w-full bg-[#3B35A3] hover:bg-[#2D2890] text-white text-[15px] font-semibold py-[14px] border-none cursor-pointer transition-colors disabled:opacity-70"
               style={{ borderRadius: "10px", fontFamily: "Poppins, sans-serif", letterSpacing: "0.01em" }}
             >
-              {submitting ? "Submitting..." : verifyState === "verified" ? t("submit") : "Verify Email to Submit"}
+              {submitting ? "Submitting..." : t("submit")}
             </button>
           </form>
         )}

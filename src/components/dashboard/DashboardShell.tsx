@@ -156,21 +156,24 @@ export default function DashboardShell({
   const [darkMode, setDarkMode] = useState(false);
   const [donateOpen, setDonateOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
-  const contextMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setIsMounted(true);
-    setIsDesktop(window.innerWidth >= 768);
-    const handler = () => setIsDesktop(window.innerWidth >= 768);
-    window.addEventListener("resize", handler);
-    return () => window.removeEventListener("resize", handler);
-  }, []);
+    if (!avatarOpen) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) setAvatarOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setAvatarOpen(false); };
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [avatarOpen]);
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
-    // Prefer the module cache (set during this SPA session) so navigation
-    // remounts keep the user's choice even if localStorage read is skipped.
     return cachedSidebarCollapsed ?? readSidebarPref();
   });
 
@@ -194,39 +197,6 @@ export default function DashboardShell({
   }, []);
 
   useEffect(() => { setIsMounted(true); }, []);
-
-  useEffect(() => {
-    if (!avatarOpen) return;
-    const onDocClick = (e: MouseEvent) => {
-      if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) setAvatarOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setAvatarOpen(false); };
-    document.addEventListener("mousedown", onDocClick);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDocClick);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [avatarOpen]);
-
-  useEffect(() => {
-    const onContextMenu = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest("header") || target.closest("aside") || target.closest("nav")) return;
-      e.preventDefault();
-      setContextMenu({ x: e.clientX, y: e.clientY });
-    };
-    const onDocClick = () => setContextMenu(null);
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setContextMenu(null); };
-    document.addEventListener("contextmenu", onContextMenu);
-    document.addEventListener("click", onDocClick);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("contextmenu", onContextMenu);
-      document.removeEventListener("click", onDocClick);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, []);
 
   // Apply dark mode on all dashboard pages
   const applyDark = useCallback(() => {
@@ -501,37 +471,6 @@ export default function DashboardShell({
           onLogout={async () => { await logout(); window.location.href = "/login"; }}
           onHome={() => { window.location.href = orgCode ? `/${orgCode}` : "/"; }}
         />
-      )}
-
-      {contextMenu && (
-        <div
-          ref={contextMenuRef}
-          className="fixed z-[1300] rounded-lg overflow-hidden"
-          style={{
-            left: contextMenu.x,
-            top: contextMenu.y,
-            background: "#FFFFFF",
-            border: "1px solid #EFEFF5",
-            boxShadow: "0 12px 32px rgba(23,23,23,0.14)",
-            minWidth: "180px",
-            padding: "6px",
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button
-            type="button"
-            onClick={() => {
-              if (user?.role === "organization_admin") router.push("/admin/dashboard/help");
-              else if (user?.role === "superadmin") router.push("/superadmin/dashboard/help");
-              else router.push("/dashboard/help");
-              setContextMenu(null);
-            }}
-            className="flex items-center gap-[8px] w-full px-[10px] py-[8px] rounded-md border-none bg-transparent cursor-pointer text-left transition-colors"
-            style={{ fontFamily: "Poppins, sans-serif", fontSize: "13px", color: "#171717" }}
-          >
-            <HelpCircle size={16} /> Help & Support
-          </button>
-        </div>
       )}
 
       <div className="md:hidden h-[68px]" />
