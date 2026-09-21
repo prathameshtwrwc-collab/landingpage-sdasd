@@ -218,6 +218,18 @@ CREATE TABLE IF NOT EXISTS email_verifications (
 
 CREATE INDEX IF NOT EXISTS idx_email_verifications_email ON email_verifications(email);
 
+-- ─── Phone Verifications ──────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS phone_verifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  phone TEXT NOT NULL,
+  code TEXT NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  verified BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_phone_verifications_phone ON phone_verifications(phone);
+
 -- ─── Organization Links ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS organization_links (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

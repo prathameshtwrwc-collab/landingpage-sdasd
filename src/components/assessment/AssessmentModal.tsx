@@ -98,6 +98,13 @@ export default function AssessmentModal() {
   const [otpSent, setOtpSent] = useState(false);
   const [showInboxNotice, setShowInboxNotice] = useState(false);
 
+  // Mobile verification
+  const [mobileVerifyState, setMobileVerifyState] = useState<"idle" | "send" | "verify" | "verified">("idle");
+  const [mobileOtp, setMobileOtp] = useState("");
+  const [mobileVerifyError, setMobileVerifyError] = useState("");
+  const [verificationPhone, setVerificationPhone] = useState("");
+  const [mobileOtpSent, setMobileOtpSent] = useState(false);
+
   // Existing member check
   const [existingMember, setExistingMember] = useState<Record<string, unknown> | null>(null);
   const [showExistingMemberModal, setShowExistingMemberModal] = useState(false);
@@ -254,6 +261,59 @@ export default function AssessmentModal() {
     }
   }, [form.email, verificationEmail, verifyState]);
 
+  // Reset mobile verification when phone changes
+  useEffect(() => {
+    const currentPhone = `${form.phoneDial}${form.phone}`;
+    if (mobileVerifyState === "verified" && currentPhone !== verificationPhone) {
+      setMobileVerifyState("idle");
+      setMobileOtp("");
+      setMobileOtpSent(false);
+      setVerificationPhone("");
+      setMobileVerifyError("");
+    }
+  }, [form.phone, form.phoneDial, verificationPhone, mobileVerifyState]);
+
+  const sendMobileOtp = async () => {
+    const fullPhone = `${form.phoneDial}${form.phone}`;
+    if (!fullPhone.trim()) return;
+    setMobileVerifyError("");
+    setMobileVerifyState("send");
+    try {
+      const res = await fetch("/api/verify-phone/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: fullPhone }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to send OTP");
+      setVerificationPhone(fullPhone);
+      setMobileOtpSent(true);
+      setMobileVerifyState("verify");
+    } catch (err) {
+      setMobileVerifyError(err instanceof Error ? err.message : "Failed to send OTP");
+      setMobileVerifyState("idle");
+    }
+  };
+
+  const confirmMobileOtp = async () => {
+    if (!mobileOtp.trim() || !verificationPhone) return;
+    setMobileVerifyError("");
+    setMobileVerifyState("send");
+    try {
+      const res = await fetch("/api/verify-phone/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: verificationPhone, code: mobileOtp.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Invalid verification code");
+      setMobileVerifyState("verified");
+    } catch (err) {
+      setMobileVerifyError(err instanceof Error ? err.message : "Invalid verification code");
+      setMobileVerifyState("verify");
+    }
+  };
+
   // Handle retest for a logged-in member: never show the details form.
   // If the last attempt was left mid-way (STARTED), offer resume / start-over.
   // Otherwise jump straight into a fresh questionnaire.
@@ -406,6 +466,13 @@ export default function AssessmentModal() {
     }
   };
 
+  // Auto-submit email OTP when 6 digits are entered
+  useEffect(() => {
+    if (otpSent && otp.trim().length === 6 && verifyState === "verify") {
+      confirmOtp();
+    }
+  }, [otp, otpSent, verifyState]);
+
   const checkExistingMember = async (email: string): Promise<boolean> => {
     setCheckingExisting(true);
     try {
@@ -522,6 +589,12 @@ export default function AssessmentModal() {
       if (!validateForm()) return;
       if (verifyState !== "verified") {
         await sendOtp();
+        return;
+      }
+
+      const fullPhone = `${form.phoneDial}${form.phone}`;
+      if (fullPhone.trim() && mobileVerifyState !== "verified") {
+        await sendMobileOtp();
         return;
       }
 
@@ -1106,6 +1179,53 @@ export default function AssessmentModal() {
                   />
                 </div>
                 {errors.phone && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{errors.phone}</p>}
+
+                {/* Mobile OTP Verification */}
+                {form.phone.trim() ? (
+                  <div className="mb-[14px] mt-[10px]">
+                    <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
+                      Verify Mobile
+                    </label>
+                    {mobileVerifyState !== "verified" ? (
+                      <div className="flex flex-col sm:flex-row gap-[8px]">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="Enter verification code"
+                          value={mobileOtp}
+                          onChange={(e) => setMobileOtp(e.target.value.replace(/\D/g, ""))}
+                          className="flex-1 px-[13px] py-[10px] text-[14px] bg-white transition-shadow"
+                          style={{ borderRadius: "8px", border: "1.5px solid #D5D5D5", fontFamily: "Poppins, sans-serif" }}
+                        />
+                        <button
+                          type="button"
+                          onClick={mobileOtpSent ? confirmMobileOtp : sendMobileOtp}
+                          disabled={mobileVerifyState === "send" || (!mobileOtpSent && !form.phone.trim())}
+                          className="px-[16px] py-[10px] text-[13px] font-semibold border-none cursor-pointer transition-colors disabled:opacity-60"
+                          style={{ borderRadius: "8px", background: "#35319B", color: "#FFF", fontFamily: "Poppins, sans-serif", whiteSpace: "nowrap" }}
+                        >
+                          {mobileVerifyState === "send" ? "Please wait..." : mobileOtpSent ? "Verify Code" : "Send OTP"}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-[8px]">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span className="text-[13px] font-medium" style={{ color: "#16a34a", fontFamily: "Poppins, sans-serif" }}>
+                          Mobile verified successfully
+                        </span>
+                      </div>
+                    )}
+                    {mobileVerifyError && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{mobileVerifyError}</p>}
+                    {mobileOtpSent && mobileVerifyState !== "verified" && (
+                      <p className="m-0 text-[12px] mt-[3px]" style={{ color: "#555", fontFamily: "Poppins, sans-serif" }}>
+                        OTP sent to {form.phoneDial}{form.phone}
+                      </p>
+                    )}
+                  </div>
+                ) : null}
+
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[14px]">
@@ -1146,7 +1266,15 @@ export default function AssessmentModal() {
               className="w-full bg-[#3B35A3] hover:bg-[#2D2890] text-white text-[15px] font-semibold py-[14px] border-none cursor-pointer transition-colors disabled:opacity-60"
               style={{ borderRadius: "10px", fontFamily: "Poppins, sans-serif", letterSpacing: "0.01em" }}
             >
-              {loading ? t("creatingAccount") : verifyState === "verified" ? t("startAssessment") : "Verify Email to Start"}
+              {loading ? t("creatingAccount") : (() => {
+                const emailVerified = verifyState === "verified";
+                const phoneVerified = mobileVerifyState === "verified";
+                const hasPhone = form.phone.trim().length > 0;
+                if (emailVerified && (!hasPhone || phoneVerified)) return t("startAssessment");
+                if (!emailVerified) return "Verify Email to Start";
+                if (hasPhone && !phoneVerified) return "Verify Mobile to Start";
+                return t("startAssessment");
+              })()}
             </button>
           </div>
         ) : loading && !questions.length ? (

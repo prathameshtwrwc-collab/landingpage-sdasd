@@ -2,6 +2,29 @@
 
 All notable changes to this project documented in this file. Format based on Keep a Changelog, but simple.
 
+## [2.12.38] — 2026-09-21 — Mobile SMS OTP verification and email verification UX improvements
+
+### Added — Mobile SMS OTP verification
+- New phone verification flow in the assessment modal using HanuOTP.
+- `POST /api/verify-phone/send` generates a 6-digit OTP, stores it in Supabase `phone_verifications`, and dispatches it via HanuOTP without DLT.
+- `POST /api/verify-phone/confirm` validates the OTP and marks the phone as verified.
+- Assessment modal now shows a mobile verification block below the phone field with Send OTP → Verify Code → green success state.
+- Phone verification is required before starting the assessment if a mobile number is provided.
+
+### Improved — Email verification UX
+- Email OTP confirmation now auto-submits when the user enters 6 digits, removing the extra tap/click.
+- Faster visual feedback during verification.
+
+### Fixed — Preloader and Clerk DOM errors
+- Preloader now stays visible on slow networks and blocks scroll until the page is fully loaded.
+- Added global error guard to suppress Clerk `insertBefore`/`removeChild` DOM exceptions that were causing Next.js "this page couldn't load" errors during client-side navigation.
+
+### Changed — Performance and bundle optimization
+- Removed `force-dynamic` from homepage to enable static generation.
+- Converted critical `<img>` tags to `next/image` for automatic optimization.
+- Lazy-loaded below-the-fold homepage sections via `next/dynamic`.
+- Translation loading now uses async dynamic imports with caching, reducing initial bundle size.
+
 ## [2.12.37] — 2026-09-09 — Add bulk user selection, bulk delete/move, date filters, and detailed CSV export
 
 ### Added — Bulk user selection and actions
