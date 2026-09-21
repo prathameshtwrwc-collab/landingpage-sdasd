@@ -41,7 +41,7 @@ export async function POST(req: Request) {
       url.searchParams.set("number", tenDigit);
       url.searchParams.set("OTP", code);
       url.searchParams.set("apikey", apiKey);
-      url.searchParams.set("templatesid", "default");
+      url.searchParams.set("templatesid", "61584674");
 
       const resendRes = await fetch(url.toString(), { method: "GET" });
 

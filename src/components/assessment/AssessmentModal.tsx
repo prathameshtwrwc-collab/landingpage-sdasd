@@ -466,13 +466,6 @@ export default function AssessmentModal() {
     }
   };
 
-  // Auto-submit email OTP when 6 digits are entered
-  useEffect(() => {
-    if (otpSent && otp.trim().length === 6 && verifyState === "verify") {
-      confirmOtp();
-    }
-  }, [otp, otpSent, verifyState]);
-
   const checkExistingMember = async (email: string): Promise<boolean> => {
     setCheckingExisting(true);
     try {
