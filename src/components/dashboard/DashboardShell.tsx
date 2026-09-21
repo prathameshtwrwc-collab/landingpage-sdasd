@@ -243,7 +243,7 @@ export default function DashboardShell({
   }
 
   return (
-    <div className={`min-h-screen flex ${darkMode ? "dark" : ""}`} style={{ fontFamily: "Poppins, sans-serif", background: darkMode ? "#0F0F23" : "#F8FAFC", overflowX: "hidden" }}>
+    <div className={`min-h-screen flex ${darkMode ? "dark" : ""}`} style={{ fontFamily: "Poppins, sans-serif", background: darkMode ? "#0F0F23" : "#F8FAFC" }}>
       {/* Dark mode CSS overrides */}
       <style>{`
         .dark .dm-bg-card { background: #1A1A2E !important; }
@@ -353,7 +353,7 @@ export default function DashboardShell({
 
       {/* ── MAIN CONTENT ── */}
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-200`}
-        style={{ marginLeft: isMounted && isDesktop ? (sidebarCollapsed ? "72px" : "260px") : "0px", overflowX: "hidden" }}>
+        style={{ marginLeft: isDesktop ? (sidebarCollapsed ? "72px" : "260px") : "0px" }}>
 
         {/* Top header */}
         <header className="sticky top-0 z-30 flex items-center justify-between px-[14px] md:px-[32px] h-[56px] md:h-[68px]"
