@@ -274,6 +274,7 @@ export default function AssessmentModal() {
   }, [form.phone, form.phoneDial, verificationPhone, mobileVerifyState]);
 
   const sendMobileOtp = async () => {
+    if (form.phoneDial !== "+91") return;
     const fullPhone = `${form.phoneDial}${form.phone}`;
     if (!fullPhone.trim()) return;
     setMobileVerifyError("");
@@ -585,8 +586,9 @@ export default function AssessmentModal() {
         return;
       }
 
+      const isIndianPhone = form.phoneDial === "+91";
       const fullPhone = `${form.phoneDial}${form.phone}`;
-      if (fullPhone.trim() && mobileVerifyState !== "verified") {
+      if (isIndianPhone && fullPhone.trim() && mobileVerifyState !== "verified") {
         await sendMobileOtp();
         return;
       }
@@ -1174,7 +1176,7 @@ export default function AssessmentModal() {
                 {errors.phone && <p className="m-0 text-[12px] text-red-500 mt-[3px]" style={{ fontFamily: "Poppins, sans-serif" }}>{errors.phone}</p>}
 
                 {/* Mobile OTP Verification */}
-                {form.phone.trim() ? (
+                {form.phone.trim() && form.phoneDial === "+91" ? (
                   <div className="mb-[14px] mt-[10px]">
                     <label className="block text-[13px] font-medium text-[#444] mb-[5px]" style={{ fontFamily: "Poppins, sans-serif", fontWeight: 500 }}>
                       Verify Mobile
@@ -1261,11 +1263,11 @@ export default function AssessmentModal() {
             >
               {loading ? t("creatingAccount") : (() => {
                 const emailVerified = verifyState === "verified";
+                const isIndianPhone = form.phoneDial === "+91";
                 const phoneVerified = mobileVerifyState === "verified";
                 const hasPhone = form.phone.trim().length > 0;
-                if (emailVerified && (!hasPhone || phoneVerified)) return t("startAssessment");
                 if (!emailVerified) return "Verify Email to Start";
-                if (hasPhone && !phoneVerified) return "Verify Mobile to Start";
+                if (isIndianPhone && hasPhone && !phoneVerified) return "Verify Mobile to Start";
                 return t("startAssessment");
               })()}
             </button>
