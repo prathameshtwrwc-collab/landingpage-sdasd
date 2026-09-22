@@ -118,6 +118,7 @@ function MobileBottomSheet({
 // Module-level cache so the sidebar preference survives SPA navigation remounts
 // even if React resumes useState from a server snapshot during hydration.
 let cachedSidebarCollapsed: boolean | null = null;
+let sidebarHydrated = false;
 
 const SIDEBAR_KEY = "chronotype_sidebar_collapsed";
 
@@ -157,7 +158,10 @@ export default function DashboardShell({
   const [darkMode, setDarkMode] = useState(false);
   const [donateOpen, setDonateOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
-  const [sidebarReady, setSidebarReady] = useState(false);
+  const [sidebarReady, setSidebarReady] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return sidebarHydrated;
+  });
   const avatarRef = useRef<HTMLDivElement>(null);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
@@ -172,6 +176,7 @@ export default function DashboardShell({
       return prev;
     });
     setSidebarReady(true);
+    sidebarHydrated = true;
   }, []);
 
   const effectiveSidebarCollapsed = sidebarReady ? sidebarCollapsed : false;
