@@ -261,6 +261,12 @@ export async function editAdminInternal(adminId: string, data: Record<string, st
 
 export async function deleteAdminInternal(adminId: string) {
   const supabase = createAdminClient();
+  const { data: admin } = await supabase.from("organization_admins").select("clerk_user_id").eq("id", adminId).maybeSingle();
+  if (admin?.clerk_user_id) {
+    try {
+      await clerkClient.users.deleteUser(admin.clerk_user_id);
+    } catch {}
+  }
   const { error } = await supabase.from("organization_admins").delete().eq("id", adminId);
   if (error) throw new Error(error.message);
   return { success: true };
@@ -295,6 +301,12 @@ export async function editMemberInternal(memberId: string, data: Record<string, 
 
 export async function deleteMemberInternal(memberId: string) {
   const supabase = createAdminClient();
+  const { data: member } = await supabase.from("members").select("clerk_user_id").eq("id", memberId).maybeSingle();
+  if (member?.clerk_user_id) {
+    try {
+      await clerkClient.users.deleteUser(member.clerk_user_id);
+    } catch {}
+  }
   const { error } = await supabase.from("members").delete().eq("id", memberId);
   if (error) throw new Error(error.message);
   return { success: true };
@@ -302,6 +314,16 @@ export async function deleteMemberInternal(memberId: string) {
 
 export async function bulkDeleteMembersInternal(memberIds: string[]) {
   const supabase = createAdminClient();
+  const { data: members } = await supabase.from("members").select("clerk_user_id").in("id", memberIds);
+  if (members) {
+    for (const m of members) {
+      if (m.clerk_user_id) {
+        try {
+          await clerkClient.users.deleteUser(m.clerk_user_id);
+        } catch {}
+      }
+    }
+  }
   const { error } = await supabase.from("members").delete().in("id", memberIds);
   if (error) throw new Error(error.message);
   return { success: true, deleted: memberIds.length };
@@ -309,6 +331,16 @@ export async function bulkDeleteMembersInternal(memberIds: string[]) {
 
 export async function bulkDeleteAdminsInternal(adminIds: string[]) {
   const supabase = createAdminClient();
+  const { data: admins } = await supabase.from("organization_admins").select("clerk_user_id").in("id", adminIds);
+  if (admins) {
+    for (const a of admins) {
+      if (a.clerk_user_id) {
+        try {
+          await clerkClient.users.deleteUser(a.clerk_user_id);
+        } catch {}
+      }
+    }
+  }
   const { error } = await supabase.from("organization_admins").delete().in("id", adminIds);
   if (error) throw new Error(error.message);
   return { success: true, deleted: adminIds.length };
